@@ -4,7 +4,7 @@ import {
   CircleCheck, CircleAlert, AlertTriangle, PanelLeftClose, PanelLeft,
   LayoutDashboard, Code2, Trash2, FilePlus,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../utils/lazyToast';
 import { useWorkflowStore } from '../../stores/workflowStore';
 import { useUIStore } from '../../stores/uiStore';
 

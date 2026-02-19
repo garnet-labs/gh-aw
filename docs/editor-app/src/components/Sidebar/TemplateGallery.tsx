@@ -9,7 +9,7 @@ import {
   Plus,
   type LucideIcon,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '../../utils/lazyToast';
 import { useWorkflowStore } from '../../stores/workflowStore';
 import { templates, templateCategories } from '../../utils/templates';
 import type { WorkflowTemplate } from '../../types/workflow';
