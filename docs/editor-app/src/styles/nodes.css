@@ -1,0 +1,254 @@
+/* React Flow overrides */
+.react-flow__node {
+  cursor: pointer;
+}
+
+/* Base workflow node */
+.workflow-node {
+  width: 240px;
+  min-height: 80px;
+  background: var(--bgColor-default, #ffffff);
+  border: 2px solid var(--node-accent, #57606a);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-width 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+}
+
+[data-color-mode="dark"] .workflow-node {
+  background: var(--bgColor-default, #161b22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.workflow-node:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-color-mode="dark"] .workflow-node:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.workflow-node.selected {
+  border-width: 3px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-accent) 25%, transparent),
+              0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+[data-color-mode="dark"] .workflow-node.selected {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--node-accent) 30%, transparent),
+              0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Node header */
+.workflow-node__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 6px;
+}
+
+.workflow-node__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--node-accent, #57606a);
+  flex-shrink: 0;
+}
+
+.workflow-node__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fgColor-default, #1f2328);
+  line-height: 1.2;
+}
+
+[data-color-mode="dark"] .workflow-node__title {
+  color: var(--fgColor-default, #e6edf3);
+}
+
+/* Node divider */
+.workflow-node__divider {
+  height: 1px;
+  background: var(--borderColor-default, #d1d9e0);
+  margin: 0 12px;
+}
+
+[data-color-mode="dark"] .workflow-node__divider {
+  background: var(--borderColor-default, #30363d);
+}
+
+/* Node content */
+.workflow-node__content {
+  padding: 8px 12px 10px;
+  font-size: 12px;
+  color: var(--fgColor-muted, #656d76);
+  line-height: 1.4;
+}
+
+[data-color-mode="dark"] .workflow-node__content {
+  color: var(--fgColor-muted, #8b949e);
+}
+
+.workflow-node__cta {
+  color: var(--fgColor-accent, #0969da);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+[data-color-mode="dark"] .workflow-node__cta {
+  color: var(--fgColor-accent, #58a6ff);
+}
+
+/* Chip badges */
+.workflow-node__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.workflow-node__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--bgColor-neutral-muted, #afb8c133);
+  color: var(--fgColor-default, #1f2328);
+}
+
+[data-color-mode="dark"] .workflow-node__chip {
+  background: var(--bgColor-neutral-muted, #6e768166);
+  color: var(--fgColor-default, #e6edf3);
+}
+
+/* Permission badge colors */
+.workflow-node__badge--write {
+  color: #1a7f37;
+}
+.workflow-node__badge--read {
+  color: #bf8700;
+}
+
+[data-color-mode="dark"] .workflow-node__badge--write {
+  color: #3fb950;
+}
+[data-color-mode="dark"] .workflow-node__badge--read {
+  color: #d29922;
+}
+
+/* Output checkmarks */
+.workflow-node__check-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.workflow-node__check-item svg {
+  width: 14px;
+  height: 14px;
+  color: var(--node-accent, #0e8a16);
+}
+
+/* Summary count */
+.workflow-node__summary {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--fgColor-muted, #656d76);
+}
+
+[data-color-mode="dark"] .workflow-node__summary {
+  color: var(--fgColor-muted, #8b949e);
+}
+
+/* React Flow handle styling */
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  background: var(--borderColor-default, #d1d9e0);
+  border: 2px solid var(--bgColor-default, #ffffff);
+}
+
+[data-color-mode="dark"] .react-flow__handle {
+  background: var(--borderColor-default, #30363d);
+  border-color: var(--bgColor-default, #161b22);
+}
+
+/* Animated edges */
+.react-flow__edge-path {
+  stroke: var(--borderColor-default, #d1d9e0);
+  stroke-width: 2;
+}
+
+[data-color-mode="dark"] .react-flow__edge-path {
+  stroke: var(--borderColor-default, #30363d);
+}
+
+/* Accent colors as CSS custom properties */
+.node-trigger { --node-accent: #1a7f37; }
+.node-permissions { --node-accent: #bf8700; }
+.node-engine { --node-accent: #0969da; }
+.node-tools { --node-accent: #8250df; }
+.node-instructions { --node-accent: #57606a; }
+.node-safeOutputs { --node-accent: #0e8a16; }
+.node-network { --node-accent: #cf222e; }
+.node-steps { --node-accent: #0550ae; }
+
+[data-color-mode="dark"] .node-trigger { --node-accent: #3fb950; }
+[data-color-mode="dark"] .node-permissions { --node-accent: #d29922; }
+[data-color-mode="dark"] .node-engine { --node-accent: #58a6ff; }
+[data-color-mode="dark"] .node-tools { --node-accent: #bc8cff; }
+[data-color-mode="dark"] .node-instructions { --node-accent: #8b949e; }
+[data-color-mode="dark"] .node-safeOutputs { --node-accent: #2ea043; }
+[data-color-mode="dark"] .node-network { --node-accent: #f85149; }
+[data-color-mode="dark"] .node-steps { --node-accent: #79c0ff; }
+
+/* Node dimming when another node is selected */
+.workflow-node.dimmed {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+/* Empty state on canvas */
+.canvas-empty-state {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  max-width: 400px;
+  padding: 40px;
+}
+
+.canvas-empty-state__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  color: var(--fgColor-muted, #656d76);
+  opacity: 0.5;
+}
+
+.canvas-empty-state__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fgColor-default, #1f2328);
+  margin-bottom: 8px;
+}
+
+[data-color-mode="dark"] .canvas-empty-state__title {
+  color: var(--fgColor-default, #e6edf3);
+}
+
+.canvas-empty-state__description {
+  font-size: 14px;
+  color: var(--fgColor-muted, #656d76);
+}
+
+[data-color-mode="dark"] .canvas-empty-state__description {
+  color: var(--fgColor-muted, #8b949e);
+}
