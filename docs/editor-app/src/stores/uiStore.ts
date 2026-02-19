@@ -1,11 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type SidebarTab = 'palette' | 'templates';
+
 export interface UIState {
   // Panel visibility
   sidebarOpen: boolean;
   propertiesPanelOpen: boolean;
   yamlPreviewOpen: boolean;
+
+  // Sidebar tab
+  sidebarTab: SidebarTab;
 
   // Theme
   theme: 'light' | 'dark' | 'auto';
@@ -25,6 +30,7 @@ export interface UIActions {
   toggleSidebar: () => void;
   togglePropertiesPanel: () => void;
   toggleYamlPreview: () => void;
+  setSidebarTab: (tab: SidebarTab) => void;
   setTheme: (theme: 'light' | 'dark' | 'auto') => void;
   setDisclosureLevel: (level: 1 | 2 | 3) => void;
   setHasSeenOnboarding: (seen: boolean) => void;
@@ -40,6 +46,7 @@ export const useUIStore = create<UIStore>()(
       sidebarOpen: true,
       propertiesPanelOpen: true,
       yamlPreviewOpen: false,
+      sidebarTab: 'palette' as SidebarTab,
       theme: 'auto',
       disclosureLevel: 1,
       hasSeenOnboarding: false,
@@ -49,6 +56,7 @@ export const useUIStore = create<UIStore>()(
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       togglePropertiesPanel: () => set((s) => ({ propertiesPanelOpen: !s.propertiesPanelOpen })),
       toggleYamlPreview: () => set((s) => ({ yamlPreviewOpen: !s.yamlPreviewOpen })),
+      setSidebarTab: (sidebarTab) => set({ sidebarTab }),
       setTheme: (theme) => set({ theme }),
       setDisclosureLevel: (disclosureLevel) => set({ disclosureLevel }),
       setHasSeenOnboarding: (hasSeenOnboarding) => set({ hasSeenOnboarding }),

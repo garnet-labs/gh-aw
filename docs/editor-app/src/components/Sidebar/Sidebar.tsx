@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { NodePalette } from './NodePalette';
 import { TemplateGallery } from './TemplateGallery';
-
-type Tab = 'palette' | 'templates';
+import { useUIStore } from '../../stores/uiStore';
 
 export function Sidebar() {
-  const [activeTab, setActiveTab] = useState<Tab>('palette');
+  const activeTab = useUIStore((s) => s.sidebarTab);
+  const setActiveTab = useUIStore((s) => s.setSidebarTab);
 
   return (
     <div style={{

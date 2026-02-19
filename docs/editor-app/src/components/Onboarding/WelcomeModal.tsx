@@ -1,23 +1,21 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Rocket, LayoutTemplate, X } from 'lucide-react';
 import { useUIStore } from '../../stores/uiStore';
-import { useWorkflowStore } from '../../stores/workflowStore';
-import { templates } from '../../utils/templates';
-import { toast } from 'sonner';
 
 export function WelcomeModal() {
   const setHasSeenOnboarding = useUIStore((s) => s.setHasSeenOnboarding);
-  const loadTemplate = useWorkflowStore((s) => s.loadTemplate);
+  const setSidebarTab = useUIStore((s) => s.setSidebarTab);
+  const sidebarOpen = useUIStore((s) => s.sidebarOpen);
+  const toggleSidebar = useUIStore((s) => s.toggleSidebar);
 
   const handleStartScratch = () => {
     setHasSeenOnboarding(true);
   };
 
   const handleBrowseTemplates = () => {
-    const first = templates.find((t) => t.id !== 'blank-canvas');
-    if (first) {
-      loadTemplate(first);
-      toast.success(`Loaded "${first.name}" template`);
+    setSidebarTab('templates');
+    if (!sidebarOpen) {
+      toggleSidebar();
     }
     setHasSeenOnboarding(true);
   };

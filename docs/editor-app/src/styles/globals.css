@@ -176,6 +176,7 @@ code, pre, .monospace {
   background: color-mix(in srgb, var(--color-warning-fg, #9a6700) 10%, transparent);
 }
 
+/* Legacy textarea (kept for reference) */
 .editor-textarea {
   flex: 1;
   width: 100%;
@@ -194,6 +195,88 @@ code, pre, .monospace {
 
 .editor-textarea::placeholder {
   color: var(--color-fg-subtle, #6e7781);
+}
+
+/* ── Markdown editor with syntax highlighting ──
+ * Uses the "transparent textarea over highlighted pre" overlay pattern.
+ * Both layers share identical font metrics to keep text aligned.
+ */
+.md-editor-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Shared font metrics for both layers */
+.md-editor-highlight,
+.md-editor-textarea {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Highlighted pre layer (underneath) */
+.md-editor-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 12px 12px 12px 0;
+  overflow: auto;
+  pointer-events: none;
+  background: var(--color-bg-default, #ffffff);
+  color: var(--color-fg-default, #1f2328);
+}
+
+.md-editor-line {
+  display: flex;
+  min-height: 20.8px; /* matches 13px * 1.6 line-height */
+}
+
+.md-editor-line-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Transparent textarea on top */
+.md-editor-textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  /* Padding left accounts for line numbers: 40px gutter + 12px right pad = 52px */
+  padding: 12px 12px 12px 52px;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--color-fg-default, #1f2328);
+  overflow: auto;
+  z-index: 1;
+}
+
+.md-editor-textarea::placeholder {
+  color: var(--color-fg-subtle, #6e7781);
+}
+
+/* When textarea has a placeholder visible, keep it readable */
+.md-editor-textarea:placeholder-shown {
+  color: var(--color-fg-subtle, #6e7781);
+}
+
+/* Selection styling: make selected text visible */
+.md-editor-textarea::selection {
+  background: rgba(9, 105, 218, 0.25);
+  color: transparent;
 }
 
 .editor-divider {
