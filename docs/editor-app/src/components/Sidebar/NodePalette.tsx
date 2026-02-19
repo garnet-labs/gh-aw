@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Bell,
   Shield,
@@ -22,12 +23,12 @@ interface PaletteItem {
 }
 
 const PALETTE_ITEMS: PaletteItem[] = [
-  { type: 'trigger', label: 'Trigger', description: 'When to run this workflow', icon: Bell, color: '#1a7f37', category: 'Triggers' },
-  { type: 'permissions', label: 'Permissions', description: 'Access control for the agent', icon: Shield, color: '#bf8700', category: 'Configuration' },
+  { type: 'trigger', label: 'Trigger', description: 'When to run this workflow', icon: Bell, color: '#2da44e', category: 'Triggers' },
+  { type: 'permissions', label: 'Permissions', description: 'Access control for the agent', icon: Shield, color: '#d4a72c', category: 'Configuration' },
   { type: 'engine', label: 'AI Assistant', description: 'Choose which AI to use', icon: Bot, color: '#0969da', category: 'Agent' },
   { type: 'tools', label: 'Tools', description: 'Capabilities for the agent', icon: Wrench, color: '#8250df', category: 'Agent' },
   { type: 'instructions', label: 'Instructions', description: 'Tell the agent what to do', icon: FileText, color: '#57606a', category: 'Agent' },
-  { type: 'safeOutputs', label: 'Safe Outputs', description: 'Actions the agent can take', icon: Send, color: '#0e8a16', category: 'Outputs' },
+  { type: 'safeOutputs', label: 'Safe Outputs', description: 'Actions the agent can take', icon: Send, color: '#1a7f37', category: 'Outputs' },
   { type: 'network', label: 'Network', description: 'Internet access control', icon: Globe, color: '#cf222e', category: 'Advanced' },
   { type: 'steps', label: 'Custom Steps', description: 'Pre/post agent steps', icon: List, color: '#0550ae', category: 'Advanced' },
 ];
@@ -35,10 +36,10 @@ const PALETTE_ITEMS: PaletteItem[] = [
 const CATEGORIES = ['Triggers', 'Configuration', 'Agent', 'Outputs', 'Advanced'];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Triggers: '#1a7f37',
-  Configuration: '#bf8700',
+  Triggers: '#2da44e',
+  Configuration: '#d4a72c',
   Agent: '#8250df',
-  Outputs: '#0e8a16',
+  Outputs: '#1a7f37',
   Advanced: '#57606a',
 };
 
@@ -63,7 +64,7 @@ export function NodePalette() {
               fontWeight: 600,
               textTransform: 'uppercase' as const,
               letterSpacing: 0.5,
-              color: CATEGORY_COLORS[category] || 'var(--fgColor-muted, #656d76)',
+              color: CATEGORY_COLORS[category] || 'var(--color-fg-muted, #656d76)',
             }}>
               {category}
             </div>
@@ -89,27 +90,29 @@ function PaletteItemRow({
   onClick: () => void;
 }) {
   const Icon = item.icon;
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        width: '100%',
-        padding: '8px 16px',
+        width: 'calc(100% - 16px)',
+        margin: '0 8px 2px',
+        padding: '8px 8px',
         border: 'none',
-        background: 'none',
+        borderLeft: `3px solid ${hovered ? item.color : 'transparent'}`,
+        background: hovered ? 'var(--color-bg-subtle, #f6f8fa)' : 'none',
         cursor: 'pointer',
         textAlign: 'left' as const,
-        borderRadius: 0,
-        color: 'var(--fgColor-default, #1f2328)',
+        borderRadius: '0 6px 6px 0',
+        color: 'var(--color-fg-default, #1f2328)',
+        transition: 'background 0.15s ease, border-color 0.15s ease',
       }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.background = 'var(--bgColor-neutral-muted, #afb8c133)')
-      }
-      onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
     >
       <div style={{
         display: 'flex',
@@ -121,14 +124,16 @@ function PaletteItemRow({
         background: `color-mix(in srgb, ${item.color} 12%, transparent)`,
         color: item.color,
         flexShrink: 0,
+        transition: 'transform 0.15s ease',
+        transform: hovered ? 'scale(1.05)' : 'scale(1)',
       }}>
         <Icon size={16} />
       </div>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 500 }}>{item.label}</div>
+        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-fg-default, #1f2328)' }}>{item.label}</div>
         <div style={{
           fontSize: 11,
-          color: 'var(--fgColor-muted, #656d76)',
+          color: 'var(--color-fg-muted, #656d76)',
           lineHeight: 1.3,
         }}>
           {item.description}

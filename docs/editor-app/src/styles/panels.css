@@ -1,12 +1,15 @@
-/* Property panel styles */
+/* ── Property panel styles ── */
 
-/* Outer wrapper from PropertiesPanel — positions close button, no extra padding */
-.panel-wrapper {
+.panel {
+  padding: 16px;
   position: relative;
 }
 
-.panel {
-  padding: 20px;
+.panel--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .panel__header {
@@ -14,7 +17,7 @@
   align-items: center;
   gap: 8px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--borderColor-default, #d1d9e0);
+  border-bottom: 1px solid var(--color-border-default, #d0d7de);
   margin-bottom: 16px;
 }
 
@@ -22,98 +25,134 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  color: var(--color-fg-muted, #656d76);
 }
 
 .panel__title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--fgColor-default, #1f2328);
+  color: var(--color-fg-default, #1f2328);
+}
+
+[data-color-mode="dark"] .panel__title {
+  color: var(--color-fg-default, #e6edf3);
 }
 
 .panel__description {
   font-size: 12px;
+  color: var(--color-fg-muted, #656d76);
+  margin-bottom: 16px;
   line-height: 1.5;
-  color: var(--fgColor-muted, #656d76);
-  margin-bottom: 20px;
+}
+
+[data-color-mode="dark"] .panel__description {
+  color: var(--color-fg-muted, #8b949e);
 }
 
 .panel__section {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-.panel__section:last-child {
-  margin-bottom: 8px;
-}
-
+/* Section title: 12px uppercase muted per DESIGN.MD */
 .panel__section-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--fgColor-muted, #656d76);
+  color: var(--color-fg-muted, #656d76);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--borderColor-muted, #d8dee4);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-muted, #d8dee4);
+}
+
+[data-color-mode="dark"] .panel__section-title {
+  color: var(--color-fg-muted, #8b949e);
+  border-bottom-color: var(--color-border-default, #30363d);
 }
 
 .panel__field {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
+/* Field label: 13px weight 500 per DESIGN.MD */
 .panel__label {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--fgColor-default, #1f2328);
-  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-fg-default, #1f2328);
+  margin-bottom: 4px;
+}
+
+[data-color-mode="dark"] .panel__label {
+  color: var(--color-fg-default, #e6edf3);
 }
 
 .panel__help {
   font-size: 12px;
-  line-height: 1.5;
-  color: var(--fgColor-muted, #656d76);
-  margin-top: 6px;
+  color: var(--color-fg-muted, #656d76);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+[data-color-mode="dark"] .panel__help {
+  color: var(--color-fg-muted, #8b949e);
 }
 
 .panel__info {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 10px 14px;
-  background: var(--bgColor-accent-muted, #ddf4ff);
+  padding: 8px 12px;
+  background: var(--color-accent-bg, #ddf4ff);
   border-radius: 6px;
   font-size: 12px;
-  line-height: 1.5;
-  color: var(--fgColor-default, #1f2328);
+  color: var(--color-fg-default, #1f2328);
   margin-top: 16px;
+  line-height: 1.5;
 }
 
-/* Tool card in tools panel */
+[data-color-mode="dark"] .panel__info {
+  background: color-mix(in srgb, var(--color-accent-fg, #58a6ff) 10%, transparent);
+  color: var(--color-fg-default, #e6edf3);
+}
+
+/* ── Tool card in tools panel ── */
 .tool-card {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--borderColor-default, #d1d9e0);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default, #d0d7de);
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
-}
-
-.tool-card:last-child {
-  margin-bottom: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tool-card:hover {
-  background: var(--bgColor-muted, #f6f8fa);
+  background: var(--color-bg-subtle, #f6f8fa);
+  border-color: var(--color-fg-subtle, #6e7781);
 }
 
 .tool-card.active {
-  border-color: var(--fgColor-accent, #0969da);
-  background: var(--bgColor-accent-muted, #ddf4ff);
+  border-color: var(--color-accent-fg, #0969da);
+  background: color-mix(in srgb, var(--color-accent-fg, #0969da) 6%, transparent);
+}
+
+[data-color-mode="dark"] .tool-card {
+  border-color: var(--color-border-default, #30363d);
+}
+
+[data-color-mode="dark"] .tool-card:hover {
+  background: var(--color-bg-muted, #21262d);
+  border-color: var(--color-fg-subtle, #6e7681);
+}
+
+[data-color-mode="dark"] .tool-card.active {
+  border-color: var(--color-accent-fg, #58a6ff);
+  background: color-mix(in srgb, var(--color-accent-fg, #58a6ff) 8%, transparent);
 }
 
 .tool-card__info {
@@ -123,12 +162,19 @@
 .tool-card__name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--fgColor-default, #1f2328);
+  color: var(--color-fg-default, #1f2328);
+}
+
+[data-color-mode="dark"] .tool-card__name {
+  color: var(--color-fg-default, #e6edf3);
 }
 
 .tool-card__description {
   font-size: 12px;
-  color: var(--fgColor-muted, #656d76);
-  margin-top: 3px;
-  line-height: 1.4;
+  color: var(--color-fg-muted, #656d76);
+  margin-top: 2px;
+}
+
+[data-color-mode="dark"] .tool-card__description {
+  color: var(--color-fg-muted, #8b949e);
 }

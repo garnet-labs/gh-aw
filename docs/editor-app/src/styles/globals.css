@@ -14,36 +14,65 @@ body,
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: #1f2328;
-  background-color: #ffffff;
+  color: var(--color-fg-default, #1f2328);
+  background-color: var(--color-bg-default, #ffffff);
 }
 
 html, body, #root {
   overflow: hidden;
 }
 
+/* ── Light theme (default) ── */
 :root {
   --color-fg-default: #1f2328;
   --color-fg-muted: #656d76;
   --color-fg-subtle: #6e7781;
   --color-bg-default: #ffffff;
   --color-bg-subtle: #f6f8fa;
+  --color-bg-muted: #eaeef2;
   --color-bg-inset: #eff2f5;
   --color-border-default: #d0d7de;
   --color-border-muted: #d8dee4;
   --color-accent-fg: #0969da;
+  --color-accent-bg: #ddf4ff;
   --color-success-fg: #1a7f37;
   --color-danger-fg: #d1242f;
   --color-warning-fg: #9a6700;
 }
 
-/* Three-panel layout */
+/* ── Dark theme ── */
+[data-color-mode="dark"] {
+  --color-fg-default: #e6edf3;
+  --color-fg-muted: #8b949e;
+  --color-fg-subtle: #6e7681;
+  --color-bg-default: #0d1117;
+  --color-bg-subtle: #161b22;
+  --color-bg-muted: #21262d;
+  --color-bg-inset: #010409;
+  --color-border-default: #30363d;
+  --color-border-muted: #21262d;
+  --color-accent-fg: #58a6ff;
+  --color-accent-bg: #388bfd26;
+  --color-success-fg: #3fb950;
+  --color-danger-fg: #f85149;
+  --color-warning-fg: #d29922;
+}
+
+[data-color-mode="dark"] html,
+[data-color-mode="dark"] body,
+[data-color-mode="dark"] #root {
+  color: var(--color-fg-default);
+  background-color: var(--color-bg-default);
+}
+
+/* ── Three-panel layout ── */
 .app-layout {
   display: grid;
-  grid-template-rows: 56px 1fr auto;
+  grid-template-rows: 48px 1fr auto;
   grid-template-columns: 240px 1fr 0;
   height: 100vh;
   width: 100vw;
+  transition: grid-template-columns 0.2s ease-out;
 }
 
 .app-layout.properties-open {
@@ -68,7 +97,9 @@ html, body, #root {
   grid-row: 2;
   overflow-y: auto;
   overflow-x: hidden;
-  border-right: 1px solid var(--color-border-default, #d0d7de);
+  border-right: 1px solid var(--color-border-default);
+  background: var(--color-bg-default);
+  transition: background 0.15s ease;
 }
 
 .app-canvas {
@@ -82,10 +113,12 @@ html, body, #root {
   grid-column: 3;
   grid-row: 2;
   overflow-y: auto;
-  border-left: 1px solid var(--color-border-default, #d0d7de);
+  border-left: 1px solid var(--color-border-default);
+  background: var(--color-bg-default);
+  transition: background 0.15s ease;
 }
 
-/* Scrollbar styling */
+/* ── Scrollbar styling ── */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -95,25 +128,26 @@ html, body, #root {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-default, #d0d7de);
+  background: var(--color-border-default);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-fg-muted, #656d76);
+  background: var(--color-fg-muted);
 }
 
-/* Typography */
+/* ── Typography ── */
 code, pre, .monospace {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* Spinner animation */
+/* ── Spinner animation ── */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-/* Editor mode layout: header spans full width, editor area fills below */
+
+/* ── Editor mode layout ── */
 .app-layout.editor-mode {
   grid-template-columns: 0 1fr 0;
 }
@@ -128,7 +162,7 @@ code, pre, .monospace {
 .editor-view {
   display: flex;
   height: 100%;
-  background: var(--color-bg-default, #ffffff);
+  background: var(--color-bg-default);
 }
 
 .editor-pane {
@@ -146,9 +180,9 @@ code, pre, .monospace {
   padding: 8px 16px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-fg-muted, #656d76);
-  background: var(--color-bg-subtle, #f6f8fa);
-  border-bottom: 1px solid var(--color-border-default, #d0d7de);
+  color: var(--color-fg-muted);
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border-default);
   min-height: 36px;
   flex-shrink: 0;
 }
@@ -161,53 +195,28 @@ code, pre, .monospace {
 .editor-compiling-badge {
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-accent-fg, #0969da);
+  color: var(--color-accent-fg);
   padding: 1px 8px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--color-accent-fg, #0969da) 10%, transparent);
+  background: color-mix(in srgb, var(--color-accent-fg) 10%, transparent);
 }
 
 .editor-warning-count {
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-warning-fg, #9a6700);
+  color: var(--color-warning-fg);
   padding: 1px 8px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--color-warning-fg, #9a6700) 10%, transparent);
+  background: color-mix(in srgb, var(--color-warning-fg) 10%, transparent);
 }
 
-/* Legacy textarea (kept for reference) */
-.editor-textarea {
-  flex: 1;
-  width: 100%;
-  padding: 12px 16px;
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--color-fg-default, #1f2328);
-  background: var(--color-bg-default, #ffffff);
-  border: none;
-  outline: none;
-  resize: none;
-  tab-size: 2;
-  overflow: auto;
-}
-
-.editor-textarea::placeholder {
-  color: var(--color-fg-subtle, #6e7781);
-}
-
-/* ── Markdown editor with syntax highlighting ──
- * Uses the "transparent textarea over highlighted pre" overlay pattern.
- * Both layers share identical font metrics to keep text aligned.
- */
+/* ── Markdown editor with syntax highlighting ── */
 .md-editor-container {
   position: relative;
   flex: 1;
   overflow: hidden;
 }
 
-/* Shared font metrics for both layers */
 .md-editor-highlight,
 .md-editor-textarea {
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
@@ -219,7 +228,6 @@ code, pre, .monospace {
   overflow-wrap: break-word;
 }
 
-/* Highlighted pre layer (underneath) */
 .md-editor-highlight {
   position: absolute;
   top: 0;
@@ -230,13 +238,13 @@ code, pre, .monospace {
   padding: 12px 12px 12px 0;
   overflow: auto;
   pointer-events: none;
-  background: var(--color-bg-default, #ffffff);
-  color: var(--color-fg-default, #1f2328);
+  background: var(--color-bg-default);
+  color: var(--color-fg-default);
 }
 
 .md-editor-line {
   display: flex;
-  min-height: 20.8px; /* matches 13px * 1.6 line-height */
+  min-height: 20.8px;
 }
 
 .md-editor-line-content {
@@ -244,7 +252,6 @@ code, pre, .monospace {
   min-width: 0;
 }
 
-/* Transparent textarea on top */
 .md-editor-textarea {
   position: absolute;
   top: 0;
@@ -252,28 +259,25 @@ code, pre, .monospace {
   width: 100%;
   height: 100%;
   margin: 0;
-  /* Padding left accounts for line numbers: 40px total width (box-sizing: border-box includes the 12px padding-right) */
   padding: 12px 12px 12px 40px;
   border: none;
   outline: none;
   resize: none;
   background: transparent;
   color: transparent;
-  caret-color: var(--color-fg-default, #1f2328);
+  caret-color: var(--color-fg-default);
   overflow: auto;
   z-index: 1;
 }
 
 .md-editor-textarea::placeholder {
-  color: var(--color-fg-subtle, #6e7781);
+  color: var(--color-fg-subtle);
 }
 
-/* When textarea has a placeholder visible, keep it readable */
 .md-editor-textarea:placeholder-shown {
-  color: var(--color-fg-subtle, #6e7781);
+  color: var(--color-fg-subtle);
 }
 
-/* Selection styling: make selected text visible */
 .md-editor-textarea::selection {
   background: rgba(9, 105, 218, 0.25);
   color: transparent;
@@ -281,12 +285,12 @@ code, pre, .monospace {
 
 .editor-divider {
   width: 1px;
-  background: var(--color-border-default, #d0d7de);
+  background: var(--color-border-default);
   flex-shrink: 0;
 }
 
 .editor-pane-right {
-  background: var(--color-bg-subtle, #f6f8fa);
+  background: var(--color-bg-subtle);
 }
 
 .yaml-output {
@@ -296,7 +300,7 @@ code, pre, .monospace {
 
 .yaml-empty-state {
   padding: 24px;
-  color: var(--color-fg-muted, #656d76);
+  color: var(--color-fg-muted);
   font-size: 14px;
   text-align: center;
 }
@@ -306,7 +310,7 @@ code, pre, .monospace {
   width: 40px;
   padding-right: 12px;
   text-align: right;
-  color: #8c959f;
+  color: var(--color-fg-subtle);
   user-select: none;
   flex-shrink: 0;
 }
@@ -315,8 +319,13 @@ code, pre, .monospace {
   padding: 6px 12px;
   background: #fff8c5;
   border-bottom: 1px solid #d4a72c;
-  color: var(--color-warning-fg, #9a6700);
+  color: var(--color-warning-fg);
   font-size: 12px;
+}
+
+[data-color-mode="dark"] .editor-warnings {
+  background: #3b2e00;
+  border-bottom-color: #d29922;
 }
 
 .editor-warning-line {
@@ -327,16 +336,20 @@ code, pre, .monospace {
   padding: 8px 12px;
   background: #ffebe9;
   border-bottom: 1px solid #d1242f;
-  color: var(--color-danger-fg, #d1242f);
+  color: var(--color-danger-fg);
   font-size: 12px;
+}
+
+[data-color-mode="dark"] .editor-error {
+  background: #3d1116;
+  border-bottom-color: #f85149;
 }
 
 
 /* ============================================================
-   Error / Warning / Compiling Panel (grid row at bottom of layout)
+   Error / Warning / Compiling Panel (grid row at bottom)
    ============================================================ */
 
-/* Grid placement for error panel row */
 .app-error-panel {
   grid-column: 1 / -1;
   grid-row: 3;
@@ -359,22 +372,26 @@ code, pre, .monospace {
   animation: errorPanelReveal 0.2s ease-out;
   font-size: 13px;
   padding: 8px 16px;
-/* ---------- Variant: Error ---------- */
+}
+
 .error-panel--error {
   background: #ffebe9;
   border-top: 2px solid #cf222e;
   color: #82071e;
-/* ---------- Variant: Warning ---------- */
+}
+
 .error-panel--warning {
   background: #fff8c5;
   border-top: 2px solid #d4a72c;
   color: #6c4a00;
-/* ---------- Variant: Compiling ---------- */
+}
+
 .error-panel--compiling {
   background: #ddf4ff;
   border-top: 2px solid #0969da;
   color: #0550ae;
-/* ---------- Layout ---------- */
+}
+
 .error-panel__header {
   gap: 8px;
   min-height: 28px;
@@ -387,10 +404,17 @@ code, pre, .monospace {
 }
 
 .error-panel__title strong {
+  font-weight: 600;
+}
+
 .error-panel__label {
   opacity: 0.85;
+}
+
 .error-panel__message {
   opacity: 0.85;
+}
+
 .error-panel__dismiss {
   display: flex;
   align-items: center;
@@ -402,6 +426,8 @@ code, pre, .monospace {
   border-radius: 4px;
   color: inherit;
   opacity: 0.7;
+}
+
 .error-panel__dismiss:hover {
   opacity: 1;
   background: rgba(0, 0, 0, 0.08);
@@ -412,13 +438,19 @@ code, pre, .monospace {
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
 .error-panel__list {
   margin: 4px 0 0 20px;
   padding: 0;
   list-style: disc;
+}
+
 .error-panel__list-item {
   font-size: 13px;
   line-height: 1.6;
+}
+
 .error-panel__expand {
   display: inline-flex;
   align-items: center;
@@ -433,26 +465,40 @@ code, pre, .monospace {
   opacity: 0.75;
   padding: 2px 4px;
   border-radius: 4px;
+}
+
 .error-panel__expand:hover {
   opacity: 1;
   background: rgba(0, 0, 0, 0.06);
+}
+
 .error-panel__spinner {
   animation: spin 1s linear infinite;
-/* ---------- Dark mode ---------- */
+}
+
+/* Error panel dark mode */
 [data-color-mode="dark"] .error-panel--error {
   background: #3d1116;
   border-top-color: #f85149;
   color: #ffa198;
+}
+
 [data-color-mode="dark"] .error-panel--warning {
   background: #3b2e00;
   border-top-color: #d29922;
   color: #e3b341;
+}
+
 [data-color-mode="dark"] .error-panel--compiling {
   background: #0c2d6b;
   border-top-color: #58a6ff;
   color: #a5d6ff;
+}
+
 [data-color-mode="dark"] .error-panel__dismiss:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
 [data-color-mode="dark"] .error-panel__expand:hover {
   background: rgba(255, 255, 255, 0.08);
 }

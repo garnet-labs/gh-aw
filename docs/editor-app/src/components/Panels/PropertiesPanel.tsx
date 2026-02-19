@@ -7,7 +7,7 @@ import { InstructionsPanel } from './InstructionsPanel';
 import { SafeOutputsPanel } from './SafeOutputsPanel';
 import { NetworkPanel } from './NetworkPanel';
 import { StepsPanel } from './StepsPanel';
-import { X } from 'lucide-react';
+import { X, MousePointer2 } from 'lucide-react';
 
 const panelMap: Record<string, React.FC> = {
   trigger: TriggerPanel,
@@ -27,9 +27,23 @@ export function PropertiesPanel() {
   if (!selectedNodeId) {
     return (
       <div className="panel panel--empty">
-        <p style={{ color: 'var(--fgColor-muted, #656d76)', fontSize: 14, textAlign: 'center', padding: 32 }}>
-          Select a block on the canvas to configure it
-        </p>
+        <div style={{ textAlign: 'center', padding: 32 }}>
+          <MousePointer2
+            size={48}
+            style={{
+              color: 'var(--color-fg-muted, #656d76)',
+              opacity: 0.35,
+              marginBottom: 12,
+            }}
+          />
+          <p style={{
+            color: 'var(--color-fg-muted, #656d76)',
+            fontSize: 14,
+            lineHeight: 1.5,
+          }}>
+            Select a block on the canvas<br />to configure it
+          </p>
+        </div>
       </div>
     );
   }
@@ -39,7 +53,7 @@ export function PropertiesPanel() {
   if (!PanelComponent) {
     return (
       <div className="panel">
-        <p style={{ color: 'var(--fgColor-muted, #656d76)', fontSize: 14, padding: 16 }}>
+        <p style={{ color: 'var(--color-fg-muted, #656d76)', fontSize: 14, padding: 16 }}>
           No configuration available for this block.
         </p>
       </div>
@@ -47,15 +61,16 @@ export function PropertiesPanel() {
   }
 
   return (
-    <div className="panel-wrapper">
+    <div className="panel">
       <button
         className="panel__close-btn"
         onClick={() => selectNode(null)}
         title="Close panel"
         style={{
-          position: 'absolute', top: 12, right: 12, background: 'none', border: 'none',
-          cursor: 'pointer', padding: 4, borderRadius: 4, color: 'var(--fgColor-muted, #656d76)',
-          zIndex: 1,
+          position: 'absolute', top: 8, right: 8, background: 'none', border: 'none',
+          cursor: 'pointer', padding: 4, borderRadius: 4,
+          color: 'var(--color-fg-muted, #656d76)',
+          transition: 'background 0.15s ease',
         }}
       >
         <X size={16} />

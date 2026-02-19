@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Rocket, LayoutTemplate, X } from 'lucide-react';
 import { useUIStore } from '../../stores/uiStore';
@@ -34,13 +35,14 @@ export function WelcomeModal() {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          background: 'var(--bgColor-default, #ffffff)',
+          background: 'var(--color-bg-default, #ffffff)',
           borderRadius: 16,
           padding: 32,
           width: 480,
           maxWidth: '90vw',
           zIndex: 1001,
           boxShadow: '0 16px 48px rgba(0, 0, 0, 0.2)',
+          border: '1px solid var(--color-border-default, #d0d7de)',
         }}>
           <Dialog.Close asChild>
             <button style={{
@@ -50,8 +52,10 @@ export function WelcomeModal() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--fgColor-muted, #656d76)',
+              color: 'var(--color-fg-muted, #656d76)',
               padding: 4,
+              borderRadius: 4,
+              transition: 'background 0.15s ease',
             }}>
               <X size={18} />
             </button>
@@ -61,18 +65,18 @@ export function WelcomeModal() {
             fontSize: 22,
             fontWeight: 700,
             marginBottom: 8,
-            color: 'var(--fgColor-default, #1f2328)',
+            color: 'var(--color-fg-default, #1f2328)',
           }}>
             Welcome to the Workflow Builder!
           </Dialog.Title>
 
           <Dialog.Description style={{
             fontSize: 14,
-            color: 'var(--fgColor-muted, #656d76)',
+            color: 'var(--color-fg-muted, #656d76)',
             marginBottom: 24,
             lineHeight: 1.5,
           }}>
-            Create AI-powered GitHub workflows visually — no coding required.
+            Create AI-powered GitHub workflows visually -- no coding required.
           </Dialog.Description>
 
           <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
@@ -106,9 +110,13 @@ function OptionCard({
   description: string;
   onClick: () => void;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         flex: 1,
         display: 'flex',
@@ -116,33 +124,26 @@ function OptionCard({
         alignItems: 'center',
         gap: 8,
         padding: 20,
-        border: '1px solid var(--borderColor-default, #d1d9e0)',
+        border: `1px solid ${hovered ? 'var(--color-accent-fg, #0969da)' : 'var(--color-border-default, #d0d7de)'}`,
         borderRadius: 12,
-        background: 'var(--bgColor-default, #ffffff)',
+        background: hovered ? 'var(--color-bg-subtle, #f6f8fa)' : 'var(--color-bg-default, #ffffff)',
         cursor: 'pointer',
         textAlign: 'center' as const,
-        transition: 'border-color 0.15s, box-shadow 0.15s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'var(--fgColor-accent, #0969da)';
-        e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, #0969da 15%, transparent)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'var(--borderColor-default, #d1d9e0)';
-        e.currentTarget.style.boxShadow = 'none';
+        boxShadow: hovered ? '0 0 0 3px color-mix(in srgb, var(--color-accent-fg, #0969da) 15%, transparent)' : 'none',
+        transition: 'border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
       }}
     >
-      <div style={{ color: 'var(--fgColor-accent, #0969da)' }}>{icon}</div>
+      <div style={{ color: 'var(--color-accent-fg, #0969da)' }}>{icon}</div>
       <div style={{
         fontSize: 14,
         fontWeight: 600,
-        color: 'var(--fgColor-default, #1f2328)',
+        color: 'var(--color-fg-default, #1f2328)',
       }}>
         {title}
       </div>
       <div style={{
         fontSize: 12,
-        color: 'var(--fgColor-muted, #656d76)',
+        color: 'var(--color-fg-muted, #656d76)',
         lineHeight: 1.4,
       }}>
         {description}

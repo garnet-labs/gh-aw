@@ -38,7 +38,7 @@ const nodeTypes: NodeTypes = {
   steps: StepsNode,
 };
 
-const NODE_WIDTH = 240;
+const NODE_WIDTH = 260;
 const NODE_HEIGHT = 120;
 
 interface NodeDef {

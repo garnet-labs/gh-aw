@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NodePalette } from './NodePalette';
 import { TemplateGallery } from './TemplateGallery';
 import { useUIStore } from '../../stores/uiStore';
@@ -11,12 +12,13 @@ export function Sidebar() {
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      background: 'var(--bgColor-default, #ffffff)',
+      background: 'var(--color-bg-default, #ffffff)',
     }}>
       {/* Tab bar */}
       <div style={{
         display: 'flex',
-        borderBottom: '1px solid var(--borderColor-default, #d1d9e0)',
+        borderBottom: '1px solid var(--color-border-default, #d0d7de)',
+        flexShrink: 0,
       }}>
         <TabButton
           label="Blocks"
@@ -47,9 +49,13 @@ function TabButton({
   active: boolean;
   onClick: () => void;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         flex: 1,
         padding: '10px 0',
@@ -57,13 +63,14 @@ function TabButton({
         fontWeight: active ? 600 : 400,
         border: 'none',
         borderBottom: active
-          ? '2px solid var(--fgColor-accent, #0969da)'
+          ? '2px solid var(--color-accent-fg, #0969da)'
           : '2px solid transparent',
-        background: 'none',
+        background: hovered && !active ? 'var(--color-bg-subtle, #f6f8fa)' : 'none',
         color: active
-          ? 'var(--fgColor-default, #1f2328)'
-          : 'var(--fgColor-muted, #656d76)',
+          ? 'var(--color-fg-default, #1f2328)'
+          : 'var(--color-fg-muted, #656d76)',
         cursor: 'pointer',
+        transition: 'color 0.15s ease, border-color 0.15s ease, background 0.15s ease',
       }}
     >
       {label}

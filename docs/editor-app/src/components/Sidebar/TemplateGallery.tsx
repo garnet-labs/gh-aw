@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   GitPullRequest,
   Tag,
@@ -46,7 +47,7 @@ export function TemplateGallery() {
               fontWeight: 600,
               textTransform: 'uppercase' as const,
               letterSpacing: 0.5,
-              color: 'var(--fgColor-muted, #656d76)',
+              color: 'var(--color-fg-muted, #656d76)',
             }}>
               {category}
             </div>
@@ -72,27 +73,27 @@ function TemplateCard({
   onSelect: () => void;
 }) {
   const Icon = ICON_MAP[template.icon] || Plus;
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
       onClick={onSelect}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         gap: 10,
         width: '100%',
         padding: 10,
         marginBottom: 4,
-        border: '1px solid var(--borderColor-default, #d1d9e0)',
+        border: `1px solid ${hovered ? 'var(--color-fg-subtle, #6e7781)' : 'var(--color-border-default, #d0d7de)'}`,
         borderRadius: 8,
-        background: 'var(--bgColor-default, #ffffff)',
+        background: hovered ? 'var(--color-bg-subtle, #f6f8fa)' : 'var(--color-bg-default, #ffffff)',
         cursor: 'pointer',
         textAlign: 'left' as const,
-        transition: 'box-shadow 0.15s',
+        boxShadow: hovered ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
+        transition: 'box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease',
       }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)')
-      }
-      onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
     >
       <div style={{
         display: 'flex',
@@ -101,9 +102,11 @@ function TemplateCard({
         width: 32,
         height: 32,
         borderRadius: 8,
-        background: 'var(--bgColor-neutral-muted, #afb8c133)',
-        color: 'var(--fgColor-muted, #656d76)',
+        background: 'var(--color-bg-muted, #eaeef2)',
+        color: 'var(--color-fg-muted, #656d76)',
         flexShrink: 0,
+        transition: 'transform 0.15s ease',
+        transform: hovered ? 'scale(1.05)' : 'scale(1)',
       }}>
         <Icon size={16} />
       </div>
@@ -111,14 +114,14 @@ function TemplateCard({
         <div style={{
           fontSize: 13,
           fontWeight: 600,
-          color: 'var(--fgColor-default, #1f2328)',
+          color: 'var(--color-fg-default, #1f2328)',
           marginBottom: 2,
         }}>
           {template.name}
         </div>
         <div style={{
           fontSize: 11,
-          color: 'var(--fgColor-muted, #656d76)',
+          color: 'var(--color-fg-muted, #656d76)',
           lineHeight: 1.3,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
