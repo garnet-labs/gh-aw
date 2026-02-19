@@ -8,6 +8,8 @@ import { WorkflowGraph } from './components/Canvas/WorkflowGraph';
 import { WelcomeModal } from './components/Onboarding/WelcomeModal';
 import { PropertiesPanel } from './components/Panels/PropertiesPanel';
 import { YamlPreview } from './components/YamlPreview/YamlPreview';
+import { EditorView } from './components/EditorView/EditorView';
+import { ErrorPanel } from './components/ErrorPanel/ErrorPanel';
 import { useUIStore } from './stores/uiStore';
 import { useWorkflowStore } from './stores/workflowStore';
 import { useAutoCompile } from './hooks/useAutoCompile';
@@ -25,12 +27,12 @@ export default function App() {
   } = useUIStore();
 
   const selectedNodeId = useWorkflowStore((s) => s.selectedNodeId);
+  const viewMode = useWorkflowStore((s) => s.viewMode);
   const setIsReady = useWorkflowStore((s) => s.setIsReady);
   const setError = useWorkflowStore((s) => s.setError);
 
   // Initialize WASM compiler
   useEffect(() => {
-    // WASM files are in public/wasm/ → served at BASE_URL/wasm/
     const wasmPath = `${import.meta.env.BASE_URL}wasm/`;
     initCompiler(wasmPath)
       .then(() => setIsReady(true))
@@ -40,10 +42,8 @@ export default function App() {
       });
   }, [setIsReady, setError]);
 
-  // Enable auto-compilation
   useAutoCompile();
 
-  // Resolve theme for <html> attribute
   useEffect(() => {
     const resolveAndApply = (mode: typeof theme) => {
       if (mode === 'auto') {
@@ -53,9 +53,7 @@ export default function App() {
         document.documentElement.setAttribute('data-color-mode', mode);
       }
     };
-
     resolveAndApply(theme);
-
     if (theme === 'auto') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       const handler = () => resolveAndApply('auto');
@@ -68,15 +66,15 @@ export default function App() {
     ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     : theme;
 
-  const showProperties = propertiesPanelOpen && selectedNodeId !== null;
+  const isVisualMode = viewMode === 'visual';
+  const showProperties = isVisualMode && propertiesPanelOpen && selectedNodeId !== null;
 
   const layoutClasses = [
     'app-layout',
-    sidebarOpen ? '' : 'sidebar-collapsed',
+    !isVisualMode ? 'editor-mode' : '',
+    sidebarOpen && isVisualMode ? '' : 'sidebar-collapsed',
     showProperties ? 'properties-open' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
+  ].filter(Boolean).join(' ');
 
   return (
     <ThemeProvider colorMode={resolvedTheme === 'dark' ? 'night' : 'day'}>
@@ -85,21 +83,30 @@ export default function App() {
           <div className="app-header">
             <Header />
           </div>
-          <div className="app-sidebar">
-            {sidebarOpen && <Sidebar />}
-          </div>
-          <div className="app-canvas">
-            <ReactFlowProvider>
-              <WorkflowGraph />
-            </ReactFlowProvider>
-          </div>
-          {showProperties && (
-            <div className="app-properties">
-              <PropertiesPanel />
+          {isVisualMode ? (
+            <>
+              <div className="app-sidebar">
+                {sidebarOpen && <Sidebar />}
+              </div>
+              <div className="app-canvas">
+                <ReactFlowProvider>
+                  <WorkflowGraph />
+                </ReactFlowProvider>
+              </div>
+              {showProperties && (
+                <div className="app-properties">
+                  <PropertiesPanel />
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="app-editor">
+              <EditorView />
             </div>
           )}
         </div>
-        <YamlPreview />
+        {isVisualMode && <YamlPreview />}
+        <ErrorPanel />
         {!hasSeenOnboarding && <WelcomeModal />}
         <Toaster position="bottom-right" />
       </BaseStyles>

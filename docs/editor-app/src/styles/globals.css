@@ -113,3 +113,262 @@ code, pre, .monospace {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+/* Editor mode layout: header spans full width, editor area fills below */
+.app-layout.editor-mode {
+  grid-template-columns: 0 1fr 0;
+}
+
+.app-editor {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  overflow: hidden;
+}
+
+/* ── Editor View ── */
+.editor-view {
+  display: flex;
+  height: 100%;
+  background: var(--color-bg-default, #ffffff);
+}
+
+.editor-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.editor-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-fg-muted, #656d76);
+  background: var(--color-bg-subtle, #f6f8fa);
+  border-bottom: 1px solid var(--color-border-default, #d0d7de);
+  min-height: 36px;
+  flex-shrink: 0;
+}
+
+.editor-pane-title {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.editor-compiling-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-accent-fg, #0969da);
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-accent-fg, #0969da) 10%, transparent);
+}
+
+.editor-warning-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-warning-fg, #9a6700);
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-warning-fg, #9a6700) 10%, transparent);
+}
+
+.editor-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-fg-default, #1f2328);
+  background: var(--color-bg-default, #ffffff);
+  border: none;
+  outline: none;
+  resize: none;
+  tab-size: 2;
+  overflow: auto;
+}
+
+.editor-textarea::placeholder {
+  color: var(--color-fg-subtle, #6e7781);
+}
+
+.editor-divider {
+  width: 1px;
+  background: var(--color-border-default, #d0d7de);
+  flex-shrink: 0;
+}
+
+.editor-pane-right {
+  background: var(--color-bg-subtle, #f6f8fa);
+}
+
+.yaml-output {
+  flex: 1;
+  overflow: auto;
+}
+
+.yaml-empty-state {
+  padding: 24px;
+  color: var(--color-fg-muted, #656d76);
+  font-size: 14px;
+  text-align: center;
+}
+
+.editor-line-number {
+  display: inline-block;
+  width: 40px;
+  padding-right: 12px;
+  text-align: right;
+  color: #8c959f;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.editor-warnings {
+  padding: 6px 12px;
+  background: #fff8c5;
+  border-bottom: 1px solid #d4a72c;
+  color: var(--color-warning-fg, #9a6700);
+  font-size: 12px;
+}
+
+.editor-warning-line {
+  padding: 2px 0;
+}
+
+.editor-error {
+  padding: 8px 12px;
+  background: #ffebe9;
+  border-bottom: 1px solid #d1242f;
+  color: var(--color-danger-fg, #d1242f);
+  font-size: 12px;
+}
+
+
+/* ============================================================
+   Error / Warning / Compiling Panel (bottom of viewport)
+   ============================================================ */
+
+@keyframes errorPanelSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.error-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  max-height: 200px;
+  overflow-y: auto;
+  animation: errorPanelSlideUp 0.2s ease-out;
+  font-size: 13px;
+  padding: 8px 16px;
+/* ---------- Variant: Error ---------- */
+.error-panel--error {
+  background: #ffebe9;
+  border-top: 2px solid #cf222e;
+  color: #82071e;
+/* ---------- Variant: Warning ---------- */
+.error-panel--warning {
+  background: #fff8c5;
+  border-top: 2px solid #d4a72c;
+  color: #6c4a00;
+/* ---------- Variant: Compiling ---------- */
+.error-panel--compiling {
+  background: #ddf4ff;
+  border-top: 2px solid #0969da;
+  color: #0550ae;
+/* ---------- Layout ---------- */
+.error-panel__header {
+  gap: 8px;
+  min-height: 28px;
+}
+
+.error-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.error-panel__title strong {
+.error-panel__label {
+  opacity: 0.85;
+.error-panel__message {
+  opacity: 0.85;
+.error-panel__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  color: inherit;
+  opacity: 0.7;
+.error-panel__dismiss:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.error-panel__body {
+  margin-top: 4px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+.error-panel__list {
+  margin: 4px 0 0 20px;
+  padding: 0;
+  list-style: disc;
+.error-panel__list-item {
+  font-size: 13px;
+  line-height: 1.6;
+.error-panel__expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.75;
+  padding: 2px 4px;
+  border-radius: 4px;
+.error-panel__expand:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+.error-panel__spinner {
+  animation: spin 1s linear infinite;
+/* ---------- Dark mode ---------- */
+[data-color-mode="dark"] .error-panel--error {
+  background: #3d1116;
+  border-top-color: #f85149;
+  color: #ffa198;
+[data-color-mode="dark"] .error-panel--warning {
+  background: #3b2e00;
+  border-top-color: #d29922;
+  color: #e3b341;
+[data-color-mode="dark"] .error-panel--compiling {
+  background: #0c2d6b;
+  border-top-color: #58a6ff;
+  color: #a5d6ff;
+[data-color-mode="dark"] .error-panel__dismiss:hover {
+  background: rgba(255, 255, 255, 0.1);
+[data-color-mode="dark"] .error-panel__expand:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
