@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-  Sun, Moon, Play, Download, Copy, ChevronDown, Loader2,
+  Play, Download, Copy, ChevronDown, Loader2,
   CircleCheck, CircleAlert, AlertTriangle, PanelLeftClose, PanelLeft,
   LayoutDashboard, Code2, Trash2, FilePlus,
 } from 'lucide-react';
@@ -20,7 +20,7 @@ export function Header() {
   const setViewMode = useWorkflowStore((s) => s.setViewMode);
 
   const {
-    autoCompile, setAutoCompile, theme, setTheme,
+    autoCompile, setAutoCompile,
     sidebarOpen, toggleSidebar,
   } = useUIStore();
 
@@ -47,10 +47,6 @@ export function Header() {
     : <CircleCheck size={14} />;
   const statusColor = isCompiling ? 'var(--color-accent-fg, #0969da)' : error ? 'var(--color-danger-fg, #cf222e)' : hasWarnings ? 'var(--color-warning-fg, #d4a72c)' : 'var(--color-success-fg, #1a7f37)';
   const statusText = isCompiling ? 'Compiling...' : error ? 'Error' : hasWarnings ? `${warnings.length} warning${warnings.length !== 1 ? 's' : ''}` : 'Ready';
-
-  const resolvedTheme = theme === 'auto'
-    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    : theme;
 
   const handleClear = () => {
     if (!window.confirm('Are you sure? This will clear your entire workflow.')) return;
@@ -197,11 +193,6 @@ export function Header() {
         )}
       </div>
 
-      {/* Theme toggle */}
-      <button onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')} style={iconButtonStyle}
-        title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}>
-        {resolvedTheme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-      </button>
     </header>
   );
 }

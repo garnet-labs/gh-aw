@@ -22,7 +22,7 @@ const scopes: PermissionScope[] = [
   'statuses',
 ];
 
-const levels: PermissionLevel[] = ['none', 'read', 'write'];
+const levels: PermissionLevel[] = ['read', 'write'];
 
 export function PermissionsPanel() {
   const permissions = useWorkflowStore((s) => s.permissions);
@@ -30,15 +30,7 @@ export function PermissionsPanel() {
   const desc = getFieldDescription('permissions');
 
   const setLevel = (scope: PermissionScope, level: PermissionLevel) => {
-    if (level === 'none') {
-      // Remove from map to keep it clean
-      const next = { ...permissions };
-      delete next[scope];
-      // Use setPermissions with full override by first clearing
-      useWorkflowStore.setState({ permissions: next });
-    } else {
-      setPermissions({ [scope]: level });
-    }
+    setPermissions({ [scope]: level });
   };
 
   return (
@@ -59,7 +51,7 @@ export function PermissionsPanel() {
         {/* Rows */}
         {scopes.map((scope) => {
           const fd = getFieldDescription(`permission.${scope}`);
-          const current = permissions[scope] ?? 'none';
+          const current = permissions[scope] ?? 'read';
           return (
             <div key={scope} style={rowStyle}>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -105,10 +97,8 @@ function activeSegmentStyle(level: PermissionLevel): React.CSSProperties {
     case 'write':
       return { backgroundColor: '#ddf4ff', color: '#0969da', borderColor: '#0969da' };
     case 'read':
-      return { backgroundColor: '#dafbe1', color: '#1a7f37', borderColor: '#1a7f37' };
-    case 'none':
     default:
-      return { backgroundColor: '#f6f8fa', color: '#656d76', borderColor: '#d0d7de' };
+      return { backgroundColor: '#dafbe1', color: '#1a7f37', borderColor: '#1a7f37' };
   }
 }
 

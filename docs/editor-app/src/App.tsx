@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ThemeProvider, BaseStyles } from '@primer/react';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Toaster } from 'sonner';
@@ -22,7 +22,6 @@ export default function App() {
   const {
     sidebarOpen,
     propertiesPanelOpen,
-    theme,
     hasSeenOnboarding,
   } = useUIStore();
 
@@ -44,27 +43,22 @@ export default function App() {
 
   useAutoCompile();
 
-  useEffect(() => {
-    const resolveAndApply = (mode: typeof theme) => {
-      if (mode === 'auto') {
-        const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-color-mode', dark ? 'dark' : 'light');
-      } else {
-        document.documentElement.setAttribute('data-color-mode', mode);
-      }
-    };
-    resolveAndApply(theme);
-    if (theme === 'auto') {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      const handler = () => resolveAndApply('auto');
-      mq.addEventListener('change', handler);
-      return () => mq.removeEventListener('change', handler);
-    }
-  }, [theme]);
+  // Always follow browser preference for dark/light mode
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  );
 
-  const resolvedTheme = theme === 'auto'
-    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    : theme;
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => {
+      const mode = mq.matches ? 'dark' : 'light';
+      setResolvedTheme(mode);
+      document.documentElement.setAttribute('data-color-mode', mode);
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
 
   const isVisualMode = viewMode === 'visual';
   const showProperties = isVisualMode && propertiesPanelOpen && selectedNodeId !== null;
