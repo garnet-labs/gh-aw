@@ -1,8 +1,7 @@
-## Known Patterns (2026-02-10)
+## Known Patterns (2026-02-23)
 
-- Copilot token usage remains concentrated in a small set of workflows; CI Failure Doctor and Chroma Issue Indexer dominate token share, while Test Dispatcher Workflow drives run volume.
-- Copilot session outcomes are heavily "action_required" by design; executor-style agents show higher completion, while advisory agents remain non-autonomous.
-- GitHub MCP tool response bloat persists for list_code_scanning_alerts and list_workflows; GraphQL tools (list_discussions, list_issues) remain efficient.
-- Firewall reports show consistent high block rates dominated by unresolved DNS entries, with proxy.golang.org repeatedly blocked for Go-related workflows.
-- Safe output pipeline health is strong with 100% success in the last 24h and no MCP/API failures.
-- Copilot agent PR success rate is trending down (55% to 45% over 3 days) despite improved turnaround time.
+- Copilot token usage remains concentrated in a few workflows, with Chroma Issue Indexer, CI Failure Doctor, and Contribution Check among the top consumers.
+- Issue Monster shows repeated agent-startup failures with zero tokens, suggesting pre-agent validation or secret checks are failing.
+- Safe output pipeline health is stable at 100% success over the last two days.
+- MCP tool availability and response size remain uneven: list_discussions and search tools are efficient, while list_workflows ignores per_page and list_code_scanning_alerts is heavy; get_me and list_notifications return 403.
+- Observability gaps persist for MCP telemetry (missing gateway.jsonl) and partial firewall access.log coverage, especially for Issue Monster and PR Triage Agent.

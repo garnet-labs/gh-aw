@@ -1,7 +1,9 @@
-## Flagged Items for Monitoring (2026-02-10)
+## Flagged Items for Monitoring (2026-02-23)
 
-- test-workflow.yml shows 100% failure rate (7/7) in Copilot Session Insights; urgent remediation needed.
-- GitHub Remote MCP toolsets not loading in runner (auth-test), blocking GitHub MCP usage in that workflow.
-- Schema consistency check found critical duplication (timeout_minutes vs timeout-minutes) and missing labels validation in compiler pipeline.
-- Firewall report highlights persistent proxy.golang.org blocks for Changeset Generator; assess allowlist needs.
-- Copilot agent PR success rate declining to 45% (down from 55%); monitor task scoping/quality.
+- MCP gateway.jsonl missing in all MCP-enabled runs, leaving a telemetry gap.
+- Firewall access.log missing in multiple Issue Monster and PR Triage Agent runs.
+- Issue Monster recurring agent-startup failures with zero tokens; likely lockdown token or secret validation problem.
+- Seven validator files exceed 300 lines, with strict_mode_validation.go at 566 lines.
+- Schema consistency findings: firewall support description incorrect, firewall log-level key mismatch, and cleanup_script missing from schema.
+- Documentation Noob Tester upload_assets failure and high firewall block rates during browser runs.
+- AI Moderator missing GitHub MCP tools, reducing moderation context.
