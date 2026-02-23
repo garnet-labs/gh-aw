@@ -142,13 +142,21 @@ mcp-servers:
 
 ### Playwright Network Access Denied
 
-Add domains to `allowed_domains`:
+Add domains to the top-level `network.allowed` field:
 
 ```yaml wrap
 tools:
   playwright:
-    allowed_domains: ["github.com", "*.github.io"]
+    version: "1.56.1"
+network:
+  allowed:
+    - "github.com"
+    - "*.github.io"
 ```
+
+:::note
+`tools.playwright.allowed_domains` was removed in v0.9.0. Use `network.allowed` instead. Run `gh aw upgrade` to auto-migrate.
+:::
 
 ### Cannot Find Module 'playwright'
 

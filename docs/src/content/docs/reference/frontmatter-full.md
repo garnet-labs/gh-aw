@@ -1530,26 +1530,12 @@ tools:
   # for security)
   playwright: null
 
-  # Option 2: Playwright tool configuration with custom version and domain
-  # restrictions
+  # Option 2: Playwright tool configuration with custom version and arguments
   playwright:
     # Optional Playwright container version (e.g., 'v1.41.0', 1.41, 20). Numeric
     # values are automatically converted to strings at runtime.
     # (optional)
     version: null
-
-    # Domains allowed for Playwright browser network access. Defaults to localhost
-    # only for security.
-    # (optional)
-    # This field supports multiple formats (oneOf):
-
-    # Option 1: List of allowed domains or patterns (e.g., ['github.com',
-    # '*.example.com'])
-    allowed_domains: []
-      # Array items: string
-
-    # Option 2: Single allowed domain (e.g., 'github.com')
-    allowed_domains: "example-value"
 
     # Optional additional arguments to append to the generated MCP server command
     # (optional)

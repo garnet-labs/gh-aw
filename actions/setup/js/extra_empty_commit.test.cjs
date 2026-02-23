@@ -356,7 +356,78 @@ describe("extra_empty_commit.cjs", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("authentication failed");
-      expect(mockCore.warning).toHaveBeenCalledWith(expect.stringContaining("Failed to push extra empty commit"));
+      expect(mockCore.warning).toHaveBeenCalledWith(expect.stringContaining("github-token-for-extra-empty-commit"));
+    });
+
+    it("should revert local commit when push fails", async () => {
+      const gitResetCalls = [];
+      mockExec.exec.mockImplementation(async (cmd, args, options) => {
+        if (cmd === "git" && args && args[0] === "log" && options && options.listeners) {
+          options.listeners.stdout(Buffer.from("COMMIT:abc123\nfile.txt\n"));
+          return 0;
+        }
+        if (cmd === "git" && args && args[0] === "reset") {
+          gitResetCalls.push(args);
+          return 0;
+        }
+        if (cmd === "git" && args && args[0] === "push") {
+          throw new Error("authentication failed");
+        }
+        return 0;
+      });
+
+      await pushExtraEmptyCommit({
+        branchName: "feature-branch",
+        repoOwner: "test-owner",
+        repoName: "test-repo",
+      });
+
+      // Should have reset HEAD~1 to revert the empty commit
+      expect(gitResetCalls).toContainEqual(["reset", "--soft", "HEAD~1"]);
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("reverting local empty commit"));
+    });
+
+    it("should show specific warning for authentication failures", async () => {
+      mockExec.exec.mockImplementation(async (cmd, args, options) => {
+        if (cmd === "git" && args && args[0] === "log" && options && options.listeners) {
+          options.listeners.stdout(Buffer.from("COMMIT:abc123\nfile.txt\n"));
+          return 0;
+        }
+        if (cmd === "git" && args && args[0] === "push") {
+          throw new Error("authentication failed: invalid token");
+        }
+        return 0;
+      });
+
+      await pushExtraEmptyCommit({
+        branchName: "feature-branch",
+        repoOwner: "test-owner",
+        repoName: "test-repo",
+      });
+
+      expect(mockCore.warning).toHaveBeenCalledWith(expect.stringContaining("github-token-for-extra-empty-commit"));
+      expect(mockCore.warning).toHaveBeenCalledWith(expect.stringContaining("invalid, expired, or lacks push permissions"));
+    });
+
+    it("should show specific warning for 403 permission denied", async () => {
+      mockExec.exec.mockImplementation(async (cmd, args, options) => {
+        if (cmd === "git" && args && args[0] === "log" && options && options.listeners) {
+          options.listeners.stdout(Buffer.from("COMMIT:abc123\nfile.txt\n"));
+          return 0;
+        }
+        if (cmd === "git" && args && args[0] === "push") {
+          throw new Error("remote: Permission denied (403)");
+        }
+        return 0;
+      });
+
+      await pushExtraEmptyCommit({
+        branchName: "feature-branch",
+        repoOwner: "test-owner",
+        repoName: "test-repo",
+      });
+
+      expect(mockCore.warning).toHaveBeenCalledWith(expect.stringContaining("github-token-for-extra-empty-commit"));
     });
 
     it("should clean up remote even when push fails", async () => {

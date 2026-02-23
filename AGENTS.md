@@ -1093,7 +1093,9 @@ engine: copilot  # Options: copilot, claude, codex, custom
 tools:
   playwright:
     version: "v1.41.0"
-    allowed_domains: ["github.com"]
+network:
+  allowed:
+    - "github.com"
 ---
 ```
 

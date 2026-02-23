@@ -85,10 +85,41 @@ async function pushExtraEmptyCommit({ branchName, repoOwner, repoName, commitMes
     }
     await exec.exec("git", ["remote", "add", "ci-trigger", remoteUrl]);
 
-    // Create and push an empty commit
+    // Create an empty commit
     const message = commitMessage || "ci: trigger CI checks";
     await exec.exec("git", ["commit", "--allow-empty", "-m", message]);
-    await exec.exec("git", ["push", "ci-trigger", branchName]);
+
+    // Try to push the empty commit
+    try {
+      await exec.exec("git", ["push", "ci-trigger", branchName]);
+    } catch (pushError) {
+      // Push failed - revert the local empty commit to keep git state clean
+      core.info("Push failed - reverting local empty commit");
+      try {
+        await exec.exec("git", ["reset", "--soft", "HEAD~1"]);
+      } catch {
+        // Non-fatal: if reset fails, continue with cleanup
+      }
+
+      const pushErrorMessage = pushError instanceof Error ? pushError.message : String(pushError);
+
+      // Provide more specific warning for common authentication issues
+      if (pushErrorMessage.includes("authentication") || pushErrorMessage.includes("401") || pushErrorMessage.includes("403") || pushErrorMessage.includes("Permission denied") || pushErrorMessage.includes("could not read Username")) {
+        core.warning(`Extra empty commit skipped: The token provided to 'github-token-for-extra-empty-commit' appears to be invalid, expired, or lacks push permissions. CI events will not be triggered. Error: ${pushErrorMessage}`);
+      } else {
+        core.warning(`Failed to push extra empty commit: ${pushErrorMessage}`);
+      }
+
+      // Clean up the temporary remote
+      try {
+        await exec.exec("git", ["remote", "remove", "ci-trigger"]);
+      } catch {
+        // Non-fatal cleanup error
+      }
+
+      // Extra empty commit failure is not fatal - the main push already succeeded
+      return { success: false, error: pushErrorMessage };
+    }
 
     core.info(`Extra empty commit pushed to ${branchName} successfully`);
 
