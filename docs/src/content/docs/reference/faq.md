@@ -303,13 +303,25 @@ This is expected GitHub Actions security behavior. Pull requests created using t
 
 GitHub Actions prevents the `GITHUB_TOKEN` from triggering new workflow runs to avoid infinite loops and uncontrolled automation chains. Without this protection, a workflow could create a PR, which triggers another workflow, which creates another PR, and so on indefinitely.
 
-If you need CI checks to run on PRs created by agentic workflows, you have three options:
+If you need CI checks to run on PRs created by agentic workflows, you have several options:
 
-**Option 1: Use different authorization**
+**Option 1: Use `github-ci-trigger-token` (Recommended)**
 
-Configure your [`create-pull-request` safe output](/gh-aw/reference/safe-outputs/#pull-request-creation-create-pull-request) to use a PAT or a GitHub App. This allows PR creation to trigger CI workflows.
+Add a `github-ci-trigger-token` to your `create-pull-request` or `push-to-pull-request-branch` safe output. This pushes an empty commit using a different token after PR creation/push, which triggers CI events without changing the overall PR authorization.
 
-**Option 2: Use workflow_run trigger**
+```yaml wrap
+safe-outputs:
+  create-pull-request:
+    github-ci-trigger-token: ${{ secrets.CI_TRIGGER_PAT }}
+```
+
+You can also use `app` to use a GitHub App token, or set the `GH_AW_CI_TRIGGER_TOKEN` repository secret for a global default. See [Triggering CI on Created Pull Requests](/gh-aw/reference/safe-outputs/#triggering-ci-on-created-pull-requests) for details.
+
+**Option 2: Use different authorization for the entire safe output**
+
+Configure your [`create-pull-request` safe output](/gh-aw/reference/safe-outputs/#pull-request-creation-create-pull-request) to use a PAT or a GitHub App for all operations. This allows PR creation to trigger CI workflows, but changes the authorization for the entire PR creation process.
+
+**Option 3: Use workflow_run trigger**
 
 Configure your CI workflows to run on `workflow_run` events, which allows them to react to completed workflows:
 

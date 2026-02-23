@@ -8,6 +8,7 @@ const { updateActivationCommentWithCommit } = require("./update_activation_comme
 const { getErrorMessage } = require("./error_helpers.cjs");
 const { replaceTemporaryIdReferences } = require("./temporary_id.cjs");
 const { normalizeBranchName } = require("./normalize_branch_name.cjs");
+const { pushCITriggerCommit } = require("./ci_trigger_commit.cjs");
 
 /**
  * @typedef {import('./types/handler-factory').HandlerFactoryFunction} HandlerFactoryFunction
@@ -401,6 +402,19 @@ async function main(config = {}) {
 `;
 
     await core.summary.addRaw(summaryContent).write();
+
+    // Push an empty CI trigger commit if a CI trigger token is configured and changes were pushed.
+    // This works around the GITHUB_TOKEN limitation where pushes don't trigger CI events.
+    if (hasChanges) {
+      const ciTriggerResult = await pushCITriggerCommit({
+        branchName,
+        repoOwner: context.repo.owner,
+        repoName: context.repo.repo,
+      });
+      if (ciTriggerResult.success && !ciTriggerResult.skipped) {
+        core.info("CI trigger commit pushed - CI checks should start shortly");
+      }
+    }
 
     return {
       success: true,
