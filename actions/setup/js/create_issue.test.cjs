@@ -1,4 +1,3 @@
-// @ts-check
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { createRequire } from "module";
 
