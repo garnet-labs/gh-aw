@@ -77,7 +77,8 @@ function generateGitPatch(branchName, options = {}) {
 
           try {
             // Explicitly fetch origin/branchName to ensure we have the latest
-            execGitSync(["fetch", "origin", `${branchName}:refs/remotes/origin/${branchName}`], { cwd });
+            // Use "--" to prevent branch names starting with "-" from being interpreted as options
+            execGitSync(["fetch", "origin", "--", `${branchName}:refs/remotes/origin/${branchName}`], { cwd });
             baseRef = `origin/${branchName}`;
           } catch (fetchError) {
             // In incremental mode, we MUST have origin/branchName - no fallback
@@ -100,8 +101,9 @@ function generateGitPatch(branchName, options = {}) {
             baseRef = `origin/${branchName}`;
           } catch {
             // Use merge-base with default branch as fallback
-            execGitSync(["fetch", "origin", defaultBranch], { cwd });
-            baseRef = execGitSync(["merge-base", `origin/${defaultBranch}`, branchName], { cwd }).trim();
+            // Use "--" to prevent branch names starting with "-" from being interpreted as options
+            execGitSync(["fetch", "origin", "--", defaultBranch], { cwd });
+            baseRef = execGitSync(["merge-base", "--", `origin/${defaultBranch}`, branchName], { cwd }).trim();
           }
         }
 
