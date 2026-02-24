@@ -36,9 +36,15 @@ function getPatchPath(branchName) {
 /**
  * Generates a git patch file for the current changes
  * @param {string} branchName - The branch name to generate patch for
+ * @param {Object} [options] - Optional parameters
+ * @param {string} [options.mode="full"] - Patch generation mode:
+ *   - "full": Include all commits since merge-base with default branch (for create_pull_request)
+ *   - "incremental": Only include commits since origin/branchName (for push_to_pull_request_branch)
+ *     In incremental mode, origin/branchName is fetched explicitly and merge-base fallback is disabled.
  * @returns {Object} Object with patch info or error
  */
-function generateGitPatch(branchName) {
+function generateGitPatch(branchName, options = {}) {
+  const mode = options.mode || "full";
   const patchPath = getPatchPath(branchName);
   const cwd = process.env.GITHUB_WORKSPACE || process.cwd();
   const defaultBranch = process.env.DEFAULT_BRANCH || getBaseBranch();
@@ -62,14 +68,41 @@ function generateGitPatch(branchName) {
 
         // Determine base ref for patch generation
         let baseRef;
-        try {
-          // Check if origin/branchName exists
-          execGitSync(["show-ref", "--verify", "--quiet", `refs/remotes/origin/${branchName}`], { cwd });
-          baseRef = `origin/${branchName}`;
-        } catch {
-          // Use merge-base with default branch
-          execGitSync(["fetch", "origin", defaultBranch], { cwd });
-          baseRef = execGitSync(["merge-base", `origin/${defaultBranch}`, branchName], { cwd }).trim();
+
+        if (mode === "incremental") {
+          // INCREMENTAL MODE (for push_to_pull_request_branch):
+          // Only include commits that are new since origin/branchName.
+          // This prevents including commits that already exist on the PR branch.
+          // We must explicitly fetch origin/branchName and fail if it doesn't exist.
+
+          try {
+            // Explicitly fetch origin/branchName to ensure we have the latest
+            execGitSync(["fetch", "origin", `${branchName}:refs/remotes/origin/${branchName}`], { cwd });
+            baseRef = `origin/${branchName}`;
+          } catch (fetchError) {
+            // In incremental mode, we MUST have origin/branchName - no fallback
+            errorMessage = `Cannot generate incremental patch: failed to fetch origin/${branchName}. ` + `This typically happens when the remote branch doesn't exist yet or was force-pushed. ` + `Error: ${getErrorMessage(fetchError)}`;
+            // Don't try other strategies in incremental mode
+            return {
+              success: false,
+              error: errorMessage,
+              patchPath: patchPath,
+            };
+          }
+        } else {
+          // FULL MODE (for create_pull_request):
+          // Include all commits since merge-base with default branch.
+          // This is appropriate for creating new PRs where we want all changes.
+
+          try {
+            // Check if origin/branchName exists
+            execGitSync(["show-ref", "--verify", "--quiet", `refs/remotes/origin/${branchName}`], { cwd });
+            baseRef = `origin/${branchName}`;
+          } catch {
+            // Use merge-base with default branch as fallback
+            execGitSync(["fetch", "origin", defaultBranch], { cwd });
+            baseRef = execGitSync(["merge-base", `origin/${defaultBranch}`, branchName], { cwd }).trim();
+          }
         }
 
         // Count commits to be included
@@ -83,9 +116,25 @@ function generateGitPatch(branchName) {
             fs.writeFileSync(patchPath, patchContent, "utf8");
             patchGenerated = true;
           }
+        } else if (mode === "incremental") {
+          // In incremental mode, zero commits means nothing new to push
+          return {
+            success: false,
+            error: "No new commits to push - your changes may already be on the remote branch",
+            patchPath: patchPath,
+            patchSize: 0,
+            patchLines: 0,
+          };
         }
       } catch (branchError) {
         // Branch does not exist locally
+        if (mode === "incremental") {
+          return {
+            success: false,
+            error: `Branch ${branchName} does not exist locally. Cannot generate incremental patch.`,
+            patchPath: patchPath,
+          };
+        }
       }
     }
 

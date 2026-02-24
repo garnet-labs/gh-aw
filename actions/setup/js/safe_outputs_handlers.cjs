@@ -319,9 +319,11 @@ function createHandlers(server, appendSafeOutput, config = {}) {
       entry.branch = detectedBranch;
     }
 
-    // Generate git patch
-    server.debug(`Generating patch for push_to_pull_request_branch with branch: ${entry.branch}`);
-    const patchResult = generateGitPatch(entry.branch);
+    // Generate git patch in incremental mode
+    // Incremental mode only includes commits since origin/branchName,
+    // preventing patches that include already-existing commits
+    server.debug(`Generating incremental patch for push_to_pull_request_branch with branch: ${entry.branch}`);
+    const patchResult = generateGitPatch(entry.branch, { mode: "incremental" });
 
     if (!patchResult.success) {
       // Patch generation failed or patch is empty

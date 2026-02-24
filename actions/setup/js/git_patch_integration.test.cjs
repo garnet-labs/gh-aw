@@ -486,4 +486,181 @@ describe("git patch integration tests", () => {
       expect(logResult.stdout).toContain("Launch feature");
     });
   });
+
+  // ──────────────────────────────────────────────────────
+  // Incremental Mode Tests
+  // ──────────────────────────────────────────────────────
+
+  describe("incremental mode", () => {
+    let bareRepoDir;
+    let workingRepo;
+
+    beforeEach(() => {
+      // Create a bare repo to simulate remote
+      bareRepoDir = fs.mkdtempSync(path.join(os.tmpdir(), "bare-incremental-"));
+      execGit(["init", "--bare", "--initial-branch=main"], { cwd: bareRepoDir });
+
+      // Clone the bare repo
+      workingRepo = fs.mkdtempSync(path.join(os.tmpdir(), "working-incremental-"));
+      execGit(["clone", bareRepoDir, "."], { cwd: workingRepo });
+
+      // Set up git config (after clone, we have a proper repo)
+      execGit(["config", "user.email", "test@test.com"], { cwd: workingRepo });
+      execGit(["config", "user.name", "Test User"], { cwd: workingRepo });
+
+      // Checkout main (might be master on some systems)
+      execGit(["checkout", "-b", "main"], { cwd: workingRepo, allowFailure: true });
+
+      // Create initial commit on main
+      fs.writeFileSync(path.join(workingRepo, "README.md"), "# Initial\n");
+      execGit(["add", "README.md"], { cwd: workingRepo });
+      execGit(["commit", "-m", "Initial commit"], { cwd: workingRepo });
+
+      // Push main to origin (this MUST succeed for full mode tests)
+      execGit(["push", "-u", "origin", "main"], { cwd: workingRepo });
+    });
+
+    afterEach(() => {
+      // Clean up
+      cleanupTestRepo(bareRepoDir);
+      cleanupTestRepo(workingRepo);
+    });
+
+    it("should only include new commits after origin/branch in incremental mode", () => {
+      // Create a feature branch with first commit
+      execGit(["checkout", "-b", "feature-branch"], { cwd: workingRepo });
+      fs.writeFileSync(path.join(workingRepo, "feature.txt"), "First commit content\n");
+      execGit(["add", "feature.txt"], { cwd: workingRepo });
+      execGit(["commit", "-m", "First commit on feature branch"], { cwd: workingRepo });
+
+      // Push to origin
+      execGit(["push", "-u", "origin", "feature-branch"], { cwd: workingRepo });
+
+      // Add a second commit (the "new" commit)
+      fs.writeFileSync(path.join(workingRepo, "feature2.txt"), "Second commit content\n");
+      execGit(["add", "feature2.txt"], { cwd: workingRepo });
+      execGit(["commit", "-m", "Second commit - the new one"], { cwd: workingRepo });
+
+      // Delete the origin/feature-branch tracking ref to simulate a fresh checkout
+      // that hasn't fetched the remote branch yet
+      execGit(["update-ref", "-d", "refs/remotes/origin/feature-branch"], { cwd: workingRepo });
+
+      // Generate patch in incremental mode
+      const { generateGitPatch } = require("./generate_git_patch.cjs");
+
+      // Set environment
+      const origWorkspace = process.env.GITHUB_WORKSPACE;
+      const origDefaultBranch = process.env.DEFAULT_BRANCH;
+      process.env.GITHUB_WORKSPACE = workingRepo;
+      process.env.DEFAULT_BRANCH = "main";
+
+      try {
+        const result = generateGitPatch("feature-branch", { mode: "incremental" });
+
+        expect(result.success).toBe(true);
+        expect(result.patchPath).toBeDefined();
+
+        // Read the patch content
+        const patchContent = fs.readFileSync(result.patchPath, "utf8");
+
+        // Should only have ONE patch [PATCH 1/1], not [PATCH 1/2], [PATCH 2/2]
+        expect(patchContent).toContain("Subject:");
+
+        // Should contain the second commit
+        expect(patchContent).toContain("Second commit - the new one");
+
+        // Should NOT contain the first commit (it's already on origin/feature-branch)
+        expect(patchContent).not.toContain("First commit on feature branch");
+
+        // Verify it's [PATCH 1/1] or just [PATCH], not [PATCH 1/2]
+        const patchHeaders = patchContent.match(/\[PATCH[^\]]*\]/g);
+        // If there are numbered patches, should be just 1
+        if (patchHeaders) {
+          expect(patchHeaders.length).toBe(1);
+        }
+      } finally {
+        process.env.GITHUB_WORKSPACE = origWorkspace;
+        process.env.DEFAULT_BRANCH = origDefaultBranch;
+      }
+    });
+
+    it("should fail clearly when origin/branch doesnt exist in incremental mode", () => {
+      // Create a local branch without pushing
+      execGit(["checkout", "-b", "local-only-branch"], { cwd: workingRepo });
+      fs.writeFileSync(path.join(workingRepo, "local.txt"), "Local content\n");
+      execGit(["add", "local.txt"], { cwd: workingRepo });
+      execGit(["commit", "-m", "Local commit"], { cwd: workingRepo });
+
+      // Don't push - origin/local-only-branch doesn't exist
+
+      const { generateGitPatch } = require("./generate_git_patch.cjs");
+
+      const origWorkspace = process.env.GITHUB_WORKSPACE;
+      const origDefaultBranch = process.env.DEFAULT_BRANCH;
+      process.env.GITHUB_WORKSPACE = workingRepo;
+      process.env.DEFAULT_BRANCH = "main";
+
+      try {
+        const result = generateGitPatch("local-only-branch", { mode: "incremental" });
+
+        // Should fail with a clear error message
+        expect(result.success).toBe(false);
+        expect(result.error).toContain("Cannot generate incremental patch");
+        expect(result.error).toContain("origin/local-only-branch");
+      } finally {
+        process.env.GITHUB_WORKSPACE = origWorkspace;
+        process.env.DEFAULT_BRANCH = origDefaultBranch;
+      }
+    });
+
+    it("should include all commits in full mode even when origin/branch exists", () => {
+      // Create a feature branch with first commit
+      execGit(["checkout", "-b", "full-mode-branch"], { cwd: workingRepo });
+      fs.writeFileSync(path.join(workingRepo, "full1.txt"), "First commit\n");
+      execGit(["add", "full1.txt"], { cwd: workingRepo });
+      execGit(["commit", "-m", "First commit in full mode test"], { cwd: workingRepo });
+
+      // Push to origin
+      execGit(["push", "-u", "origin", "full-mode-branch"], { cwd: workingRepo });
+
+      // Add second commit
+      fs.writeFileSync(path.join(workingRepo, "full2.txt"), "Second commit\n");
+      execGit(["add", "full2.txt"], { cwd: workingRepo });
+      execGit(["commit", "-m", "Second commit in full mode test"], { cwd: workingRepo });
+
+      // Delete origin ref to force merge-base fallback
+      execGit(["update-ref", "-d", "refs/remotes/origin/full-mode-branch"], { cwd: workingRepo });
+
+      // Fetch origin/main so merge-base can work
+      execGit(["fetch", "origin", "main"], { cwd: workingRepo });
+
+      const { generateGitPatch } = require("./generate_git_patch.cjs");
+
+      const origWorkspace = process.env.GITHUB_WORKSPACE;
+      const origDefaultBranch = process.env.DEFAULT_BRANCH;
+      process.env.GITHUB_WORKSPACE = workingRepo;
+      process.env.DEFAULT_BRANCH = "main";
+
+      try {
+        // Full mode (default) - should fall back to merge-base and include all commits
+        const result = generateGitPatch("full-mode-branch", { mode: "full" });
+
+        // Debug output if test fails
+        if (!result.success) {
+          console.log("Full mode test failed with error:", result.error);
+        }
+
+        expect(result.success).toBe(true);
+
+        const patchContent = fs.readFileSync(result.patchPath, "utf8");
+
+        // Should contain BOTH commits (using merge-base with main)
+        expect(patchContent).toContain("First commit in full mode test");
+        expect(patchContent).toContain("Second commit in full mode test");
+      } finally {
+        process.env.GITHUB_WORKSPACE = origWorkspace;
+        process.env.DEFAULT_BRANCH = origDefaultBranch;
+      }
+    });
+  });
 });
