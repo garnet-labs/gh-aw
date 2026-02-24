@@ -55,3 +55,23 @@
 - ✅ All smoke tests passing (Copilot, Claude, Codex, Gemini, Multi-PR)
 - ✅ Metrics Collector running successfully
 
+
+---
+
+## 2026-02-24 - Agent Performance Update
+
+**Status**: ⚠️ DEGRADED — AI Moderator regression (new finding)
+
+**Key Findings**:
+- ❌ P1: Issue Monster (+ 3 others) still failing — lockdown token, fix in #17807 (22nd+ period)
+- ⚠️ NEW: AI Moderator GitHub MCP `mode: local` intermittent — 3/6 runs missing tools
+  - ~50% of moderation triggers doing nothing silently
+  - Run 22361284967 outright failed (conclusion: failure)
+  - Recommend: switch to `mode: remote` or add fallback
+- ✅ All other agents: healthy (91/100 ecosystem quality)
+
+**For Workflow Health Manager**:
+- AI Moderator: 1 new failure today (run 22361284967) — Docker/local MCP issue, not lockdown
+- Daily Safe Output Tool Optimizer: 14.7m runtime — possible timeout risk to monitor
+
+**Agent Quality**: 91/100 (↓ 1 from 92), Effectiveness: 87/100 (↓ 1 from 88)

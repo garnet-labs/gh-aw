@@ -1,59 +1,54 @@
-# Agent Performance Analysis - 2026-02-23
+# Agent Performance Analysis - 2026-02-24
 
-**Run:** [§22317707553](https://github.com/github/gh-aw/actions/runs/22317707553)  
-**Status:** ✅ STABLE — 21st consecutive zero-critical-issues period; non-IM success rate 100%  
-**Analysis Period:** February 23, 2026 (~12h window)
+**Run:** [§22362703459](https://github.com/github/gh-aw/actions/runs/22362703459)
+**Status:** ⚠️ DEGRADED — AI Moderator regression detected; non-IM success rate dropped to 95%
+**Analysis Period:** 2026-02-17 → 2026-02-24 (7-day window, 27 runs)
 
 ## Executive Summary
 
-- **Agent Quality:** 92/100 (→ stable)
-- **Agent Effectiveness:** 88/100 (→ stable)
-- **Critical Agent Issues:** 0 (21st consecutive period 🎉)
-- **Run Success Rate (non-IM):** 100% (18/18) ↑ from 97%
-- **Total Tokens:** ~405.6M | **Estimated Cost:** ~$6.85 (12h window)
-- **Total Runs:** 22 (18 success + 4 Issue Monster failures)
-- **Total Safe Items:** 12 (↑ from 6 — more actionable findings today)
-- **Total Turns:** 85
+- **Agent Quality:** 91/100 (↓ 1 from 92)
+- **Agent Effectiveness:** 87/100 (↓ 1 from 88)
+- **Critical Agent Issues:** 1 new ⚠️ (AI Moderator GitHub MCP intermittency)
+- **Run Success Rate (non-IM):** 95% (20/21) ↓ from 100%
+- **Total Tokens:** ~17.7M | **Estimated Cost:** ~$6.39 (7d window)
+- **Total Runs:** 27 (21 success + 4 Issue Monster failures + 1 AI Moderator failure)
+- **Total Turns:** 138
 
 ## Key Metrics
 
 | Metric | Current | Previous | Change |
 |--------|---------|----------|--------|
-| Agent Quality | 92/100 | 92/100 | → stable |
-| Agent Effectiveness | 88/100 | 88/100 | → stable |
-| Non-IM Success Rate | 100% (18/18) | 97% (30/31) | ↑ +3% |
-| Critical Issues | 0 | 0 | ✅ 21st period |
-| Session Cost | ~$6.85 | ~$16.21 (48h) | (12h window) |
-| Safe Items | 12 | 6 | ↑ +100% (more actions) |
-| Avg Run Duration | ~7.3m | ~7.1m | → stable |
+| Agent Quality | 91/100 | 92/100 | ↓ 1 |
+| Agent Effectiveness | 87/100 | 88/100 | ↓ 1 |
+| Non-IM Success Rate | 95% (20/21) | 100% (18/18) | ↓ 5% |
+| Critical Issues | 1 (AI Moderator) | 0 | ↑ 1 |
+| AI Moderator Score | 72/100 | 94/100 | ↓ 22 |
 
-## 🛡️ Standout: The Great Escapi — Security Posture Maintained
-Clean noop in 3.6m. No injection attempts found.
+## 🔴 NEW: AI Moderator GitHub MCP Intermittency (3/6 runs missing tools)
 
-## 🔥 P1 Still Burning: Issue Monster (4/4 failures today)
-GH_AW_GITHUB_TOKEN still missing. Fix in #17807 (not yet applied).
-#17414 closed "not_planned" — infrastructure issue unresolved.
+GitHub MCP `mode: local` (Docker) intermittently unavailable. 3 runs completed as success/noop silently skipping moderation. 1 run outright failed.
+- Failing run: [22361284967](https://github.com/github/gh-aw/actions/runs/22361284967)
+- Missing-tool runs: 22361207226, 22359803227, 22358411348
+- **~50% of AI Moderator triggers doing no moderation today**
+
+## 🔥 P1 Still Burning: Issue Monster (4/4 failures today, 22nd+ period)
+Fix in #17807 still not applied.
 
 ## Top Performing Agents
 
-1. **The Great Escapi (95/100):** Clean security test, 3.6m
-2. **AI Moderator ×2 (94/100):** 2/2 success, ~7.9m avg
-3. **Lockfile Statistics Analysis Agent (91/100):** 25 turns, 6.3m deep analysis
-4. **Daily Safe Outputs Conformance Checker (90/100):** 22 turns, 7.0m
-5. **Semantic Function Refactoring (89/100):** 17 turns, 12m — created #17955
+1. **The Great Escapi (95/100):** Security maintained, 6.1m
+2. **CI Failure Doctor (93/100):** 3/3 success, 7.4m avg (active CI failures)
+3. **Daily Safe Outputs Conformance Checker (92/100):** 1/1, 5.7m
+4. **Lockfile Statistics Analysis Agent (92/100):** 1/1, 10.1m
+5. **DeepReport (91/100):** 1/1, 9.0m
 
-## Active Issues
+## ⚠️ Monitor
 
-- ❌ **P1:** Issue Monster, PR Triage Agent, Daily Issues Report failing — fix in #17807
-- ⚠️ **Monitor:** Chroma Issue Indexer at 13.8m — watch for growth
-- ⚠️ **Monitor:** CI Failure Doctor reactive (1 run today, was 4/48h yesterday)
+- **Daily Safe Output Tool Optimizer:** 14.7m — slowest non-meta workflow, watch for growth
+- **AI Moderator MCP:** Consider switching to `mode: remote`
 
-## Cookie Issues Created Today (by agents)
+## Active Issues / Tracking
 
-- #17955 [refactor] Semantic function clustering
-- #17936 [CI Failure Doctor] CI investigation
-- #17933-17930 [deep-report] 4 deep reports (campaign coordination)
-- #17926 [testify-expert] Test quality
-- #17921 [cli-consistency] CLI consistency
-- #17920 [file-diet] File refactor
-- #17914 [step-names] Step names
+- ❌ **P1:** Issue Monster (+ PR Triage, Daily Issues, Org Health) failing — fix in #17807
+- ⚠️ **NEW:** AI Moderator GitHub MCP degradation — needs investigation
+- ✅ **All smoke tests:** Passing on main
