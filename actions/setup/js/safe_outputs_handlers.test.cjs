@@ -340,7 +340,7 @@ describe("safe_outputs_handlers", () => {
       // The error should be about patch generation, not about forks
       const responseData = JSON.parse(result.content[0].text);
       expect(responseData.error).not.toContain("fork PR");
-      expect(responseData.error).toContain("Failed to generate patch");
+      expect(responseData.error).toContain("does not exist locally");
 
       // Clean up
       delete process.env.GH_AW_IS_FORK_PR;
@@ -359,7 +359,7 @@ describe("safe_outputs_handlers", () => {
 
       const responseData = JSON.parse(result.content[0].text);
       expect(responseData.error).not.toContain("fork PR");
-      expect(responseData.error).toContain("Failed to generate patch");
+      expect(responseData.error).toContain("does not exist locally");
     });
 
     it("should return error response when patch generation fails (not throw)", () => {
@@ -382,7 +382,7 @@ describe("safe_outputs_handlers", () => {
       const responseData = JSON.parse(result.content[0].text);
       expect(responseData.result).toBe("error");
       expect(responseData.error).toBeDefined();
-      expect(responseData.error).toContain("Failed to generate patch");
+      expect(responseData.error).toContain("does not exist locally");
       expect(responseData.details).toBeDefined();
       expect(responseData.details).toContain("push to the pull request branch");
       expect(responseData.details).toContain("git add and git commit");
