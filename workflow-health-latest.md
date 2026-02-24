@@ -1,78 +1,63 @@
-# Workflow Health Dashboard - 2026-02-23
+# Workflow Health Dashboard - 2026-02-24
 
 ## Overview
-- **Total workflows**: 158 executable (214 total - 56 shared includes)
-- **Healthy**: 155 (98%)
-- **Warning/Failing**: 3 (2%) — lockdown token failures (persistent)
+- **Total workflows**: 158 executable (100% compiled ✅)
+- **Healthy**: 154 (97%)
+- **Failing (P1)**: 4 workflows (3%) — lockdown token failures (now 2 weeks streak)
 - **Critical**: 0 (0%)
 - **Compilation coverage**: 158/158 (100% ✅)
-- **Outdated lock files**: 0 (all up-to-date ✅ — 14 apparent outdated files are false positives from git checkout timing)
-- **Overall health score**: 82/100 (↓ 1 from 83 — P1 persists, #17414 closed not_planned)
+- **Outdated lock files**: 0 (all up-to-date ✅)
+- **Overall health score**: 80/100 (↓ 2 from 82 — 4th lockdown workflow confirmed)
 
-## Status: DEGRADED — P1 Lockdown Fix Available but Not Applied
+## Status: DEGRADED — P1 Lockdown Failures Growing
 
-The GH_AW_GITHUB_TOKEN tracking issue #17414 was closed as "not_planned" on Feb 22.
-A fix is available in #17807 (remove `lockdown: true`), but not yet applied.
+The lockdown token issue continues unresolved. Org Health Report confirmed as 4th failing workflow (2 consecutive weekly failures).
 
 ### Health Assessment Summary
 
 - ✅ **0 compilation failures** (all 158 executable workflows compile)
 - ✅ **100% compilation coverage** (no missing lock files)
-- ✅ **0 outdated lock files** (all git timestamps current)
-- ❌ **P1: Lockdown token missing** — 3 workflows failing (>1 week streak)
-- ✅ **GitHub Remote MCP Auth Test**: 93% success rate overall (1 transient failure today)
-- ✅ **Go Logger Enhancement**: 97% success rate (1 transient failure yesterday)
-- ✅ **All smoke tests**: passing (Copilot, Claude, Codex, Gemini, Multi-PR)
-- ✅ **Metrics Collector**: running successfully
+- ✅ **0 outdated lock files**
+- ❌ **P1: Lockdown token missing** — 4 workflows failing (≥2 week streak)
+  - Issue Monster: ~50+ failures/day (every 30 min)
+  - PR Triage Agent: failing (every 6h)
+  - Daily Issues Report: failing (daily)
+  - **NEW**: Org Health Report: 2 consecutive weekly failures (#22 Feb 16, #23 Feb 23)
+- ✅ **All smoke tests on main**: Smoke Copilot, Claude, Codex, Gemini passing on main
+- ✅ **PR #18079 branch**: Smoke Claude/Copilot/Gemini failing on `merged_detection_job` branch — EXPECTED (WIP PR testing detection job merge)
+- ✅ **Metrics Collector**: 8/8 recent runs success
+- ✅ **13 total workflows have `lockdown: true`** — 4 confirmed failing
 
-## Critical Issues 🚨
+## Root Cause: Lockdown Mode + Missing GH_AW_GITHUB_TOKEN
 
-### ✅ NO CRITICAL P0 ISSUES
+13 workflows use `lockdown: true`:
+daily-issues-report, discussion-task-miner, grumpy-reviewer, issue-arborist,
+issue-monster, issue-triage-agent, org-health-report, pr-triage-agent,
+refiner, stale-repo-identifier, weekly-issue-summary, weekly-safe-outputs-spec-review,
+workflow-generator
 
-## Warnings ⚠️
-
-### [P1] Lockdown Token Missing — 3 Workflows Failing (Score: 35/100)
-- **Affected workflows**: Issue Monster, PR Triage Agent, Daily Issues Report Generator
-- **Tracking issue**: #17414 — CLOSED as "not_planned" on 2026-02-22
-- **Fix available**: #17807 — patch to remove `lockdown: true`, compiled & ready
-- **Error**: `GH_AW_GITHUB_TOKEN` not configured; explicit `lockdown: true` fails validation
-- **Impact**: ~50+ failures/day (Issue Monster 30-min schedule dominates)
-- **Recommended action**: Apply patch from #17807 (removes `lockdown: true` → uses automatic detection)
-- **Latest runs**:
-  - Issue Monster: run #2038 failure [§22296800867](https://github.com/github/gh-aw/actions/runs/22296800867)
-  - PR Triage Agent: run #125 failure [§22295410778](https://github.com/github/gh-aw/actions/runs/22295410778)
-
-### [P3] Minor Transient Failures (Not Actionable)
-- GitHub Remote MCP Auth Test: 1 failure today (run #49) — 93% historical success rate
-- Go Logger Enhancement: 1 failure yesterday (run #157) — 97% historical success rate
-- Both resolve naturally on next run
-
-## Healthy Workflows ✅
-
-**155 workflows (98%)** operating normally.
-
-Verified healthy today:
-- All smoke tests (Copilot, Claude, Codex, Gemini)
-- Agentic Maintenance, Auto-Triage Issues, Bot Detection
-- Chroma Issue Indexer, Duplicate Code Detector
-- CI Cleaner, Contribution Check, Static Analysis Report
-- Metrics Collector - Infrastructure Agent
+Currently failing (high frequency):
+- issue-monster (schedule: every 30min)
+- pr-triage-agent (schedule: every 6h)
+- daily-issues-report (schedule: daily)
+- org-health-report (schedule: weekly Monday ~09:00)
 
 ## Issues Tracked
 
-- **#17414** [P1] Lockdown mode failing — CLOSED as "not_planned" (2026-02-22)
-- **#17807** Fix: remove lockdown:true — OPEN (patch ready to apply)
-- **#17387** Issue Monster failed (symptom tracking) — OPEN (updated with fix reference)
-- **#16801** PR Triage Agent failed (symptom tracking) — OPEN
-- **#17408** No-Op Runs tracker — normal/healthy
+- **#17387** [P1] Issue Monster failed — OPEN (30+ comments, still failing)
+- **#16801** [P1] PR Triage Agent failed — OPEN
+- **#17864** [P1] Org Health Report failed — OPEN (same lockdown root cause)
+- **#17414** [Root Cause] GH_AW_GITHUB_TOKEN — CLOSED "not_planned" (2026-02-22)
+- **#17807** Fix: remove lockdown:true — OPEN (patch ready)
+- **#17408** No-Op Runs — OPEN (normal behavior)
 
-## Actions Taken This Run
+## Actions Taken This Run (2026-02-24)
 
-- Added comment to #17387 noting fix available in #17807
-- Updated shared-alerts.md with current health metrics
-- Noted #17414 closed as "not_planned" — root cause unchanged
+- Added comment to #17387 with updated status (4th workflow now failing)
+- Updated workflow-health-latest.md and shared-alerts.md
+- Health score: 80/100 (↓ 2 from 82)
 
 ## Run Info
-- Timestamp: 2026-02-23T07:40:00Z
-- Workflow run: [§22296860578](https://github.com/github/gh-aw/actions/runs/22296860578)
-- Health score: 82/100 (↓ 1 from yesterday's 83)
+- Timestamp: 2026-02-24T07:32:00Z
+- Workflow run: [§22341024382](https://github.com/github/gh-aw/actions/runs/22341024382)
+- Health score: 80/100 (↓ 2 from yesterday's 82)
