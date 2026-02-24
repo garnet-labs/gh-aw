@@ -553,6 +553,10 @@ async function main(config = {}) {
     core.info(`Created new branch from base: ${branchName}`);
 
     // Apply the patch using git CLI (skip if empty)
+    // Track number of new commits pushed so we can restrict the extra empty commit
+    // to branches with exactly one new commit (security: prevents use of CI trigger
+    // token on multi-commit branches where workflow files may have been modified).
+    let newCommitCount = 0;
     if (!isEmpty) {
       core.info("Applying patch...");
 
@@ -616,6 +620,17 @@ async function main(config = {}) {
 
         await exec.exec(`git push origin ${branchName}`);
         core.info("Changes pushed to branch");
+
+        // Count new commits on PR branch relative to base, used to restrict
+        // the extra empty CI-trigger commit to exactly 1 new commit.
+        try {
+          const { stdout: countStr } = await exec.getExecOutput("git", ["rev-list", "--count", `origin/${baseBranch}..HEAD`]);
+          newCommitCount = parseInt(countStr.trim(), 10);
+          core.info(`${newCommitCount} new commit(s) on branch relative to origin/${baseBranch}`);
+        } catch {
+          // Non-fatal - newCommitCount stays 0, extra empty commit will be skipped
+          core.info("Could not count new commits - extra empty commit will be skipped");
+        }
       } catch (pushError) {
         // Push failed - create fallback issue instead of PR (if fallback is enabled)
         core.error(`Git push failed: ${pushError instanceof Error ? pushError.message : String(pushError)}`);
@@ -750,6 +765,16 @@ ${patchPreview}`;
 
           await exec.exec(`git push origin ${branchName}`);
           core.info("Empty branch pushed successfully");
+
+          // Count new commits (will be 1 from the Initialize commit)
+          try {
+            const { stdout: countStr } = await exec.getExecOutput("git", ["rev-list", "--count", `origin/${baseBranch}..HEAD`]);
+            newCommitCount = parseInt(countStr.trim(), 10);
+            core.info(`${newCommitCount} new commit(s) on branch relative to origin/${baseBranch}`);
+          } catch {
+            // Non-fatal - newCommitCount stays 0, extra empty commit will be skipped
+            core.info("Could not count new commits - extra empty commit will be skipped");
+          }
         } catch (pushError) {
           const error = `Failed to push empty branch: ${pushError instanceof Error ? pushError.message : String(pushError)}`;
           core.error(error);
@@ -840,12 +865,15 @@ ${patchPreview}`;
         )
         .write();
 
-      // Push an extra empty commit if a token is configured.
+      // Push an extra empty commit if a token is configured and exactly 1 new commit was pushed.
       // This works around the GITHUB_TOKEN limitation where pushes don't trigger CI events.
+      // Restricting to exactly 1 new commit prevents the CI trigger token being used on
+      // multi-commit branches where workflow files may have been iteratively modified.
       const ciTriggerResult = await pushExtraEmptyCommit({
         branchName,
         repoOwner: repoParts.owner,
         repoName: repoParts.repo,
+        newCommitCount,
       });
       if (ciTriggerResult.success && !ciTriggerResult.skipped) {
         core.info("Extra empty commit pushed - CI checks should start shortly");
