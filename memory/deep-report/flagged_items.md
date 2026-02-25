@@ -1,6 +1,6 @@
-## Flagged Items for Monitoring (2026-02-24)
+## Flagged Items for Monitoring (2026-02-25)
 
-- Issue Monster: recurring errors across multiple runs in the last 7 days (including an in-progress run).
-- Issue Triage Agent: recorded errors in the last 7 days window.
-- Super Linter Report: recent run recorded an error.
+- Issue Monster: latest run failure plus another in-progress run with errors (latest log sample).
+- Firewall blocks: proxy.golang.org and release-assets.githubusercontent.com blocked for Example: Custom Error Patterns workflow.
 - Announcements noise: multiple “copilot was here” discussions per day reduce visibility of substantive reports.
+- Community questions: optimization and token/permission topics appearing in Q&A (e.g., workflow optimization, COPILOT_GITHUB_TOKEN org PAT).
