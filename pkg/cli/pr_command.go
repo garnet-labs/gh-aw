@@ -98,6 +98,7 @@ The command will:
 	}
 
 	addRepoFlag(cmd)
+	cmd.Flags().BoolP("verbose", "v", false, "Enable verbose output")
 
 	return cmd
 }
