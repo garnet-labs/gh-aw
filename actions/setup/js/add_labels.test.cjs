@@ -508,5 +508,58 @@ describe("add_labels", () => {
       expect(result.error).toContain("Cannot add more than 10 labels");
       expect(result.error).toContain("received 11");
     });
+
+    it("should preview labels in staged mode without calling the API", async () => {
+      process.env.GH_AW_SAFE_OUTPUTS_STAGED = "true";
+      const handler = await main({ max: 10 });
+      const addLabelsCalls = [];
+
+      mockGithub.rest.issues.addLabels = async params => {
+        addLabelsCalls.push(params);
+        return {};
+      };
+
+      const result = await handler(
+        {
+          item_number: 100,
+          labels: ["bug", "enhancement"],
+        },
+        {}
+      );
+
+      delete process.env.GH_AW_SAFE_OUTPUTS_STAGED;
+
+      expect(result.success).toBe(true);
+      expect(result.staged).toBe(true);
+      expect(result.previewInfo?.number).toBe(100);
+      expect(result.previewInfo?.labels).toEqual(["bug", "enhancement"]);
+      expect(addLabelsCalls.length).toBe(0);
+    });
+
+    it("should handle blocked label patterns", async () => {
+      const handler = await main({
+        max: 10,
+        blocked: ["internal-*"],
+      });
+      const addLabelsCalls = [];
+
+      mockGithub.rest.issues.addLabels = async params => {
+        addLabelsCalls.push(params);
+        return {};
+      };
+
+      const result = await handler(
+        {
+          item_number: 100,
+          labels: ["bug", "internal-secret", "enhancement"],
+        },
+        {}
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.labelsAdded).not.toContain("internal-secret");
+      expect(result.labelsAdded).toContain("bug");
+      expect(result.labelsAdded).toContain("enhancement");
+    });
   });
 });
