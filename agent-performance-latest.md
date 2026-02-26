@@ -1,60 +1,61 @@
-# Agent Performance Analysis - 2026-02-25
+# Agent Performance Analysis - 2026-02-26
 
-**Run:** [§22408567616](https://github.com/github/gh-aw/actions/runs/22408567616)
-**Status:** ✅ IMPROVED — AI Moderator fully recovered; Issue Monster P1 lockdown persists (no fix path)
-**Analysis Period:** 2026-02-19 → 2026-02-25 (7-day focus, 14-day data)
+**Run:** [§22453850435](https://github.com/github/gh-aw/actions/runs/22453850435)
+**Status:** ⚠️ MIXED — AI Moderator GitHub MCP missing tool recurring; Semantic Function Refactoring cost still elevated; Chroma/Changeset Generator extreme token usage; Lockdown P1 failures ongoing
+**Analysis Period:** 2026-02-25 → 2026-02-26 (1-day focus)
 
 ## Executive Summary
 
-- **Agent Quality:** 89/100 (↓ 2 from 91)
-- **Agent Effectiveness:** 88/100 (↑ 1 from 87)
-- **Critical Agent Issues:** 1 ongoing ❌ (Issue Monster lockdown — ALL fix paths CLOSED)
-- **Non-IM Success Rate:** 96% (27/28) ↑ from 95%
-- **Total Cost (today):** ~$6.14 | **Total Tokens:** ~68.8M
-- **Total Runs (today):** 29 completed
+- **Agent Quality:** 86/100 (↓ 3 from 89 yesterday)
+- **Agent Effectiveness:** 87/100 (↓ 1 from 88)
+- **Critical Agent Issues:** 1 ongoing ❌ (Lockdown P0 — no fix path)
+- **New Concerns:** AI Moderator GitHub MCP missing tool (1/3 runs), Chroma Issue Indexer extreme tokens (3.6M)
+- **Total Cost (today):** ~$5.94 | **Total Tokens (sample):** ~165M (inc. Codex parallelism)
+- **Total Runs (sample):** 31 (16 successful agent runs)
 
 ## Key Metrics
 
 | Metric | Current | Previous | Change |
 |--------|---------|----------|--------|
-| Agent Quality | 89/100 | 91/100 | ↓ 2 |
-| Agent Effectiveness | 88/100 | 87/100 | ↑ 1 |
-| Non-IM Success Rate | 96% (27/28) | 95% (20/21) | ↑ 1% |
-| Critical Issues | 1 (Issue Monster) | 1 (AI Moderator) | → type changed |
-| AI Moderator Score | 91/100 | 72/100 | ↑ 19 |
-
-## ✅ RESOLVED: AI Moderator GitHub MCP Recovery
-
-All 11 AI Moderator runs today completed successfully (was ~50% failure yesterday due to Docker MCP intermittency). `mode: remote` appears stable.
-
-## 🔥 P0 Still Burning: Issue Monster (2/2 failures today)
-ALL fix paths now CLOSED:
-- #17414 (add GH_AW_GITHUB_TOKEN): CLOSED "not_planned"
-- #17807 (remove lockdown:true): CLOSED "not_planned" 2026-02-25
-- Manual admin intervention required
-
-## 🆕 NEW: Semantic Function Refactoring High Cost
-- $4.82/run, 469k tokens, 87 blocked firewall requests
-- Created issue #18388
-- Investigate blocked requests (likely Serena MCP local sockets)
+| Agent Quality | 86/100 | 89/100 | ↓ 3 |
+| Agent Effectiveness | 87/100 | 88/100 | ↓ 1 |
+| Semantic Function Refactoring cost | $3.97/run | $4.82/run | ↓ $0.85 |
+| AI Moderator MCP success | 2/3 | 11/11 | ↓ 9 |
+| Chroma Issue Indexer tokens | 3.6M | unknown | NEW high |
 
 ## Top Performing Agents
 
-1. **Smoke Tests Copilot/Claude/Codex (95/100):** All passing today
-2. **The Great Escapi (92/100):** Security maintained, 3.5m
-3. **AI Moderator (91/100):** 11/11 recovered ↑ from 72/100
-4. **Agent Container Smoke Test (90/100):** Clean, 3.5m
-5. **Daily Safe Outputs Conformance Checker (90/100):** 3.2m, 4 turns
+1. **The Great Escapi (94/100):** 74k tokens, 3.5m — ultra-efficient, security maintained
+2. **Contribution Check (93/100):** 181k tokens, 2.8m — fast, clean success
+3. **Daily Safe Outputs Conformance Checker (92/100):** 134k tokens, 3.1m, $0.33 — efficient
+4. **Auto-Triage Issues (90/100):** 136k tokens, 3.5m — success, normal output
+5. **Agent Container Smoke Test (90/100):** 174k tokens, 4.4m — clean
+6. **Smoke Copilot (90/100):** 49 turns, 6.7m — full test passing
 
-## ⚠️ Monitor
+## ⚠️ Agents Needing Attention
 
-- **Semantic Function Refactoring:** $4.82/run — watch for cost growth
-- **Auto-Triage Issues:** 1/2 error today — may be lockdown-related
-- **Smoke Claude:** 12.2m, 40 turns — highest duration smoke test
+- **AI Moderator (82/100):** 1/3 runs missing GitHub MCP read-issue tool (run #22453521501)
+  - Pattern: `codex` engine, missing tool issue is *returning* after yesterday's full recovery
+  - Runs 2 and 3 succeeded (2 turns each) but with low turn count — may be noop
+- **Semantic Function Refactoring (72/100):** $3.97/run, 295k tokens, 12 turns — cost improving slightly but still elevated; 72 blocked firewall requests
+- **Chroma Issue Indexer (68/100):** 3.6M tokens, 10.5m, 102 blocked firewall requests — HIGHEST blocked count
+- **Changeset Generator (70/100 codex):** 123M tokens — extremely high (likely Codex parallelism pattern)
+- **Scout (80/100):** 613k tokens, 19 turns, $0.81 — moderate cost, active
+
+## Firewall Analysis
+
+- Total: 926 requests | Allowed: 487 (53%) | Blocked: 439 (47%)
+- Top blocked workflows: Chroma Issue Indexer (102), Semantic Function Refactoring (72), Changeset Generator (61), Slide Deck Maintainer (43)
+- "-" domain still appearing in blocked list — consistent with Serena MCP local socket pattern
 
 ## Active Issues / Tracking
 
-- ❌ **P0:** Issue Monster + 3 related workflows failing — lockdown token missing, NO fix path
-- ✅ **RESOLVED:** AI Moderator Docker MCP degradation — remote mode stable
-- 🆕 **NEW:** Semantic Function Refactoring high cost — issue #18388
-- ✅ **All smoke tests:** Passing on main
+- ❌ **P0 ONGOING:** Issue Monster + 3 workflows — lockdown token missing, NO fix path
+- ⚠️ **RECURRING:** AI Moderator GitHub MCP missing tool — 1/3 runs today (was 11/11 yesterday)
+- ⚠️ **WATCH:** Semantic Function Refactoring cost — $3.97 today (was $4.82), improving slowly
+- ⚠️ **NEW CONCERN:** Chroma Issue Indexer — 3.6M tokens and 102 blocked requests
+- 🔖 **EXISTING:** Issue #18388 — Semantic Function Refactoring high cost
+
+## Release Activity
+
+- ✅ Release workflow ran successfully (11.4m, run #22452584938) — new release published today

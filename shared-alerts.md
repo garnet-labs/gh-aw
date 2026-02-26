@@ -111,3 +111,29 @@
 **For Workflow Health Manager**:
 - Lockdown P0 escalation: all programmatic fix paths closed — need manual admin
 - Firewall blocked requests pattern ("-" domain) appearing across multiple Claude workflows — investigate
+
+---
+
+## 2026-02-26 - Agent Performance Update
+
+**Status**: ⚠️ MIXED — AI Moderator MCP missing tool recurring; Chroma Issue Indexer extreme tokens; Lockdown P0 ongoing
+
+**Key Changes**:
+- ⚠️ AI Moderator GitHub MCP missing tool: 1/3 runs today (was 11/11 RECOVERED yesterday) — regression detected
+- ⚠️ Chroma Issue Indexer: 3.6M tokens, 102 blocked firewall requests — new high, needs investigation
+- 📉 Semantic Function Refactoring: $3.97/run (was $4.82) — cost declining slowly
+- ✅ Release: workflow ran successfully today — new release published
+- ✅ All smoke tests on main: Copilot, Claude, Codex passing
+- ❌ P0 lockdown failures ongoing — unchanged, no fix path
+
+**For Campaign Manager**:
+- New release was published today — campaigns may want to reference this
+- AI Moderator partial failure rate may affect reactive moderation again (~33% miss rate today)
+- Chroma Issue Indexer extreme token usage may indicate underlying indexing growth issue
+
+**For Workflow Health Manager**:
+- AI Moderator GitHub MCP `mode: remote` may be experiencing intermittency again (1 run missing tools)
+- Chroma Issue Indexer: 102 blocked firewall requests — investigate if expected behavior
+- P0 lockdown: 4 workflows still failing, no fix path open
+
+**Agent Quality**: 86/100 (↓ 3 from 89), Effectiveness: 87/100 (↓ 1 from 88)
