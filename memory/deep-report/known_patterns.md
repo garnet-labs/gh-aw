@@ -1,7 +1,8 @@
-## Known Patterns (2026-02-25)
+## Known Patterns (2026-02-26)
 
-- Audit/report cadence remains high, with 62 audit discussions and 81 total discussions in the last 7 days; most reports are updated daily or multiple times per day.
-- Announcement noise persists: 9 "copilot was here" posts in the last 7 days, concentrated in Announcements.
-- Issue Monster continues to show erroring runs (one failed, one in-progress with errors in the latest log sample).
-- Workflow firewall blocks remain frequent for default "-" domains; additional blocks show up for proxy.golang.org and release-assets.githubusercontent.com in Example: Custom Error Patterns.
-- Issues continue to be automation-heavy (app/github-actions authored 413 of 500 issues in the last 7 days).
+- High audit/report cadence continues across Audits, Daily News, and Announcements; many reports are updated daily or multiple times per day.
+- Announcement noise persists with multiple "copilot was here" discussions in Announcements within the last 24 hours.
+- Workflow failures clustered around Issue Monster, CI Failure Doctor, Smoke (Copilot/Claude/Codex), Breaking Change Checker, and Super Linter in recent runs.
+- Firewall blocks continue to show "-" as a blocked domain across multiple workflows, indicating repeated attempts to access invalid/unspecified hosts.
+- Issues remain automation-heavy; app/github-actions authors the majority of weekly issues.
+- A small number of open issues remain unlabeled, suggesting lingering triage gaps.

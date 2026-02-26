@@ -1,6 +1,7 @@
-## Flagged Items for Monitoring (2026-02-25)
+## Flagged Items for Monitoring (2026-02-26)
 
-- Issue Monster: latest run failure plus another in-progress run with errors (latest log sample).
-- Firewall blocks: proxy.golang.org and release-assets.githubusercontent.com blocked for Example: Custom Error Patterns workflow.
-- Announcements noise: multiple “copilot was here” discussions per day reduce visibility of substantive reports.
-- Community questions: optimization and token/permission topics appearing in Q&A (e.g., workflow optimization, COPILOT_GITHUB_TOKEN org PAT).
+- Issue Monster: multiple failures plus an in-progress run with errors in latest logs sample.
+- Workflow failures cluster: CI Failure Doctor, Smoke (Copilot/Claude/Codex), Breaking Change Checker, Super Linter, Daily CLI Performance Agent, Changeset Generator.
+- Firewall blocks: repeated "-" blocked domain across multiple workflows (likely invalid host usage).
+- Announcements noise: multiple "copilot was here" discussions in the last 24 hours.
+- Open unlabeled issues: 3 open issues without labels in last 7-day dataset.
