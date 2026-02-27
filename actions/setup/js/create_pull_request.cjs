@@ -18,7 +18,11 @@ const { parseBoolTemplatable } = require("./templatable.cjs");
 const { generateFooterWithMessages } = require("./messages_footer.cjs");
 const { normalizeBranchName } = require("./normalize_branch_name.cjs");
 const { pushExtraEmptyCommit } = require("./extra_empty_commit.cjs");
+<<<<<<< HEAD
+const { createCheckoutManager } = require("./dynamic_checkout.cjs");
+=======
 const { getBaseBranch } = require("./get_base_branch.cjs");
+>>>>>>> 5d2d05f1049081d038daab64ba789cf2c5e73a25
 
 /**
  * @typedef {import('./types/handler-factory').HandlerFactoryFunction} HandlerFactoryFunction
@@ -157,6 +161,18 @@ async function main(config = {}) {
   // Track how many items we've processed for max limit
   let processedCount = 0;
 
+  // Create checkout manager for multi-repo support
+  // Token is available via GITHUB_TOKEN environment variable (set by the workflow job)
+  const checkoutToken = process.env.GITHUB_TOKEN;
+  const checkoutManager = checkoutToken ? createCheckoutManager(checkoutToken, { defaultBaseBranch: baseBranch }) : null;
+
+  // Log multi-repo support status
+  if (allowedRepos.size > 0 && checkoutManager) {
+    core.info(`Multi-repo support enabled: can switch between repos in allowed-repos list`);
+  } else if (allowedRepos.size > 0 && !checkoutManager) {
+    core.warning(`Multi-repo support disabled: GITHUB_TOKEN not available for dynamic checkout`);
+  }
+
   /**
    * Message handler function that processes a single create_pull_request message
    * @param {Object} message - The create_pull_request message to process
@@ -220,6 +236,22 @@ async function main(config = {}) {
     }
     const { repo: itemRepo, repoParts } = repoResult;
     core.info(`Target repository: ${itemRepo}`);
+
+    // Multi-repo support: Switch checkout to target repo if different from current
+    // This enables creating PRs in multiple repos from a single workflow run
+    if (checkoutManager && itemRepo) {
+      const switchResult = await checkoutManager.switchTo(itemRepo, { baseBranch });
+      if (!switchResult.success) {
+        core.warning(`Failed to switch to repository ${itemRepo}: ${switchResult.error}`);
+        return {
+          success: false,
+          error: `Failed to checkout repository ${itemRepo}: ${switchResult.error}`,
+        };
+      }
+      if (switchResult.switched) {
+        core.info(`Switched checkout to repository: ${itemRepo}`);
+      }
+    }
 
     // Check if patch file exists and has valid content
     if (!patchFilePath || !fs.existsSync(patchFilePath)) {
