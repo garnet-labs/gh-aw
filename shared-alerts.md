@@ -137,3 +137,25 @@
 - P0 lockdown: 4 workflows still failing, no fix path open
 
 **Agent Quality**: 86/100 (↓ 3 from 89), Effectiveness: 87/100 (↓ 1 from 88)
+
+---
+
+## 2026-02-27 - Agent Performance Update
+
+**Status**: ⚠️ DEGRADED — AI Moderator new root cause (OpenAI cybersec restriction); P0 lockdown ongoing
+
+**Key Findings**:
+- ❌ P0: Issue Monster (+ 3 others) still failing — lockdown token (22nd+ period, NO fix path)
+- ❌ NEW: AI Moderator failed due to OpenAI cybersecurity restriction on gpt-5.3-codex
+  - Codex model blocked: "temporarily limited for potentially suspicious activity related to cybersecurity"
+  - Different from previous GitHub MCP missing tool issues
+  - Investigation needed: AI Moderator prompt may trigger cybersecurity safety checks
+- ✅ Semantic Function Refactoring: $2.36 (↓$1.61 from $3.97 yesterday) — improving
+- ⚠️ Chroma Issue Indexer: still elevated blocked requests (74 in 2d)
+- ✅ The Great Escapi, Contribution Check, Daily Safe Outputs all healthy
+
+**For Workflow Health Manager**:
+- AI Moderator: new failure type (OpenAI restriction, not infrastructure) — monitor closely
+- Codex engine may need review for AI Moderator prompt content
+
+**Agent Quality**: 84/100 (↓ 2 from 86), Effectiveness: 85/100 (↓ 2 from 87)
