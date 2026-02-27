@@ -205,14 +205,21 @@ func ComputePermissionsForSafeOutputs(safeOutputs *SafeOutputsConfig) *Permissio
 	// Handle id-token permission for OIDC/secret vault actions in user-provided steps.
 	// Explicit "none" disables auto-detection; explicit "write" always adds it;
 	// otherwise auto-detect from the steps list.
-	if safeOutputs.IDToken != nil && *safeOutputs.IDToken == "none" {
+	idToken := ""
+	if safeOutputs.IDToken != nil {
+		idToken = *safeOutputs.IDToken
+	}
+	switch idToken {
+	case "none":
 		safeOutputsPermissionsLog.Print("id-token permission explicitly disabled (none)")
-	} else if safeOutputs.IDToken != nil && *safeOutputs.IDToken == "write" {
+	case "write":
 		safeOutputsPermissionsLog.Print("id-token: write explicitly requested")
 		permissions.Set(PermissionIdToken, PermissionWrite)
-	} else if stepsRequireIDToken(safeOutputs.Steps) {
-		safeOutputsPermissionsLog.Print("Auto-detected OIDC/vault action in steps; adding id-token: write")
-		permissions.Set(PermissionIdToken, PermissionWrite)
+	default:
+		if stepsRequireIDToken(safeOutputs.Steps) {
+			safeOutputsPermissionsLog.Print("Auto-detected OIDC/vault action in steps; adding id-token: write")
+			permissions.Set(PermissionIdToken, PermissionWrite)
+		}
 	}
 
 	safeOutputsPermissionsLog.Printf("Computed permissions with %d scopes", len(permissions.permissions))
