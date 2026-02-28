@@ -144,6 +144,21 @@ Review changes with `git diff .github/workflows/` to verify that deprecated fiel
 
 Typical migrations include `sandbox: false` → `sandbox.agent: false`, `daily at` → `daily around`, and removal of deprecated `network.firewall` and `safe-inputs.mode` fields. Use `git diff --word-diff` for detailed comparison.
 
+> [!NOTE]
+> **Manual migration required: `checkout.github-token` → `checkout.token`**
+>
+> If your workflow uses `checkout.github-token:` in the frontmatter, rename the field to `checkout.token:`. This aligns the user-facing field name with the `token` input of `actions/checkout` and is not applied automatically by `gh aw fix`.
+>
+> ```yaml
+> # Before (no longer valid)
+> checkout:
+>   github-token: ${{ secrets.MY_TOKEN }}
+>
+> # After
+> checkout:
+>   token: ${{ secrets.MY_TOKEN }}
+> ```
+
 ## Step 5: Verify Compilation
 
 The upgrade automatically compiles workflows. To validate specific workflows, run `gh aw compile my-workflow --validate`. Common issues include invalid YAML syntax, deprecated fields (fix with `gh aw fix --write`), or incorrect schedule format. See the [schedule syntax reference](/gh-aw/reference/schedule-syntax/) for details.
