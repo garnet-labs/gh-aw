@@ -36,6 +36,14 @@ async function main(config = {}) {
   // Check if we're in staged mode
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
 
+  // Setup GitHub client - use custom token if provided, otherwise use global github object
+  let githubClient = github;
+  if (config["github-token"]) {
+    core.info("Using custom GitHub token for add_labels handler");
+    const { getOctokit } = await import("@actions/github");
+    githubClient = getOctokit(config["github-token"]);
+  }
+
   core.info(`Add labels configuration: max=${maxCount}`);
   if (allowedLabels.length > 0) {
     core.info(`Allowed labels: ${allowedLabels.join(", ")}`);
@@ -161,7 +169,7 @@ async function main(config = {}) {
     }
 
     try {
-      await github.rest.issues.addLabels({
+      await githubClient.rest.issues.addLabels({
         owner: repoParts.owner,
         repo: repoParts.repo,
         issue_number: itemNumber,
