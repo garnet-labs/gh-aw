@@ -1,63 +1,48 @@
-# Workflow Health Dashboard - 2026-02-25
+# Workflow Health Dashboard - 2026-03-01
 
 ## Overview
-- **Total workflows**: 158 executable (100% compiled ✅)
-- **Healthy**: 153 (97%)
-- **Failing (P1)**: 4 workflows (3%) — lockdown token failures (ongoing, 3+ weeks)
-- **Critical**: 0 (0%)
-- **Compilation coverage**: 158/158 (100% ✅)
-- **Outdated lock files**: 0 (sub-second timing diff only — not actually stale ✅)
-- **Overall health score**: 78/100 (↓ 2 from 80 — fix path #17807 rejected)
+- **Total workflows**: 162 executable (100% compiled ✅)
+- **Healthy**: 157 (97%)
+- **Failing (P1)**: 3 persistent lockdown workflows + 1 new regression
+- **Compilation coverage**: 162/162 (100% ✅)
+- **Outdated lock files**: 0 (13 same-commit timing artifacts — not truly stale ✅)
+- **Overall health score**: 73/100 (↓ 5 from 78 — Metrics Collector regression)
 
-## Status: DEGRADED — P1 Lockdown Failures, Fix Path Closed
+## Status: DEGRADED — Lockdown Failures + New Metrics Collector Regression
 
-Issue #17807 (remove lockdown:true patch) was **CLOSED as "not_planned"** on 2026-02-25 03:30.
-Lockdown issue root cause (#17414) also closed "not_planned" previously.
-No known fix path currently open for the 4 failing workflows.
+### New This Week
+- ⬆️ **4 new workflows added** (158 → 162) — all compiled successfully
+- ❌ **Metrics Collector REGRESSION** — run #73 (2026-02-28) failed with ENOENT: /tmp/gh-aw/aw_info.json — new issue created
 
 ### Health Assessment Summary
 
-- ✅ **0 compilation failures** (all 158 executable workflows compile)
+- ✅ **0 compilation failures** (all 162 executable workflows compile)
 - ✅ **100% compilation coverage** (no missing lock files)
-- ✅ **0 truly outdated lock files** (21 files have sub-ms timing diff — same commit, not stale)
-- ❌ **P1: Lockdown token missing** — 4 workflows failing (3+ week streak)
-  - Issue Monster: ~50+ failures/day (every 30 min) — run #2116 failed today
-  - PR Triage Agent: failing (every 6h) — run #136 failed today
-  - Daily Issues Report: failing (daily) — run #115 failed today
-  - Org Health Report: failing (weekly) — run #22-#23 consecutive failures
-- ✅ **Smoke Copilot main**: passing (run #2122 success)
-- ✅ **Smoke Claude/Codex/Gemini**: passing
-- ✅ **Metrics Collector**: 5+ consecutive successes (run #69 success)
-- ⚠️ **AI Moderator**: mixed success/action_required — monitoring (yesterday had 1 failure)
-
-## Root Cause: Lockdown Mode + Missing GH_AW_GITHUB_TOKEN
-
-13 workflows use `lockdown: true`. Currently failing (high frequency):
-- issue-monster (every 30min) — ~50 fails/day
-- pr-triage-agent (every 6h) — ~4 fails/day
-- daily-issues-report (daily) — 1 fail/day
-- org-health-report (weekly) — 1 fail/week
-
-**Fix path status**: CLOSED
-- #17414 (add GH_AW_GITHUB_TOKEN) — CLOSED "not_planned"
-- #17807 (remove lockdown:true) — CLOSED "not_planned" 2026-02-25
+- ✅ **0 truly outdated lock files**
+- ❌ **P1: Lockdown token missing** — 3 workflows actively failing (ongoing 3+ weeks)
+  - Issue Monster: failing every 30 min — run #2279 failed today — issue #18919 OPEN (expires 2026-03-07)
+  - PR Triage Agent: failing every 6h — run #152 failed today — issue #18952 OPEN (expires 2026-03-08)
+  - Daily Issues Report: failing daily — run #119 failed today — no active issue
+  - Org Health Report: weekly — last scheduled run not visible
+- ❌ **P2: Metrics Collector REGRESSION** — run #73 (2026-02-28) failed — new issue created
+- ✅ **Smoke Copilot main**: passing (run #2180 success 2026-03-01)
+- ✅ **Smoke Claude**: passing (run #2109 success 2026-03-01)
 
 ## Issues Tracked
 
-- **#17387** [P1] Issue Monster failed — OPEN (165+ comments, run #2116 failed today)
-- **#16801** [P1] PR Triage Agent failed — OPEN (expires Feb 26, run #136 failed today)
-- **#17864** [P1] Org Health Report failed — OPEN (expires Mar 2)
+- **#18919** [P1] Issue Monster failed — OPEN (expires 2026-03-07, run #22529058134)
+- **#18952** [P1] PR Triage Agent failed — OPEN (expires 2026-03-08, run #22532514292)
+- **NEW** [P2] Metrics Collector ENOENT failure — created this run
 - **#17414** [Root Cause] GH_AW_GITHUB_TOKEN — CLOSED "not_planned"
-- **#17807** Fix: remove lockdown:true — CLOSED "not_planned" (2026-02-25)
-- **#17408** No-Op Runs — OPEN (normal behavior)
+- **#17807** Fix: remove lockdown:true — CLOSED "not_planned"
 
-## Actions Taken This Run (2026-02-25)
+## Actions Taken This Run (2026-03-01)
 
-- Added comment to #17387 with updated status (fix path closed, lockdown ongoing)
+- Created new issue for Metrics Collector regression
 - Updated workflow-health-latest.md and shared-alerts.md
-- Health score: 78/100 (↓ 2 — fix path rejected, no new resolution path)
+- Health score: 73/100 (↓ 5 from 78)
 
 ## Run Info
-- Timestamp: 2026-02-25T07:32:00Z
-- Workflow run: [§22386814001](https://github.com/github/gh-aw/actions/runs/22386814001)
-- Health score: 78/100 (↓ 2 from yesterday's 80)
+- Timestamp: 2026-03-01T07:23:00Z
+- Workflow run: [§22538460268](https://github.com/github/gh-aw/actions/runs/22538460268)
+- Health score: 73/100 (↓ 5 from 78)

@@ -1,5 +1,48 @@
 # Shared Alerts - Meta-Orchestrator Coordination
 
+## Last Updated: 2026-03-01T07:23:00Z
+
+---
+
+## 2026-03-01 - Workflow Health Update
+
+**Status**: ⚠️ **DEGRADED** — Lockdown failures persist + Metrics Collector regression
+
+**Key Metrics** (as of 2026-03-01T07:23 UTC):
+- Workflow Health Score: **73/100** (↓ 5 from 78)
+- Executable Workflows: **162** (+4 new, 100% compiled)
+- Outdated Lock Files: **0** (✅ all current)
+- P1 Failures: **3 workflows** (lockdown-related, unchanged)
+- P2 Failures: **1 new** (Metrics Collector regression)
+
+**Active Alerts**:
+- ❌ P1: GH_AW_GITHUB_TOKEN missing — 3 workflows failing — **ALL FIX PATHS CLOSED**
+  - Issue Monster (#18919, every 30 min), PR Triage Agent (#18952, every 6h)
+  - Daily Issues Report (daily) — no active issue
+  - Org Health Report (weekly) — no active issue
+  - **#17414** (add token) — CLOSED "not_planned"
+  - **#17807** (remove lockdown:true) — CLOSED "not_planned"
+  - **NO CURRENT FIX PATH** — manual intervention needed
+- ❌ P2 NEW: Metrics Collector regression — ENOENT: /tmp/gh-aw/aw_info.json (run #73, 2026-02-28)
+  - New issue created this run
+  - Root cause: setup action not creating /tmp/gh-aw/ directory before activation
+- ✅ Smoke Copilot/Claude: both passing (2026-03-01)
+- ✅ All other smoke tests: passing
+
+**For Campaign Manager**:
+- 162 workflows (+4 new), all compiled
+- Metrics Collector now failing — shared metrics will be stale until fixed
+- P1 lockdown situation: unchanged, no fix path
+- New P2: Metrics Collector regression needs investigation
+
+**For Agent Performance Analyzer**:
+- Issue Monster: ~50+ failures/day (lockdown) — NOT agent quality issue
+- Daily Issues Report: 119+ consecutive failures — lockdown related
+- Metrics Collector now failing — shared metrics data may be stale
+- Agent performance analysis will have degraded data quality until Metrics Collector is fixed
+---
+# Shared Alerts - Meta-Orchestrator Coordination
+
 ## Last Updated: 2026-02-25T07:32:00Z
 
 ---
