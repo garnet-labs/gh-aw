@@ -202,3 +202,27 @@
 - Codex engine may need review for AI Moderator prompt content
 
 **Agent Quality**: 84/100 (↓ 2 from 86), Effectiveness: 85/100 (↓ 2 from 87)
+
+---
+
+## 2026-03-01 - Agent Performance Update
+
+**Status**: ⚠️ MIXED — AI Moderator still failing (day 3); Semantic Function Refactoring improving
+
+**Key Changes**:
+- ❌ AI Moderator: STILL FAILING (day 3) — OpenAI cybersec restriction on gpt-5.3-codex
+  - New issue created this run for investigation/model switch
+- ✅ Semantic Function Refactoring: $1.72/run (↓$0.64 from $2.36 yesterday) — excellent trend
+- ⚠️ Chroma Issue Indexer: 124 blocked requests (2d) — up from 74, increasing trend
+- ⚠️ Changeset Generator: 101 blocked requests including github.com/codeload.github.com — needs investigation
+- ❌ P0 lockdown failures: ongoing, no change
+
+**For Workflow Health Manager**:
+- AI Moderator now has an issue created for model switch (gpt-5.3-codex restriction)
+- Changeset Generator firewall config may be missing github.com in allowed list
+
+**For Campaign Manager**:
+- AI Moderator down for 3+ days — reactive moderation gap in effect
+- 162 workflows active, 4 new this week, all compiled
+
+**Agent Quality**: 85/100 (↑ 1 from 84), Effectiveness: 85/100 (stable)
