@@ -229,6 +229,20 @@ describe("add_workflow_run_comment", () => {
       );
       expect(mockCore.setFailed).not.toHaveBeenCalled();
     });
+
+    it("should fail when PR number is missing for review comment", async () => {
+      global.context = {
+        eventName: "pull_request_review_comment",
+        runId: 12345,
+        repo: { owner: "testowner", repo: "testrepo" },
+        payload: {},
+      };
+
+      await runScript();
+
+      expect(mockCore.setFailed).toHaveBeenCalledWith(`${ERR_NOT_FOUND}: Pull request number not found in event payload`);
+      expect(mockGithub.request).not.toHaveBeenCalled();
+    });
   });
 
   describe("main() - discussion event", () => {
@@ -286,7 +300,7 @@ describe("add_workflow_run_comment", () => {
       const mutationCall = graphqlCalls.find(call => call[0].includes("addDiscussionComment"));
       expect(mutationCall).toBeDefined();
       expect(mutationCall[1]).toMatchObject({
-        replyToId: "DC_kwDOOriginal",
+        input: { replyToId: "DC_kwDOOriginal" },
       });
       expect(mockCore.setFailed).not.toHaveBeenCalled();
     });
@@ -421,6 +435,30 @@ describe("add_workflow_run_comment", () => {
       expect(mockCore.setOutput).toHaveBeenCalledWith("comment-id", "67890");
       expect(mockCore.setOutput).toHaveBeenCalledWith("comment-url", expect.stringContaining("issuecomment-67890"));
       expect(mockCore.setOutput).toHaveBeenCalledWith("comment-repo", "testowner/testrepo");
+    });
+  });
+
+  describe("main() - GITHUB_SERVER_URL", () => {
+    it("should use GITHUB_SERVER_URL when repository html_url is not in payload", async () => {
+      process.env.GITHUB_SERVER_URL = "https://github.enterprise.example.com";
+      global.context = {
+        eventName: "issues",
+        runId: 99999,
+        repo: { owner: "testowner", repo: "testrepo" },
+        payload: {
+          issue: { number: 42 },
+          // No repository.html_url
+        },
+      };
+
+      await runScript();
+
+      expect(mockGithub.request).toHaveBeenCalledWith(
+        expect.stringContaining("POST"),
+        expect.objectContaining({
+          body: expect.stringContaining("https://github.enterprise.example.com/testowner/testrepo/actions/runs/99999"),
+        })
+      );
     });
   });
 });

@@ -28,17 +28,34 @@ const EVENT_TYPE_DESCRIPTIONS = {
  */
 async function getDiscussionNodeId(discussionNumber) {
   const { repository } = await github.graphql(
-    `
-    query($owner: String!, $repo: String!, $num: Int!) {
+    `query($owner: String!, $repo: String!, $num: Int!) {
       repository(owner: $owner, name: $repo) {
-        discussion(number: $num) { 
-          id 
-        }
+        discussion(number: $num) { id }
       }
     }`,
     { owner: context.repo.owner, repo: context.repo.repo, num: discussionNumber }
   );
   return repository.discussion.id;
+}
+
+/**
+ * Add a comment to a discussion via GraphQL
+ * @param {string} discussionId - The discussion node ID
+ * @param {string} body - The comment body
+ * @param {string|undefined} replyToId - Optional node ID to reply to (for threaded comments)
+ */
+async function addGraphQLDiscussionComment(discussionId, body, replyToId) {
+  const input = replyToId ? { discussionId, body, replyToId } : { discussionId, body };
+  const result = await github.graphql(
+    `mutation($input: AddDiscussionCommentInput!) {
+      addDiscussionComment(input: $input) {
+        comment { id url }
+      }
+    }`,
+    { input }
+  );
+  const comment = result.addDiscussionComment.comment;
+  setCommentOutputs(comment.id, comment.url);
 }
 
 /**
@@ -71,7 +88,8 @@ async function main() {
 
   const runId = context.runId;
   const githubServer = process.env.GITHUB_SERVER_URL || "https://github.com";
-  const runUrl = context.payload.repository ? `${context.payload.repository.html_url}/actions/runs/${runId}` : `${githubServer}/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
+  const repoBaseUrl = context.payload.repository?.html_url ?? `${githubServer}/${context.repo.owner}/${context.repo.repo}`;
+  const runUrl = `${repoBaseUrl}/actions/runs/${runId}`;
 
   core.info(`Run ID: ${runId}`);
   core.info(`Run URL: ${runUrl}`);
@@ -210,55 +228,12 @@ async function addCommentWithWorkflowLink(endpoint, runUrl, eventName) {
   // This prevents it from being hidden by hide-older-comments
   commentBody += `\n\n<!-- gh-aw-comment-type: reaction -->`;
 
-  // Handle discussion events specially
-  if (eventName === "discussion") {
-    // Parse discussion number from special format: "discussion:NUMBER"
+  // Handle discussion events specially via GraphQL
+  if (eventName === "discussion" || eventName === "discussion_comment") {
     const discussionNumber = parseInt(endpoint.split(":")[1], 10);
-
-    // Get discussion node ID using helper function
     const discussionId = await getDiscussionNodeId(discussionNumber);
-
-    const result = await github.graphql(
-      `
-      mutation($dId: ID!, $body: String!) {
-        addDiscussionComment(input: { discussionId: $dId, body: $body }) {
-          comment { 
-            id 
-            url
-          }
-        }
-      }`,
-      { dId: discussionId, body: commentBody }
-    );
-
-    const comment = result.addDiscussionComment.comment;
-    setCommentOutputs(comment.id, comment.url);
-    return;
-  } else if (eventName === "discussion_comment") {
-    // Parse discussion number from special format: "discussion_comment:NUMBER:COMMENT_ID"
-    const discussionNumber = parseInt(endpoint.split(":")[1], 10);
-
-    // Get discussion node ID using helper function
-    const discussionId = await getDiscussionNodeId(discussionNumber);
-
-    // Get the comment node ID to use as the parent for threading
-    const commentNodeId = context.payload?.comment?.node_id;
-
-    const result = await github.graphql(
-      `
-      mutation($dId: ID!, $body: String!, $replyToId: ID!) {
-        addDiscussionComment(input: { discussionId: $dId, body: $body, replyToId: $replyToId }) {
-          comment { 
-            id 
-            url
-          }
-        }
-      }`,
-      { dId: discussionId, body: commentBody, replyToId: commentNodeId }
-    );
-
-    const comment = result.addDiscussionComment.comment;
-    setCommentOutputs(comment.id, comment.url);
+    const replyToId = eventName === "discussion_comment" ? context.payload?.comment?.node_id : undefined;
+    await addGraphQLDiscussionComment(discussionId, commentBody, replyToId);
     return;
   }
 
