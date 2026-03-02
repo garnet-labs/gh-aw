@@ -44,9 +44,9 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 		// For dev mode (local action path), checkout the actions folder first
 		steps = append(steps, c.generateCheckoutActionsFolder(data)...)
 
-		// Enable safe-output-projects flag if project-related safe outputs are configured
-		enableProjectSupport := c.hasProjectRelatedSafeOutputs(data.SafeOutputs)
-		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, enableProjectSupport)...)
+		// Enable custom-tokens flag if any safe output uses a per-handler github-token
+		enableCustomTokens := c.hasCustomTokenSafeOutputs(data.SafeOutputs)
+		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, enableCustomTokens)...)
 	}
 
 	// Add artifact download steps after setup

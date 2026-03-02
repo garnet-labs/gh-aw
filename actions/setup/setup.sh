@@ -27,11 +27,11 @@ create_dir() {
 # Get destination from input or use default
 DESTINATION="${INPUT_DESTINATION:-/opt/gh-aw/actions}"
 
-# Get safe-output-projects flag from input (default: false)
-SAFE_OUTPUT_PROJECTS_ENABLED="${INPUT_SAFE_OUTPUT_PROJECTS:-false}"
+# Get safe-output-custom-tokens flag from input (default: false)
+SAFE_OUTPUT_CUSTOM_TOKENS_ENABLED="${INPUT_SAFE_OUTPUT_CUSTOM_TOKENS:-false}"
 
 echo "Copying activation files to ${DESTINATION}"
-echo "Safe-output-projects support: ${SAFE_OUTPUT_PROJECTS_ENABLED}"
+echo "Safe-output custom tokens support: ${SAFE_OUTPUT_CUSTOM_TOKENS_ENABLED}"
 
 # Create destination directory if it doesn't exist
 create_dir "${DESTINATION}"
@@ -302,11 +302,11 @@ fi
 
 echo "Successfully copied ${SAFE_OUTPUTS_COUNT} safe-outputs files to ${SAFE_OUTPUTS_DEST}"
 
-# Install @actions/github package ONLY if safe-output-projects flag is enabled
-# This package is needed by the unified handler manager to create separate Octokit clients
-# for project operations that require GH_AW_PROJECT_GITHUB_TOKEN
-if [ "${SAFE_OUTPUT_PROJECTS_ENABLED}" = "true" ]; then
-  echo "Safe-output-projects enabled - installing @actions/github package in ${DESTINATION}..."
+# Install @actions/github package if any safe output uses a per-handler github-token.
+# handler_auth.cjs needs getOctokit() from @actions/github to create a new Octokit
+# instance when a handler has its own token (for cross-repo operations, project tokens, etc.).
+if [ "${SAFE_OUTPUT_CUSTOM_TOKENS_ENABLED}" = "true" ]; then
+  echo "Custom tokens enabled - installing @actions/github package in ${DESTINATION}..."
   cd "${DESTINATION}"
 
   # Check if npm is available
@@ -332,7 +332,7 @@ if [ "${SAFE_OUTPUT_PROJECTS_ENABLED}" = "true" ]; then
   # Return to original directory
   cd - > /dev/null
 else
-  echo "Safe-output-projects not enabled - skipping @actions/github installation"
+  echo "Custom tokens not enabled - skipping @actions/github installation"
 fi
 
 # Set output
