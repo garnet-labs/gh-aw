@@ -306,7 +306,7 @@ async function main(config = {}) {
 
   // Create an authenticated GitHub client. Uses config["github-token"] when set
   // (for cross-repository operations), otherwise falls back to the step-level github.
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   // Check if we're in staged mode
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
@@ -459,7 +459,7 @@ async function main(config = {}) {
       if (item.item_number !== undefined && item.item_number !== null) {
         // Explicit item_number: fetch the issue/PR to get its author
         try {
-          const { data: issueData } = await authClient.rest.issues.get({
+          const { data: issueData } = await githubClient.rest.issues.get({
             owner: repoParts.owner,
             repo: repoParts.repo,
             issue_number: itemNumber,
@@ -567,7 +567,7 @@ async function main(config = {}) {
       // Hide older comments if enabled AND append-only-comments is not enabled
       // When append-only-comments is true, we want to keep all comments visible
       if (hideOlderCommentsEnabled && !appendOnlyComments && workflowId) {
-        await hideOlderComments(authClient, repoParts.owner, repoParts.repo, itemNumber, workflowId, isDiscussion);
+        await hideOlderComments(githubClient, repoParts.owner, repoParts.repo, itemNumber, workflowId, isDiscussion);
       } else if (hideOlderCommentsEnabled && appendOnlyComments) {
         core.info("Skipping hide-older-comments because append-only-comments is enabled");
       }
@@ -585,7 +585,7 @@ async function main(config = {}) {
             }
           }
         `;
-        const queryResult = await authClient.graphql(discussionQuery, {
+        const queryResult = await githubClient.graphql(discussionQuery, {
           owner: repoParts.owner,
           repo: repoParts.repo,
           number: itemNumber,
@@ -596,10 +596,10 @@ async function main(config = {}) {
           throw new Error(`${ERR_NOT_FOUND}: Discussion #${itemNumber} not found in ${itemRepo}`);
         }
 
-        comment = await commentOnDiscussion(authClient, repoParts.owner, repoParts.repo, itemNumber, processedBody, null);
+        comment = await commentOnDiscussion(githubClient, repoParts.owner, repoParts.repo, itemNumber, processedBody, null);
       } else {
         // Use REST API for issues/PRs
-        const { data } = await authClient.rest.issues.createComment({
+        const { data } = await githubClient.rest.issues.createComment({
           owner: repoParts.owner,
           repo: repoParts.repo,
           issue_number: itemNumber,
@@ -655,7 +655,7 @@ async function main(config = {}) {
               }
             }
           `;
-          const queryResult = await authClient.graphql(discussionQuery, {
+          const queryResult = await githubClient.graphql(discussionQuery, {
             owner: repoParts.owner,
             repo: repoParts.repo,
             number: itemNumber,
@@ -667,7 +667,7 @@ async function main(config = {}) {
           }
 
           core.info(`Found discussion #${itemNumber}, adding comment...`);
-          const comment = await commentOnDiscussion(authClient, repoParts.owner, repoParts.repo, itemNumber, processedBody, null);
+          const comment = await commentOnDiscussion(githubClient, repoParts.owner, repoParts.repo, itemNumber, processedBody, null);
 
           core.info(`Created comment on discussion: ${comment.html_url}`);
 

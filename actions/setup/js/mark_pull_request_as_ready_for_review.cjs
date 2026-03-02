@@ -84,7 +84,7 @@ async function markPullRequestAsReadyForReview(github, owner, repo, prNumber) {
 async function main(config = {}) {
   // Extract configuration
   const maxCount = config.max || 10;
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   // Check if we're in staged mode
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
@@ -149,7 +149,7 @@ async function main(config = {}) {
 
     try {
       // First, get the current PR to check if it's a draft
-      const currentPR = await getPullRequestDetails(authClient, context.repo.owner, context.repo.repo, prNumber);
+      const currentPR = await getPullRequestDetails(githubClient, context.repo.owner, context.repo.repo, prNumber);
 
       // Check if it's already not a draft
       if (!currentPR.draft) {
@@ -178,7 +178,7 @@ async function main(config = {}) {
       }
 
       // Update the PR to mark as ready for review
-      const pr = await markPullRequestAsReadyForReview(authClient, context.repo.owner, context.repo.repo, prNumber);
+      const pr = await markPullRequestAsReadyForReview(githubClient, context.repo.owner, context.repo.repo, prNumber);
 
       // Add comment with reason
       const workflowName = process.env.GH_AW_WORKFLOW_NAME || "GitHub Agentic Workflow";
@@ -195,7 +195,7 @@ async function main(config = {}) {
       const footer = generateFooterWithMessages(workflowName, runUrl, workflowSource, workflowSourceURL, triggeringIssueNumber, triggeringPRNumber, triggeringDiscussionNumber);
       const commentBody = `${sanitizedReason}\n\n${footer}`;
 
-      await addPullRequestComment(authClient, context.repo.owner, context.repo.repo, prNumber, commentBody);
+      await addPullRequestComment(githubClient, context.repo.owner, context.repo.repo, prNumber, commentBody);
 
       core.info(`✓ Marked PR #${prNumber} as ready for review and added comment: ${pr.html_url}`);
 

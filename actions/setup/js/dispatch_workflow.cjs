@@ -21,7 +21,7 @@ async function main(config = {}) {
   const allowedWorkflows = config.workflows || [];
   const maxCount = config.max || 1;
   const workflowFiles = config.workflow_files || {}; // Map of workflow name to file extension
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   core.info(`Dispatch workflow configuration: max=${maxCount}`);
   if (allowedWorkflows.length > 0) {
@@ -47,7 +47,7 @@ async function main(config = {}) {
 
     // Fall back to querying the repository
     try {
-      const { data: repoData } = await authClient.rest.repos.get({
+      const { data: repoData } = await githubClient.rest.repos.get({
         owner: repo.owner,
         repo: repo.repo,
       });
@@ -156,7 +156,7 @@ async function main(config = {}) {
       core.info(`Dispatching workflow: ${workflowFile}`);
 
       // Dispatch the workflow using the resolved file
-      await authClient.rest.actions.createWorkflowDispatch({
+      await githubClient.rest.actions.createWorkflowDispatch({
         owner: repo.owner,
         repo: repo.repo,
         workflow_id: workflowFile,

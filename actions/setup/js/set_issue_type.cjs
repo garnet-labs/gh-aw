@@ -16,14 +16,14 @@ const HANDLER_TYPE = "set_issue_type";
 
 /**
  * Fetches the node ID of an issue for use in GraphQL mutations.
- * @param {Object} authClient - Authenticated GitHub client
+ * @param {Object} githubClient - Authenticated GitHub client
  * @param {string} owner - Repository owner
  * @param {string} repo - Repository name
  * @param {number} issueNumber - Issue number
  * @returns {Promise<string>} Issue node ID
  */
-async function getIssueNodeId(authClient, owner, repo, issueNumber) {
-  const { data } = await authClient.rest.issues.get({
+async function getIssueNodeId(githubClient, owner, repo, issueNumber) {
+  const { data } = await githubClient.rest.issues.get({
     owner,
     repo,
     issue_number: issueNumber,
@@ -34,14 +34,14 @@ async function getIssueNodeId(authClient, owner, repo, issueNumber) {
 /**
  * Fetches the available issue types for the given repository via GraphQL.
  * Returns an array of { id, name } objects, or an empty array if not supported.
- * @param {Object} authClient - Authenticated GitHub client
+ * @param {Object} githubClient - Authenticated GitHub client
  * @param {string} owner - Repository owner
  * @param {string} repo - Repository name
  * @returns {Promise<Array<{id: string, name: string}>>} Available issue types
  */
-async function fetchIssueTypes(authClient, owner, repo) {
+async function fetchIssueTypes(githubClient, owner, repo) {
   try {
-    const result = await authClient.graphql(
+    const result = await githubClient.graphql(
       `query($owner: String!, $repo: String!) {
         repository(owner: $owner, name: $repo) {
           issueTypes(first: 100) {
@@ -68,13 +68,13 @@ async function fetchIssueTypes(authClient, owner, repo) {
 /**
  * Sets the issue type via GraphQL mutation.
  * Passing null for typeId clears the type.
- * @param {Object} authClient - Authenticated GitHub client
+ * @param {Object} githubClient - Authenticated GitHub client
  * @param {string} issueNodeId - GraphQL node ID of the issue
  * @param {string|null} typeId - GraphQL node ID of the issue type, or null to clear
  * @returns {Promise<void>}
  */
-async function setIssueTypeById(authClient, issueNodeId, typeId) {
-  await authClient.graphql(
+async function setIssueTypeById(githubClient, issueNodeId, typeId) {
+  await githubClient.graphql(
     `mutation($issueId: ID!, $typeId: ID) {
       updateIssue(input: { id: $issueId, issueTypeId: $typeId }) {
         issue {
@@ -96,7 +96,7 @@ async function main(config = {}) {
   const allowedTypes = config.allowed || [];
   const maxCount = config.max || 5;
   const { defaultTargetRepo, allowedRepos } = resolveTargetRepoConfig(config);
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   // Check if we're in staged mode
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
@@ -218,12 +218,12 @@ async function main(config = {}) {
       const { owner, repo } = repoParts;
 
       // Get the issue's node ID for GraphQL
-      const issueNodeId = await getIssueNodeId(authClient, owner, repo, issueNumber);
+      const issueNodeId = await getIssueNodeId(githubClient, owner, repo, issueNumber);
 
       let typeId = null;
       if (!isClear) {
         // Fetch available issue types and find the matching one
-        const issueTypes = await fetchIssueTypes(authClient, owner, repo);
+        const issueTypes = await fetchIssueTypes(githubClient, owner, repo);
 
         if (issueTypes.length === 0) {
           const error = "No issue types are available for this repository. Issue types must be configured in the repository or organization settings.";
@@ -243,7 +243,7 @@ async function main(config = {}) {
         core.info(`Resolved issue type ${JSON.stringify(issueTypeName)} to node ID: ${typeId}`);
       }
 
-      await setIssueTypeById(authClient, issueNodeId, typeId);
+      await setIssueTypeById(githubClient, issueNodeId, typeId);
 
       const successMsg = isClear ? `Successfully cleared issue type on issue #${issueNumber}` : `Successfully set issue type to ${JSON.stringify(issueTypeName)} on issue #${issueNumber}`;
       core.info(successMsg);

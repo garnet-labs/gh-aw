@@ -313,7 +313,7 @@ async function main(config = {}) {
 
   // Create an authenticated GitHub client. Uses config["github-token"] when set
   // (for cross-repository operations), otherwise falls back to the step-level github.
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   // Check if we're in staged mode
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
@@ -402,7 +402,7 @@ async function main(config = {}) {
     let repoInfo = repoInfoCache.get(qualifiedItemRepo);
     if (!repoInfo) {
       try {
-        const fetchedInfo = await fetchRepoDiscussionInfo(authClient, repoParts.owner, repoParts.repo);
+        const fetchedInfo = await fetchRepoDiscussionInfo(githubClient, repoParts.owner, repoParts.repo);
         if (!fetchedInfo) {
           const error = `Failed to fetch repository information for '${qualifiedItemRepo}'`;
           core.warning(error);
@@ -569,7 +569,7 @@ async function main(config = {}) {
         }
       `;
 
-      const mutationResult = await authClient.graphql(createDiscussionMutation, {
+      const mutationResult = await githubClient.graphql(createDiscussionMutation, {
         repositoryId: repoInfo.repositoryId,
         categoryId: categoryId,
         title: title,
@@ -591,10 +591,10 @@ async function main(config = {}) {
       // Apply labels if configured
       if (discussionLabels.length > 0) {
         core.info(`Applying ${discussionLabels.length} labels to discussion: ${discussionLabels.join(", ")}`);
-        const labelIdsData = await fetchLabelIds(authClient, repoParts.owner, repoParts.repo, discussionLabels);
+        const labelIdsData = await fetchLabelIds(githubClient, repoParts.owner, repoParts.repo, discussionLabels);
         if (labelIdsData.length > 0) {
           const labelIds = labelIdsData.map(l => l.id);
-          const labelsApplied = await applyLabelsToDiscussion(authClient, discussion.id, labelIds);
+          const labelsApplied = await applyLabelsToDiscussion(githubClient, discussion.id, labelIds);
           if (labelsApplied) {
             core.info(`✓ Applied labels: ${labelIdsData.map(l => l.name).join(", ")}`);
           }

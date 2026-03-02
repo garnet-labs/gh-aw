@@ -218,7 +218,7 @@ async function main(config = {}) {
 
   // Create an authenticated GitHub client. Uses config["github-token"] when set
   // (for cross-repository operations), otherwise falls back to the step-level github.
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   // Check if copilot assignment is enabled
   const assignCopilot = process.env.GH_AW_ASSIGN_COPILOT === "true";
@@ -483,7 +483,7 @@ async function main(config = {}) {
     }
 
     try {
-      const { data: issue } = await authClient.rest.issues.create({
+      const { data: issue } = await githubClient.rest.issues.create({
         owner: repoParts.owner,
         repo: repoParts.repo,
         title,
@@ -539,7 +539,7 @@ async function main(config = {}) {
           // Parent issue expires 1 day (24 hours) after sub-issues
           const parentExpiresHours = expiresHours > 0 ? expiresHours + 24 : 0;
           groupParentNumber = await findOrCreateParentIssue({
-            githubClient: authClient,
+            githubClient: githubClient,
             groupId,
             owner: repoParts.owner,
             repo: repoParts.repo,
@@ -582,7 +582,7 @@ async function main(config = {}) {
           `;
 
           // Get parent issue node ID
-          const parentResult = await authClient.graphql(getIssueNodeIdQuery, {
+          const parentResult = await githubClient.graphql(getIssueNodeIdQuery, {
             owner: repoParts.owner,
             repo: repoParts.repo,
             issueNumber: effectiveParentIssueNumber,
@@ -592,7 +592,7 @@ async function main(config = {}) {
 
           // Get child issue node ID
           core.info(`Fetching node ID for child issue #${issue.number}...`);
-          const childResult = await authClient.graphql(getIssueNodeIdQuery, {
+          const childResult = await githubClient.graphql(getIssueNodeIdQuery, {
             owner: repoParts.owner,
             repo: repoParts.repo,
             issueNumber: issue.number,
@@ -616,7 +616,7 @@ async function main(config = {}) {
             }
           `;
 
-          await authClient.graphql(addSubIssueMutation, {
+          await githubClient.graphql(addSubIssueMutation, {
             issueId: parentNodeId,
             subIssueId: childNodeId,
           });
@@ -628,7 +628,7 @@ async function main(config = {}) {
           // Fallback: add a comment if sub-issue linking fails
           try {
             core.info(`Attempting fallback: adding comment to parent issue #${effectiveParentIssueNumber}...`);
-            await authClient.rest.issues.createComment({
+            await githubClient.rest.issues.createComment({
               owner: repoParts.owner,
               repo: repoParts.repo,
               issue_number: effectiveParentIssueNumber,

@@ -35,7 +35,7 @@ async function main(config = {}) {
   const includeFooter = parseBoolTemplatable(config.footer, true);
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
   const { defaultTargetRepo, allowedRepos } = resolveTargetRepoConfig(config);
-  const authClient = await createAuthenticatedGitHubClient(config);
+  const githubClient = await createAuthenticatedGitHubClient(config);
 
   // Determine the triggering PR number from context
   const triggeringPRNumber = getPRNumber(context.payload);
@@ -164,7 +164,7 @@ async function main(config = {}) {
 
       core.info(`Replying to review comment ${numericCommentId} on PR #${targetPRNumber} (${owner}/${repo})`);
 
-      const result = await authClient.rest.pulls.createReplyForReviewComment({
+      const result = await githubClient.rest.pulls.createReplyForReviewComment({
         owner,
         repo,
         pull_number: targetPRNumber,

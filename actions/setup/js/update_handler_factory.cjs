@@ -105,7 +105,7 @@ function createUpdateHandlerFactory(handlerConfig) {
 
     // Create an authenticated GitHub client. Uses config["github-token"] when set
     // (for cross-repository operations), otherwise falls back to the step-level github.
-    const authClient = await createAuthenticatedGitHubClient(config);
+    const githubClient = await createAuthenticatedGitHubClient(config);
 
     // Resolve default target repo and allowed repos for cross-repository routing.
     // If no target-repo is configured, defaults to the current repository.
@@ -234,10 +234,10 @@ function createUpdateHandlerFactory(handlerConfig) {
       }
 
       // Execute the update using the authenticated client and effective context.
-      // authClient uses config["github-token"] when set (for cross-repo), otherwise global github.
+      // githubClient uses config["github-token"] when set (for cross-repo), otherwise global github.
       // effectiveContext.repo contains the target repo owner/name for cross-repo routing.
       try {
-        const updatedItem = await executeUpdate(authClient, effectiveContext, itemNumber, updateData);
+        const updatedItem = await executeUpdate(githubClient, effectiveContext, itemNumber, updateData);
         core.info(`Successfully updated ${itemTypeName} #${itemNumber}: ${updatedItem.html_url || updatedItem.url}`);
 
         // Format and return success result
