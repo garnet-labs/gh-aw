@@ -7472,6 +7472,22 @@
           }
         }
       ]
+    },
+    "replay-data": {
+      "type": "object",
+      "description": "Replay data configuration for testing workflows without running the AI agent. When --replay is passed to compile, the agent job is replaced with a simple job that writes these replay results. Ignored during normal compilation.",
+      "properties": {
+        "safe-outputs": {
+          "type": "string",
+          "description": "A JSON string containing an array of safe output objects. Each object must have a 'type' field indicating the safe output type (e.g., 'create_pull_request', 'add-comment')."
+        },
+        "patch-files": {
+          "type": "string",
+          "description": "A JSON string containing an array of patch file definitions. Each object must have 'patch_path' (absolute file path) and 'contents' (patch content in git-am format)."
+        }
+      },
+      "required": ["safe-outputs"],
+      "additionalProperties": false
     }
   },
   "additionalProperties": false,

@@ -156,6 +156,14 @@ func (c *Compiler) validateWorkflowData(workflowData *WorkflowData, markdownPath
 		return formatCompilerError(markdownPath, "error", err.Error(), err)
 	}
 
+	// Validate replay-data configuration if present
+	if workflowData.ReplayData != nil {
+		log.Printf("Validating replay-data configuration")
+		if err := ValidateReplayData(workflowData.ReplayData); err != nil {
+			return formatCompilerError(markdownPath, "error", err.Error(), err)
+		}
+	}
+
 	// Validate network allowed domains configuration
 	log.Printf("Validating network allowed domains")
 	if err := c.validateNetworkAllowedDomains(workflowData.NetworkPermissions); err != nil {

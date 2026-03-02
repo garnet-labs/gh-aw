@@ -114,6 +114,7 @@ type Compiler struct {
 	contentOverride         string              // If set, use this content instead of reading from disk (for Wasm/in-memory compilation)
 	skipHeader              bool                // If true, skip ASCII art header in generated YAML (for Wasm/editor mode)
 	inlinePrompt            bool                // If true, inline markdown content in YAML instead of using runtime-import macros (for Wasm builds)
+	replay                  bool                // If true, replace agent job with replay data from frontmatter replay-data section
 }
 
 // NewCompiler creates a new workflow compiler with functional options.
@@ -196,6 +197,11 @@ func (c *Compiler) SetTrialLogicalRepoSlug(repo string) {
 // SetStrictMode configures whether to enable strict validation mode
 func (c *Compiler) SetStrictMode(strict bool) {
 	c.strictMode = strict
+}
+
+// SetReplay configures whether to replace agent job with replay data from frontmatter
+func (c *Compiler) SetReplay(replay bool) {
+	c.replay = replay
 }
 
 // SetRefreshStopTime configures whether to force regeneration of stop-after times
@@ -428,6 +434,7 @@ type WorkflowData struct {
 	HasExplicitGitHubTool bool                 // true if tools.github was explicitly configured in frontmatter
 	InlinedImports        bool                 // if true, inline all imports at compile time (from inlined-imports frontmatter field)
 	CheckoutConfigs       []*CheckoutConfig    // user-configured checkout settings from frontmatter
+	ReplayData            *ReplayDataConfig    // replay data configuration for testing (from replay-data frontmatter section)
 }
 
 // BaseSafeOutputConfig holds common configuration fields for all safe output types

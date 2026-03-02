@@ -286,7 +286,21 @@ func (c *Compiler) buildPreActivationAndActivationJobs(data *WorkflowData, front
 // buildMainJobWrapper builds the main workflow job and adds it to the job manager.
 func (c *Compiler) buildMainJobWrapper(data *WorkflowData, activationJobCreated bool) error {
 	compilerJobsLog.Print("Building main job")
-	mainJob, err := c.buildMainJob(data, activationJobCreated)
+
+	var mainJob *Job
+	var err error
+
+	// When replay mode is enabled, replace the agent job with a replay version
+	if c.replay {
+		if data.ReplayData == nil {
+			return fmt.Errorf("--replay was specified but workflow has no replay-data section in frontmatter")
+		}
+		compilerJobsLog.Print("Using replay agent job (--replay enabled)")
+		mainJob, err = c.buildReplayAgentJob(data, activationJobCreated)
+	} else {
+		mainJob, err = c.buildMainJob(data, activationJobCreated)
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to build main job: %w", err)
 	}

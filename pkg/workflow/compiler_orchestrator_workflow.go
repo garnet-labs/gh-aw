@@ -553,6 +553,10 @@ func (c *Compiler) extractAdditionalConfigurations(
 	// This ensures every workflow with safe-outputs has at least one meaningful action handler.
 	applyDefaultCreateIssue(workflowData)
 
+	// Extract replay-data configuration from frontmatter.
+	// This is always parsed (to validate the schema) but only used when --replay is passed.
+	workflowData.ReplayData = c.extractReplayDataConfig(frontmatter)
+
 	return nil
 }
 

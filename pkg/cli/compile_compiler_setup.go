@@ -147,6 +147,12 @@ func configureCompilerFlags(compiler *workflow.Compiler, config CompileConfig) {
 	if config.ForceRefreshActionPins {
 		compileCompilerSetupLog.Print("Force refresh action pins enabled: will clear cache and resolve all actions from GitHub API")
 	}
+
+	// Set replay flag
+	compiler.SetReplay(config.Replay)
+	if config.Replay {
+		compileCompilerSetupLog.Print("Replay enabled: agent job will be replaced with replay data from frontmatter")
+	}
 }
 
 // setupActionMode configures the action script inlining mode

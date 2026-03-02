@@ -315,6 +315,21 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 	// that always runs, even if this conclusion job doesn't run.
 	// See buildUnlockJob() in compiler_unlock_job.go
 
+	// Download agent-artifacts (contains patch files) for replay data capture.
+	// This is separate from the agent-output download above and uses continue-on-error
+	// so it never fails the workflow (patch files may not exist).
+	steps = append(steps, buildArtifactDownloadSteps(ArtifactDownloadConfig{
+		ArtifactName: "agent-artifacts",
+		DownloadPath: "/tmp/gh-aw/",
+		SetupEnvStep: false,
+		StepName:     "Download agent artifacts for replay capture",
+	})...)
+
+	// Capture replay data from the agent output for all workflow runs.
+	// This uploads a replay-data.md artifact that can be pasted into frontmatter
+	// to replay the same safe outputs without running the agent.
+	steps = append(steps, buildReplayCaptureSteps()...)
+
 	// Add GitHub App token invalidation step if app is configured
 	if data.SafeOutputs.App != nil {
 		notifyCommentLog.Print("Adding GitHub App token invalidation step to conclusion job")

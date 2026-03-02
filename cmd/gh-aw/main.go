@@ -267,6 +267,7 @@ Examples:
 		stats, _ := cmd.Flags().GetBool("stats")
 		failFast, _ := cmd.Flags().GetBool("fail-fast")
 		noCheckUpdate, _ := cmd.Flags().GetBool("no-check-update")
+		replay, _ := cmd.Flags().GetBool("replay")
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		if err := validateEngine(engineOverride); err != nil {
 			return err
@@ -318,6 +319,7 @@ Examples:
 			JSONOutput:             jsonOutput,
 			Stats:                  stats,
 			FailFast:               failFast,
+			Replay:                 replay,
 		}
 		if _, err := cli.CompileWorkflows(cmd.Context(), config); err != nil {
 			// Return error as-is without additional formatting
@@ -634,6 +636,7 @@ Use "` + string(constants.CLIExtensionPrefix) + ` help all" to show help for all
 	compileCmd.Flags().Bool("stats", false, "Display statistics table sorted by file size (shows jobs, steps, scripts, and shells)")
 	compileCmd.Flags().Bool("fail-fast", false, "Stop at the first validation error instead of collecting all errors")
 	compileCmd.Flags().Bool("no-check-update", false, "Skip checking for gh-aw updates")
+	compileCmd.Flags().Bool("replay", false, "Replace agent job with replay data from frontmatter replay-data section (for testing safe-outputs without running the AI agent)")
 	compileCmd.MarkFlagsMutuallyExclusive("dir", "workflows-dir")
 
 	// Register completions for compile command

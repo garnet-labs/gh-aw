@@ -170,6 +170,10 @@ type FrontmatterConfig struct {
 	// Can be a single CheckoutConfig object or an array of CheckoutConfig objects.
 	Checkout        any               `json:"checkout,omitempty"` // Raw value (object or array)
 	CheckoutConfigs []*CheckoutConfig `json:"-"`                  // Parsed checkout configs (not in JSON)
+
+	// Replay data configuration for testing workflows without running the AI agent.
+	// Ignored during normal compilation; only used when --replay is passed.
+	ReplayData *ReplayDataConfig `json:"replay-data,omitempty"`
 }
 
 // unmarshalFromMap converts a value from a map[string]any to a destination variable

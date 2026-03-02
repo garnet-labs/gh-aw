@@ -1040,6 +1040,50 @@ jobs:
             setupGlobals(core, github, context, exec, io);
             const { main } = require('/opt/gh-aw/actions/handle_noop_message.cjs');
             await main();
+      - name: Capture replay data
+        if: always()
+        continue-on-error: true
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const fs = require('fs');
+            const path = '/tmp/gh-aw/safeoutputs/agent_output.json';
+            try {
+              if (!fs.existsSync(path)) {
+                core.info('No agent output found at ' + path + ', skipping replay data capture');
+                return;
+              }
+              const raw = fs.readFileSync(path, 'utf8');
+              const agentOutput = JSON.parse(raw);
+              const items = agentOutput.items || [];
+              if (items.length === 0) {
+                core.info('No safe output items found, skipping replay data capture');
+                return;
+              }
+              const safeOutputsJson = JSON.stringify(items);
+              const lines = [
+                '---',
+                'replay-data:',
+                '  safe-outputs: |',
+                '    ' + safeOutputsJson,
+                '---',
+                ''
+              ];
+              const md = lines.join('\n');
+              const outputPath = '/tmp/gh-aw/replay-data.md';
+              fs.writeFileSync(outputPath, md, 'utf8');
+              core.info('Replay data written to ' + outputPath + ' with ' + items.length + ' items');
+            } catch (err) {
+              core.warning('Failed to capture replay data: ' + err.message);
+            }
+      - name: Upload replay data
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          name: replay-data
+          path: /tmp/gh-aw/replay-data.md
+          if-no-files-found: ignore
 
   pre_activation:
     runs-on: ubuntu-slim
