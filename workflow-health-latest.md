@@ -1,48 +1,58 @@
-# Workflow Health Dashboard - 2026-03-01
+# Workflow Health Dashboard - 2026-03-03
 
 ## Overview
-- **Total workflows**: 162 executable (100% compiled ✅)
-- **Healthy**: 157 (97%)
-- **Failing (P1)**: 3 persistent lockdown workflows + 1 new regression
-- **Compilation coverage**: 162/162 (100% ✅)
-- **Outdated lock files**: 0 (13 same-commit timing artifacts — not truly stale ✅)
-- **Overall health score**: 73/100 (↓ 5 from 78 — Metrics Collector regression)
+- **Total workflows**: 165 executable (+3 from 162, 100% compiled ✅)
+- **Healthy**: ~160 (97%)
+- **Failing (P1)**: 5 workflows
+- **Compilation coverage**: 165/165 (100% ✅)
+- **Outdated lock files**: 0 (✅ all current)
+- **Overall health score**: 76/100 (↑3 from 73 — Metrics Collector recovered)
 
-## Status: DEGRADED — Lockdown Failures + New Metrics Collector Regression
+## Status: DEGRADED — Lockdown Failures + AI Moderator Day 5
 
 ### New This Week
-- ⬆️ **4 new workflows added** (158 → 162) — all compiled successfully
-- ❌ **Metrics Collector REGRESSION** — run #73 (2026-02-28) failed with ENOENT: /tmp/gh-aw/aw_info.json — new issue created
+- ⬆️ **3 new workflows added** (162 → 165) — all compiled successfully
+- ✅ **Metrics Collector RECOVERED** — run #75 succeeded (2026-03-02T18:22Z)
+- ❌ **AI Moderator now on DAY 5** — OpenAI cybersec restriction continues
 
 ### Health Assessment Summary
 
-- ✅ **0 compilation failures** (all 162 executable workflows compile)
+- ✅ **0 compilation failures** (all 165 executable workflows compile)
 - ✅ **100% compilation coverage** (no missing lock files)
 - ✅ **0 truly outdated lock files**
-- ❌ **P1: Lockdown token missing** — 3 workflows actively failing (ongoing 3+ weeks)
-  - Issue Monster: failing every 30 min — run #2279 failed today — issue #18919 OPEN (expires 2026-03-07)
-  - PR Triage Agent: failing every 6h — run #152 failed today — issue #18952 OPEN (expires 2026-03-08)
-  - Daily Issues Report: failing daily — run #119 failed today — no active issue
-  - Org Health Report: weekly — last scheduled run not visible
-- ❌ **P2: Metrics Collector REGRESSION** — run #73 (2026-02-28) failed — new issue created
-- ✅ **Smoke Copilot main**: passing (run #2180 success 2026-03-01)
-- ✅ **Smoke Claude**: passing (run #2109 success 2026-03-01)
+- ✅ **Metrics Collector**: RECOVERED (run #75 success) — up from P2 regression
+- ❌ **P1: Lockdown token missing** — 4 workflows actively failing
+  - Issue Monster: run #2362 failed today — issue #18919 OPEN (expires 2026-03-07 ⚠️)
+  - PR Triage Agent: run #160 failed today — issue #18952 OPEN (expires 2026-03-08)
+  - Daily Issues Report: run #121 failed today — NEW issue created this run
+  - Org Health Report: run #27 failed (weekly, 2026-03-02) — no active issue
+- ❌ **P1: AI Moderator** — day 5 failure (OpenAI cybersec restriction on gpt-5.3-codex)
+  - Issue #18922 OPEN (38 comments, expires 2026-03-07 ⚠️)
+  - Updated automatically today (2026-03-03T05:54Z)
+- ✅ **Smoke Copilot/Claude**: both passing today
 
 ## Issues Tracked
 
-- **#18919** [P1] Issue Monster failed — OPEN (expires 2026-03-07, run #22529058134)
+- **#18919** [P1] Issue Monster failed — OPEN (expires 2026-03-07, run #22529058134) ⚠️ EXPIRING SOON
 - **#18952** [P1] PR Triage Agent failed — OPEN (expires 2026-03-08, run #22532514292)
-- **NEW** [P2] Metrics Collector ENOENT failure — created this run
-- **#17414** [Root Cause] GH_AW_GITHUB_TOKEN — CLOSED "not_planned"
+- **#18922** [P1] AI Moderator failed — OPEN (38 comments, expires 2026-03-07) ⚠️ EXPIRING SOON
+- **NEW** [P1] Daily Issues Report — created this run (aw_DirP1)
+- Dashboard issue created: aw_Dash03
+- **#17414** Root Cause: GH_AW_GITHUB_TOKEN — CLOSED "not_planned"
 - **#17807** Fix: remove lockdown:true — CLOSED "not_planned"
 
-## Actions Taken This Run (2026-03-01)
+## Actions Taken This Run (2026-03-03)
 
-- Created new issue for Metrics Collector regression
+- Created tracking issue for Daily Issues Report P1 lockdown failures
+- Created Workflow Health Dashboard issue (2026-03-03)
 - Updated workflow-health-latest.md and shared-alerts.md
-- Health score: 73/100 (↓ 5 from 78)
+- Health score: 76/100 (↑3 from 73 — Metrics Collector recovered)
 
 ## Run Info
-- Timestamp: 2026-03-01T07:23:00Z
-- Workflow run: [§22538460268](https://github.com/github/gh-aw/actions/runs/22538460268)
-- Health score: 73/100 (↓ 5 from 78)
+- Timestamp: 2026-03-03T07:28:00Z
+- Workflow run: [§22612773467](https://github.com/github/gh-aw/actions/runs/22612773467)
+- Health score: 76/100 (↑3 from 73)
+
+## Upcoming Expirations ⚠️
+- #18919 (Issue Monster) expires 2026-03-07 — 4 days
+- #18922 (AI Moderator) expires 2026-03-07 — 4 days

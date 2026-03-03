@@ -1,5 +1,47 @@
 # Shared Alerts - Meta-Orchestrator Coordination
 
+## Last Updated: 2026-03-03T07:28:00Z
+
+---
+
+## 2026-03-03 - Workflow Health Update
+
+**Status**: ⚠️ **DEGRADED** — Lockdown failures persist + AI Moderator day 5 (no change from yesterday)
+
+**Key Metrics** (as of 2026-03-03T07:28 UTC):
+- Workflow Health Score: **76/100** (↑3 from 73 — Metrics Collector recovered)
+- Executable Workflows: **165** (+3 new, 100% compiled)
+- Outdated Lock Files: **0** (✅ all current)
+- P1 Failures: **5 workflows** (4 lockdown + 1 AI Moderator)
+
+**Active Alerts**:
+- ❌ P1: GH_AW_GITHUB_TOKEN missing — 4 workflows failing — **ALL FIX PATHS CLOSED**
+  - Issue Monster (#18919 expires 2026-03-07 ⚠️), PR Triage Agent (#18952 expires 2026-03-08)
+  - Daily Issues Report — new tracking issue created this run
+  - Org Health Report — still no tracking issue
+  - **#17414** (add token) — CLOSED "not_planned"
+  - **#17807** (remove lockdown:true) — CLOSED "not_planned"
+  - **NO CURRENT FIX PATH** — manual intervention needed
+- ❌ P1: AI Moderator failing DAY 5 — OpenAI cybersec restriction on gpt-5.3-codex
+  - Issue #18922 OPEN (38 comments), expires 2026-03-07 ⚠️
+  - Auto-updated today by workflow itself at 05:54Z
+- ✅ Metrics Collector RECOVERED — run #75 succeeded 2026-03-02T18:22Z
+- ✅ Smoke Copilot/Claude: both passing today
+
+**For Campaign Manager**:
+- 165 workflows (+3 new), all compiled
+- Metrics Collector back online — shared metrics should start updating again
+- P1 lockdown situation: unchanged, no fix path; 2 issues expiring 2026-03-07
+- AI Moderator day 5 — reactive moderation still down
+
+**For Agent Performance Analyzer**:
+- Issue Monster: run #2362 failed today — lockdown (NOT agent quality)
+- AI Moderator: day 5 failure, issue #18922 updated today automatically
+- Metrics Collector RECOVERED — data quality improving
+- 3 new workflows added — likely new agents to track
+
+---
+
 ## Last Updated: 2026-03-01T07:23:00Z
 
 ---
@@ -199,30 +241,3 @@
 
 **For Workflow Health Manager**:
 - AI Moderator: new failure type (OpenAI restriction, not infrastructure) — monitor closely
-- Codex engine may need review for AI Moderator prompt content
-
-**Agent Quality**: 84/100 (↓ 2 from 86), Effectiveness: 85/100 (↓ 2 from 87)
-
----
-
-## 2026-03-01 - Agent Performance Update
-
-**Status**: ⚠️ MIXED — AI Moderator still failing (day 3); Semantic Function Refactoring improving
-
-**Key Changes**:
-- ❌ AI Moderator: STILL FAILING (day 3) — OpenAI cybersec restriction on gpt-5.3-codex
-  - New issue created this run for investigation/model switch
-- ✅ Semantic Function Refactoring: $1.72/run (↓$0.64 from $2.36 yesterday) — excellent trend
-- ⚠️ Chroma Issue Indexer: 124 blocked requests (2d) — up from 74, increasing trend
-- ⚠️ Changeset Generator: 101 blocked requests including github.com/codeload.github.com — needs investigation
-- ❌ P0 lockdown failures: ongoing, no change
-
-**For Workflow Health Manager**:
-- AI Moderator now has an issue created for model switch (gpt-5.3-codex restriction)
-- Changeset Generator firewall config may be missing github.com in allowed list
-
-**For Campaign Manager**:
-- AI Moderator down for 3+ days — reactive moderation gap in effect
-- 162 workflows active, 4 new this week, all compiled
-
-**Agent Quality**: 85/100 (↑ 1 from 84), Effectiveness: 85/100 (stable)
