@@ -29,9 +29,8 @@ func NewOpenCodeEngine() *OpenCodeEngine {
 			supportsMaxTurns:       false, // No --max-turns flag in opencode run
 			supportsWebFetch:       false, // Has built-in webfetch but not exposed via gh-aw neutral tools yet
 			supportsWebSearch:      false, // Has built-in websearch but not exposed via gh-aw neutral tools yet
-			supportsFirewall:       true,  // Supports AWF network sandboxing
 			supportsPlugins:        false,
-			supportsLLMGateway:     true, // Supports LLM gateway on port 10004
+			llmGatewayPort:         constants.OpenCodeLLMGatewayPort, // Port 10004
 		},
 	}
 }
@@ -219,16 +218,12 @@ func (e *OpenCodeEngine) GetExecutionSteps(workflowData *WorkflowData, logFile s
 		npmPathSetup := GetNpmBinPathSetup()
 		opencodeCommandWithPath := fmt.Sprintf("%s && %s", npmPathSetup, opencodeCommand)
 
-		llmGatewayPort := e.SupportsLLMGateway()
-		usesAPIProxy := llmGatewayPort > 0
-
 		command = BuildAWFCommand(AWFCommandConfig{
 			EngineName:     "opencode",
 			EngineCommand:  opencodeCommandWithPath,
 			LogFile:        logFile,
 			WorkflowData:   workflowData,
 			UsesTTY:        false,
-			UsesAPIProxy:   usesAPIProxy,
 			AllowedDomains: allowedDomains,
 		})
 	} else {

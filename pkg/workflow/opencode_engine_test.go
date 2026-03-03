@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/github/gh-aw/pkg/constants"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +26,7 @@ func TestOpenCodeEngine(t *testing.T) {
 		assert.False(t, engine.SupportsMaxTurns(), "Should not support max turns")
 		assert.False(t, engine.SupportsWebFetch(), "Should not support built-in web fetch")
 		assert.False(t, engine.SupportsWebSearch(), "Should not support built-in web search")
-		assert.True(t, engine.SupportsFirewall(), "Should support firewall/AWF")
+		assert.Equal(t, constants.OpenCodeLLMGatewayPort, engine.SupportsLLMGateway(), "Should support LLM gateway on port 10004")
 		assert.False(t, engine.SupportsPlugins(), "Should not support plugins")
 		assert.Equal(t, 10004, engine.SupportsLLMGateway(), "Should support LLM gateway on port 10004")
 	})
