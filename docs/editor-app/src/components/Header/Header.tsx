@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import {
-  Play, Loader2,
+  Loader2,
   CircleCheck, CircleAlert, AlertTriangle, PanelLeftClose, PanelLeft,
-  LayoutDashboard, Code2, Trash2, FilePlus, Undo, Redo,
+  LayoutDashboard, Code2, Trash2, FilePlus, Undo, Redo, Rocket,
 } from 'lucide-react';
 import { toast } from '../../utils/lazyToast';
 import { useWorkflowStore } from '../../stores/workflowStore';
 import { useUIStore } from '../../stores/uiStore';
+import { useDeployStore } from '../../stores/deployStore';
 import { useHistoryStore } from '../../hooks/useHistory';
 import { ExportMenu } from './ExportMenu';
+import { DeployDialog } from '../Deploy/DeployDialog';
 import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
@@ -21,7 +23,6 @@ export function Header() {
   const setViewMode = useWorkflowStore((s) => s.setViewMode);
 
   const {
-    autoCompile, setAutoCompile,
     sidebarOpen, toggleSidebar,
   } = useUIStore();
 
@@ -143,25 +144,12 @@ export function Header() {
 
       <div style={{ flex: 1 }} />
 
-      {/* Auto-compile */}
-      <label className="header-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-fg-muted, #656d76)', cursor: 'pointer', userSelect: 'none' }}>
-        <input type="checkbox" checked={autoCompile} onChange={(e) => setAutoCompile(e.target.checked)} style={{ accentColor: 'var(--color-accent-fg, #0969da)' }} />
-        Auto
-      </label>
-
       {/* Undo / Redo */}
       <button onClick={undo} disabled={!canUndo} style={{ ...iconButtonStyle, opacity: canUndo ? 1 : 0.35, cursor: canUndo ? 'pointer' : 'default' }} title="Undo (Ctrl+Z)" aria-label="Undo (Ctrl+Z)">
         <Undo size={16} aria-hidden="true" />
       </button>
       <button onClick={redo} disabled={!canRedo} style={{ ...iconButtonStyle, opacity: canRedo ? 1 : 0.35, cursor: canRedo ? 'pointer' : 'default' }} title="Redo (Ctrl+Shift+Z)" aria-label="Redo (Ctrl+Shift+Z)">
         <Redo size={16} aria-hidden="true" />
-      </button>
-
-      {/* Compile */}
-      <button onClick={() => toast.info('Compilation triggered')} disabled={isCompiling}
-        aria-label={isCompiling ? 'Compiling...' : 'Compile workflow'}
-        style={{ ...actionButtonStyle, opacity: isCompiling ? 0.6 : 1, cursor: isCompiling ? 'not-allowed' : 'pointer' }}>
-        <Play size={14} aria-hidden="true" /> <span className="header-btn-label">Compile</span>
       </button>
 
       {/* New workflow */}
@@ -189,6 +177,24 @@ export function Header() {
 
       {/* Export dropdown */}
       <ExportMenu />
+
+      {/* Deploy to GitHub */}
+      <button
+        onClick={() => useDeployStore.getState().openDialog()}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 5, padding: '4px 12px',
+          fontSize: 13, fontWeight: 600,
+          border: 'none', borderRadius: 6,
+          background: 'var(--color-accent-fg, #0969da)',
+          color: '#fff', cursor: 'pointer',
+          transition: 'opacity 0.15s ease',
+        }}
+        title="Deploy to GitHub"
+        aria-label="Deploy to GitHub"
+      >
+        <Rocket size={14} aria-hidden="true" /> <span className="header-btn-label">Deploy</span>
+      </button>
+      <DeployDialog />
 
     </header>
   );
@@ -230,3 +236,4 @@ const viewToggleActiveStyle: React.CSSProperties = {
   fontWeight: 600,
   boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
 };
+

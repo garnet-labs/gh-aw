@@ -25,7 +25,7 @@ function isValidCron(s: string): boolean {
 // Includes ecosystem identifiers required by strict mode
 const DOMAIN_KEYWORDS = [
   'defaults', 'all', 'none',
-  'python', 'node', 'go', 'rust', 'ruby', 'java', 'docker',
+  'python', 'node', 'go', 'rust', 'ruby', 'java',
   'dotnet', 'elixir', 'haskell', 'swift', 'php', 'perl',
 ];
 

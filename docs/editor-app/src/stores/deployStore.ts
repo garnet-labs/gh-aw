@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type DeployStep = 'auth' | 'repo' | 'deploying' | 'success' | 'error';
-
 export interface ProgressItem {
   id: string;
   label: string;
@@ -10,95 +8,156 @@ export interface ProgressItem {
   error?: string;
 }
 
+export type DeployStep = 'auth' | 'repo' | 'deploying' | 'success' | 'error';
+
 export interface DeployState {
+  // Auth
   token: string | null;
   username: string | null;
+  rememberToken: boolean;
+
+  // Dialog
   isOpen: boolean;
   step: DeployStep;
+
+  // Repo
   repoSlug: string;
   branchName: string;
   baseBranch: string;
+
+  // Progress
   progress: ProgressItem[];
+
+  // Result
   prUrl: string | null;
   error: string | null;
-  rememberToken: boolean;
-  isValidatingToken: boolean;
+
+  // Deploy in flight
+  isDeploying: boolean;
 }
 
 export interface DeployActions {
   openDialog: () => void;
   closeDialog: () => void;
+  setToken: (token: string, username: string) => void;
+  clearToken: () => void;
+  setRememberToken: (remember: boolean) => void;
   setStep: (step: DeployStep) => void;
-  setToken: (token: string | null) => void;
-  setUsername: (username: string | null) => void;
   setRepoSlug: (slug: string) => void;
   setBranchName: (name: string) => void;
-  setBaseBranch: (branch: string) => void;
-  setProgress: (progress: ProgressItem[]) => void;
+  setBaseBranch: (name: string) => void;
+  initProgress: () => void;
   updateProgress: (id: string, update: Partial<ProgressItem>) => void;
-  setPrUrl: (url: string | null) => void;
-  setError: (error: string | null) => void;
-  setRememberToken: (remember: boolean) => void;
-  setIsValidatingToken: (validating: boolean) => void;
-  reset: () => void;
+  setSuccess: (prUrl: string) => void;
+  setError: (error: string) => void;
+  setIsDeploying: (v: boolean) => void;
+  resetTransient: () => void;
 }
 
-const initialState: DeployState = {
-  token: null,
-  username: null,
+export type DeployStore = DeployState & DeployActions;
+
+const DEPLOY_STEPS: ProgressItem[] = [
+  { id: 'verify', label: 'Verify repository access', status: 'pending' },
+  { id: 'branch', label: 'Create branch', status: 'pending' },
+  { id: 'upload-md', label: 'Upload workflow source', status: 'pending' },
+  { id: 'upload-yml', label: 'Upload compiled YAML', status: 'pending' },
+  { id: 'pr', label: 'Create pull request', status: 'pending' },
+];
+
+const initialTransient = {
   isOpen: false,
-  step: 'auth',
+  step: 'auth' as DeployStep,
   repoSlug: '',
   branchName: '',
   baseBranch: 'main',
-  progress: [],
+  progress: DEPLOY_STEPS.map((s) => ({ ...s })),
   prUrl: null,
   error: null,
-  rememberToken: true,
-  isValidatingToken: false,
+  isDeploying: false,
 };
 
-export const useDeployStore = create<DeployState & DeployActions>()(
+export const useDeployStore = create<DeployStore>()(
   persist(
     (set) => ({
-      ...initialState,
+      // Auth
+      token: null,
+      username: null,
+      rememberToken: false,
 
-      openDialog: () => set((s) => ({
-        isOpen: true,
-        step: s.token && s.username ? 'repo' : 'auth',
-        error: null,
-        prUrl: null,
-        progress: [],
-      })),
+      // Transient
+      ...initialTransient,
 
-      closeDialog: () => set({ isOpen: false }),
+      openDialog: () =>
+        set((state) => ({
+          isOpen: true,
+          // If we have a saved token, skip to repo step
+          step: state.token ? 'repo' : 'auth',
+          progress: DEPLOY_STEPS.map((s) => ({ ...s })),
+          prUrl: null,
+          error: null,
+          isDeploying: false,
+        })),
+
+      closeDialog: () =>
+        set({
+          isOpen: false,
+          progress: DEPLOY_STEPS.map((s) => ({ ...s })),
+          prUrl: null,
+          error: null,
+          isDeploying: false,
+        }),
+
+      setToken: (token, username) => set({ token, username }),
+
+      clearToken: () =>
+        set({ token: null, username: null, rememberToken: false, step: 'auth' }),
+
+      setRememberToken: (rememberToken) => set({ rememberToken }),
 
       setStep: (step) => set({ step }),
-      setToken: (token) => set({ token }),
-      setUsername: (username) => set({ username }),
-      setRepoSlug: (slug) => set({ repoSlug: slug }),
-      setBranchName: (name) => set({ branchName: name }),
-      setBaseBranch: (branch) => set({ baseBranch: branch }),
-      setProgress: (progress) => set({ progress }),
+
+      setRepoSlug: (repoSlug) => set({ repoSlug }),
+
+      setBranchName: (branchName) => set({ branchName }),
+
+      setBaseBranch: (baseBranch) => set({ baseBranch }),
+
+      initProgress: () =>
+        set({ progress: DEPLOY_STEPS.map((s) => ({ ...s })) }),
+
       updateProgress: (id, update) =>
-        set((s) => ({
-          progress: s.progress.map((p) =>
-            p.id === id ? { ...p, ...update } : p
+        set((state) => ({
+          progress: state.progress.map((p) =>
+            p.id === id ? { ...p, ...update } : p,
           ),
         })),
-      setPrUrl: (url) => set({ prUrl: url }),
-      setError: (error) => set({ error }),
-      setRememberToken: (remember) => set({ rememberToken: remember }),
-      setIsValidatingToken: (validating) => set({ isValidatingToken: validating }),
 
-      reset: () => set({ ...initialState, isOpen: false }),
+      setSuccess: (prUrl) => set({ prUrl, step: 'success', isDeploying: false }),
+
+      setError: (error) => set({ error, step: 'error', isDeploying: false }),
+
+      setIsDeploying: (isDeploying) => set({ isDeploying }),
+
+      resetTransient: () =>
+        set((state) => ({
+          ...initialTransient,
+          // Keep auth if remembered
+          step: state.token ? 'repo' : 'auth',
+        })),
     }),
     {
-      name: 'deploy-store',
-      partialize: (state) =>
-        state.rememberToken
-          ? { token: state.token, username: state.username, rememberToken: state.rememberToken }
-          : { rememberToken: state.rememberToken },
-    }
-  )
+      name: 'gh-aw-deploy',
+      partialize: (state) => {
+        // Only persist token/username if rememberToken is true
+        if (state.rememberToken) {
+          return {
+            token: state.token,
+            username: state.username,
+            rememberToken: state.rememberToken,
+          };
+        }
+        return {};
+      },
+    },
+  ),
 );

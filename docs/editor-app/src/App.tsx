@@ -24,6 +24,7 @@ const WelcomeModal = lazy(() => import('./components/Onboarding/WelcomeModal').t
 const LazyToaster = lazy(() => import('sonner').then(m => ({ default: m.Toaster })));
 const ShortcutsHelp = lazy(() => import('./components/shared/ShortcutsHelp').then(m => ({ default: m.ShortcutsHelp })));
 const GuidedTour = lazy(() => import('./components/Onboarding/GuidedTour').then(m => ({ default: m.GuidedTour })));
+const DeployDialog = lazy(() => import('./components/Deploy/DeployDialog').then(m => ({ default: m.DeployDialog })));
 
 // Canvas is large (~220KB with ReactFlow) -- lazy load with a loading skeleton
 const CanvasWithProvider = lazy(() => import('./components/Canvas/CanvasWithProvider'));
@@ -223,6 +224,9 @@ export default function App() {
       )}
       <Suspense fallback={null}>
         <ShortcutsHelp />
+      </Suspense>
+      <Suspense fallback={null}>
+        <DeployDialog />
       </Suspense>
       <Suspense fallback={null}>
         <LazyToaster position="bottom-right" theme={theme === 'auto' ? 'system' : theme} />

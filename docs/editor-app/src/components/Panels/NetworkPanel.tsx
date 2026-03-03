@@ -21,7 +21,6 @@ const ecosystemPresets: EcosystemPreset[] = [
   { name: 'Rust', domains: ['rust'], description: 'Cargo crates and Rust ecosystem' },
   { name: 'Ruby', domains: ['ruby'], description: 'RubyGems and Bundler' },
   { name: 'Java', domains: ['java'], description: 'Maven Central and Gradle' },
-  { name: 'Docker', domains: ['docker'], description: 'Docker Hub and registries' },
 ];
 
 export function NetworkPanel() {

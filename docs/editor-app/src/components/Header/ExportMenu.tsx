@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Download, Copy, ChevronDown, Link, FileText, AlertTriangle } from 'lucide-react';
+import { Download, Copy, ChevronDown, Link, FileText, AlertTriangle, Rocket } from 'lucide-react';
 import { toast } from '../../utils/lazyToast';
 import { useWorkflowStore } from '../../stores/workflowStore';
+import { useDeployStore } from '../../stores/deployStore';
 import { encodeState } from '../../utils/deepLink';
 
 function formatSize(bytes: number): string {
@@ -163,6 +164,26 @@ export function ExportMenu() {
             disabled={!hasYaml}
           >
             <Copy size={14} aria-hidden="true" /> Copy YAML
+          </button>
+
+          {/* Divider */}
+          <div style={dividerStyle} role="separator" />
+
+          {/* Deploy section */}
+          <div style={sectionLabelStyle} role="presentation">Deploy</div>
+          <button
+            role="menuitem"
+            onClick={() => {
+              if (canExport) {
+                setOpen(false);
+                useDeployStore.getState().openDialog();
+              }
+            }}
+            style={{ ...menuItemStyle, ...(canExport ? {} : disabledStyle) }}
+            disabled={!canExport}
+            data-testid="deploy-to-github-btn"
+          >
+            <Rocket size={14} aria-hidden="true" /> Deploy to GitHub
           </button>
 
           {/* Divider */}

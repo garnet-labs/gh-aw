@@ -1,48 +1,53 @@
 const API_BASE = 'https://api.github.com';
 
-export class GitHubApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-    this.name = 'GitHubApiError';
-  }
+function headers(token: string): HeadersInit {
+  return {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+  };
 }
 
-async function githubFetch(
-  token: string,
-  endpoint: string,
-  options?: RequestInit,
-): Promise<any> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+export interface GitHubUser {
+  login: string;
+  avatar_url: string;
+}
+
+export interface GitHubRepo {
+  default_branch: string;
+  permissions: { push: boolean };
+}
+
+export interface GitHubPR {
+  html_url: string;
+  number: number;
+}
+
+async function ghFetch(url: string, token: string, init?: RequestInit): Promise<Response> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { ...headers(token), ...(init?.headers || {}) },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new GitHubApiError(res.status, body.message || res.statusText);
+    const msg = (body as { message?: string }).message || res.statusText;
+    const err = new Error(msg);
+    (err as Error & { status: number }).status = res.status;
+    throw err;
   }
+  return res;
+}
+
+export async function validateToken(token: string): Promise<GitHubUser> {
+  const res = await ghFetch(`${API_BASE}/user`, token);
   return res.json();
 }
 
-export async function validateToken(
-  token: string,
-): Promise<{ login: string; avatar_url: string }> {
-  return githubFetch(token, '/user');
-}
-
-export async function getRepo(
-  token: string,
-  owner: string,
-  repo: string,
-): Promise<{ default_branch: string; permissions: { push: boolean } }> {
-  return githubFetch(token, `/repos/${owner}/${repo}`);
+export async function getRepo(token: string, owner: string, repo: string): Promise<GitHubRepo> {
+  const res = await ghFetch(
+    `${API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
+    token,
+  );
+  return res.json();
 }
 
 export async function getDefaultBranchSha(
@@ -51,11 +56,13 @@ export async function getDefaultBranchSha(
   repo: string,
   branch: string,
 ): Promise<string> {
-  const ref = await githubFetch(
+  // Branch paths with / must NOT be encoded — GitHub API expects literal slashes
+  const res = await ghFetch(
+    `${API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/ref/heads/${branch}`,
     token,
-    `/repos/${owner}/${repo}/git/ref/heads/${branch}`,
   );
-  return ref.object.sha;
+  const data = await res.json();
+  return (data as { object: { sha: string } }).object.sha;
 }
 
 export async function createBranch(
@@ -65,13 +72,15 @@ export async function createBranch(
   branchName: string,
   sha: string,
 ): Promise<void> {
-  await githubFetch(token, `/repos/${owner}/${repo}/git/refs`, {
-    method: 'POST',
-    body: JSON.stringify({
-      ref: `refs/heads/${branchName}`,
-      sha,
-    }),
-  });
+  await ghFetch(
+    `${API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/refs`,
+    token,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: `refs/heads/${branchName}`, sha }),
+    },
+  );
 }
 
 export async function createOrUpdateFile(
@@ -83,16 +92,22 @@ export async function createOrUpdateFile(
   message: string,
   branch: string,
 ): Promise<void> {
-  await githubFetch(
+  // Use TextEncoder for proper UTF-8 base64 encoding (no deprecated unescape)
+  const bytes = new TextEncoder().encode(content);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const b64 = btoa(binary);
+
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  await ghFetch(
+    `${API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodedPath}`,
     token,
-    `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path}`,
     {
       method: 'PUT',
-      body: JSON.stringify({
-        message,
-        content: btoa(unescape(encodeURIComponent(content))),
-        branch,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, content: b64, branch }),
     },
   );
 }
@@ -105,9 +120,15 @@ export async function createPullRequest(
   head: string,
   base: string,
   body: string,
-): Promise<{ html_url: string; number: number }> {
-  return githubFetch(token, `/repos/${owner}/${repo}/pulls`, {
-    method: 'POST',
-    body: JSON.stringify({ title, head, base, body }),
-  });
+): Promise<GitHubPR> {
+  const res = await ghFetch(
+    `${API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/pulls`,
+    token,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, head, base, body }),
+    },
+  );
+  return res.json();
 }
