@@ -10,6 +10,7 @@ interface BaseNodeProps {
   title: string;
   selected?: boolean;
   dimmed?: boolean;
+  expanded?: boolean;
   children: ReactNode;
 }
 
@@ -19,6 +20,7 @@ export const BaseNode = memo(function BaseNode({
   title,
   selected = false,
   dimmed = false,
+  expanded = false,
   children,
 }: BaseNodeProps) {
   const errorNodeIds = useWorkflowStore((s) => s.errorNodeIds) ?? [];
@@ -34,6 +36,7 @@ export const BaseNode = memo(function BaseNode({
     selected ? 'selected' : '',
     dimmed ? 'dimmed' : '',
     hasError ? 'has-error' : '',
+    expanded ? 'instructions-expanded' : '',
   ]
     .filter(Boolean)
     .join(' ');

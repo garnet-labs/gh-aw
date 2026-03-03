@@ -41,6 +41,8 @@ const nodeTypes: NodeTypes = {
 
 const NODE_WIDTH = 260;
 const NODE_HEIGHT = 120;
+const EXPANDED_INSTRUCTIONS_WIDTH = 480;
+const EXPANDED_INSTRUCTIONS_HEIGHT = 400;
 
 interface NodeDef {
   id: string;
@@ -124,13 +126,16 @@ const ALL_NODES: NodeDef[] = [
   },
 ];
 
-function getLayoutedElements(nodes: Node[], edges: Edge[]) {
+function getLayoutedElements(nodes: Node[], edges: Edge[], instructionsExpanded: boolean) {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
   g.setGraph({ rankdir: 'TB', nodesep: 40, ranksep: 60 });
 
   nodes.forEach((node) => {
-    g.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+    const isExpandedInstructions = node.id === 'instructions' && instructionsExpanded;
+    const w = isExpandedInstructions ? EXPANDED_INSTRUCTIONS_WIDTH : NODE_WIDTH;
+    const h = isExpandedInstructions ? EXPANDED_INSTRUCTIONS_HEIGHT : NODE_HEIGHT;
+    g.setNode(node.id, { width: w, height: h });
   });
 
   edges.forEach((edge) => {
@@ -141,11 +146,14 @@ function getLayoutedElements(nodes: Node[], edges: Edge[]) {
 
   const layoutedNodes = nodes.map((node) => {
     const pos = g.node(node.id);
+    const isExpandedInstructions = node.id === 'instructions' && instructionsExpanded;
+    const w = isExpandedInstructions ? EXPANDED_INSTRUCTIONS_WIDTH : NODE_WIDTH;
+    const h = isExpandedInstructions ? EXPANDED_INSTRUCTIONS_HEIGHT : NODE_HEIGHT;
     return {
       ...node,
       position: {
-        x: pos.x - NODE_WIDTH / 2,
-        y: pos.y - NODE_HEIGHT / 2,
+        x: pos.x - w / 2,
+        y: pos.y - h / 2,
       },
     };
   });
@@ -156,6 +164,8 @@ function getLayoutedElements(nodes: Node[], edges: Edge[]) {
 export function WorkflowGraph() {
   const state = useWorkflowStore();
   const selectNode = useWorkflowStore((s) => s.selectNode);
+  const instructionsExpanded = useWorkflowStore((s) => s.instructionsExpanded);
+  const setInstructionsExpanded = useWorkflowStore((s) => s.setInstructionsExpanded);
   const theme = useUIStore((s) => s.theme);
 
   // Resolve effective color mode (auto → system preference)
@@ -195,8 +205,8 @@ export function WorkflowGraph() {
 
   // Apply dagre layout
   const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(
-    () => getLayoutedElements(rawNodes, rawEdges),
-    [rawNodes, rawEdges]
+    () => getLayoutedElements(rawNodes, rawEdges, instructionsExpanded),
+    [rawNodes, rawEdges, instructionsExpanded]
   );
 
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
@@ -216,7 +226,8 @@ export function WorkflowGraph() {
 
   const onPaneClick = useCallback(() => {
     selectNode(null);
-  }, [selectNode]);
+    setInstructionsExpanded(false);
+  }, [selectNode, setInstructionsExpanded]);
 
   if (visibleNodeDefs.length === 0) {
     return <EmptyState />;

@@ -68,6 +68,7 @@ const initialState: WorkflowState = {
   validationErrors: [],
   lintResults: [],
   errorNodeIds: [],
+  instructionsExpanded: false,
   selectedNodeId: null,
   highlightFieldPath: null,
   viewMode: 'visual',
@@ -148,6 +149,8 @@ export const useWorkflowStore = create<WorkflowStore>()(
         })),
 
       setInstructions: (instructions: string) => set({ instructions }),
+
+      setInstructionsExpanded: (instructionsExpanded: boolean) => set({ instructionsExpanded }),
 
       toggleSafeOutput: (key: string) =>
         set((state) => {
@@ -318,6 +321,7 @@ export const useWorkflowStore = create<WorkflowStore>()(
           rateLimit: { max: '', window: '' },
           platform: '',
           // Reset UI/compilation state
+          instructionsExpanded: false,
           selectedNodeId: null,
           highlightFieldPath: null,
           error: null,

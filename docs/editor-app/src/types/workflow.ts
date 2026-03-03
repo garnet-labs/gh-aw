@@ -257,7 +257,8 @@ export interface WorkflowState {
   // Error-to-node mapping
   errorNodeIds: string[];
 
-  // UI state
+  // UI state (transient)
+  instructionsExpanded: boolean;
   selectedNodeId: string | null;
   highlightFieldPath: string | null;
   viewMode: 'visual' | 'markdown' | 'yaml';
@@ -280,6 +281,7 @@ export interface WorkflowActions {
   toggleTool: (tool: string) => void;
   setToolConfig: (tool: string, config: Record<string, unknown>) => void;
   setInstructions: (text: string) => void;
+  setInstructionsExpanded: (expanded: boolean) => void;
   toggleSafeOutput: (key: string) => void;
   setSafeOutputConfig: (key: string, config: Record<string, unknown>) => void;
   setNetwork: (network: Partial<NetworkConfig>) => void;
