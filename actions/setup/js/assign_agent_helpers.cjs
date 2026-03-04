@@ -61,8 +61,7 @@ async function getAvailableAgentLogins(owner, repo) {
     const available = actors.filter(actor => actor?.login && knownValues.includes(actor.login)).map(actor => actor.login);
     return available.sort();
   } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    core.debug(`Failed to list available agent logins: ${errorMessage}`);
+    core.debug(`Failed to list available agent logins: ${getErrorMessage(e)}`);
     return [];
   }
 }
@@ -240,6 +239,37 @@ async function getPullRequestDetails(owner, repo, pullNumber) {
 }
 
 /**
+ * Log GraphQL error details line-by-line for troubleshooting
+ * @param {unknown} error - Error to extract and log details from
+ * @param {string} header - Header message to log before details
+ * @param {(msg: string) => void} logFn - Logger function (core.info, core.error, etc.)
+ */
+function logGraphQLErrorDetails(error, header, logFn) {
+  try {
+    if (!error || typeof error !== "object") return;
+    const err = /** @type {any} */ (error);
+    const details = {
+      ...(err.errors && { errors: err.errors }),
+      ...(err.response && { response: err.response }),
+      ...(err.data && { data: err.data }),
+    };
+    if (Array.isArray(err.errors)) {
+      details.compactMessages = err.errors.map(/** @param {any} e */ e => e.message).filter(Boolean);
+    }
+    const serialized = JSON.stringify(details, null, 2);
+    if (serialized !== "{}") {
+      logFn(header);
+      serialized
+        .split("\n")
+        .filter(line => line.trim())
+        .forEach(line => logFn(line));
+    }
+  } catch (loggingErr) {
+    core.debug(`Failed to serialize error details: ${getErrorMessage(loggingErr)}`);
+  }
+}
+
+/**
  * Assign agent to issue or pull request using GraphQL replaceActorsForAssignable mutation
  * @param {string} assignableId - GitHub issue or pull request ID
  * @param {string} agentId - Agent ID
@@ -394,65 +424,15 @@ async function assignAgentToIssue(assignableId, agentId, currentAssignees, agent
 
     if (is502Error) {
       core.warning(`Received 502 error from cloud gateway during agent assignment, but assignment may have succeeded`);
-      core.info(`502 error details logged for troubleshooting`);
-
-      // Log the 502 error details without failing
-      try {
-        if (error && typeof error === "object") {
-          const details = {
-            ...(err.errors && { errors: err.errors }),
-            ...(err.response && { response: err.response }),
-            ...(err.data && { data: err.data }),
-          };
-          const serialized = JSON.stringify(details, null, 2);
-          if (serialized !== "{}") {
-            core.info("502 error details (for troubleshooting):");
-            serialized
-              .split("\n")
-              .filter(line => line.trim())
-              .forEach(line => core.info(line));
-          }
-        }
-      } catch (loggingErr) {
-        const loggingErrMsg = loggingErr instanceof Error ? loggingErr.message : String(loggingErr);
-        core.debug(`Failed to serialize 502 error details: ${loggingErrMsg}`);
-      }
-
+      logGraphQLErrorDetails(error, "502 error details (for troubleshooting):", core.info);
       // Treat 502 as success since assignment typically succeeds despite the error
       core.info(`Treating 502 error as success - agent assignment likely completed`);
       return true;
     }
 
     // Debug: surface the raw GraphQL error structure for troubleshooting fine-grained permission issues
-    try {
-      core.debug(`Raw GraphQL error message: ${errorMessage}`);
-      if (error && typeof error === "object") {
-        // Common GraphQL error shapes: error.errors (array), error.data, error.response
-        const details = {
-          ...(err.errors && { errors: err.errors }),
-          ...(err.response && { response: err.response }),
-          ...(err.data && { data: err.data }),
-        };
-        // If GitHub returns an array of errors with 'type'/'message'
-        if (Array.isArray(err.errors)) {
-          details.compactMessages = err.errors.map(e => e.message).filter(Boolean);
-        }
-        const serialized = JSON.stringify(details, null, 2);
-        if (serialized !== "{}") {
-          core.debug(`Raw GraphQL error details: ${serialized}`);
-          // Also emit non-debug version so users without ACTIONS_STEP_DEBUG can see it
-          core.error("Raw GraphQL error details (for troubleshooting):");
-          serialized
-            .split("\n")
-            .filter(line => line.trim())
-            .forEach(line => core.error(line));
-        }
-      }
-    } catch (loggingErr) {
-      // Never fail assignment because of debug logging
-      const loggingErrMsg = loggingErr instanceof Error ? loggingErr.message : String(loggingErr);
-      core.debug(`Failed to serialize GraphQL error details: ${loggingErrMsg}`);
-    }
+    core.debug(`Raw GraphQL error message: ${errorMessage}`);
+    logGraphQLErrorDetails(error, "Raw GraphQL error details (for troubleshooting):", core.error);
 
     // Check for permission-related errors
     if (errorMessage.includes("Resource not accessible by personal access token") || errorMessage.includes("Resource not accessible by integration") || errorMessage.includes("Insufficient permissions to assign")) {
@@ -630,4 +610,5 @@ module.exports = {
   logPermissionError,
   generatePermissionErrorSummary,
   assignAgentToIssueByName,
+  logGraphQLErrorDetails,
 };

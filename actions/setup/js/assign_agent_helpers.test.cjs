@@ -17,7 +17,19 @@ const mockGithub = {
 globalThis.core = mockCore;
 globalThis.github = mockGithub;
 
-const { AGENT_LOGIN_NAMES, getAgentName, getAvailableAgentLogins, findAgent, getIssueDetails, assignAgentToIssue, generatePermissionErrorSummary, assignAgentToIssueByName } = await import("./assign_agent_helpers.cjs");
+const {
+  AGENT_LOGIN_NAMES,
+  getAgentName,
+  getAvailableAgentLogins,
+  findAgent,
+  getIssueDetails,
+  getPullRequestDetails,
+  assignAgentToIssue,
+  logPermissionError,
+  generatePermissionErrorSummary,
+  assignAgentToIssueByName,
+  logGraphQLErrorDetails,
+} = await import("./assign_agent_helpers.cjs");
 
 describe("assign_agent_helpers.cjs", () => {
   beforeEach(() => {
@@ -595,6 +607,162 @@ describe("assign_agent_helpers.cjs", () => {
 
       expect(result.success).toBe(true);
       expect(mockCore.info).toHaveBeenCalledWith("copilot is already assigned to issue #123");
+    });
+  });
+
+  describe("getPullRequestDetails", () => {
+    it("should return pull request ID and current assignees", async () => {
+      mockGithub.graphql.mockResolvedValueOnce({
+        repository: {
+          pullRequest: {
+            id: "PR_123",
+            assignees: {
+              nodes: [
+                { id: "USER_1", login: "user1" },
+                { id: "USER_2", login: "user2" },
+              ],
+            },
+          },
+        },
+      });
+
+      const result = await getPullRequestDetails("owner", "repo", 123);
+
+      expect(result).toEqual({
+        pullRequestId: "PR_123",
+        currentAssignees: [
+          { id: "USER_1", login: "user1" },
+          { id: "USER_2", login: "user2" },
+        ],
+      });
+    });
+
+    it("should return null when pull request is not found", async () => {
+      mockGithub.graphql.mockResolvedValueOnce({
+        repository: {
+          pullRequest: null,
+        },
+      });
+
+      const result = await getPullRequestDetails("owner", "repo", 999);
+
+      expect(result).toBeNull();
+      expect(mockCore.error).toHaveBeenCalledWith("Could not get pull request data");
+    });
+
+    it("should handle GraphQL errors by re-throwing", async () => {
+      mockGithub.graphql.mockRejectedValueOnce(new Error("GraphQL error"));
+
+      await expect(getPullRequestDetails("owner", "repo", 123)).rejects.toThrow("GraphQL error");
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("Failed to get pull request details"));
+    });
+
+    it("should return empty assignees when none exist", async () => {
+      mockGithub.graphql.mockResolvedValueOnce({
+        repository: {
+          pullRequest: {
+            id: "PR_123",
+            assignees: {
+              nodes: [],
+            },
+          },
+        },
+      });
+
+      const result = await getPullRequestDetails("owner", "repo", 123);
+
+      expect(result).toEqual({
+        pullRequestId: "PR_123",
+        currentAssignees: [],
+      });
+    });
+
+    it("should return null when pull request has no id", async () => {
+      mockGithub.graphql.mockResolvedValueOnce({
+        repository: {
+          pullRequest: {
+            id: null,
+            assignees: { nodes: [] },
+          },
+        },
+      });
+
+      const result = await getPullRequestDetails("owner", "repo", 123);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("logPermissionError", () => {
+    it("should log multiple error messages about required permissions", () => {
+      logPermissionError("copilot");
+
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("Failed to assign copilot"));
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("actions: write"));
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("contents: write"));
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("issues: write"));
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("pull-requests: write"));
+    });
+
+    it("should include repository settings guidance", () => {
+      logPermissionError("copilot");
+
+      expect(mockCore.error).toHaveBeenCalledWith(expect.stringContaining("Settings > Actions > General"));
+    });
+
+    it("should log info with documentation link", () => {
+      logPermissionError("copilot");
+
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("docs.github.com"));
+    });
+  });
+
+  describe("logGraphQLErrorDetails", () => {
+    it("should log error details line by line", () => {
+      const logFn = vi.fn();
+      const error = { errors: [{ message: "Forbidden" }], response: { status: 403 } };
+
+      logGraphQLErrorDetails(error, "Error details:", logFn);
+
+      expect(logFn).toHaveBeenCalledWith("Error details:");
+      expect(logFn).toHaveBeenCalledWith(expect.stringContaining("Forbidden"));
+    });
+
+    it("should do nothing when error is null", () => {
+      const logFn = vi.fn();
+
+      logGraphQLErrorDetails(null, "Error details:", logFn);
+
+      expect(logFn).not.toHaveBeenCalled();
+    });
+
+    it("should do nothing when error has no relevant fields", () => {
+      const logFn = vi.fn();
+
+      logGraphQLErrorDetails({}, "Error details:", logFn);
+
+      expect(logFn).not.toHaveBeenCalled();
+    });
+
+    it("should extract compactMessages from errors array", () => {
+      const logFn = vi.fn();
+      const error = { errors: [{ message: "Error one" }, { message: "Error two" }] };
+
+      logGraphQLErrorDetails(error, "Errors:", logFn);
+
+      expect(logFn).toHaveBeenCalledWith("Errors:");
+      // The serialized JSON should contain compactMessages
+      const calls = logFn.mock.calls.map(c => c[0]).join("\n");
+      expect(calls).toContain("Error one");
+      expect(calls).toContain("Error two");
+    });
+
+    it("should handle non-object errors gracefully", () => {
+      const logFn = vi.fn();
+
+      logGraphQLErrorDetails("string error", "Error:", logFn);
+
+      expect(logFn).not.toHaveBeenCalled();
     });
   });
 });
