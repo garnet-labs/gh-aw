@@ -1381,6 +1381,23 @@ safe-outputs:
 
 **Variables**: `{workflow_name}`, `{run_url}`, `{triggering_number}`, `{workflow_source}`, `{workflow_source_url}`, `{event_type}`, `{status}`, `{operation}`
 
+### Security Metadata (`secrecy`, `integrity`)
+
+Any safe output tool call can optionally include `secrecy` and `integrity` metadata fields. Unlike frontmatter options, these are set in the **agent's output** (the JSON the agent sends when calling a safe output tool), not in the workflow's `safe-outputs:` configuration.
+
+- **`secrecy`**: Confidentiality level of the message content. Values: `"public"`, `"internal"`, `"private"`.
+- **`integrity`**: Trustworthiness of the data source. Values: `"low"`, `"medium"`, `"high"`.
+
+When present, both values are displayed in the workflow step summary.
+
+**Example — agent output including security metadata:**
+
+```json
+{"type": "create_issue", "title": "Security report", "body": "...", "secrecy": "internal", "integrity": "medium"}
+```
+
+See [Secrecy](/gh-aw/reference/glossary/#secrecy) and [Integrity](/gh-aw/reference/glossary/#integrity) in the Glossary for definitions.
+
 ## Related Documentation
 
 - [Threat Detection Guide](/gh-aw/reference/threat-detection/) - Complete threat detection documentation and examples
