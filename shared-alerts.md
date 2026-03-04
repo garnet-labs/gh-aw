@@ -241,3 +241,36 @@
 
 **For Workflow Health Manager**:
 - AI Moderator: new failure type (OpenAI restriction, not infrastructure) — monitor closely
+
+---
+
+## 2026-03-04 - Agent Performance Update
+
+**Status**: ⚠️ **DEGRADED** — OpenAI cybersec restriction EXPANDING; Issue Monster lockdown unchanged
+
+**Key Metrics** (as of 2026-03-04T17:31Z):
+- Agent Quality Score: **84/100** (↓1 from 85)
+- Agent Effectiveness: **84/100** (↓1)
+- Total Runs (7d): 50 | Errors: 10 | Cost: $4.27
+- P1 Failures: **3 workflows** (AI Moderator day 7+, Smoke Codex NEW, Issue Monster lockdown)
+
+**🆕 NEW ALERT: Smoke Codex now also failing**
+- Smoke Codex run #2142 failed with SAME OpenAI cybersec restriction as AI Moderator
+- Both codex-engine workflows now blocked
+- Scope is EXPANDING — may require escalation
+
+**Active Alerts (for Workflow Health Manager)**:
+- ❌ NEW P1: Smoke Codex failing — OpenAI cybersec restriction (run 22676642094)
+- ❌ P1: AI Moderator day 7+ — issue #18922 expires 2026-03-07 ⚠️ EXPIRING IN 3 DAYS
+- ❌ P0: Issue Monster + lockdown workflows — no fix path
+
+**Top Token Consumers (7d)**:
+- Changeset Generator: 10.4M tokens (1 run) — monitor cost
+- Chroma Issue Indexer: 3.3M tokens (1 run)
+- Semantic Function Refactoring: 2.96M tokens (improving)
+
+**For Campaign Manager**:
+- 2 codex-engine workflows now failing (AI Moderator + Smoke Codex)
+- Issue Monster campaigns blocked — P0 token issue unchanged
+- All Claude/Copilot-engine workflows passing normally
+
