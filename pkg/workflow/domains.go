@@ -115,6 +115,7 @@ var GeminiDefaultDomains = []string{
 // based on the model prefix via GetOpenCodeDefaultDomains().
 var OpenCodeBaseDefaultDomains = []string{
 	"host.docker.internal", // MCP gateway / API proxy access
+	"opencode.ai",          // OpenCode telemetry/config (required for startup)
 	"registry.npmjs.org",   // npm package downloads
 }
 
@@ -137,6 +138,7 @@ var OpenCodeDefaultDomains = []string{
 	"api.openai.com",                    // OpenAI provider
 	"generativelanguage.googleapis.com", // Google/Gemini provider
 	"host.docker.internal",              // MCP gateway / API proxy access
+	"opencode.ai",                       // OpenCode telemetry/config (required for startup)
 	"registry.npmjs.org",                // npm package downloads
 }
 
