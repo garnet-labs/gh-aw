@@ -115,10 +115,10 @@ func TestRenderAgenticWorkflowsMCPConfigWithOptions(t *testing.T) {
 			},
 			unexpectedContent: []string{
 				`--cmd`,
-				`"entrypoint"`,               // Not needed in dev mode - uses container's ENTRYPOINT
-				`"entrypointArgs"`,           // Not needed in dev mode - uses container's CMD
-				`\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro`,   // Not needed in dev mode - binary is in image
-				`/usr/bin/gh:/usr/bin/gh:ro`, // Not needed in dev mode - gh CLI is in image
+				`"entrypoint"`,     // Not needed in dev mode - uses container's ENTRYPOINT
+				`"entrypointArgs"`, // Not needed in dev mode - uses container's CMD
+				`\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro`, // Not needed in dev mode - binary is in image
+				`/usr/bin/gh:/usr/bin/gh:ro`,                               // Not needed in dev mode - gh CLI is in image
 				`${{ secrets.`,
 				`"command":`, // Should NOT use command - must use container
 			},
@@ -134,7 +134,7 @@ func TestRenderAgenticWorkflowsMCPConfigWithOptions(t *testing.T) {
 				`"container": "alpine:latest"`,
 				`"entrypoint": "${GH_AW_HOME:-/opt/gh-aw}/gh-aw"`,
 				`"entrypointArgs": ["mcp-server", "--validate-actor"]`,
-				`"\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro"`,                                  // gh-aw binary mount (read-only)
+				`"\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro"`,  // gh-aw binary mount (read-only)
 				`"/usr/bin/gh:/usr/bin/gh:ro"`,                                // gh CLI binary mount (read-only)
 				`"\${GITHUB_WORKSPACE}:\${GITHUB_WORKSPACE}:rw"`,              // workspace mount (read-write)
 				`"/tmp/gh-aw:/tmp/gh-aw:rw"`,                                  // temp directory mount (read-write)
@@ -171,10 +171,10 @@ func TestRenderAgenticWorkflowsMCPConfigWithOptions(t *testing.T) {
 				`"type"`,
 				`\\${`,
 				`--cmd`,
-				`"entrypoint"`,               // Not needed in dev mode - uses container's ENTRYPOINT
-				`"entrypointArgs"`,           // Not needed in dev mode - uses container's CMD
-				`\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro`,   // Not needed in dev mode - binary is in image
-				`/usr/bin/gh:/usr/bin/gh:ro`, // Not needed in dev mode - gh CLI is in image
+				`"entrypoint"`,     // Not needed in dev mode - uses container's ENTRYPOINT
+				`"entrypointArgs"`, // Not needed in dev mode - uses container's CMD
+				`\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro`, // Not needed in dev mode - binary is in image
+				`/usr/bin/gh:/usr/bin/gh:ro`,                               // Not needed in dev mode - gh CLI is in image
 				// Verify GitHub expressions are NOT in the output (security fix)
 				`${{ secrets.`,
 				`"command":`, // Should NOT use command - must use container
@@ -268,10 +268,10 @@ func TestRenderAgenticWorkflowsMCPConfigTOML(t *testing.T) {
 			},
 			unexpectedContent: []string{
 				`--cmd`,
-				`entrypoint =`,               // Not needed in dev mode - uses container's ENTRYPOINT
-				`entrypointArgs =`,           // Not needed in dev mode - uses container's CMD
-				`\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro`,   // Not needed in dev mode
-				`/usr/bin/gh:/usr/bin/gh:ro`, // Not needed in dev mode
+				`entrypoint =`,     // Not needed in dev mode - uses container's ENTRYPOINT
+				`entrypointArgs =`, // Not needed in dev mode - uses container's CMD
+				`\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro`, // Not needed in dev mode
+				`/usr/bin/gh:/usr/bin/gh:ro`,                               // Not needed in dev mode
 			},
 		},
 		{
@@ -280,12 +280,12 @@ func TestRenderAgenticWorkflowsMCPConfigTOML(t *testing.T) {
 			expectedContainer:    `container = "alpine:latest"`,
 			shouldHaveEntrypoint: true,
 			expectedMounts: []string{
-				`entrypoint = "${GH_AW_HOME:-/opt/gh-aw}/gh-aw"`,                     // Entrypoint needed in release mode
-				`entrypointArgs = ["mcp-server", "--validate-actor"]`, // EntrypointArgs needed in release mode with validate-actor flag
-				`"\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro"`,                          // gh-aw binary mount
-				`"/usr/bin/gh:/usr/bin/gh:ro"`,                        // gh CLI binary mount
-				`"\${GITHUB_WORKSPACE}:\${GITHUB_WORKSPACE}:rw"`,      // workspace mount
-				`"/tmp/gh-aw:/tmp/gh-aw:rw"`,                          // temp directory mount
+				`entrypoint = "${GH_AW_HOME:-/opt/gh-aw}/gh-aw"`,             // Entrypoint needed in release mode
+				`entrypointArgs = ["mcp-server", "--validate-actor"]`,        // EntrypointArgs needed in release mode with validate-actor flag
+				`"\${GH_AW_HOME:-/opt/gh-aw}:\${GH_AW_HOME:-/opt/gh-aw}:ro"`, // gh-aw binary mount
+				`"/usr/bin/gh:/usr/bin/gh:ro"`,                               // gh CLI binary mount
+				`"\${GITHUB_WORKSPACE}:\${GITHUB_WORKSPACE}:rw"`,             // workspace mount
+				`"/tmp/gh-aw:/tmp/gh-aw:rw"`,                                 // temp directory mount
 			},
 			unexpectedContent: []string{
 				`--cmd`,
