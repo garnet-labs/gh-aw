@@ -192,6 +192,10 @@ func (e *OpenCodeEngine) GetExecutionSteps(workflowData *WorkflowData, logFile s
 
 	modelConfigured := workflowData.EngineConfig != nil && workflowData.EngineConfig.Model != ""
 
+	// Enable verbose logging for debugging in CI
+	opencodeArgs = append(opencodeArgs, "--print-logs")
+	opencodeArgs = append(opencodeArgs, "--log-level", "DEBUG")
+
 	// Prompt from file (positional argument to `opencode run`)
 	opencodeArgs = append(opencodeArgs, "\"$(cat /tmp/gh-aw/aw-prompts/prompt.txt)\"")
 

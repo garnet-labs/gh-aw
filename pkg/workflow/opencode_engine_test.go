@@ -28,7 +28,6 @@ func TestOpenCodeEngine(t *testing.T) {
 		assert.False(t, engine.SupportsWebSearch(), "Should not support built-in web search")
 		assert.Equal(t, constants.OpenCodeLLMGatewayPort, engine.SupportsLLMGateway(), "Should support LLM gateway on port 10004")
 		assert.False(t, engine.SupportsPlugins(), "Should not support plugins")
-		assert.Equal(t, 10004, engine.SupportsLLMGateway(), "Should support LLM gateway on port 10004")
 	})
 
 	t.Run("model env var name", func(t *testing.T) {
