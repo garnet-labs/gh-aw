@@ -180,9 +180,9 @@ This workflow uploads artifacts.
 
 	for _, path := range uploadPaths {
 		if strings.Contains(contentStr, path) {
-			// Verify it's under /tmp/gh-aw/ or /opt/gh-aw/ (scannable paths)
-			if !strings.HasPrefix(path, "/tmp/gh-aw/") && !strings.HasPrefix(path, "/opt/gh-aw/") {
-				t.Errorf("Upload path %s is not under /tmp/gh-aw/ or /opt/gh-aw/ and won't be scanned", path)
+			// Verify it's under /tmp/gh-aw/ or $GH_AW_HOME (scannable paths)
+			if !strings.HasPrefix(path, "/tmp/gh-aw/") && !strings.HasPrefix(path, "/opt/gh-aw/") && !strings.HasPrefix(path, "${GH_AW_HOME") {
+				t.Errorf("Upload path %s is not under /tmp/gh-aw/ or $GH_AW_HOME and won't be scanned", path)
 			}
 		}
 	}
