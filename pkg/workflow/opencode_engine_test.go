@@ -173,7 +173,6 @@ func TestOpenCodeEngineExecution(t *testing.T) {
 		assert.Contains(t, stepContent, "name: Execute OpenCode CLI", "Should have correct step name")
 		assert.Contains(t, stepContent, "id: agentic_execution", "Should have agentic_execution ID")
 		assert.Contains(t, stepContent, "opencode run", "Should invoke opencode run command")
-		assert.Contains(t, stepContent, "-q", "Should include quiet flag")
 		assert.Contains(t, stepContent, `"$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"`, "Should include prompt argument")
 		assert.Contains(t, stepContent, "/tmp/test.log", "Should include log file")
 		assert.Contains(t, stepContent, "ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}", "Should set ANTHROPIC_API_KEY env var")

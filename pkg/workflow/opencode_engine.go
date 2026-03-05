@@ -192,10 +192,7 @@ func (e *OpenCodeEngine) GetExecutionSteps(workflowData *WorkflowData, logFile s
 
 	modelConfigured := workflowData.EngineConfig != nil && workflowData.EngineConfig.Model != ""
 
-	// Quiet mode for CI (suppress spinner)
-	opencodeArgs = append(opencodeArgs, "-q")
-
-	// Prompt from file
+	// Prompt from file (positional argument to `opencode run`)
 	opencodeArgs = append(opencodeArgs, "\"$(cat /tmp/gh-aw/aw-prompts/prompt.txt)\"")
 
 	// Build command name
