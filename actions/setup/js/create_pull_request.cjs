@@ -16,13 +16,11 @@ const { addExpirationToFooter } = require("./ephemerals.cjs");
 const { generateWorkflowIdMarker } = require("./generate_footer.cjs");
 const { parseBoolTemplatable } = require("./templatable.cjs");
 const { generateFooterWithMessages } = require("./messages_footer.cjs");
-const { generateHistoryUrl } = require("./generate_history_link.cjs");
 const { normalizeBranchName } = require("./normalize_branch_name.cjs");
 const { pushExtraEmptyCommit } = require("./extra_empty_commit.cjs");
 const { createCheckoutManager } = require("./dynamic_checkout.cjs");
 const { getBaseBranch } = require("./get_base_branch.cjs");
 const { createAuthenticatedGitHubClient } = require("./handler_auth.cjs");
-const { buildWorkflowRunUrl } = require("./workflow_metadata_helpers.cjs");
 
 /**
  * @typedef {import('./types/handler-factory').HandlerFactoryFunction} HandlerFactoryFunction
@@ -150,7 +148,9 @@ async function main(config = {}) {
   }
 
   // Extract triggering issue number from context (for auto-linking PRs to issues)
-  const triggeringIssueNumber = context.payload?.issue?.number && !context.payload?.issue?.pull_request ? context.payload.issue.number : undefined;
+  // Guard with typeof check: context is only available in github-script execution environment,
+  // not when this module is loaded during MCP server initialization
+  const triggeringIssueNumber = typeof context !== "undefined" && context.payload?.issue?.number && !context.payload?.issue?.pull_request ? context.payload.issue.number : undefined;
 
   // Check if we're in staged mode
   const isStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED === "true";
@@ -533,7 +533,9 @@ async function main(config = {}) {
     // Add AI disclaimer with workflow name and run url
     const workflowName = process.env.GH_AW_WORKFLOW_NAME || "Workflow";
     const workflowId = process.env.GH_AW_WORKFLOW_ID || "";
-    const runUrl = buildWorkflowRunUrl(context, context.repo);
+    const runId = context.runId;
+    const githubServer = process.env.GITHUB_SERVER_URL || "https://github.com";
+    const runUrl = context.payload.repository ? `${context.payload.repository.html_url}/actions/runs/${runId}` : `${githubServer}/${repoParts.owner}/${repoParts.repo}/actions/runs/${runId}`;
     const workflowSource = process.env.GH_AW_WORKFLOW_SOURCE ?? "";
     const workflowSourceURL = process.env.GH_AW_WORKFLOW_SOURCE_URL ?? "";
     const triggeringPRNumber = context.payload.pull_request?.number;
@@ -548,14 +550,7 @@ async function main(config = {}) {
     // Generate footer using messages template system (respects custom messages.footer config)
     // When footer is disabled, only add XML markers (no visible footer content)
     if (includeFooter) {
-      const historyUrl = generateHistoryUrl({
-        owner: repoParts.owner,
-        repo: repoParts.repo,
-        itemType: "pull_request",
-        workflowId,
-        serverUrl: context.serverUrl,
-      });
-      let footer = generateFooterWithMessages(workflowName, runUrl, workflowSource, workflowSourceURL, triggeringIssueNumber, triggeringPRNumber, triggeringDiscussionNumber, historyUrl).trimEnd();
+      let footer = generateFooterWithMessages(workflowName, runUrl, workflowSource, workflowSourceURL, triggeringIssueNumber, triggeringPRNumber, triggeringDiscussionNumber).trimEnd();
       footer = addExpirationToFooter(footer, expiresHours, "Pull Request");
       if (expiresHours > 0) {
         footer += "\n\n<!-- gh-aw-expires-type: pull-request -->";
@@ -727,8 +722,9 @@ async function main(config = {}) {
 
         core.warning("Git push operation failed - creating fallback issue instead of pull request");
 
-        const runUrl = buildWorkflowRunUrl(context, context.repo);
         const runId = context.runId;
+        const githubServer = process.env.GITHUB_SERVER_URL || "https://github.com";
+        const runUrl = context.payload.repository ? `${context.payload.repository.html_url}/actions/runs/${runId}` : `${githubServer}/${repoParts.owner}/${repoParts.repo}/actions/runs/${runId}`;
 
         // Read patch content for preview
         let patchPreview = "";
@@ -986,61 +982,16 @@ ${patchPreview}`;
       // Check if the error is the specific "GitHub actions is not permitted to create or approve pull requests" error
       if (errorMessage.includes("GitHub Actions is not permitted to create or approve pull requests")) {
         core.error("Permission error: GitHub Actions is not permitted to create or approve pull requests");
-
-        // Branch has already been pushed - create a fallback issue with a link to create the PR via GitHub UI
-        const githubServer = process.env.GITHUB_SERVER_URL || "https://github.com";
-        // Encode branch name path segments individually to preserve '/' while encoding other special characters
-        const encodedBase = baseBranch.split("/").map(encodeURIComponent).join("/");
-        const encodedHead = branchName.split("/").map(encodeURIComponent).join("/");
-        const createPrUrl = `${githubServer}/${repoParts.owner}/${repoParts.repo}/compare/${encodedBase}...${encodedHead}?expand=1&title=${encodeURIComponent(title)}`;
-
-        // Read patch content for preview
-        let patchPreview = "";
-        if (patchFilePath && fs.existsSync(patchFilePath)) {
-          const patchContent = fs.readFileSync(patchFilePath, "utf8");
-          patchPreview = generatePatchPreview(patchContent);
-        }
-
-        const fallbackBody =
-          `${body}\n\n---\n\n` +
-          `> [!NOTE]\n` +
-          `> This was originally intended as a pull request, but GitHub Actions is not permitted to create or approve pull requests in this repository.\n` +
-          `> The changes have been pushed to branch \`${branchName}\`.\n` +
-          `>\n` +
-          `> **[Click here to create the pull request](${createPrUrl})**\n\n` +
-          `To fix the permissions issue, go to **Settings** → **Actions** → **General** and enable **Allow GitHub Actions to create and approve pull requests**.` +
-          patchPreview;
-
-        try {
-          const { data: issue } = await githubClient.rest.issues.create({
-            owner: repoParts.owner,
-            repo: repoParts.repo,
-            title: title,
-            body: fallbackBody,
-            labels: mergeFallbackIssueLabels(labels),
-          });
-
-          core.info(`Created fallback issue #${issue.number}: ${issue.html_url}`);
-
-          await updateActivationComment(github, context, core, issue.html_url, issue.number, "issue");
-
-          return {
-            success: true,
-            fallback_used: true,
-            issue_number: issue.number,
-            issue_url: issue.html_url,
-            branch_name: branchName,
-            repo: itemRepo,
-          };
-        } catch (issueError) {
-          const error = `Failed to create pull request (permission denied) and failed to create fallback issue. PR error: ${errorMessage}. Issue error: ${issueError instanceof Error ? issueError.message : String(issueError)}`;
-          core.error(error);
-          return {
-            success: false,
-            error,
-            error_type: "permission_denied",
-          };
-        }
+        // Set output variable for conclusion job to handle
+        core.setOutput(
+          "error_message",
+          "GitHub Actions is not permitted to create or approve pull requests. Please enable 'Allow GitHub Actions to create and approve pull requests' in repository settings: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#preventing-github-actions-from-creating-or-approving-pull-requests"
+        );
+        return {
+          success: false,
+          error: errorMessage,
+          error_type: "permission_denied",
+        };
       }
 
       if (!fallbackAsIssue) {

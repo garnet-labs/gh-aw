@@ -70,11 +70,12 @@ func TestClassifyScheduleFrequency(t *testing.T) {
 
 func TestDetectWorkflowScheduleInfo(t *testing.T) {
 	tests := []struct {
-		name            string
-		content         string
-		wantRawExpr     string
-		wantFrequency   string
-		wantIsUpdatable bool
+		name               string
+		content            string
+		wantRawExpr        string
+		wantFrequency      string
+		wantIsUpdatable    bool
+		wantIsMultiTrigger bool
 	}{
 		{
 			name: "simple on: daily",
@@ -160,7 +161,24 @@ engine: copilot
 			wantIsUpdatable: true,
 		},
 		{
-			name: "on: map with schedule and push (multi-trigger, not updatable)",
+			name: "on: map with schedule and slash_command (multi-trigger, updatable)",
+			content: `---
+on:
+  schedule: daily
+  workflow_dispatch:
+  slash_command:
+    name: repo-assist
+  reaction: "eyes"
+engine: copilot
+---
+`,
+			wantRawExpr:        "daily",
+			wantFrequency:      "daily",
+			wantIsUpdatable:    true,
+			wantIsMultiTrigger: true,
+		},
+		{
+			name: "on: map with schedule and push (multi-trigger, updatable)",
 			content: `---
 on:
   schedule:
@@ -170,9 +188,10 @@ on:
 engine: copilot
 ---
 `,
-			wantRawExpr:     "",
-			wantFrequency:   "",
-			wantIsUpdatable: false,
+			wantRawExpr:        "daily",
+			wantFrequency:      "daily",
+			wantIsUpdatable:    true,
+			wantIsMultiTrigger: true,
 		},
 		{
 			name: "on: workflow_dispatch only (not a schedule)",
@@ -210,10 +229,11 @@ engine: copilot
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rawExpr, freq, updatable := detectWorkflowScheduleInfo(tt.content)
-			assert.Equal(t, tt.wantRawExpr, rawExpr, "raw expression")
-			assert.Equal(t, tt.wantFrequency, freq, "frequency")
-			assert.Equal(t, tt.wantIsUpdatable, updatable, "is updatable")
+			detection := detectWorkflowScheduleInfo(tt.content)
+			assert.Equal(t, tt.wantRawExpr, detection.RawExpr, "raw expression")
+			assert.Equal(t, tt.wantFrequency, detection.Frequency, "frequency")
+			assert.Equal(t, tt.wantIsUpdatable, detection.IsUpdatable, "is updatable")
+			assert.Equal(t, tt.wantIsMultiTrigger, detection.IsMultiTrigger, "is multi-trigger")
 		})
 	}
 }

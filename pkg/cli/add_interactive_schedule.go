@@ -29,64 +29,88 @@ var standardScheduleFrequencies = []scheduleFrequencyOption{
 	{Label: "Monthly - runs on the 1st of each month", Value: "monthly", Expression: "0 0 1 * *"},
 }
 
+// scheduleDetection holds the result of detecting schedule info from workflow content.
+type scheduleDetection struct {
+	RawExpr        string // The original schedule expression (e.g., "daily", "0 9 * * *")
+	Frequency      string // Classified frequency ("hourly", "daily", "weekly", etc.)
+	IsUpdatable    bool   // Whether the schedule can be updated by the wizard
+	IsMultiTrigger bool   // True when on: is a map with triggers besides schedule/workflow_dispatch
+}
+
 // detectWorkflowScheduleInfo extracts the schedule expression and classifies its frequency
-// from workflow content. It returns the raw expression, the frequency identifier, and whether
-// the schedule is in an updatable form. Returns ("", "", false) if no updatable schedule is found.
+// from workflow content. Returns a scheduleDetection struct.
 //
-// Only workflows whose "on:" field is a simple string schedule, or a map containing only
-// "schedule" (and optionally "workflow_dispatch"), are considered updatable. Multi-trigger
-// workflows are left unchanged to avoid losing other triggers.
-func detectWorkflowScheduleInfo(content string) (rawExpr string, frequency string, isUpdatable bool) {
+// Workflows whose "on:" field is a simple string schedule, or a map containing a "schedule"
+// key, are considered updatable. For multi-trigger workflows (with triggers beyond
+// schedule/workflow_dispatch), IsMultiTrigger is set so the caller knows to update the
+// "schedule" sub-field rather than the entire "on:" field.
+func detectWorkflowScheduleInfo(content string) scheduleDetection {
 	result, err := parser.ExtractFrontmatterFromContent(content)
 	if err != nil || result.Frontmatter == nil {
-		return "", "", false
+		return scheduleDetection{}
 	}
 
 	onValue, exists := result.Frontmatter["on"]
 	if !exists {
-		return "", "", false
+		return scheduleDetection{}
 	}
 
 	// Case 1: on is a simple string (e.g., "on: daily" or "on: 0 * * * *")
 	if onStr, ok := onValue.(string); ok {
 		_, _, parseErr := parser.ParseSchedule(onStr)
 		if parseErr == nil {
-			return onStr, classifyScheduleFrequency(onStr), true
+			return scheduleDetection{
+				RawExpr:     onStr,
+				Frequency:   classifyScheduleFrequency(onStr),
+				IsUpdatable: true,
+			}
 		}
-		return "", "", false
+		return scheduleDetection{}
 	}
 
-	// Case 2: on is a map — only update if it contains schedule (+ optional workflow_dispatch)
+	// Case 2: on is a map — extract schedule value if present
 	if onMap, ok := onValue.(map[string]any); ok {
 		schedValue, hasSchedule := onMap["schedule"]
 		if !hasSchedule {
-			return "", "", false
+			return scheduleDetection{}
 		}
 
-		// Bail out if the map has triggers other than schedule / workflow_dispatch
+		// Determine if on: has triggers beyond schedule / workflow_dispatch
+		isMultiTrigger := false
 		for key := range onMap {
 			if key != "schedule" && key != "workflow_dispatch" {
-				scheduleWizardLog.Printf("Skipping schedule wizard: on: has non-schedule trigger '%s'", key)
-				return "", "", false
+				isMultiTrigger = true
+				scheduleWizardLog.Printf("Multi-trigger on: map detected (trigger '%s')", key)
+				break
 			}
 		}
 
 		// Schedule as string shorthand (e.g., "schedule: daily")
 		if schedStr, ok := schedValue.(string); ok {
-			return schedStr, classifyScheduleFrequency(schedStr), true
+			return scheduleDetection{
+				RawExpr:        schedStr,
+				Frequency:      classifyScheduleFrequency(schedStr),
+				IsUpdatable:    true,
+				IsMultiTrigger: isMultiTrigger,
+			}
 		}
 
 		// Schedule as array (e.g., "schedule:\n  - cron: daily")
 		if schedArray, ok := schedValue.([]any); ok && len(schedArray) > 0 {
 			if item, ok := schedArray[0].(map[string]any); ok {
 				if cronVal, ok := item["cron"].(string); ok {
-					return cronVal, classifyScheduleFrequency(cronVal), true
+					return scheduleDetection{
+						RawExpr:        cronVal,
+						Frequency:      classifyScheduleFrequency(cronVal),
+						IsUpdatable:    true,
+						IsMultiTrigger: isMultiTrigger,
+					}
 				}
 			}
 		}
 	}
 
-	return "", "", false
+	return scheduleDetection{}
 }
 
 // classifyScheduleFrequency determines which standard frequency a schedule expression represents.
@@ -168,12 +192,14 @@ func (c *AddInteractiveConfig) selectScheduleFrequency() error {
 
 	for _, wf := range c.resolvedWorkflows.Workflows {
 		content := string(wf.Content)
-		rawExpr, currentFreq, isUpdatable := detectWorkflowScheduleInfo(content)
-		if !isUpdatable {
+		detection := detectWorkflowScheduleInfo(content)
+		if !detection.IsUpdatable {
 			continue
 		}
 
-		scheduleWizardLog.Printf("Detected schedule: expr=%q, freq=%s", rawExpr, currentFreq)
+		rawExpr := detection.RawExpr
+		currentFreq := detection.Frequency
+		scheduleWizardLog.Printf("Detected schedule: expr=%q, freq=%s, multiTrigger=%v", rawExpr, currentFreq, detection.IsMultiTrigger)
 
 		// Build the ordered option list
 		options := buildScheduleOptions(rawExpr, currentFreq)
@@ -216,10 +242,16 @@ func (c *AddInteractiveConfig) selectScheduleFrequency() error {
 			continue
 		}
 
-		// Update the workflow content in memory
-		updatedContent, err := UpdateFieldInFrontmatter(content, "on", newExpr)
+		// Update the workflow content in memory.
+		// For multi-trigger on: maps, update the "schedule" sub-field to preserve other triggers.
+		// For simple on: strings, update the "on" field directly.
+		updateField := "on"
+		if detection.IsMultiTrigger {
+			updateField = "schedule"
+		}
+		updatedContent, err := UpdateFieldInFrontmatter(content, updateField, newExpr)
 		if err != nil {
-			scheduleWizardLog.Printf("Failed to update schedule: %v", err)
+			scheduleWizardLog.Printf("Failed to update schedule (field=%s): %v", updateField, err)
 			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Could not update schedule: %v", err)))
 			continue
 		}
