@@ -632,7 +632,7 @@ func generateRepoMemorySteps(builder *strings.Builder, data *WorkflowData) {
 		fmt.Fprintf(builder, "          TARGET_REPO: %s\n", targetRepo)
 		fmt.Fprintf(builder, "          MEMORY_DIR: %s\n", memoryDir)
 		fmt.Fprintf(builder, "          CREATE_ORPHAN: %t\n", memory.CreateOrphan)
-		builder.WriteString("        run: bash /opt/gh-aw/actions/clone_repo_memory_branch.sh\n")
+		builder.WriteString("        run: bash ${GH_AW_HOME:-/opt/gh-aw}/actions/clone_repo_memory_branch.sh\n")
 	}
 }
 
@@ -735,16 +735,16 @@ func (c *Compiler) buildPushRepoMemoryJob(data *WorkflowData, threatDetectionEna
 
 		if useRequire {
 			// Use require() to load script from copied files using setup_globals helper
-			step.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
+			step.WriteString("            const { setupGlobals } = require(" + JsRequireGhAw("actions/setup_globals.cjs") + ");\n")
 			step.WriteString("            setupGlobals(core, github, context, exec, io);\n")
-			step.WriteString("            const { main } = require('" + SetupActionDestination + "/push_repo_memory.cjs');\n")
+			step.WriteString("            const { main } = require(" + JsRequireGhAw("actions/push_repo_memory.cjs") + ");\n")
 			step.WriteString("            await main();\n")
 		} else {
 			// Inline JavaScript: Attach GitHub Actions builtin objects to global scope before script execution
-			step.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
+			step.WriteString("            const { setupGlobals } = require(" + JsRequireGhAw("actions/setup_globals.cjs") + ");\n")
 			step.WriteString("            setupGlobals(core, github, context, exec, io);\n")
 			// Add the JavaScript script with proper indentation
-			formattedScript := FormatJavaScriptForYAML("const { main } = require('/opt/gh-aw/actions/push_repo_memory.cjs'); await main();")
+			formattedScript := FormatJavaScriptForYAML("const { main } = require((process.env.GH_AW_HOME || '/opt/gh-aw') + '/actions/push_repo_memory.cjs'); await main();")
 			for _, line := range formattedScript {
 				step.WriteString(line)
 			}

@@ -133,11 +133,11 @@ func generatePlaceholderSubstitutionStep(yaml *strings.Builder, expressionMappin
 	yaml.WriteString(indent + "    script: |\n")
 
 	// Use setup_globals helper to make GitHub Actions objects available globally
-	yaml.WriteString(indent + "      const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
+	yaml.WriteString(indent + "      const { setupGlobals } = require(" + JsRequireGhAw("actions/setup_globals.cjs") + ");\n")
 	yaml.WriteString(indent + "      setupGlobals(core, github, context, exec, io);\n")
 	yaml.WriteString(indent + "      \n")
 	// Use require() to load script from copied files
-	yaml.WriteString(indent + "      const substitutePlaceholders = require('" + SetupActionDestination + "/substitute_placeholders.cjs');\n")
+	yaml.WriteString(indent + "      const substitutePlaceholders = require(" + JsRequireGhAw("actions/substitute_placeholders.cjs") + ");\n")
 	yaml.WriteString(indent + "      \n")
 	yaml.WriteString(indent + "      // Call the substitution function\n")
 	yaml.WriteString(indent + "      return await substitutePlaceholders({\n")
@@ -277,9 +277,9 @@ func generateGitHubScriptWithRequire(scriptPath string) string {
 	var script strings.Builder
 
 	// Use the setup_globals helper to store GitHub Actions objects in global scope
-	script.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
+	script.WriteString("            const { setupGlobals } = require(" + JsRequireGhAw("actions/setup_globals.cjs") + ");\n")
 	script.WriteString("            setupGlobals(core, github, context, exec, io);\n")
-	script.WriteString("            const { main } = require('" + SetupActionDestination + "/" + scriptPath + "');\n")
+	script.WriteString("            const { main } = require(" + JsRequireGhAw("actions/"+scriptPath) + ");\n")
 	script.WriteString("            await main();\n")
 
 	return script.String()
@@ -326,23 +326,22 @@ func (c *Compiler) generateSetupStep(setupActionRef string, destination string, 
 			"      - name: Setup Scripts\n",
 			"        run: |\n",
 			"          bash /tmp/gh-aw/actions-source/actions/setup/setup.sh\n",
-			"        env:\n",
-			fmt.Sprintf("          INPUT_DESTINATION: %s\n", destination),
 		}
 		if enableCustomTokens {
+			lines = append(lines, "        env:\n")
 			lines = append(lines, "          INPUT_SAFE_OUTPUT_CUSTOM_TOKENS: 'true'\n")
 		}
 		return lines
 	}
 
 	// Dev/Release mode: use the setup action
+	// Destination defaults to $GH_AW_HOME/actions (setup.sh handles the path)
 	lines := []string{
 		"      - name: Setup Scripts\n",
 		fmt.Sprintf("        uses: %s\n", setupActionRef),
-		"        with:\n",
-		fmt.Sprintf("          destination: %s\n", destination),
 	}
 	if enableCustomTokens {
+		lines = append(lines, "        with:\n")
 		lines = append(lines, "          safe-output-custom-tokens: 'true'\n")
 	}
 	return lines

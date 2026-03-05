@@ -52,7 +52,7 @@ const (
 )
 
 // SafeInputsDirectory is the directory where safe-inputs files are generated
-const SafeInputsDirectory = "/opt/gh-aw/safe-inputs"
+const SafeInputsDirectory = GhAwHome + "/safe-inputs"
 
 // HasSafeInputs checks if safe-inputs are configured
 func HasSafeInputs(safeInputs *SafeInputsConfig) bool {

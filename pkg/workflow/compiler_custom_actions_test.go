@@ -217,9 +217,9 @@ Test workflow with script mode.
 		t.Error("Expected setup script to run bash directly in script mode")
 	}
 
-	// 5. Setup step should have INPUT_DESTINATION environment variable
-	if !strings.Contains(lockStr, "INPUT_DESTINATION: /opt/gh-aw/actions") {
-		t.Error("Expected INPUT_DESTINATION environment variable in setup step for script mode")
+	// 5. Setup step should run setup.sh script
+	if !strings.Contains(lockStr, "bash /tmp/gh-aw/actions-source/actions/setup/setup.sh") {
+		t.Error("Expected setup.sh script call in setup step for script mode")
 	}
 
 	// 6. Should not use "uses:" for setup action in script mode

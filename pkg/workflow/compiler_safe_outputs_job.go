@@ -254,7 +254,12 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 			if len(c.generateCheckoutActionsFolder(data)) > 0 {
 				insertIndex += 6 // Checkout step (6 lines: name, uses, with, sparse-checkout header, actions, persist-credentials)
 			}
-			insertIndex += 4 // Setup step (4 lines: name, uses, with, destination)
+			enableCustomTokens := c.hasCustomTokenSafeOutputs(data.SafeOutputs)
+			if enableCustomTokens {
+				insertIndex += 4 // Setup step with custom tokens (4 lines: name, uses, with, safe-output-custom-tokens)
+			} else {
+				insertIndex += 2 // Setup step (2 lines: name, uses)
+			}
 		}
 
 		// Add artifact download steps count

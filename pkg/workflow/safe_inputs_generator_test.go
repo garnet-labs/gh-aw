@@ -77,7 +77,7 @@ func TestGenerateSafeInputsMCPServerScript(t *testing.T) {
 		t.Error("Script should reference tools.json configuration file")
 	}
 
-	if !strings.Contains(script, "/opt/gh-aw/safe-inputs/logs") {
+	if !strings.Contains(script, "safe-inputs/logs") {
 		t.Error("Script should specify log directory")
 	}
 
