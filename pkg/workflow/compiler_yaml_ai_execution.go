@@ -111,13 +111,14 @@ func (c *Compiler) generateStopMCPGateway(yaml *strings.Builder, data *WorkflowD
 	yaml.WriteString("          bash /opt/gh-aw/actions/stop_mcp_gateway.sh \"$GATEWAY_PID\"\n")
 }
 
-// convertGoPatternToJavaScript converts a Go regex pattern to JavaScript-compatible format
-// This removes Go's (?i) inline case-insensitive flag since JavaScript doesn't support it
-func (c *Compiler) convertGoPatternToJavaScript(goPattern string) string {
-	// Convert (?i) inline case-insensitive flag by removing it
-	// JavaScript RegExp will be created with "gi" flags to handle case insensitivity
-	if strings.HasPrefix(goPattern, "(?i)") {
-		return goPattern[4:] // Remove (?i) prefix
-	}
-	return goPattern
+// generateAgentStepSummaryAppend generates a step that appends the agent's GITHUB_STEP_SUMMARY
+// file to the real $GITHUB_STEP_SUMMARY. This runs after secret redaction so the content
+// is already sanitised before being published to the workflow step summary.
+// The step is a no-op when the file is empty (agent wrote nothing).
+func (c *Compiler) generateAgentStepSummaryAppend(yaml *strings.Builder) {
+	compilerYamlLog.Print("Generating agent step summary append step")
+
+	yaml.WriteString("      - name: Append agent step summary\n")
+	yaml.WriteString("        if: always()\n")
+	yaml.WriteString("        run: bash /opt/gh-aw/actions/append_agent_step_summary.sh\n")
 }

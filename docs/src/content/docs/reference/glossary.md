@@ -137,6 +137,10 @@ A safe output capability for hiding or minimizing GitHub comments without requir
 
 A safe output capability (`assign-to-agent:`) that programmatically assigns the GitHub Copilot coding agent to existing issues or pull requests. Automates the standard GitHub workflow for delegating implementation tasks to Copilot. Supports cross-repository PR creation via `pull-request-repo` and agent model selection via `model`. See [Assign to Copilot](/gh-aw/reference/assign-to-copilot/).
 
+### GH_AW_AGENT_TOKEN
+
+A recognized "magic" repository secret name that GitHub Agentic Workflows automatically uses as a fallback Personal Access Token for `assign-to-agent` operations. When set, no explicit `github-token:` reference is needed in workflow frontmatter — the token is injected automatically. Required because GitHub App installation tokens are rejected by the Copilot assignment API. The token fallback chain is: `assign-to-agent.github-token` → `safe-outputs.github-token` → `GH_AW_AGENT_TOKEN` → `GH_AW_GITHUB_TOKEN` → `GITHUB_TOKEN`. See [Assign to Copilot](/gh-aw/reference/assign-to-copilot/).
+
 ### Custom Safe Outputs
 
 An extension mechanism for safe outputs that enables integration with third-party services beyond built-in GitHub operations. Defined under `safe-outputs.jobs:`, custom safe outputs separate read and write operations: agents use read-only MCP tools for queries, while custom jobs execute write operations with secret access after agent completion. Supports services like Slack, Notion, Jira, or any external API. See [Custom Safe Outputs](/gh-aw/reference/custom-safe-outputs/).
@@ -144,6 +148,10 @@ An extension mechanism for safe outputs that enables integration with third-part
 ### Unassign from User
 
 A safe output capability for removing user assignments from issues or pull requests. Supports an `allowed` list to restrict which users can be unassigned, and a `blocked` list using glob patterns to prevent unassignment of specific users regardless of the allow list. Configured via `unassign-from-user:` in `safe-outputs`.
+
+### Temporary ID
+
+A workflow-scoped identifier (format: `aw_` followed by 3–8 alphanumeric characters, e.g. `aw_abc1`) that lets an AI agent reference a resource before it is created. Safe output tools that support temporary IDs — including `create_issue`, `create_discussion`, and `add_comment` — accept a `temporary_id` field. References like `#aw_abc1` in subsequent operations are automatically resolved to actual resource numbers during execution. Useful for creating interlinked resources in a single workflow run. See [Safe Outputs Reference](/gh-aw/reference/safe-outputs/).
 
 ### Update Issue
 
@@ -171,6 +179,10 @@ Natural language schedule syntax that automatically distributes workflow executi
 
 Reusable workflow components shared across multiple workflows. Specified in the `imports:` field, can include tool configurations, common instructions, or security guidelines.
 
+### Label Trigger Shorthand
+
+A compact syntax for label-based triggers: `on: issue labeled bug` or `on: pull_request labeled needs-review`. The compiler expands the shorthand to standard GitHub Actions trigger syntax and automatically includes a `workflow_dispatch` trigger with an `inputs.item_number` parameter, enabling manual dispatch for a specific issue or pull request. Supported for `issue`, `pull_request`, and `discussion` events. See [LabelOps patterns](/gh-aw/patterns/label-ops/).
+
 ### Labels
 
 Optional workflow metadata for categorization and organization. Enables filtering workflows in the CLI using the `--label` flag.
@@ -187,9 +199,17 @@ A workflow configuration field (`stop-after:`) that automatically prevents new r
 
 Events that cause a workflow to run, defined in the `on:` section of frontmatter. Includes issue events, pull requests, schedules, manual runs, and slash commands.
 
+### Trigger File
+
+A plain GitHub Actions workflow (`.yml`) that separates trigger definitions from agentic workflow logic. Calls a compiled orchestrator's `workflow_call` entry point in response to any GitHub event (issues, pushes, labels, manual dispatch). Decouples trigger changes from the compilation cycle — updating when an orchestrator runs requires editing only the trigger file, not recompiling the agentic workflow. See [CentralRepoOps](/gh-aw/patterns/central-repo-ops/).
+
 ### Weekday Schedules
 
 Scheduled workflows configured to run only Monday through Friday using `daily on weekdays` syntax. Recommended for daily workflows to avoid the "Monday wall of work" where tasks accumulate over weekends and create a backlog on Monday morning. The compiler converts this to cron expressions with `1-5` in the day-of-week field. Example: `schedule: daily on weekdays` generates a cron like `43 5 * * 1-5`.
+
+### workflow_call
+
+A trigger enabling a compiled workflow to be invoked by another workflow in the same organization. Adding `workflow_call` to the `on:` section exposes the lock file as a callable workflow, with optional inputs callers can pass for context. Commonly used with a [Trigger File](#trigger-file) to decouple trigger definitions from agentic workflow compilation. See [CentralRepoOps](/gh-aw/patterns/central-repo-ops/).
 
 ### workflow_dispatch
 
@@ -261,6 +281,10 @@ Persistent storage for workflows preserving data between runs. Configured via `c
 
 Special triggers responding to slash commands in issue and PR comments. Configured using the `slash_command:` section with a command name.
 
+### Conclusion Job
+
+An automatically generated job in compiled workflows that handles post-agent reporting and cleanup. Receives a workflow-specific concurrency group (`gh-aw-conclusion-{workflow-name}`) to prevent collision when multiple agent instances run the same workflow concurrently. Requires no manual configuration — the compiler sets the group automatically. See [Concurrency Control](/gh-aw/reference/concurrency/).
+
 ### Concurrency Control
 
 Settings limiting how many workflow instances can run simultaneously. Configured via `concurrency:` field to prevent resource conflicts or rate limiting.
@@ -279,7 +303,7 @@ Configuration section in frontmatter defining environment variables for the work
 
 ### Repo Memory
 
-Persistent file storage via Git branches with unlimited retention. Unlike cache-memory (7-day retention), repo-memory stores files permanently in dedicated Git branches with automatic branch cloning, file access, commits, pushes, and merge conflict resolution. See [Repo Memory](/gh-aw/reference/repo-memory/).
+Persistent file storage via Git branches with unlimited retention. Unlike cache-memory (7-day retention), repo-memory stores files permanently in dedicated Git branches with automatic branch cloning, file access, commits, pushes, and merge conflict resolution. Setting `wiki: true` switches the backing to the GitHub Wiki's git endpoint (`{repo}.wiki.git`), and the agent receives guidance to follow GitHub Wiki Markdown conventions (e.g. `[[Page Name]]` links). See [Repo Memory](/gh-aw/reference/repo-memory/).
 
 ### Sandbox
 
@@ -312,6 +336,10 @@ Parameters provided when manually triggering a workflow with `workflow_dispatch`
 ## Operational Patterns
 
 Operational patterns (suffixed with "-Ops") are established workflow architectures for common automation scenarios. Each pattern addresses specific use cases with recommended triggers, tools, and safe outputs.
+
+### CentralRepoOps
+
+A [MultiRepoOps](#multirepoops) deployment variant where a single private repository acts as a control plane for coordinating large-scale operations across many repositories. Enables consistent rollouts, policy updates, and centralized tracking using cross-repository safe outputs and secure authentication. See [CentralRepoOps](/gh-aw/patterns/central-repo-ops/).
 
 ### ChatOps
 
