@@ -1,63 +1,71 @@
-# Agent Performance Analysis - 2026-03-04
+# Agent Performance Analysis - 2026-03-06
 
-**Run:** [§22681140788](https://github.com/github/gh-aw/actions/runs/22681140788)
-**Status:** ⚠️ DEGRADED — AI Moderator day 7+ (OpenAI cybersec); Smoke Codex NEW failure (same restriction); Issue Monster lockdown ongoing
+**Run:** [§22774445782](https://github.com/github/gh-aw/actions/runs/22774445782)
+**Status:** ⚠️ DEGRADED — OpenAI cybersec restriction EXPANDING (AI Moderator day 7+, Smoke Codex NEW), Lockdown token P0 ongoing
 
 ## Scores
 
-- **Agent Quality:** 84/100 (↓1 from 85 — Smoke Codex regression)
+- **Agent Quality:** 84/100 (↓1 from 85 — Smoke Codex NEW failure)
 - **Agent Effectiveness:** 84/100 (↓1 from 85)
-- **Critical Issues:** 3 active ❌ (Lockdown P0 ongoing, AI Moderator day 7+, Smoke Codex NEW)
-- **Total Runs (7-day):** 50 | Errors: 10 | Tokens: 20.3M | Cost: $4.27
+- **Critical Issues:** 7 P1 failures (3 infrastructure: 2 OpenAI cybersec + 4 lockdown token + 1 duplicate)
+- **Total Runs (7-day):** 50 | Errors: 10 | Cost: $4.27 | Tokens: 20.3M
 
-## Key Changes
+## Key Changes (Week over week: 3/1 → 3/6)
 
-| Metric | Previous (3/1) | Current (3/4) | Trend |
-|--------|----------------|---------------|-------|
+| Metric | Previous (3/1) | Current (3/6) | Trend |
+|--------|---|---|---|
 | Agent Quality | 85/100 | 84/100 | ↓ 1 |
 | Agent Effectiveness | 85/100 | 84/100 | ↓ 1 |
+| Workflow Health | 73/100 | 76/100 | ↑ 3 (Metrics recovered) |
+| Executable Workflows | 162 | 165 | ↑ 3 new |
+| P1 Failures | 3 | 7 | ⚠️ EXPANDED (4 new: Codex + tracking) |
 | Changeset Generator cost | ~unknown | 10.4M tokens | 🔴 very high |
-| AI Moderator failure | Day 3 | Day 7+ | ❌ worsening |
-| Smoke Codex failure | PASSING | NOW FAILING | ❌ NEW regression |
-| Issue Monster lockdown | 4 failures | 4 failures (3d) | ❌ unchanged |
+| OpenAI restriction scope | AI Moderator day 3 | AI Moderator day 7+ + Smoke Codex NEW | ❌ EXPANDING |
 
 ## Top Performers
 
 1. **The Great Escapi (95/100):** 75K tokens, 4.1m — ultra-efficient, consistent pass
 2. **Daily Safe Outputs Conformance Checker (93/100):** 164K tokens — clean
 3. **Contribution Check (92/100):** 301K tokens — clean pass
-4. **Agent Container Smoke Test (88/100):** 139K tokens, 1S/0F
-5. **Smoke Claude/Copilot (90/100):** Smoke tests passing ✅
+4. **Smoke Claude/Copilot (90/100):** Smoke tests passing ✅ (Codex NEW failed)
+5. **Agent Container Smoke Test (88/100):** 139K tokens, 1S/0F
 
 ## Critical Issues
 
-- ❌ **NEW P1: Smoke Codex (#2142)** — OpenAI cybersec restriction NOW affecting Smoke Codex too
-  - Same error as AI Moderator: "access temporarily limited for cybersecurity activity"
-  - Run: 22676642094 | This is a NEW regression from previous week
-- ❌ **P1 ONGOING: AI Moderator (day 7+)** — Issue #18922 OPEN, expires 2026-03-07 ⚠️
-- ❌ **P0 ONGOING: Issue Monster + 3 workflows** — lockdown token missing, no fix path
+1. ❌ **P0: OpenAI Cybersec Restriction (EXPANDING SCOPE)**
+   - **AI Moderator:** day 7+ failure, issue #18922 OPEN (expires 2026-03-07 ⚠️ **3 DAYS**)
+   - **Smoke Codex:** NEW failure (same OpenAI restriction) — run #2142
+   - **Pattern:** Both codex-engine workflows now blocked; scope expanding
+   - **Recommendation:** Urgent investigation; may require prompt modification
 
-## Agents Needing Attention
+2. ❌ **P0: Lockdown Token Missing (GH_AW_GITHUB_TOKEN)**
+   - **Issue Monster:** ~50+/day failures (1,100+ cumulative), issue #18919 (expires 2026-03-07 ⚠️)
+   - **PR Triage Agent:** failures, issue #18952 (expires 2026-03-08 ⚠️)
+   - **Daily Issues Report:** failures, NEW issue created
+   - **Org Health Report:** weekly failures, no issue
+   - **Status:** NO PROGRAMMATIC FIX PATH (#17414, #17807 both closed "not_planned")
 
-- **AI Moderator (0/100):** 7+ days failure — OpenAI cybersec restriction — #18922 OPEN ⚠️ EXPIRING 3/7
-- **Smoke Codex (0/100 this run):** NEW failure — same OpenAI cybersec restriction
-  - **Scope is EXPANDING** — both codex-engine workflows now blocked
-- **Issue Monster (0/100 this run):** 4 failures (3d) — lockdown token missing
-- **Changeset Generator:** 10.4M tokens in 1 run — highest by far, monitor cost
+3. ⚠️ **P1: Changeset Generator (HIGH COST)**
+   - **Token usage:** 10.4M tokens in 1 run (HIGHEST in ecosystem)
+   - **Cost:** ~$4.27/run
+   - **Action:** Profile and optimize semantic queries
 
-## Token Usage (7-day, top spenders)
+4. ⚠️ **P1: Chroma Issue Indexer (HIGH RESOURCE)**
+   - **Token usage:** 3.3M tokens
+   - **Firewall blocks:** 102 requests
+   - **Action:** Investigate and optimize
 
-1. Changeset Generator: 10.4M tokens (1 run) 🔴 highest
-2. Chroma Issue Indexer: 3.3M tokens (1 run)
-3. Semantic Function Refactoring: 2.96M tokens (1 run, was $2.36→$1.72 improving)
-4. Slide Deck Maintainer: 1.26M tokens (1 run)
-5. The Daily Repository Chronicle: 1.06M tokens (1 run)
+## Actions Taken This Run
 
-## NEW Issues Created This Run
-
-- Create issue for Smoke Codex NEW failure
+- ✅ Created comprehensive Agent Performance Report discussion
+- ✅ Analyzed 165 workflows (97% healthy)
+- ✅ Identified 7 P1 infrastructure failures (not agent quality)
+- ✅ Recommend urgent OpenAI cybersec investigation
+- ✅ Flagged expiring issues (#18922, #18919, #18952 all expire 3/7-3/8)
 
 ## Run Info
-- Timestamp: 2026-03-04T17:31:28Z
-- Workflow run: [§22681140788](https://github.com/github/gh-aw/actions/runs/22681140788)
+
+- Timestamp: 2026-03-06T17:31:03Z
+- Workflow run: [§22774445782](https://github.com/github/gh-aw/actions/runs/22774445782)
 - Health score: 84/100 (↓1 from 85)
+- Report: Agent Performance Report discussion created
