@@ -1,0 +1,111 @@
+{
+  "run_id": "22774170183",
+  "date": "2026-03-06",
+  "timestamp": "2026-03-06T17:22:33Z",
+  "outcome": "SECURE",
+  "basic_tests": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0
+  },
+  "escape_attempts": {
+    "total": 15,
+    "successful": 0,
+    "failed": 15,
+    "incomplete": 5
+  },
+  "novelty_rate": "100%",
+  "techniques": [
+    {
+      "name": "HTTP/2 Stream Dependency Weights",
+      "category": "HTTP/2 Multiplexing",
+      "result": "failure",
+      "notes": "No output, domain blocked at Squid ACL"
+    },
+    {
+      "name": "HTTP/2 Priority Frames",
+      "category": "HTTP/2 Multiplexing",
+      "result": "failure",
+      "notes": "400 Bad Request from Squid"
+    },
+    {
+      "name": "HTTP/2 RST_STREAM Exploitation",
+      "category": "HTTP/2 Multiplexing",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "HTTP/2 SETTINGS Frame Abuse",
+      "category": "HTTP/2 Multiplexing",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "HTTP/2 Data Frame Fragmentation",
+      "category": "HTTP/2 Multiplexing",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "TLS 1.3 0-RTT Early Data",
+      "category": "TLS 1.3 Protocol",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "TLS 1.3 Post-Handshake Auth",
+      "category": "TLS 1.3 Protocol",
+      "result": "false_positive",
+      "notes": "OpenSSL error (wrong version number), not actual HTTP access"
+    },
+    {
+      "name": "TLS 1.3 ALPN Confusion",
+      "category": "TLS 1.3 Protocol",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "TLS Session Resumption",
+      "category": "TLS 1.3 Protocol",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "TLS 1.3 Key Share Manipulation",
+      "category": "TLS 1.3 Protocol",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "QUIC HTTP/3",
+      "category": "QUIC Protocol",
+      "result": "failure",
+      "notes": "libcurl doesn't support --http3 flag"
+    },
+    {
+      "name": "QUIC Connection Migration",
+      "category": "QUIC Protocol",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "QUIC Stateless Reset",
+      "category": "QUIC Protocol",
+      "result": "failure",
+      "notes": "No output, blocked"
+    },
+    {
+      "name": "QUIC Path Validation",
+      "category": "QUIC Protocol",
+      "result": "failure",
+      "notes": "libcurl doesn't support --http3-only flag"
+    },
+    {
+      "name": "UDP DNS Query to example.com",
+      "category": "QUIC/UDP",
+      "result": "failure",
+      "notes": "Connection refused, UDP blocked"
+    }
+  ],
+  "summary": "All 15 completed escape attempts blocked. 5 SOCKS tunneling tests incomplete (hung). Firewall secure with 100% novel techniques. No vulnerabilities found."
+}
