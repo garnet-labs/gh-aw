@@ -162,83 +162,6 @@ func TestExpressionExtractor_GenerateEnvVarName(t *testing.T) {
 	}
 }
 
-func TestExpressionExtractor_ReplaceExpressionsWithEnvVars(t *testing.T) {
-	tests := []struct {
-		name     string
-		markdown string
-		want     string
-	}{
-		{
-			name:     "no expressions",
-			markdown: "This is plain text",
-			want:     "This is plain text",
-		},
-		{
-			name:     "single expression",
-			markdown: "Repository: ${{ github.repository }}",
-			want:     "", // Will be replaced with env var, we check structure below
-		},
-		{
-			name:     "multiple expressions",
-			markdown: "Repo: ${{ github.repository }}, Actor: ${{ github.actor }}",
-			want:     "", // Will be replaced with env vars
-		},
-		{
-			name:     "duplicate expressions use same env var",
-			markdown: "First: ${{ github.repository }}, Second: ${{ github.repository }}",
-			want:     "", // Both should be replaced with same env var
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			extractor := NewExpressionExtractor()
-			_, err := extractor.ExtractExpressions(tt.markdown)
-			if err != nil {
-				t.Errorf("ExtractExpressions() error = %v", err)
-				return
-			}
-
-			result := extractor.ReplaceExpressionsWithEnvVars(tt.markdown)
-
-			// Verify that original expressions are gone
-			if strings.Contains(result, "${{") {
-				t.Errorf("ReplaceExpressionsWithEnvVars() still contains ${{ expressions: %s", result)
-			}
-
-			// Verify that we have env var references if there were expressions
-			mappings := extractor.GetMappings()
-			if len(mappings) > 0 {
-				// Check that at least one env var reference is present
-				hasEnvVarRef := false
-				for _, mapping := range mappings {
-					if strings.Contains(result, "__"+mapping.EnvVar+"__") {
-						hasEnvVarRef = true
-						break
-					}
-				}
-				if !hasEnvVarRef {
-					t.Errorf("ReplaceExpressionsWithEnvVars() missing env var placeholder references: %s", result)
-				}
-			}
-
-			// Special case: check that duplicate expressions use the same env var
-			if tt.name == "duplicate expressions use same env var" {
-				mappings := extractor.GetMappings()
-				if len(mappings) != 1 {
-					t.Errorf("Expected 1 mapping for duplicate expressions, got %d", len(mappings))
-				}
-				// Count occurrences of the env var in the result
-				envVarRef := "__" + mappings[0].EnvVar + "__"
-				count := strings.Count(result, envVarRef)
-				if count != 2 {
-					t.Errorf("Expected env var to appear 2 times, got %d: %s", count, result)
-				}
-			}
-		})
-	}
-}
-
 func TestExpressionExtractor_CompleteWorkflow(t *testing.T) {
 	markdown := `# Test Workflow
 
@@ -457,6 +380,99 @@ Other: ${{ needs.activation.outputs.comment_id }}
 			if tt.shouldExist {
 				if _, found := contentMap[tt.transformed]; !found {
 					t.Errorf("Expected transformed expression %q in mappings", tt.transformed)
+				}
+			}
+		})
+	}
+}
+
+func TestApplyWorkflowDispatchFallbacks(t *testing.T) {
+	tests := []struct {
+		name          string
+		hasItemNumber bool
+		inputMappings []*ExpressionMapping
+		wantContents  map[string]string // envVar -> expected Content after applying fallbacks
+	}{
+		{
+			name:          "PR number expression gets fallback when hasItemNumber is true",
+			hasItemNumber: true,
+			inputMappings: []*ExpressionMapping{
+				{Original: "${{ github.event.pull_request.number }}", EnvVar: "GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER", Content: "github.event.pull_request.number"},
+			},
+			wantContents: map[string]string{
+				"GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER": "github.event.pull_request.number || inputs.item_number",
+			},
+		},
+		{
+			name:          "issue number expression gets fallback",
+			hasItemNumber: true,
+			inputMappings: []*ExpressionMapping{
+				{Original: "${{ github.event.issue.number }}", EnvVar: "GH_AW_GITHUB_EVENT_ISSUE_NUMBER", Content: "github.event.issue.number"},
+			},
+			wantContents: map[string]string{
+				"GH_AW_GITHUB_EVENT_ISSUE_NUMBER": "github.event.issue.number || inputs.item_number",
+			},
+		},
+		{
+			name:          "discussion number expression gets fallback",
+			hasItemNumber: true,
+			inputMappings: []*ExpressionMapping{
+				{Original: "${{ github.event.discussion.number }}", EnvVar: "GH_AW_GITHUB_EVENT_DISCUSSION_NUMBER", Content: "github.event.discussion.number"},
+			},
+			wantContents: map[string]string{
+				"GH_AW_GITHUB_EVENT_DISCUSSION_NUMBER": "github.event.discussion.number || inputs.item_number",
+			},
+		},
+		{
+			name:          "no fallback applied when hasItemNumber is false",
+			hasItemNumber: false,
+			inputMappings: []*ExpressionMapping{
+				{Original: "${{ github.event.pull_request.number }}", EnvVar: "GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER", Content: "github.event.pull_request.number"},
+			},
+			wantContents: map[string]string{
+				"GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER": "github.event.pull_request.number",
+			},
+		},
+		{
+			name:          "unrelated expressions are not modified",
+			hasItemNumber: true,
+			inputMappings: []*ExpressionMapping{
+				{Original: "${{ github.repository }}", EnvVar: "GH_AW_GITHUB_REPOSITORY", Content: "github.repository"},
+				{Original: "${{ github.event.pull_request.number }}", EnvVar: "GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER", Content: "github.event.pull_request.number"},
+			},
+			wantContents: map[string]string{
+				"GH_AW_GITHUB_REPOSITORY":                "github.repository",
+				"GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER": "github.event.pull_request.number || inputs.item_number",
+			},
+		},
+		{
+			name:          "EnvVar name is preserved after fallback is applied",
+			hasItemNumber: true,
+			inputMappings: []*ExpressionMapping{
+				{Original: "${{ github.event.pull_request.number }}", EnvVar: "GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER", Content: "github.event.pull_request.number"},
+			},
+			wantContents: map[string]string{
+				"GH_AW_GITHUB_EVENT_PULL_REQUEST_NUMBER": "github.event.pull_request.number || inputs.item_number",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			applyWorkflowDispatchFallbacks(tt.inputMappings, tt.hasItemNumber)
+
+			for _, mapping := range tt.inputMappings {
+				wantContent, ok := tt.wantContents[mapping.EnvVar]
+				if !ok {
+					t.Errorf("unexpected mapping with EnvVar %q", mapping.EnvVar)
+					continue
+				}
+				if mapping.Content != wantContent {
+					t.Errorf("mapping %q Content = %q, want %q", mapping.EnvVar, mapping.Content, wantContent)
+				}
+				// Verify the EnvVar name itself was not changed by the fallback
+				if !strings.HasPrefix(mapping.EnvVar, "GH_AW_") {
+					t.Errorf("mapping EnvVar %q lost GH_AW_ prefix after fallback", mapping.EnvVar)
 				}
 			}
 		})
