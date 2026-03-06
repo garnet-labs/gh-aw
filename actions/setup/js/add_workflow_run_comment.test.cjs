@@ -167,6 +167,20 @@ describe("add_workflow_run_comment", () => {
       );
       expect(mockCore.setFailed).not.toHaveBeenCalled();
     });
+
+    it("should fail when issue number is missing in issue_comment event", async () => {
+      global.context = {
+        eventName: "issue_comment",
+        runId: 12345,
+        repo: { owner: "testowner", repo: "testrepo" },
+        payload: {},
+      };
+
+      await runScript();
+
+      expect(mockCore.setFailed).toHaveBeenCalledWith(`${ERR_NOT_FOUND}: Issue number not found in event payload`);
+      expect(mockGithub.request).not.toHaveBeenCalled();
+    });
   });
 
   describe("main() - pull_request event", () => {
@@ -228,6 +242,20 @@ describe("add_workflow_run_comment", () => {
         })
       );
       expect(mockCore.setFailed).not.toHaveBeenCalled();
+    });
+
+    it("should fail when PR number is missing in pull_request_review_comment event", async () => {
+      global.context = {
+        eventName: "pull_request_review_comment",
+        runId: 12345,
+        repo: { owner: "testowner", repo: "testrepo" },
+        payload: {},
+      };
+
+      await runScript();
+
+      expect(mockCore.setFailed).toHaveBeenCalledWith(`${ERR_NOT_FOUND}: Pull request number not found in event payload`);
+      expect(mockGithub.request).not.toHaveBeenCalled();
     });
   });
 
