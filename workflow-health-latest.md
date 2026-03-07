@@ -1,58 +1,53 @@
-# Workflow Health Dashboard - 2026-03-03
+# Workflow Health Dashboard - 2026-03-07
 
 ## Overview
-- **Total workflows**: 165 executable (+3 from 162, 100% compiled ✅)
-- **Healthy**: ~160 (97%)
-- **Failing (P1)**: 5 workflows
-- **Compilation coverage**: 165/165 (100% ✅)
-- **Outdated lock files**: 0 (✅ all current)
-- **Overall health score**: 76/100 (↑3 from 73 — Metrics Collector recovered)
+- **Total workflows**: 166 executable (stable from yesterday)
+- **Healthy**: ~154 (93%)
+- **Failing (P1)**: 6 workflows
+- **Compilation coverage**: 166/166 (100% ✅)
+- **Outdated lock files**: 12 ⚠️ NEW (md newer than lock — need `make recompile`)
+- **Overall health score**: 74/100 (↓2 from 76 — outdated lock files)
 
-## Status: DEGRADED — Lockdown Failures + AI Moderator Day 5
+## Status: DEGRADED — Lockdown Failures + OpenAI Restriction Day 10
 
-### New This Week
-- ⬆️ **3 new workflows added** (162 → 165) — all compiled successfully
-- ✅ **Metrics Collector RECOVERED** — run #75 succeeded (2026-03-02T18:22Z)
-- ❌ **AI Moderator now on DAY 5** — OpenAI cybersec restriction continues
+### Critical Issues (P1)
+- ❌ **Issue Monster** — still failing every 30min (run #2525, 2026-03-07T07:15Z) — issue #18919 ⚠️ **expires TODAY 9:09 PM UTC**
+- ❌ **PR Triage Agent** — still failing (run #176, 2026-03-07T06:15Z) — issue #18952 (expires Mar 8)
+- ❌ **Daily Issues Report** — still failing (run #125, 2026-03-07T01:58Z) — issue #18967 (expires Mar 8 2:01 AM)
+- ❌ **Org Health Report** — still failing (last run #27, 2026-03-02) — NO tracking issue
+- ⚠️ **AI Moderator** — intermittent (partially recovered), issue #18922 ⚠️ **expires TODAY 9:45 PM UTC**
+- ❌ **Smoke Codex** — still failing (run #2169, 2026-03-07T00:51Z) — issues #18933, #19514 OPEN
 
-### Health Assessment Summary
+### New Findings
+- 12 workflows have outdated lock files (md newer than lock)
+  - blog-auditor, cloclo, copilot-cli-deep-research, copilot-pr-prompt-analysis,
+    daily-rendering-scripts-verifier, daily-team-evolution-insights, dev-hawk,
+    pdf-summary, repository-quality-improver, smoke-temporary-id,
+    static-analysis-report, typist
 
-- ✅ **0 compilation failures** (all 165 executable workflows compile)
-- ✅ **100% compilation coverage** (no missing lock files)
-- ✅ **0 truly outdated lock files**
-- ✅ **Metrics Collector**: RECOVERED (run #75 success) — up from P2 regression
-- ❌ **P1: Lockdown token missing** — 4 workflows actively failing
-  - Issue Monster: run #2362 failed today — issue #18919 OPEN (expires 2026-03-07 ⚠️)
-  - PR Triage Agent: run #160 failed today — issue #18952 OPEN (expires 2026-03-08)
-  - Daily Issues Report: run #121 failed today — NEW issue created this run
-  - Org Health Report: run #27 failed (weekly, 2026-03-02) — no active issue
-- ❌ **P1: AI Moderator** — day 5 failure (OpenAI cybersec restriction on gpt-5.3-codex)
-  - Issue #18922 OPEN (38 comments, expires 2026-03-07 ⚠️)
-  - Updated automatically today (2026-03-03T05:54Z)
-- ✅ **Smoke Copilot/Claude**: both passing today
+### Healthy
+- ✅ Smoke Copilot: run #2272 success (2026-03-07T01:12Z)
+- ✅ Smoke Claude: run #2196 success (2026-03-07T00:50Z)
+- ✅ Metrics Collector: continuing recovery
 
 ## Issues Tracked
+- **#18919** [P1] Issue Monster — OPEN ⚠️ expires TODAY Mar 7, 9:09 PM UTC
+- **#18922** [P1] AI Moderator — OPEN ⚠️ expires TODAY Mar 7, 9:45 PM UTC (comment added this run)
+- **#18952** [P1] PR Triage Agent — OPEN (expires Mar 8)
+- **#18967** [P1] Daily Issues Report — OPEN (expires Mar 8, 2:01 AM)
+- **#18933** [P1] Smoke Codex — OPEN (pre-agent)
+- **#19514** [P1] Smoke Codex — OPEN (pre-agent)
+- **#19634** Smoke Codex detailed — CLOSED "not_planned" (2026-03-06)
+- **aw_Dash07** New Dashboard — created this run (2026-03-07)
+- **#19814** Previous Dashboard — expired
 
-- **#18919** [P1] Issue Monster failed — OPEN (expires 2026-03-07, run #22529058134) ⚠️ EXPIRING SOON
-- **#18952** [P1] PR Triage Agent failed — OPEN (expires 2026-03-08, run #22532514292)
-- **#18922** [P1] AI Moderator failed — OPEN (38 comments, expires 2026-03-07) ⚠️ EXPIRING SOON
-- **NEW** [P1] Daily Issues Report — created this run (aw_DirP1)
-- Dashboard issue created: aw_Dash03
-- **#17414** Root Cause: GH_AW_GITHUB_TOKEN — CLOSED "not_planned"
-- **#17807** Fix: remove lockdown:true — CLOSED "not_planned"
-
-## Actions Taken This Run (2026-03-03)
-
-- Created tracking issue for Daily Issues Report P1 lockdown failures
-- Created Workflow Health Dashboard issue (2026-03-03)
+## Actions This Run (2026-03-07T07:20Z)
+- Created new dashboard issue (aw_Dash07) replacing #19814 which expired
+- Added Day 10 status comment to #18922 (AI Moderator) with partial recovery details
 - Updated workflow-health-latest.md and shared-alerts.md
-- Health score: 76/100 (↑3 from 73 — Metrics Collector recovered)
+- Health score: 74/100 (↓2 from 76)
 
 ## Run Info
-- Timestamp: 2026-03-03T07:28:00Z
-- Workflow run: [§22612773467](https://github.com/github/gh-aw/actions/runs/22612773467)
-- Health score: 76/100 (↑3 from 73)
-
-## Upcoming Expirations ⚠️
-- #18919 (Issue Monster) expires 2026-03-07 — 4 days
-- #18922 (AI Moderator) expires 2026-03-07 — 4 days
+- Timestamp: 2026-03-07T07:20:00Z
+- Workflow run: [§22794578625](https://github.com/github/gh-aw/actions/runs/22794578625)
+- Health score: 74/100 (↓2 from 76)

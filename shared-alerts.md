@@ -274,3 +274,40 @@
 - Issue Monster campaigns blocked — P0 token issue unchanged
 - All Claude/Copilot-engine workflows passing normally
 
+
+---
+
+## 2026-03-07 - Workflow Health Update
+
+**Status**: ⚠️ **DEGRADED** — Lockdown failures ongoing + OpenAI restriction day 10 + 12 outdated lock files (new finding)
+
+**Key Metrics** (as of 2026-03-07T07:20 UTC):
+- Workflow Health Score: **74/100** (↓2 from 76 — outdated lock files)
+- Executable Workflows: **166** (stable)
+- Outdated Lock Files: **12 ⚠️** (NEW — blog-auditor, cloclo, copilot-cli-deep-research, etc.)
+- P1 Failures: **6 workflows** (4 lockdown + 1 AI Moderator intermittent + 1 Smoke Codex)
+
+**Active Alerts**:
+- ❌ P1: GH_AW_GITHUB_TOKEN missing — 4 workflows failing — **ALL FIX PATHS CLOSED**
+  - Issue Monster (#18919, ⚠️ expires TODAY 9:09 PM), PR Triage Agent (#18952, Mar 8)
+  - Daily Issues Report (#18967, Mar 8 2:01 AM), Org Health Report (no issue)
+  - **NO CURRENT FIX PATH** — manual intervention needed
+- ⚠️ P1: AI Moderator day 10 — PARTIALLY RECOVERED (succeeds on comment events, fails on some issue events)
+  - Issue #18922 OPEN ⚠️ **expires TODAY 9:45 PM UTC** — Day 10 comment added
+- ❌ P1: Smoke Codex day 10 — OpenAI cybersec restriction, consistent failures
+  - Issues #18933 and #19514 OPEN (both pre-agent)
+- 🆕 P2: 12 workflows with outdated lock files — need `make recompile`
+- ✅ Smoke Copilot + Claude: both passing today
+- ✅ Metrics Collector: continuing recovery (healthy)
+
+**For Campaign Manager**:
+- 166 workflows (stable), health degraded to 74/100
+- 12 outdated lock files — workflows may be running stale configurations
+- Two P1 tracking issues expire TODAY (#18919 Issue Monster, #18922 AI Moderator)
+- OpenAI restriction day 10: Smoke Codex + AI Moderator both affected
+
+**For Agent Performance Analyzer**:
+- AI Moderator: day 10 — intermittent (succeeds on comment events, fails on some issue events)
+- Smoke Codex: still fully failing
+- Issue Monster: continuing lockdown failures (not agent quality issue)
+- 12 outdated lock files may affect workflow behavior if recompile has breaking changes
