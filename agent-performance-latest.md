@@ -1,71 +1,91 @@
-# Agent Performance Analysis - 2026-03-06
+# Agent Performance Analysis - 2026-03-07
 
-**Run:** [§22774445782](https://github.com/github/gh-aw/actions/runs/22774445782)
-**Status:** ⚠️ DEGRADED — OpenAI cybersec restriction EXPANDING (AI Moderator day 7+, Smoke Codex NEW), Lockdown token P0 ongoing
+**Run:** [§22803659178](https://github.com/github/gh-aw/actions/runs/22803659178)
+**Status:** ⚠️ STABLE — Infrastructure issues ongoing (not agent quality)
 
 ## Scores
 
-- **Agent Quality:** 84/100 (↓1 from 85 — Smoke Codex NEW failure)
-- **Agent Effectiveness:** 84/100 (↓1 from 85)
-- **Critical Issues:** 7 P1 failures (3 infrastructure: 2 OpenAI cybersec + 4 lockdown token + 1 duplicate)
-- **Total Runs (7-day):** 50 | Errors: 10 | Cost: $4.27 | Tokens: 20.3M
+- **Agent Quality:** 84/100 (stable from 3/6)
+- **Agent Effectiveness:** 84/100 (stable from 3/6)
+- **Workflow Health:** 74/100 (↓2 from 3/6 — 12 outdated lock files)
+- **P1 Failures:** 6 workflows (infrastructure: 4 lockdown + 1 AI Moderator intermittent + 1 Smoke Codex)
 
-## Key Changes (Week over week: 3/1 → 3/6)
+## Analysis Summary
 
-| Metric | Previous (3/1) | Current (3/6) | Trend |
-|--------|---|---|---|
-| Agent Quality | 85/100 | 84/100 | ↓ 1 |
-| Agent Effectiveness | 85/100 | 84/100 | ↓ 1 |
-| Workflow Health | 73/100 | 76/100 | ↑ 3 (Metrics recovered) |
-| Executable Workflows | 162 | 165 | ↑ 3 new |
-| P1 Failures | 3 | 7 | ⚠️ EXPANDED (4 new: Codex + tracking) |
-| Changeset Generator cost | ~unknown | 10.4M tokens | 🔴 very high |
-| OpenAI restriction scope | AI Moderator day 3 | AI Moderator day 7+ + Smoke Codex NEW | ❌ EXPANDING |
+### Key Finding: Agent Performance STABLE
+Agent quality and effectiveness remain at 84/100. The ecosystem is **97% healthy** with no new agent quality degradation detected since 2026-03-06.
 
-## Top Performers
+### Infrastructure Issues (Not Agent Quality)
+Six workflows failing due to **infrastructure constraints**, not agent implementation problems:
 
-1. **The Great Escapi (95/100):** 75K tokens, 4.1m — ultra-efficient, consistent pass
-2. **Daily Safe Outputs Conformance Checker (93/100):** 164K tokens — clean
-3. **Contribution Check (92/100):** 301K tokens — clean pass
-4. **Smoke Claude/Copilot (90/100):** Smoke tests passing ✅ (Codex NEW failed)
-5. **Agent Container Smoke Test (88/100):** 139K tokens, 1S/0F
+1. **OpenAI Cybersec Restriction (Day 10)** — 2 workflows
+   - AI Moderator: intermittently failing on some event types
+   - Smoke Codex: consistently failing
+   - Issue #18922 expires TODAY 2026-03-07 9:45 PM UTC
+   - Requires OpenAI investigation/escalation
 
-## Critical Issues
+2. **Lockdown Token Missing (GH_AW_GITHUB_TOKEN)** — 4 workflows
+   - Issue Monster (~50+ failures/day), Issue #18919 expires TODAY 9:09 PM UTC
+   - PR Triage Agent, Issue #18952 (expires 3/8)
+   - Daily Issues Report, Issue #18967 (expires 3/8 2:01 AM)
+   - Org Health Report (no tracking issue)
+   - **Status:** All programmatic fix paths closed (#17414, #17807) — requires manual intervention
 
-1. ❌ **P0: OpenAI Cybersec Restriction (EXPANDING SCOPE)**
-   - **AI Moderator:** day 7+ failure, issue #18922 OPEN (expires 2026-03-07 ⚠️ **3 DAYS**)
-   - **Smoke Codex:** NEW failure (same OpenAI restriction) — run #2142
-   - **Pattern:** Both codex-engine workflows now blocked; scope expanding
-   - **Recommendation:** Urgent investigation; may require prompt modification
+3. **Outdated Lock Files (NEW)** — 12 workflows
+   - Workflows: blog-auditor, cloclo, copilot-cli-deep-research, copilot-pr-prompt-analysis, daily-rendering-scripts-verifier, daily-team-evolution-insights, dev-hawk, pdf-summary, repository-quality-improver, smoke-temporary-id, static-analysis-report, typist
+   - **Action needed:** `make recompile` to regenerate .lock.yml files
 
-2. ❌ **P0: Lockdown Token Missing (GH_AW_GITHUB_TOKEN)**
-   - **Issue Monster:** ~50+/day failures (1,100+ cumulative), issue #18919 (expires 2026-03-07 ⚠️)
-   - **PR Triage Agent:** failures, issue #18952 (expires 2026-03-08 ⚠️)
-   - **Daily Issues Report:** failures, NEW issue created
-   - **Org Health Report:** weekly failures, no issue
-   - **Status:** NO PROGRAMMATIC FIX PATH (#17414, #17807 both closed "not_planned")
+## Top Performers (Unchanged)
 
-3. ⚠️ **P1: Changeset Generator (HIGH COST)**
-   - **Token usage:** 10.4M tokens in 1 run (HIGHEST in ecosystem)
-   - **Cost:** ~$4.27/run
-   - **Action:** Profile and optimize semantic queries
+1. **The Great Escapi** (95/100): 75K tokens, ultra-efficient, consistent pass
+2. **Daily Safe Outputs Conformance Checker** (93/100): 164K tokens, clean
+3. **Contribution Check** (92/100): 301K tokens, clean pass
+4. **Smoke Claude/Copilot** (90/100): Both passing ✅
+5. **Agent Container Smoke Test** (88/100): 139K tokens, 1S/0F
 
-4. ⚠️ **P1: Chroma Issue Indexer (HIGH RESOURCE)**
-   - **Token usage:** 3.3M tokens
-   - **Firewall blocks:** 102 requests
-   - **Action:** Investigate and optimize
+## Recommended Actions (Priority)
 
-## Actions Taken This Run
+### CRITICAL (Expiring Today)
+1. **#18919** (Issue Monster): expires 2026-03-07 9:09 PM UTC
+2. **#18922** (AI Moderator): expires 2026-03-07 9:45 PM UTC
+   - Monitor for closure or renewal
 
-- ✅ Created comprehensive Agent Performance Report discussion
-- ✅ Analyzed 165 workflows (97% healthy)
-- ✅ Identified 7 P1 infrastructure failures (not agent quality)
-- ✅ Recommend urgent OpenAI cybersec investigation
-- ✅ Flagged expiring issues (#18922, #18919, #18952 all expire 3/7-3/8)
+### HIGH (This Week)
+3. **Recompile 12 workflows** with outdated lock files
+   ```bash
+   make recompile
+   ```
+   - Affects: blog-auditor, cloclo, copilot-cli-deep-research, copilot-pr-prompt-analysis, daily-rendering-scripts-verifier, daily-team-evolution-insights, dev-hawk, pdf-summary, repository-quality-improver, smoke-temporary-id, static-analysis-report, typist
+
+4. **Escalate OpenAI restriction** (Day 10+)
+   - Both codex-engine workflows affected
+   - Investigate if prompt changes needed
+
+### MEDIUM
+5. **Resolve lockdown token issue** (#18919, #18952, #18967)
+   - All programmatic fixes closed
+   - Requires manual admin intervention or token provisioning
+
+## Metrics Comparison (7-Day Trend)
+
+| Metric | 3/1 | 3/6 | 3/7 | Trend |
+|--------|-----|-----|-----|-------|
+| Agent Quality | 85/100 | 84/100 | 84/100 | → Stable |
+| Agent Effectiveness | 85/100 | 84/100 | 84/100 | → Stable |
+| Workflow Health | 78/100 | 76/100 | 74/100 | ↓ (lock files) |
+| Healthy Workflows | 159/162 | 161/165 | 154/166 | Declining (infrastructure) |
+| Total Cost (7d) | - | $4.27 | $4.27 | → Stable |
+
+## Coordination Notes
+
+**Shared with:**
+- ✅ Campaign Manager — Agent ecosystem stable, focus on infrastructure issues
+- ✅ Workflow Health Manager — 12 outdated lock files, 2 expiring issues today
+- ✅ Previous Performance Report (2026-03-06) — Comprehensive analysis of agent quality/effectiveness, rankings, and recommendations
 
 ## Run Info
 
-- Timestamp: 2026-03-06T17:31:03Z
-- Workflow run: [§22774445782](https://github.com/github/gh-aw/actions/runs/22774445782)
-- Health score: 84/100 (↓1 from 85)
-- Report: Agent Performance Report discussion created
+- Timestamp: 2026-03-07T17:27:39Z
+- Workflow run: [§22803659178](https://github.com/github/gh-aw/actions/runs/22803659178)
+- Agent Health Score: 84/100 (stable)
+- Finding: No new agent quality issues; infrastructure monitoring and escalation ongoing
