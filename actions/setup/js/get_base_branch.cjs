@@ -2,6 +2,7 @@
 /// <reference types="@actions/github-script" />
 
 const { validateTargetRepo, parseAllowedRepos, getDefaultTargetRepo } = require("./repo_helpers.cjs");
+const { getErrorMessage } = require("./error_helpers.cjs");
 
 /**
  * Get the base branch name, resolving dynamically based on event context.
@@ -69,7 +70,7 @@ async function getBaseBranch(targetRepo = null) {
     } catch (/** @type {any} */ error) {
       // Fall through to default if API call fails
       if (typeof core !== "undefined") {
-        core.warning(`Failed to fetch PR base branch: ${error.message}`);
+        core.warning(`Failed to fetch PR base branch: ${getErrorMessage(error)}`);
       }
     }
   }
@@ -113,7 +114,7 @@ async function getBaseBranch(targetRepo = null) {
       } catch (/** @type {any} */ error) {
         // Fall through to default if API call fails
         if (typeof core !== "undefined") {
-          core.warning(`Failed to fetch repository default branch: ${error.message}`);
+          core.warning(`Failed to fetch repository default branch: ${getErrorMessage(error)}`);
         }
       }
     }
