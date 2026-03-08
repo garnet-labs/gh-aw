@@ -100,7 +100,25 @@ describe("getBaseBranch", () => {
     expect(result3).toBe("custom-branch");
   });
 
-  it("should query GitHub API for repo default branch when github is available", async () => {
+  it("should return context.payload.repository.default_branch without an API call", async () => {
+    const mockGetRepo = vi.fn();
+    global.github = {
+      rest: { repos: { get: mockGetRepo } },
+    };
+    global.context = {
+      repo: { owner: "test-owner", repo: "test-repo" },
+      eventName: "push",
+      payload: { repository: { default_branch: "trunk" } },
+    };
+
+    const { getBaseBranch } = await import("./get_base_branch.cjs");
+    const result = await getBaseBranch();
+
+    expect(result).toBe("trunk");
+    expect(mockGetRepo).not.toHaveBeenCalled();
+  });
+
+  it("should query GitHub API for repo default branch when payload does not have it", async () => {
     const mockGetRepo = vi.fn().mockResolvedValue({ data: { default_branch: "master" } });
     global.github = {
       rest: {
@@ -112,6 +130,7 @@ describe("getBaseBranch", () => {
     global.context = {
       repo: { owner: "test-owner", repo: "test-repo" },
       eventName: "workflow_dispatch",
+      payload: {},
     };
 
     const { getBaseBranch } = await import("./get_base_branch.cjs");
@@ -119,6 +138,25 @@ describe("getBaseBranch", () => {
 
     expect(mockGetRepo).toHaveBeenCalledWith({ owner: "test-owner", repo: "test-repo" });
     expect(result).toBe("master");
+  });
+
+  it("should use repos.get() for targetRepo (cross-repo) even when payload has default_branch", async () => {
+    const mockGetRepo = vi.fn().mockResolvedValue({ data: { default_branch: "develop" } });
+    global.github = {
+      rest: { repos: { get: mockGetRepo } },
+    };
+    global.context = {
+      repo: { owner: "workflow-owner", repo: "workflow-repo" },
+      eventName: "issue_comment",
+      payload: { repository: { default_branch: "main" } },
+    };
+
+    const { getBaseBranch } = await import("./get_base_branch.cjs");
+    // targetRepo differs from the workflow repo - must use API, not payload
+    const result = await getBaseBranch({ owner: "target-owner", repo: "target-repo" });
+
+    expect(mockGetRepo).toHaveBeenCalledWith({ owner: "target-owner", repo: "target-repo" });
+    expect(result).toBe("develop");
   });
 
   it("should use targetRepo for API default branch lookup", async () => {
