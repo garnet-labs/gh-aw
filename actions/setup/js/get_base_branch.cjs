@@ -11,10 +11,11 @@ const { validateTargetRepo, parseAllowedRepos, getDefaultTargetRepo } = require(
  * 2. github.base_ref env var (set for pull_request/pull_request_target events)
  * 3. Pull request payload base ref (pull_request_review, pull_request_review_comment events)
  * 4. API lookup for issue_comment events on PRs (the PR's base ref is not in the payload)
- * 5. Fallback to DEFAULT_BRANCH env var or "main"
+ * 5. API lookup for repository default branch (handles repos where default branch != "main")
+ * 6. Fallback to DEFAULT_BRANCH env var or "main"
  *
  * @param {{owner: string, repo: string}|null} [targetRepo] - Optional target repository.
- *   If provided, API calls (step 4) use this instead of context.repo,
+ *   If provided, API calls (steps 4 and 5) use this instead of context.repo,
  *   which is needed for cross-repo scenarios where the target repo differs
  *   from the workflow repository.
  * @returns {Promise<string>} The base branch name
@@ -72,7 +73,43 @@ async function getBaseBranch(targetRepo = null) {
     }
   }
 
-  // 5. Fallback to DEFAULT_BRANCH env var or "main"
+  // 5. API lookup for repository default branch
+  // This handles repos where the default branch is not "main" (e.g., "master", "develop")
+  if (typeof github !== "undefined") {
+    try {
+      const repoOwner = targetRepo?.owner ?? (typeof context !== "undefined" ? context.repo.owner : null);
+      const repoName = targetRepo?.repo ?? (typeof context !== "undefined" ? context.repo.repo : null);
+
+      if (repoOwner && repoName) {
+        // SECURITY: Validate target repo against allowlist before any API calls
+        const targetRepoSlug = `${repoOwner}/${repoName}`;
+        const allowedRepos = parseAllowedRepos(process.env.GH_AW_ALLOWED_REPOS);
+        if (allowedRepos.size > 0) {
+          const defaultRepo = getDefaultTargetRepo();
+          const validation = validateTargetRepo(targetRepoSlug, defaultRepo, allowedRepos);
+          if (!validation.valid) {
+            if (typeof core !== "undefined") {
+              core.warning(`ERR_VALIDATION: ${validation.error}`);
+            }
+            return process.env.DEFAULT_BRANCH || "main";
+          }
+        }
+
+        const { data: repoData } = await github.rest.repos.get({
+          owner: repoOwner,
+          repo: repoName,
+        });
+        return repoData.default_branch;
+      }
+    } catch (/** @type {any} */ error) {
+      // Fall through to default if API call fails
+      if (typeof core !== "undefined") {
+        core.warning(`Failed to fetch repository default branch: ${error.message}`);
+      }
+    }
+  }
+
+  // 6. Fallback to DEFAULT_BRANCH env var or "main"
   return process.env.DEFAULT_BRANCH || "main";
 }
 
