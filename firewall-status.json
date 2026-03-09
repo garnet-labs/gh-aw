@@ -1,0 +1,13 @@
+{
+  "last_run_id": "22865979465",
+  "last_run_date": "2026-03-09",
+  "status": "SECURE",
+  "techniques_tested_this_run": 20,
+  "techniques_blocked_this_run": 20,
+  "cumulative_runs": 31,
+  "cumulative_techniques": 772,
+  "cumulative_escapes": 1,
+  "consecutive_blocks": 709,
+  "squid_version": "6.13",
+  "key_message": "All escape attempts blocked. Sandbox secure. Full report in discussion 22865979465."
+}
