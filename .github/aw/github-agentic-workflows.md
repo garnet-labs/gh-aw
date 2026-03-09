@@ -1071,6 +1071,8 @@ The YAML frontmatter supports these fields:
     - Patches exceeding this size are rejected to prevent accidental large changes
   - `group-reports:` - Group workflow failure reports as sub-issues (boolean, default: `false`)
     - When `true`, creates a parent `[aw] Failed runs` issue that tracks all workflow failures as sub-issues; useful for larger repositories
+  - `report-failure-as-issue:` - Create failure tracking issues when workflows fail (boolean, default: `true`)
+    - When `false`, disables automatic failure issue creation; useful when failures are expected or handled elsewhere
   - `id-token:` - Override the id-token permission for the safe-outputs job (string: `"write"` or `"none"`)
     - `"write"`: force-enable `id-token: write` permission (required for OIDC authentication with cloud providers)
     - `"none"`: suppress automatic detection and prevent adding `id-token: write` even when vault/OIDC actions are detected in steps
