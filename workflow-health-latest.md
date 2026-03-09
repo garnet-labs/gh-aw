@@ -1,53 +1,23 @@
-# Workflow Health Dashboard - 2026-03-07
+# Workflow Health - 2026-03-09T07:33Z
 
-## Overview
-- **Total workflows**: 166 executable (stable from yesterday)
-- **Healthy**: ~154 (93%)
-- **Failing (P1)**: 6 workflows
-- **Compilation coverage**: 166/166 (100% ✅)
-- **Outdated lock files**: 12 ⚠️ NEW (md newer than lock — need `make recompile`)
-- **Overall health score**: 74/100 (↓2 from 76 — outdated lock files)
+Score: 72/100 (↓4 from 76). 166 workflows, 166/166 compiled. 0 outdated locks (13x0s diffs = false positives again).
 
-## Status: DEGRADED — Lockdown Failures + OpenAI Restriction Day 10
+## P1 Critical
+- Issue Monster: run #2609 failed (2026-03-09T07:29Z) - lockdown, no tracking issue
+- PR Triage Agent: run #184 failed (2026-03-09T06:28Z) - lockdown, no tracking issue
+- Daily Issues Report: run #127 failed (2026-03-09T01:59Z) - lockdown, no tracking issue
+- Org Health Report: last run #27 failed (2026-03-02) - lockdown, no tracking issue
+- AI Moderator: run #9855 failed (issues event) - #20113 OPEN; #19551 closed by dsyme not_planned
+- Smoke Codex: run #2185 failed - #19514 OPEN (expires Mar 11)
 
-### Critical Issues (P1)
-- ❌ **Issue Monster** — still failing every 30min (run #2525, 2026-03-07T07:15Z) — issue #18919 ⚠️ **expires TODAY 9:09 PM UTC**
-- ❌ **PR Triage Agent** — still failing (run #176, 2026-03-07T06:15Z) — issue #18952 (expires Mar 8)
-- ❌ **Daily Issues Report** — still failing (run #125, 2026-03-07T01:58Z) — issue #18967 (expires Mar 8 2:01 AM)
-- ❌ **Org Health Report** — still failing (last run #27, 2026-03-02) — NO tracking issue
-- ⚠️ **AI Moderator** — intermittent (partially recovered), issue #18922 ⚠️ **expires TODAY 9:45 PM UTC**
-- ❌ **Smoke Codex** — still failing (run #2169, 2026-03-07T00:51Z) — issues #18933, #19514 OPEN
+## P2 New Failures (Mar 8-9)
+#20158 Agent Container Smoke (no safe outputs), #20156 Duplicate Code, #20154 Multi-Device Docs (no safe outputs), #20153 gpclean, #20152 Agent Persona (pre-agent), #20142 Smoke Update Cross-Repo PR (pre-agent), #20102 Security Alert Burndown, #20046 Daily Code Metrics (repo-mem push fail), #20037 Workflow Health Manager itself (repo-mem push fail)
 
-### New Findings
-- 12 workflows have outdated lock files (md newer than lock)
-  - blog-auditor, cloclo, copilot-cli-deep-research, copilot-pr-prompt-analysis,
-    daily-rendering-scripts-verifier, daily-team-evolution-insights, dev-hawk,
-    pdf-summary, repository-quality-improver, smoke-temporary-id,
-    static-analysis-report, typist
-
-### Healthy
-- ✅ Smoke Copilot: run #2272 success (2026-03-07T01:12Z)
-- ✅ Smoke Claude: run #2196 success (2026-03-07T00:50Z)
-- ✅ Metrics Collector: continuing recovery
-
-## Issues Tracked
-- **#18919** [P1] Issue Monster — OPEN ⚠️ expires TODAY Mar 7, 9:09 PM UTC
-- **#18922** [P1] AI Moderator — OPEN ⚠️ expires TODAY Mar 7, 9:45 PM UTC (comment added this run)
-- **#18952** [P1] PR Triage Agent — OPEN (expires Mar 8)
-- **#18967** [P1] Daily Issues Report — OPEN (expires Mar 8, 2:01 AM)
-- **#18933** [P1] Smoke Codex — OPEN (pre-agent)
-- **#19514** [P1] Smoke Codex — OPEN (pre-agent)
-- **#19634** Smoke Codex detailed — CLOSED "not_planned" (2026-03-06)
-- **aw_Dash07** New Dashboard — created this run (2026-03-07)
-- **#19814** Previous Dashboard — expired
-
-## Actions This Run (2026-03-07T07:20Z)
-- Created new dashboard issue (aw_Dash07) replacing #19814 which expired
-- Added Day 10 status comment to #18922 (AI Moderator) with partial recovery details
-- Updated workflow-health-latest.md and shared-alerts.md
-- Health score: 74/100 (↓2 from 76)
+## Healthy
+- Smoke Copilot: ✅ run #2288 (2026-03-09T05:14Z)
+- Metrics Collector: ✅ run #81 (2026-03-08T18:14Z)
+- Smoke Claude: ⚠️ 1 failure on main (run #2208, likely transient)
 
 ## Run Info
-- Timestamp: 2026-03-07T07:20:00Z
-- Workflow run: [§22794578625](https://github.com/github/gh-aw/actions/runs/22794578625)
-- Health score: 74/100 (↓2 from 76)
+- Timestamp: 2026-03-09T07:33:00Z
+- Run: §22842967314
