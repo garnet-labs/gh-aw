@@ -4,6 +4,21 @@
 const { getErrorMessage, isLockedError } = require("./error_helpers.cjs");
 const { ERR_API, ERR_NOT_FOUND, ERR_VALIDATION } = require("./error_codes.cjs");
 
+/** @type {ReadonlyArray<string>} All valid GitHub reaction types */
+const VALID_REACTIONS = ["+1", "-1", "laugh", "confused", "heart", "hooray", "rocket", "eyes"];
+
+/** @type {Readonly<Record<string, string>>} Mapping from reaction name to GraphQL ReactionContent enum */
+const GRAPHQL_REACTION_MAP = Object.freeze({
+  "+1": "THUMBS_UP",
+  "-1": "THUMBS_DOWN",
+  laugh: "LAUGH",
+  confused: "CONFUSED",
+  heart: "HEART",
+  hooray: "HOORAY",
+  rocket: "ROCKET",
+  eyes: "EYES",
+});
+
 /**
  * Add a reaction to the triggering item (issue, PR, comment, or discussion).
  * This provides immediate feedback to the user when a workflow is triggered.
@@ -17,9 +32,8 @@ async function main() {
   core.info(`Adding reaction: ${reaction}`);
 
   // Validate reaction type
-  const validReactions = ["+1", "-1", "laugh", "confused", "heart", "hooray", "rocket", "eyes"];
-  if (!validReactions.includes(reaction)) {
-    core.setFailed(`${ERR_VALIDATION}: Invalid reaction type: ${reaction}. Valid reactions are: ${validReactions.join(", ")}`);
+  if (!VALID_REACTIONS.includes(reaction)) {
+    core.setFailed(`${ERR_VALIDATION}: Invalid reaction type: ${reaction}. Valid reactions are: ${VALID_REACTIONS.join(", ")}`);
     return;
   }
 
@@ -99,7 +113,6 @@ async function main() {
         return;
     }
 
-    // Add reaction using REST API (for non-discussion events)
     core.info(`Adding reaction to: ${reactionEndpoint}`);
     await addReaction(reactionEndpoint, reaction);
   } catch (error) {
@@ -124,7 +137,7 @@ async function main() {
  * @param {string} reaction - The reaction type to add
  */
 async function addReaction(endpoint, reaction) {
-  const response = await github.request("POST " + endpoint, {
+  const response = await github.request(`POST ${endpoint}`, {
     content: reaction,
     headers: {
       Accept: "application/vnd.github+json",
@@ -147,19 +160,7 @@ async function addReaction(endpoint, reaction) {
  * @param {string} reaction - The reaction type to add (mapped to GitHub's ReactionContent enum)
  */
 async function addDiscussionReaction(subjectId, reaction) {
-  // Map reaction names to GitHub's GraphQL ReactionContent enum
-  const reactionMap = {
-    "+1": "THUMBS_UP",
-    "-1": "THUMBS_DOWN",
-    laugh: "LAUGH",
-    confused: "CONFUSED",
-    heart: "HEART",
-    hooray: "HOORAY",
-    rocket: "ROCKET",
-    eyes: "EYES",
-  };
-
-  const reactionContent = reactionMap[reaction];
+  const reactionContent = GRAPHQL_REACTION_MAP[reaction];
   if (!reactionContent) {
     throw new Error(`${ERR_VALIDATION}: Invalid reaction type for GraphQL: ${reaction}`);
   }
@@ -209,4 +210,4 @@ async function getDiscussionNodeId(owner, repo, discussionNumber) {
   return repository.discussion.id;
 }
 
-module.exports = { main };
+module.exports = { main, VALID_REACTIONS, GRAPHQL_REACTION_MAP };

@@ -459,4 +459,31 @@ describe("add_reaction", () => {
       expect(mockCore.setOutput).toHaveBeenCalledWith("reaction-id", "");
     });
   });
+
+  describe("exported constants", () => {
+    it("should export VALID_REACTIONS with all 8 reaction types", () => {
+      const { VALID_REACTIONS } = require("./add_reaction.cjs");
+      expect(VALID_REACTIONS).toHaveLength(8);
+      expect(VALID_REACTIONS).toContain("+1");
+      expect(VALID_REACTIONS).toContain("-1");
+      expect(VALID_REACTIONS).toContain("eyes");
+      expect(VALID_REACTIONS).toContain("rocket");
+    });
+
+    it("should export GRAPHQL_REACTION_MAP with all 8 entries", () => {
+      const { GRAPHQL_REACTION_MAP } = require("./add_reaction.cjs");
+      expect(Object.keys(GRAPHQL_REACTION_MAP)).toHaveLength(8);
+      expect(GRAPHQL_REACTION_MAP["+1"]).toBe("THUMBS_UP");
+      expect(GRAPHQL_REACTION_MAP["-1"]).toBe("THUMBS_DOWN");
+      expect(GRAPHQL_REACTION_MAP["eyes"]).toBe("EYES");
+    });
+
+    it("VALID_REACTIONS and GRAPHQL_REACTION_MAP should be in sync", () => {
+      const { VALID_REACTIONS, GRAPHQL_REACTION_MAP } = require("./add_reaction.cjs");
+      for (const reaction of VALID_REACTIONS) {
+        expect(GRAPHQL_REACTION_MAP[reaction]).toBeDefined();
+      }
+      expect(Object.keys(GRAPHQL_REACTION_MAP)).toEqual(expect.arrayContaining(VALID_REACTIONS));
+    });
+  });
 });
