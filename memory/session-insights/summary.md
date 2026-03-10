@@ -1,4 +1,6 @@
-# Session Analysis 2026-03-09
+# Session Analysis 2026-03-10
 
-17d: 28/33 done (84.8%). Today: 2/2 resolved, 3 in-progress, 6 branches (record).
-Exp: Task Diversity - investigation tasks fire only review agents (no code output).
+18d: 30/35 done (85.7%). Today: 2/2 successful (100%), 2 branches.
+- fix-github-actions-workflow UUID: 15.9m, 7 review agents, all action_required
+- move-apm-dependency-resolution: PR comment #20385, 6.9m, 3 smoke failures (Codex/Copilot/Claude)
+Smoke alert: APM change broke AI-provider integration tests. gh auth still unset (day 18).
