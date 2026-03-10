@@ -88,6 +88,78 @@
           "success_rate": 55.6
         }
       ]
+    },
+    {
+      "date": "2026-03-10",
+      "total_prs": 1000,
+      "merged": 782,
+      "closed": 215,
+      "open": 3,
+      "merged_rate": 78.2,
+      "prompt_patterns": {
+        "bug_fix": {
+          "total": 792,
+          "merged": 636,
+          "rate": 80.3
+        },
+        "feature": {
+          "total": 162,
+          "merged": 111,
+          "rate": 68.5
+        },
+        "refactoring": {
+          "total": 6,
+          "merged": 5,
+          "rate": 83.3
+        },
+        "documentation": {
+          "total": 5,
+          "merged": 4,
+          "rate": 80.0
+        },
+        "testing": {
+          "total": 7,
+          "merged": 5,
+          "rate": 71.4
+        },
+        "other": {
+          "total": 28,
+          "merged": 21,
+          "rate": 75.0
+        }
+      },
+      "successful_keywords": [
+        "workflow",
+        "github",
+        "safe",
+        "copilot",
+        "update",
+        "fix",
+        "improve"
+      ],
+      "top_categories": [
+        {
+          "name": "bug_fix",
+          "total": 792,
+          "success_rate": 80.3
+        },
+        {
+          "name": "refactoring",
+          "total": 6,
+          "success_rate": 83.3
+        },
+        {
+          "name": "feature",
+          "total": 162,
+          "success_rate": 68.5
+        }
+      ],
+      "key_insights": [
+        "Bug fixes significantly outperform features (80.3% vs 68.5% success)",
+        "Merged PRs are ~13% longer on average, suggesting detailed explanations matter",
+        "WIP/Draft PRs represent 8.5% of all PRs",
+        "Specificity in prompts correlates with success"
+      ]
     }
   ]
 }
