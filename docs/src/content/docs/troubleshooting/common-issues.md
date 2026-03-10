@@ -35,37 +35,17 @@ Verify with `gh extension list`.
 The action github/gh-aw/actions/setup@a933c835b5e2d12ae4dead665a0fdba420a2d421 is not allowed in {ORG} because all actions must be from a repository owned by your enterprise, created by GitHub, or verified in the GitHub Marketplace.
 ```
 
-**Cause:** Enterprise policies restrict which GitHub Actions can be used. Workflows use `github/gh-aw/actions/setup` which may not be allowed.
+Enterprise policies restrict which Actions can be used. An admin must allow `github/gh-aw`:
 
-**Solution:** Enterprise administrators must allow `github/gh-aw` in the organization's action policies:
+- **In the UI** (recommended): Go to `https://github.com/organizations/YOUR_ORG/settings/actions`, select **Allow select actions and reusable workflows**, and add `github/gh-aw@*`. See [managing Actions permissions](https://docs.github.com/en/organizations/managing-organization-settings/disabling-or-limiting-github-actions-for-your-organization#allowing-select-actions-and-reusable-workflows-to-run).
+- **Via policy file**: Add to `policies/actions.yml` in your org's `.github` repository:
+  ```yaml
+  allowed_actions:
+    - "actions/*"
+    - "github/gh-aw@*"
+  ```
 
-#### Option 1: Allow Specific Repositories (Recommended)
-
-Add `github/gh-aw` to your organization's allowed actions list:
-
-1. Navigate to your organization's settings: `https://github.com/organizations/YOUR_ORG/settings/actions`
-2. Under **Policies**, select **Allow select actions and reusable workflows**
-3. In the **Allow specified actions and reusable workflows** section, add:
-   ```text
-   github/gh-aw@*
-   ```
-4. Save the changes
-
-See GitHub's docs on [managing Actions permissions](https://docs.github.com/en/organizations/managing-organization-settings/disabling-or-limiting-github-actions-for-your-organization#allowing-select-actions-and-reusable-workflows-to-run).
-
-#### Option 2: Configure Organization-Wide Policy File
-
-Add `github/gh-aw@*` to your centralized `policies/actions.yml` and commit to your organization's `.github` repository. See GitHub's docs on [community health files](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file).
-
-```yaml
-allowed_actions:
-  - "actions/*"
-  - "github/gh-aw@*"
-```
-
-#### Verification
-
-Wait a few minutes for policy propagation, then re-run your workflow. If issues persist, verify at `https://github.com/organizations/YOUR_ORG/settings/actions`.
+Wait a few minutes for policy propagation, then re-run.
 
 > [!TIP]
 > The gh-aw actions are open source at [github.com/github/gh-aw/tree/main/actions](https://github.com/github/gh-aw/tree/main/actions) and pinned to specific SHAs for security.
@@ -153,56 +133,11 @@ network:
 
 ### Cannot Find Module 'playwright'
 
-**Error:**
-
-```text
-Error: Cannot find module 'playwright'
-```
-
-**Cause:** The agent tried to `require('playwright')` but Playwright is provided through MCP tools, not as an npm package.
-
-**Solution:** Use MCP Playwright tools:
-
-```javascript
-// ❌ INCORRECT - This won't work
-const playwright = require('playwright');
-const browser = await playwright.chromium.launch();
-
-// ✅ CORRECT - Use MCP Playwright tools
-// Example: Navigate and take screenshot
-await mcp__playwright__browser_navigate({
-  url: "https://example.com"
-});
-
-await mcp__playwright__browser_snapshot();
-
-// Example: Execute custom Playwright code
-await mcp__playwright__browser_run_code({
-  code: `async (page) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    const title = await page.title();
-    return { title, url: page.url() };
-  }`
-});
-```
-
-See [Playwright Tool documentation](/gh-aw/reference/tools/#playwright-tool-playwright) for all available tools.
+Playwright is provided as MCP tools, not an npm package. Use `mcp__playwright__browser_navigate`, `mcp__playwright__browser_snapshot`, etc. instead of `require('playwright')`. See [Playwright Tool documentation](/gh-aw/reference/tools/#playwright-tool-playwright).
 
 ### Playwright MCP Initialization Failure (EOF Error)
 
-**Error:**
-
-```text
-Failed to register tools error="initialize: EOF" name=playwright
-```
-
-**Cause:** Chromium crashes before tool registration completes due to missing Docker security flags.
-
-**Solution:** Upgrade to version 0.41.0+ which includes required Docker flags:
-
-```bash wrap
-gh extension upgrade gh-aw
-```
+`Failed to register tools error="initialize: EOF" name=playwright` — Chromium crashes before tool registration due to missing Docker security flags. Upgrade to version 0.41.0+: `gh extension upgrade gh-aw`.
 
 ## Permission Issues
 
@@ -263,30 +198,9 @@ Use default (`engine: copilot`) or specify available model (`engine: {id: copilo
 
 ### Copilot License or Inference Access Issues
 
-If your workflow fails during the Copilot inference step even though the `COPILOT_GITHUB_TOKEN` secret is configured correctly, the PAT owner's account may not have the necessary Copilot license or inference access.
+If the workflow fails with authentication or quota errors during Copilot inference, the `COPILOT_GITHUB_TOKEN` owner may lack a valid Copilot license or inference access.
 
-**Symptoms**: The workflow fails with authentication or quota errors when the Copilot CLI tries to generate a response.
-
-**Diagnosis**: Verify that the account associated with the `COPILOT_GITHUB_TOKEN` can successfully run inference by testing it locally.
-
-1. Install the Copilot CLI locally by following the [GitHub Copilot CLI documentation](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli).
-
-2. Export the token as an environment variable:
-
-   ```bash
-   export COPILOT_GITHUB_TOKEN="<your-github-pat>"
-   ```
-
-3. Run a simple inference test:
-
-   ```bash
-   copilot -p "write a haiku"
-   ```
-
-If this command fails, the account associated with the token does not have a valid Copilot license or inference access. Contact your organization administrator to verify that the token owner has an active Copilot subscription with inference enabled.
-
-> [!NOTE]
-> The `COPILOT_GITHUB_TOKEN` must belong to a user account with an active GitHub Copilot subscription. Organization-managed Copilot licenses may have additional restrictions on programmatic API access.
+Verify locally by exporting the token and running `copilot -p "write a haiku"` (requires the [Copilot CLI](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli)). If that fails, contact your org admin — the token must belong to a user with an active Copilot subscription. Organization-managed licenses may restrict programmatic API access.
 
 ## Context Expression Issues
 
@@ -382,25 +296,9 @@ tools:
 
 ## GitHub Lockdown Mode Blocking Expected Content
 
-Lockdown mode filters public repository content to show only items from users with push access.
+Lockdown mode (enabled by default on public repositories) filters content to items from users with push access, which can cause workflows to miss issues, PRs, or comments from external contributors.
 
-### Symptoms
-
-Workflows can't see issues/PRs/comments from external contributors, status reports miss activity, triage workflows don't process community contributions.
-
-### Cause
-
-Lockdown is enabled by default for public repositories to protect against untrusted input.
-
-### Solution
-
-**Option 1: Keep Lockdown Enabled (Recommended)**
-
-For sensitive operations (code generation, repository updates, web access), use separate workflows, manual triggers, or approval stages.
-
-**Option 2: Disable Lockdown (Safe Public Workflows Only)**
-
-Disable only if your workflow validates input, uses restrictive safe outputs, and doesn't access secrets:
+For sensitive operations (code generation, web access, secrets), keep lockdown enabled and use separate workflows or manual triggers. To process community contributions in safe workflows (issue triage, spam detection, public dashboards), disable lockdown only if your workflow validates input and uses restrictive safe outputs:
 
 ```yaml wrap
 tools:
@@ -408,23 +306,13 @@ tools:
     lockdown: false
 ```
 
-Safe use cases: issue triage, spam detection, public dashboards with permission verification.
-
 See [Lockdown Mode](/gh-aw/reference/lockdown-mode/) for details.
 
 ## Workflow Failures and Debugging
 
 ### Workflow Job Timed Out
 
-When a workflow job exceeds its configured time limit, GitHub Actions marks the run as `timed_out`. The failure tracking issue or comment posted by gh-aw will include a message indicating the timeout and a suggestion:
-
-```yaml wrap
----
-timeout-minutes: 30  # Increase from the previous value
----
-```
-
-If no `timeout-minutes` value is set in your workflow frontmatter, the default is 20 minutes. To increase the limit:
+The default timeout is 20 minutes. Increase it in the frontmatter and recompile:
 
 ```yaml wrap
 ---
@@ -432,19 +320,18 @@ timeout-minutes: 60
 ---
 ```
 
-Recompile with `gh aw compile` after updating. If the workflow is consistently timing out, consider reducing the scope of the task or breaking it into smaller, focused workflows.
+If the workflow consistently times out, reduce its scope or split it into smaller, focused workflows.
 
-### Why Did My Workflow Fail?
+### Debugging a Failing Workflow
 
-Common causes: missing tokens, permission mismatches, network restrictions, disabled tools, or rate limits. Use `gh aw audit <run-id>` to investigate.
+Common causes: missing tokens, permission mismatches, network restrictions, disabled tools, or rate limits. To investigate:
 
-### How Do I Debug a Failing Workflow?
-
-Check logs (`gh aw logs`), audit run (`gh aw audit <run-id>`), inspect `.lock.yml`, use Copilot Chat (`/agent agentic-workflows debug`), or watch compilation (`gh aw compile --watch`).
-
-### Debugging Strategies
-
-Enable verbose mode (`--verbose`), set `ACTIONS_STEP_DEBUG = true`, check MCP config (`gh aw mcp inspect`), and review logs.
+- Audit the run: `gh aw audit <run-id>`
+- Check logs: `gh aw logs`
+- Inspect compiled output: `.lock.yml`
+- Enable verbose mode: `gh aw compile --verbose` or set `ACTIONS_STEP_DEBUG = true`
+- Check MCP config: `gh aw mcp inspect`
+- Ask Copilot Chat: `/agent agentic-workflows debug`
 
 ## Operational Runbooks
 
