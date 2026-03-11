@@ -1,7 +1,7 @@
-## Flagged Items for Monitoring (2026-02-26)
+## Flagged Items for Monitoring (2026-03-11)
 
-- Issue Monster: multiple failures plus an in-progress run with errors in latest logs sample.
-- Workflow failures cluster: CI Failure Doctor, Smoke (Copilot/Claude/Codex), Breaking Change Checker, Super Linter, Daily CLI Performance Agent, Changeset Generator.
-- Firewall blocks: repeated "-" blocked domain across multiple workflows (likely invalid host usage).
-- Announcements noise: multiple "copilot was here" discussions in the last 24 hours.
-- Open unlabeled issues: 3 open issues without labels in last 7-day dataset.
+- Chroma Issue Indexer firewall denials increased sharply in recent daily firewall reporting (proxy.golang.org and pypi.org blocks); monitor for looping behavior and token spikes.
+- Validation file size compliance remains an active engineering debt area (multiple `*_validation.go` files above the 300-line limit in recent report).
+- CLI output formatting inconsistency remains a medium-priority quality gap (`fmt.Fprintf(os.Stderr, ...)` still widespread in setup/helper paths).
+- Weekly issue intake exceeded closures by 34 in the 7-day window; backlog is still manageable but direction should be watched.
+- One currently open unlabeled issue (20530) should be triaged to preserve near-100% label hygiene.
