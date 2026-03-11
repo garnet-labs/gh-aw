@@ -1,23 +1,32 @@
-# Workflow Health - 2026-03-09T07:33Z
+# Workflow Health - 2026-03-11T07:29Z
 
-Score: 72/100 (↓4 from 76). 166 workflows, 166/166 compiled. 0 outdated locks (13x0s diffs = false positives again).
+Score: 72/100 (↑2 from 70). 166 workflows, 166/166 compiled. 0 outdated locks.
 
-## P1 Critical
-- Issue Monster: run #2609 failed (2026-03-09T07:29Z) - lockdown, no tracking issue
-- PR Triage Agent: run #184 failed (2026-03-09T06:28Z) - lockdown, no tracking issue
-- Daily Issues Report: run #127 failed (2026-03-09T01:59Z) - lockdown, no tracking issue
-- Org Health Report: last run #27 failed (2026-03-02) - lockdown, no tracking issue
-- AI Moderator: run #9855 failed (issues event) - #20113 OPEN; #19551 closed by dsyme not_planned
-- Smoke Codex: run #2185 failed - #19514 OPEN (expires Mar 11)
+## P1 Critical (Lockdown - Day 15+)
+- Issue Monster: 100% failure (lockdown token) - #20315 OPEN
+- PR Triage Agent: 100% failure (lockdown token) - #20315 OPEN
+- Daily Issues Report: 100% failure (lockdown token) - #20315 OPEN
+- Org Health Report: weekly failure (lockdown token) - no specific tracking issue
 
-## P2 New Failures (Mar 8-9)
-#20158 Agent Container Smoke (no safe outputs), #20156 Duplicate Code, #20154 Multi-Device Docs (no safe outputs), #20153 gpclean, #20152 Agent Persona (pre-agent), #20142 Smoke Update Cross-Repo PR (pre-agent), #20102 Security Alert Burndown, #20046 Daily Code Metrics (repo-mem push fail), #20037 Workflow Health Manager itself (repo-mem push fail)
+## P2 Warning
+- Smoke Gemini: 100% schedule failure (add_comment context error) - no tracking issue
+- Smoke Update Cross-Repo PR: 100% failure (pre-agent) - #20288 OPEN
+- Safe Output Health Monitor: 2 consecutive failures - #20305 OPEN (updated this run)
+- jsweep: intermittent (1/10) - no tracking issue
+
+## Recoveries 🎉
+- Smoke Codex: RECOVERED! Run #2215 Mar 11 succeeded (after 2 week OpenAI restriction) - #20285 still open
+- Duplicate Code Detector: RECOVERED! Run #230 Mar 11 succeeded - #20304 still open
 
 ## Healthy
-- Smoke Copilot: ✅ run #2288 (2026-03-09T05:14Z)
-- Metrics Collector: ✅ run #81 (2026-03-08T18:14Z)
-- Smoke Claude: ⚠️ 1 failure on main (run #2208, likely transient)
+- Smoke Copilot ✅, Smoke Claude ✅, AI Moderator ✅ (mostly healthy)
+- Metrics Collector ✅, Agentic Maintenance ✅
+
+## Actions Taken This Run
+- Created new dashboard issue #aw_dash11 (parent #19352)
+- Added status update comment to #20305 (Safe Output Health Monitor)
+- Smoke Codex and Duplicate Code Detector tracking issues #20285/#20304 can be closed
 
 ## Run Info
-- Timestamp: 2026-03-09T07:33:00Z
-- Run: §22842967314
+- Timestamp: 2026-03-11T07:29:00Z
+- Run: §22941596501

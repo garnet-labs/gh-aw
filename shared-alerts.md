@@ -315,3 +315,12 @@
 ---
 ## 2026-03-09T07:33Z
 Score 72/100 (↓4). P1: lockdown 4 workflows; AI Moderator Day 12 (#20113 open, #19551 closed by dsyme); Smoke Codex Day 12 (#19514 open exp Mar 11). P2 spike: 8 failures today (#20142/#20152/#20153/#20154/#20156/#20158, #20102, #20046). ✅ Smoke Copilot #2288, Metrics Collector #81. Dashboard #20036 expired 07:29Z. New dashboard created this run. 0 real outdated locks (13x0s false positives).
+
+---
+## 2026-03-11T07:29Z - Workflow Health Update
+
+Score: **72/100** (↑2). 166 workflows, 100% compiled. 0 stale locks.
+- ✅ RECOVERED: Smoke Codex #2215, Duplicate Code Detector #230 (codex engine back)
+- ❌ P1: 4 lockdown workflows, NO FIX PATH, tracking #20315
+- ⚠️ P2: Smoke Gemini (schedule), Safe Output Health #20305, Smoke Update #20288, jsweep intermittent
+- Dashboard created: #aw_dash11; comment added #20305
