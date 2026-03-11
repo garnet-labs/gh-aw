@@ -1,6 +1,8 @@
-# Session Analysis 2026-03-10
+# Session Analysis 2026-03-11
 
-18d: 30/35 done (85.7%). Today: 2/2 successful (100%), 2 branches.
-- fix-github-actions-workflow UUID: 15.9m, 7 review agents, all action_required
-- move-apm-dependency-resolution: PR comment #20385, 6.9m, 3 smoke failures (Codex/Copilot/Claude)
-Smoke alert: APM change broke AI-provider integration tests. gh auth still unset (day 18).
+19d: 50 sessions. 10 success, 2 failure, 37 action_required, 1 in-progress.
+Copilot agent: 4 sessions, 3 successful (75%). Avg copilot duration: 10.87m.
+Active branches: add-warnings-push-to-pull-request (24 sessions, reviewers), fix-event-driven-relay-checkout (20 sessions, 2 CI failures), refactor-semantic-function-clustering (5 sessions, all green).
+PR #20583 needed 3 copilot passes (0.22m→5.58m→24.6m). CI failure rate 40% on checkout fix branch.
+Experimental: Branch Activity Concentration Analysis — moderate evidence, track 3 more days.
+gh auth still unset. Conversation logs: 1 file but OAuth error (no transcript content).
