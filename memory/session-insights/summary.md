@@ -1,8 +1,7 @@
-# Session Analysis 2026-03-11
+# Session Analysis 2026-03-12
 
-19d: 50 sessions. 10 success, 2 failure, 37 action_required, 1 in-progress.
-Copilot agent: 4 sessions, 3 successful (75%). Avg copilot duration: 10.87m.
-Active branches: add-warnings-push-to-pull-request (24 sessions, reviewers), fix-event-driven-relay-checkout (20 sessions, 2 CI failures), refactor-semantic-function-clustering (5 sessions, all green).
-PR #20583 needed 3 copilot passes (0.22m→5.58m→24.6m). CI failure rate 40% on checkout fix branch.
-Experimental: Branch Activity Concentration Analysis — moderate evidence, track 3 more days.
-gh auth still unset. Conversation logs: 1 file but OAuth error (no transcript content).
+50 sessions: 2 copilot success, 5 smoke failures, 13 skipped, 30 action_req.
+Copilot: 2/2 success (100%). Avg 11.4m. Branches: add-debug-logging (7m doc task), fix-activation-checkout-ref (15.8m PR comment + 5 smoke failures).
+Smoke alert: Codex+Generator+AgentContainer+Claude+Copilot all failed — activation/checkout changes cascade.
+Experimental: Smoke Failure Signatures (1/3/5 = component/platform/infra scope). High value.
+20-day aggregate: 92.5% copilot success (37/40).
