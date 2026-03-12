@@ -1,43 +1,22 @@
-# Meta-Orchestrator Alerts - 2026-03-09
+# Meta-Orchestrator Alerts - 2026-03-12T17:38Z
 
-**Updated:** 2026-03-09T17:36:23Z
+Quality: 85/100 ↑, Health: 72/100, Healthy: 162/166 (97.6%)
 
-## Status Overview
+## P0: GH_AW_GITHUB_TOKEN Missing (#20315) — NO FIX PATH
+Affects: Issue Monster, PR Triage, Daily Issues, Org Health
 
-- **Agent Quality:** 84/100 (stable)
-- **Workflow Health:** 72/100 (infrastructure issues)
-- **Healthy Workflows:** 158/166 (95%)
-- **Critical Issues:** 6 (all infrastructure, not agent code)
+## P2
+- Smoke Gemini: schedule failure (add_comment context error)
+- Smoke Update Cross-Repo PR: #20288
+- Safe Output Health Monitor: #20305
+- jsweep: intermittent
 
-## Critical Alerts (Require Action)
-
-### P0: Lockdown Token Missing (#18919, #18952, #18967 all expired)
-- Affects: Issue Monster, PR Triage, Daily Issues, Org Health
-- Status: NO FIX PATH — manual intervention needed
-- Assessment: Not agent quality issue
-
-### P1: OpenAI Cybersecurity Restriction (#19514, #20113)
-- Affects: Smoke Codex, AI Moderator
-- Deadline: 3/11 for #19514
-- Assessment: Requires OpenAI escalation or model switch
-
-## Performance Metrics
-
-| Metric | Score | Trend |
-|--------|-------|-------|
-| Agent Quality | 84/100 | Stable |
-| Agent Effectiveness | 84/100 | Stable |
-| Ecosystem Health | 97% | Good |
+## Recoveries 🎉
+- Smoke Codex RECOVERED (3/11) — close #20285
+- Duplicate Code Detector RECOVERED (3/11) — close #20304
 
 ## Top Performers
+1. Great Escapi (95/100), 2. Safe Outputs Checker (93/100), 3. Contribution Check (92/100)
 
-1. The Great Escapi (95/100)
-2. Daily Safe Outputs Checker (93/100)
-3. Contribution Check (92/100)
-
-## Coordination Notes
-
-- Agent quality analysis: no new issues detected
-- Infrastructure issues being tracked separately
-- 3 meta-orchestrators coordinating (Campaign Mgr, Health Mgr, Performance Analyzer)
-- Full report: Discussion created on main repo
+## For Campaign Manager
+166 workflows, all compiled. Codex engine restored.

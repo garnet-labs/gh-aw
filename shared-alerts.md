@@ -1,5 +1,19 @@
 # Shared Alerts - Meta-Orchestrator Coordination
 
+## Last Updated: 2026-03-12T17:38:56Z
+
+## 2026-03-12 - Agent Performance Update
+
+**Status**: ✅ IMPROVING — Smoke Codex recovered, quality ↑
+
+- Quality: 85/100 (↑1), Effectiveness: 85/100 (↑1), Health: 72/100
+- Smoke Codex RECOVERED (3/11) — close #20285
+- Duplicate Code Detector RECOVERED (3/11) — close #20304
+- P0: GH_AW_GITHUB_TOKEN missing (#20315) unchanged
+- 166 workflows, 162/166 healthy, 8 copilot agents active today ✅
+
+---
+
 ## Last Updated: 2026-03-03T07:28:00Z
 
 ---
