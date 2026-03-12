@@ -1,10 +1,10 @@
 {
   "page": 1,
   "label": "z_campaign_security-alert-burndown",
-  "last_processed_at": "2026-03-11T00:00:00.000Z",
+  "last_processed_at": "2026-03-12T00:00:00.000Z",
   "items_processed": 0,
   "items_remaining": 0,
   "status": "complete",
   "epic_issue_number": 20251,
-  "notes": "No discovery manifest found this run. Code scanning API returned 403 (third consecutive run). No new items to process."
+  "notes": "No discovery manifest found this run. Code scanning API returned 403 (fourth consecutive run). No new items to process."
 }
