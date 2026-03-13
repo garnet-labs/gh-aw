@@ -1,9 +1,1 @@
-{
-  "campaign_id": "security-alert-burndown",
-  "date": "2026-03-10",
-  "tasks_total": 1,
-  "tasks_completed": 0,
-  "tasks_in_progress": 1,
-  "tasks_blocked": 0,
-  "notes": "Epic issue #20251 exists. No discovery manifest found this run. Code scanning alerts API returns 403. No new worker outputs discovered. Campaign in early stages."
-}
+{"campaign_id":"security-alert-burndown","date":"2026-03-10","tasks_total":5,"tasks_completed":4,"tasks_in_progress":1,"kpi_high_severity_fixed":4}

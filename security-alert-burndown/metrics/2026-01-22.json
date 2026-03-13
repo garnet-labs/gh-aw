@@ -1,16 +1,1 @@
-{
-  "campaign_id": "security-alert-burndown",
-  "date": "2026-01-22",
-  "tasks_total": 1,
-  "tasks_completed": 0,
-  "tasks_in_progress": 0,
-  "tasks_blocked": 0,
-  "critical_alerts": 1,
-  "high_severity_alerts": 0,
-  "critical_alerts_baseline": 5,
-  "high_severity_alerts_baseline": 15,
-  "critical_alerts_target": 0,
-  "high_severity_alerts_target": 5,
-  "velocity_per_day": 0,
-  "notes": "Initial campaign kickoff. Epic created and added to project board. Discovered 1 critical alert remaining (down from baseline of 5). No high-severity alerts remaining (down from baseline of 15). High-severity KPI already achieved."
-}
+{"campaign_id":"security-alert-burndown","date":"2026-01-22","tasks_total":1,"tasks_completed":0,"kpi_high_severity_fixed":0}
