@@ -23,7 +23,7 @@
 #
 # Build, test, and release gh-aw extension, then generate and prepend release highlights
 #
-# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"2cb0f21ae34ffe6602495148ee30ff8a2a3da4803213b7d294805b71dfa02051"}
+# gh-aw-metadata: {"schema_version":"v2","frontmatter_hash":"1ccf2823ac9575a51b506e9740499861d2c0506df37325368f5ef93408b4e946","strict":true}
 
 name: "Release"
 "on":
@@ -33,6 +33,7 @@ name: "Release"
   workflow_dispatch:
     inputs:
       release_type:
+        default: patch
         description: Release type (patch, minor, or major)
         options:
         - patch
@@ -88,7 +89,7 @@ jobs:
           GH_AW_INFO_AWF_VERSION: "v0.23.0"
           GH_AW_INFO_AWMG_VERSION: ""
           GH_AW_INFO_FIREWALL_TYPE: "squid"
-          GH_AW_COMPILED_STRICT: "false"
+          GH_AW_COMPILED_STRICT: "true"
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
           script: |
