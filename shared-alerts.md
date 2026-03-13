@@ -1,6 +1,19 @@
 # Shared Alerts - Meta-Orchestrator Coordination
 
-## Last Updated: 2026-03-12T17:38:56Z
+## Last Updated: 2026-03-13T17:30Z
+
+## 2026-03-13 - Agent Performance Update
+
+**Status**: IMPROVING — Quality 86/100 (up 1), Codex+DupDetector recovered, new regression: PR Merged Report
+
+- Quality: 86/100 (up1), Effectiveness: 86/100, Health: 72/100
+- 25 runs today: 17 success / 7 failure (94% adjusted, excl lockdown)
+- P0: GH_AW_GITHUB_TOKEN (#20315) unchanged, NO FIX PATH
+- New: Daily Copilot PR Merged Report failed (run #23062733795)
+- Close: #20285 (Smoke Codex), #20304 (Dup Detector) — both recovered
+- Cost: ~$4.28/day (Doc Updater $1.41, Semantic Refactoring $1.14)
+
+---
 
 ## 2026-03-12 - Agent Performance Update
 
