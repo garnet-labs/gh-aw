@@ -1,7 +1,7 @@
-## Flagged Items for Monitoring (2026-03-11)
+## Flagged Items for Monitoring (2026-03-13)
 
-- Chroma Issue Indexer firewall denials increased sharply in recent daily firewall reporting (proxy.golang.org and pypi.org blocks); monitor for looping behavior and token spikes.
-- Validation file size compliance remains an active engineering debt area (multiple `*_validation.go` files above the 300-line limit in recent report).
-- CLI output formatting inconsistency remains a medium-priority quality gap (`fmt.Fprintf(os.Stderr, ...)` still widespread in setup/helper paths).
-- Weekly issue intake exceeded closures by 34 in the 7-day window; backlog is still manageable but direction should be watched.
-- One currently open unlabeled issue (20530) should be triaged to preserve near-100% label hygiene.
+- EP012 safe-output inconsistency: `create_pull_request_review_comment` fails without explicit `pull_request_number` under wildcard target, unlike sibling handlers.
+- Go Logger Enhancement network config: `proxy.golang.org:443` blocked repeatedly (243 blocks) and should be explicitly allowed.
+- Validator policy drift: reports continue to flag validators exceeding the 300-line hard limit in AGENTS.md.
+- Backlog direction: issue intake still outpaces closure in this period, despite excellent labeling hygiene.
+- Monitor whether targeted quick wins reduce repeated discussion-level alerts in firewall and safe-output reports over the next 48-72 hours.

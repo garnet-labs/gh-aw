@@ -1,7 +1,7 @@
-## Known Patterns (2026-03-11)
+## Known Patterns (2026-03-13)
 
-- Audit/report automation remains very high-frequency with daily recurring discussions across `Daily News`, `Daily Code Metrics`, `Auto-Triage`, firewall, MCP analysis, and UX/report quality tracks.
-- Issue operations are strongly automation-driven: `app/github-actions` authored 401 of 500 weekly issues.
-- Label hygiene for open issues is strong overall (only 1 unlabeled open issue), consistent with recent auto-triage reports showing 0 unlabeled open issues in sampled runs.
-- Safe-output and workflow-quality work is shifting from broad stability fixes toward targeted quality improvements (validation file split recommendations, CLI formatting consistency, docs usability fixes).
-- Firewall risk is concentrated, not widespread: recent reports repeatedly point to `Chroma Issue Indexer` blocked traffic (`proxy.golang.org`, `pypi.org`) while other monitored workflows remain mostly clean.
+- Reporting coverage remains dense and stable across Daily News, Daily Metrics, Daily Firewall, Safe Output Health, and Repository Quality discussions.
+- Operational risk is concentrated rather than systemic: current high-noise items are EP012 safe-output review-comment targeting and `proxy.golang.org` firewall blocks in Go Logger Enhancement.
+- Weekly issue activity is still automation-dominant (`app/github-actions` 395/500 issues), with strong label hygiene (`unlabeled_open=0`).
+- Quality debt remains focused on validator architecture (line-limit compliance and consistency recommendations) instead of broad workflow instability.
+- Trend direction suggests targeted fixes yield outsized gains versus broad platform changes.
