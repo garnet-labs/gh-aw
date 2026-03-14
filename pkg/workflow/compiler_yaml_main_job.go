@@ -323,6 +323,14 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 		for _, line := range detectionStep {
 			yaml.WriteString(line + "\n")
 		}
+
+		// Add GHES-specific error detection step for Copilot engine
+		// This step detects GHES-specific errors like token exchange failures, model loading errors,
+		// firewall blocks, and gh CLI misconfiguration
+		ghesDetectionStep := generateGHESErrorDetectionStep()
+		for _, line := range ghesDetectionStep {
+			yaml.WriteString(line + "\n")
+		}
 	}
 
 	// Mark that we've completed agent execution - step order validation starts from here

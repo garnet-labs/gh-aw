@@ -154,6 +154,13 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 	// This detects when the Copilot CLI fails due to the token lacking inference access
 	if _, ok := engine.(*CopilotEngine); ok {
 		agentFailureEnvVars = append(agentFailureEnvVars, fmt.Sprintf("          GH_AW_INFERENCE_ACCESS_ERROR: ${{ needs.%s.outputs.inference_access_error }}\n", mainJobName))
+
+		// Pass GHES-specific error outputs for Copilot engine
+		// These detect GHES-specific failures like token exchange errors, model loading errors, etc.
+		agentFailureEnvVars = append(agentFailureEnvVars, fmt.Sprintf("          GH_AW_GHES_TOKEN_EXCHANGE_403: ${{ needs.%s.outputs.ghes_token_exchange_403 }}\n", mainJobName))
+		agentFailureEnvVars = append(agentFailureEnvVars, fmt.Sprintf("          GH_AW_GHES_MODEL_LOADING_400: ${{ needs.%s.outputs.ghes_model_loading_400 }}\n", mainJobName))
+		agentFailureEnvVars = append(agentFailureEnvVars, fmt.Sprintf("          GH_AW_GHES_FIREWALL_BLOCK: ${{ needs.%s.outputs.ghes_firewall_block }}\n", mainJobName))
+		agentFailureEnvVars = append(agentFailureEnvVars, fmt.Sprintf("          GH_AW_GHES_GH_CLI_MISCONFIGURED: ${{ needs.%s.outputs.ghes_gh_cli_misconfigured }}\n", mainJobName))
 	}
 
 	// Pass assignment error outputs from safe_outputs job if assign-to-agent is configured

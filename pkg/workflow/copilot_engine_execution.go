@@ -409,6 +409,21 @@ func generateInferenceAccessErrorDetectionStep() GitHubActionStep {
 	return GitHubActionStep(step)
 }
 
+// generateGHESErrorDetectionStep generates a step that detects GHES-specific Copilot errors.
+// This includes token exchange failures, model loading errors, firewall blocks, and gh CLI misconfiguration.
+// The step always runs and checks the agent stdio log for known GHES error patterns.
+func generateGHESErrorDetectionStep() GitHubActionStep {
+	var step []string
+
+	step = append(step, "      - name: Detect GHES-specific Copilot errors")
+	step = append(step, "        id: detect-ghes-errors")
+	step = append(step, "        if: always()")
+	step = append(step, "        continue-on-error: true")
+	step = append(step, "        run: bash /opt/gh-aw/actions/detect_ghes_copilot_errors.sh")
+
+	return GitHubActionStep(step)
+}
+
 // extractAddDirPaths extracts all directory paths from copilot args that follow --add-dir flags
 func extractAddDirPaths(args []string) []string {
 	var dirs []string

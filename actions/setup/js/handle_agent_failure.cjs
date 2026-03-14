@@ -635,6 +635,45 @@ function buildInferenceAccessErrorContext(hasInferenceAccessError) {
 }
 
 /**
+ * Build a context string when GHES-specific Copilot errors are detected.
+ * @param {Object} ghesErrors - Object containing GHES error flags
+ * @param {boolean} ghesErrors.tokenExchange403 - Whether a token exchange 403 error was detected
+ * @param {boolean} ghesErrors.modelLoading400 - Whether a model loading 400 error was detected
+ * @param {boolean} ghesErrors.firewallBlock - Whether a firewall block was detected
+ * @param {boolean} ghesErrors.ghCliMisconfigured - Whether gh CLI misconfiguration was detected
+ * @returns {string} Formatted context string, or empty string if no errors
+ */
+function buildGHESErrorContext(ghesErrors) {
+  const errorMessages = [];
+
+  if (ghesErrors.tokenExchange403) {
+    const templatePath = "/opt/gh-aw/prompts/ghes_token_exchange_error.md";
+    const template = fs.readFileSync(templatePath, "utf8");
+    errorMessages.push(template);
+  }
+
+  if (ghesErrors.modelLoading400) {
+    const templatePath = "/opt/gh-aw/prompts/ghes_model_loading_error.md";
+    const template = fs.readFileSync(templatePath, "utf8");
+    errorMessages.push(template);
+  }
+
+  if (ghesErrors.firewallBlock) {
+    const templatePath = "/opt/gh-aw/prompts/ghes_firewall_block_error.md";
+    const template = fs.readFileSync(templatePath, "utf8");
+    errorMessages.push(template);
+  }
+
+  if (ghesErrors.ghCliMisconfigured) {
+    const templatePath = "/opt/gh-aw/prompts/ghes_gh_cli_error.md";
+    const template = fs.readFileSync(templatePath, "utf8");
+    errorMessages.push(template);
+  }
+
+  return errorMessages.length > 0 ? "\n" + errorMessages.join("\n\n") : "";
+}
+
+/**
  * Handle agent job failure by creating or updating a failure tracking issue
  * This script is called from the conclusion job when the agent job has failed
  * or when the agent succeeded but produced no safe outputs
@@ -660,6 +699,14 @@ async function main() {
     const inferenceAccessError = process.env.GH_AW_INFERENCE_ACCESS_ERROR === "true";
     const pushRepoMemoryResult = process.env.GH_AW_PUSH_REPO_MEMORY_RESULT || "";
     const reportFailureAsIssue = process.env.GH_AW_FAILURE_REPORT_AS_ISSUE !== "false"; // Default to true
+
+    // GHES-specific Copilot error flags
+    const ghesErrors = {
+      tokenExchange403: process.env.GH_AW_GHES_TOKEN_EXCHANGE_403 === "true",
+      modelLoading400: process.env.GH_AW_GHES_MODEL_LOADING_400 === "true",
+      firewallBlock: process.env.GH_AW_GHES_FIREWALL_BLOCK === "true",
+      ghCliMisconfigured: process.env.GH_AW_GHES_GH_CLI_MISCONFIGURED === "true",
+    };
 
     // Collect repo-memory validation errors from all memory configurations
     const repoMemoryValidationErrors = [];
@@ -887,6 +934,9 @@ async function main() {
         // Build inference access error context
         const inferenceAccessErrorContext = buildInferenceAccessErrorContext(inferenceAccessError);
 
+        // Build GHES-specific error context
+        const ghesErrorContext = buildGHESErrorContext(ghesErrors);
+
         // Create template context
         const templateContext = {
           run_url: runUrl,
@@ -909,6 +959,7 @@ async function main() {
           timeout_context: timeoutContext,
           fork_context: forkContext,
           inference_access_error_context: inferenceAccessErrorContext,
+          ghes_error_context: ghesErrorContext,
         };
 
         // Render the comment template
@@ -1011,6 +1062,9 @@ async function main() {
         // Build inference access error context
         const inferenceAccessErrorContext = buildInferenceAccessErrorContext(inferenceAccessError);
 
+        // Build GHES-specific error context
+        const ghesErrorContext = buildGHESErrorContext(ghesErrors);
+
         // Create template context with sanitized workflow name
         const templateContext = {
           workflow_name: sanitizedWorkflowName,
@@ -1034,6 +1088,7 @@ async function main() {
           timeout_context: timeoutContext,
           fork_context: forkContext,
           inference_access_error_context: inferenceAccessErrorContext,
+          ghes_error_context: ghesErrorContext,
         };
 
         // Render the issue template

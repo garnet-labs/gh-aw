@@ -171,6 +171,14 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 		if _, ok := engine.(*CopilotEngine); ok {
 			outputs["inference_access_error"] = "${{ steps.detect-inference-error.outputs.inference_access_error || 'false' }}"
 			compilerMainJobLog.Print("Added inference_access_error output (Copilot engine)")
+
+			// Add GHES-specific error outputs for Copilot engine
+			// These outputs are set by the detect-ghes-errors step when GHES-specific errors are detected
+			outputs["ghes_token_exchange_403"] = "${{ steps.detect-ghes-errors.outputs.ghes_token_exchange_403 || 'false' }}"
+			outputs["ghes_model_loading_400"] = "${{ steps.detect-ghes-errors.outputs.ghes_model_loading_400 || 'false' }}"
+			outputs["ghes_firewall_block"] = "${{ steps.detect-ghes-errors.outputs.ghes_firewall_block || 'false' }}"
+			outputs["ghes_gh_cli_misconfigured"] = "${{ steps.detect-ghes-errors.outputs.ghes_gh_cli_misconfigured || 'false' }}"
+			compilerMainJobLog.Print("Added GHES error outputs (Copilot engine)")
 		}
 	}
 
