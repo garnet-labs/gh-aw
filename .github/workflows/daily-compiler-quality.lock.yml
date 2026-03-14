@@ -269,6 +269,10 @@ jobs:
       checkout_pr_success: ${{ steps.checkout-pr.outputs.checkout_pr_success || 'true' }}
       detection_conclusion: ${{ steps.detection_conclusion.outputs.conclusion }}
       detection_success: ${{ steps.detection_conclusion.outputs.success }}
+      ghes_firewall_block: ${{ steps.detect-ghes-errors.outputs.ghes_firewall_block || 'false' }}
+      ghes_gh_cli_misconfigured: ${{ steps.detect-ghes-errors.outputs.ghes_gh_cli_misconfigured || 'false' }}
+      ghes_model_loading_400: ${{ steps.detect-ghes-errors.outputs.ghes_model_loading_400 || 'false' }}
+      ghes_token_exchange_403: ${{ steps.detect-ghes-errors.outputs.ghes_token_exchange_403 || 'false' }}
       has_patch: ${{ steps.collect_output.outputs.has_patch }}
       inference_access_error: ${{ steps.detect-inference-error.outputs.inference_access_error || 'false' }}
       model: ${{ needs.activation.outputs.model }}
@@ -741,6 +745,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: bash /opt/gh-aw/actions/detect_inference_access_error.sh
+      - name: Detect GHES-specific Copilot errors
+        id: detect-ghes-errors
+        if: always()
+        continue-on-error: true
+        run: bash /opt/gh-aw/actions/detect_ghes_copilot_errors.sh
       - name: Configure Git credentials
         env:
           REPO_NAME: ${{ github.repository }}
@@ -1085,6 +1094,10 @@ jobs:
           GH_AW_WORKFLOW_ID: "daily-compiler-quality"
           GH_AW_CHECKOUT_PR_SUCCESS: ${{ needs.agent.outputs.checkout_pr_success }}
           GH_AW_INFERENCE_ACCESS_ERROR: ${{ needs.agent.outputs.inference_access_error }}
+          GH_AW_GHES_TOKEN_EXCHANGE_403: ${{ needs.agent.outputs.ghes_token_exchange_403 }}
+          GH_AW_GHES_MODEL_LOADING_400: ${{ needs.agent.outputs.ghes_model_loading_400 }}
+          GH_AW_GHES_FIREWALL_BLOCK: ${{ needs.agent.outputs.ghes_firewall_block }}
+          GH_AW_GHES_GH_CLI_MISCONFIGURED: ${{ needs.agent.outputs.ghes_gh_cli_misconfigured }}
           GH_AW_CREATE_DISCUSSION_ERRORS: ${{ needs.safe_outputs.outputs.create_discussion_errors }}
           GH_AW_CREATE_DISCUSSION_ERROR_COUNT: ${{ needs.safe_outputs.outputs.create_discussion_error_count }}
           GH_AW_GROUP_REPORTS: "false"
