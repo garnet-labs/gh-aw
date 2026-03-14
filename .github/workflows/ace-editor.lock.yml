@@ -275,6 +275,10 @@ jobs:
     env:
       GH_AW_WORKFLOW_ID_SANITIZED: aceeditor
     outputs:
+      ghes_firewall_block: ${{ steps.detect-ghes-errors.outputs.ghes_firewall_block || 'false' }}
+      ghes_gh_cli_misconfigured: ${{ steps.detect-ghes-errors.outputs.ghes_gh_cli_misconfigured || 'false' }}
+      ghes_model_loading_400: ${{ steps.detect-ghes-errors.outputs.ghes_model_loading_400 || 'false' }}
+      ghes_token_exchange_403: ${{ steps.detect-ghes-errors.outputs.ghes_token_exchange_403 || 'false' }}
       inference_access_error: ${{ steps.detect-inference-error.outputs.inference_access_error || 'false' }}
       model: ${{ needs.activation.outputs.model }}
     steps:
@@ -413,6 +417,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: bash /opt/gh-aw/actions/detect_inference_access_error.sh
+      - name: Detect GHES-specific Copilot errors
+        id: detect-ghes-errors
+        if: always()
+        continue-on-error: true
+        run: bash /opt/gh-aw/actions/detect_ghes_copilot_errors.sh
       - name: Configure Git credentials
         env:
           REPO_NAME: ${{ github.repository }}
