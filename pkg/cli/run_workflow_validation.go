@@ -28,69 +28,11 @@ func getLockFilePath(markdownPath string) string {
 	return strings.TrimSuffix(markdownPath, ".md") + ".lock.yml"
 }
 
-// IsRunnable checks if a workflow can be run (has schedule or workflow_dispatch trigger)
-// This function checks the compiled .lock.yml file because that's what GitHub Actions uses.
-func IsRunnable(markdownPath string) (bool, error) {
-	// Convert markdown path to lock file path
+// readLockFile reads and parses a workflow's compiled lock file.
+func readLockFile(markdownPath string) (map[string]any, error) {
 	lockPath := getLockFilePath(markdownPath)
 	cleanLockPath := filepath.Clean(lockPath)
 
-	validationLog.Printf("Checking if workflow is runnable: markdown=%s, lock=%s", markdownPath, lockPath)
-
-	// Check if the lock file exists
-	if _, err := os.Stat(cleanLockPath); os.IsNotExist(err) {
-		validationLog.Printf("Lock file does not exist: %s", cleanLockPath)
-		return false, errors.New("workflow has not been compiled yet - run 'gh aw compile' first")
-	}
-
-	// Read the lock file - path is sanitized using filepath.Clean() to prevent path traversal attacks.
-	// The lockPath is derived from markdownPath which comes from trusted sources (CLI arguments, validated workflow paths).
-	contentBytes, err := os.ReadFile(cleanLockPath) // #nosec G304
-	if err != nil {
-		return false, fmt.Errorf("failed to read lock file: %w", err)
-	}
-
-	// Parse the YAML content
-	var workflowYAML map[string]any
-	if err := yaml.Unmarshal(contentBytes, &workflowYAML); err != nil {
-		return false, fmt.Errorf("failed to parse lock file YAML: %w", err)
-	}
-
-	// Check if 'on' section is present
-	onSection, exists := workflowYAML["on"]
-	if !exists {
-		validationLog.Printf("No 'on' section found in lock file")
-		// If no 'on' section, it's not runnable
-		return false, nil
-	}
-
-	// Convert to map if possible
-	onMap, ok := onSection.(map[string]any)
-	if !ok {
-		// If 'on' is not a map, check if it's a string/list that might indicate workflow_dispatch
-		onStr := fmt.Sprintf("%v", onSection)
-		onStrLower := strings.ToLower(onStr)
-		hasWorkflowDispatch := strings.Contains(onStrLower, "workflow_dispatch")
-		validationLog.Printf("On section is not a map, checking string: hasWorkflowDispatch=%v", hasWorkflowDispatch)
-		return hasWorkflowDispatch, nil
-	}
-
-	// Check if workflow_dispatch trigger exists
-	_, hasWorkflowDispatch := onMap["workflow_dispatch"]
-	validationLog.Printf("Workflow runnable check: hasWorkflowDispatch=%v", hasWorkflowDispatch)
-	return hasWorkflowDispatch, nil
-}
-
-// getWorkflowInputs extracts workflow_dispatch inputs from the compiled lock file
-// This function checks the .lock.yml file because that's what GitHub Actions uses.
-func getWorkflowInputs(markdownPath string) (map[string]*workflow.InputDefinition, error) {
-	// Convert markdown path to lock file path
-	lockPath := getLockFilePath(markdownPath)
-	cleanLockPath := filepath.Clean(lockPath)
-
-	validationLog.Printf("Extracting workflow inputs from lock file: %s", lockPath)
-
-	// Check if the lock file exists
 	if _, err := os.Stat(cleanLockPath); os.IsNotExist(err) {
 		validationLog.Printf("Lock file does not exist: %s", cleanLockPath)
 		return nil, errors.New("workflow has not been compiled yet - run 'gh aw compile' first")
@@ -103,50 +45,82 @@ func getWorkflowInputs(markdownPath string) (map[string]*workflow.InputDefinitio
 		return nil, fmt.Errorf("failed to read lock file: %w", err)
 	}
 
-	// Parse the YAML content
 	var workflowYAML map[string]any
 	if err := yaml.Unmarshal(contentBytes, &workflowYAML); err != nil {
 		return nil, fmt.Errorf("failed to parse lock file YAML: %w", err)
 	}
 
-	// Check if 'on' section is present
+	return workflowYAML, nil
+}
+
+// IsRunnable checks if a workflow can be run (has schedule or workflow_dispatch trigger)
+// This function checks the compiled .lock.yml file because that's what GitHub Actions uses.
+func IsRunnable(markdownPath string) (bool, error) {
+	validationLog.Printf("Checking if workflow is runnable: markdown=%s, lock=%s", markdownPath, getLockFilePath(markdownPath))
+
+	workflowYAML, err := readLockFile(markdownPath)
+	if err != nil {
+		return false, err
+	}
+
+	onSection, exists := workflowYAML["on"]
+	if !exists {
+		return false, nil
+	}
+
+	onMap, ok := onSection.(map[string]any)
+	if !ok {
+		// If 'on' is not a map, check if it's a string/list that might indicate workflow_dispatch
+		hasWorkflowDispatch := strings.Contains(strings.ToLower(fmt.Sprintf("%v", onSection)), "workflow_dispatch")
+		validationLog.Printf("On section is not a map, checking string: hasWorkflowDispatch=%v", hasWorkflowDispatch)
+		return hasWorkflowDispatch, nil
+	}
+
+	_, hasWorkflowDispatch := onMap["workflow_dispatch"]
+	validationLog.Printf("Workflow runnable check: hasWorkflowDispatch=%v", hasWorkflowDispatch)
+	return hasWorkflowDispatch, nil
+}
+
+// getWorkflowInputs extracts workflow_dispatch inputs from the compiled lock file
+// This function checks the .lock.yml file because that's what GitHub Actions uses.
+func getWorkflowInputs(markdownPath string) (map[string]*workflow.InputDefinition, error) {
+	validationLog.Printf("Extracting workflow inputs from lock file: %s", getLockFilePath(markdownPath))
+
+	workflowYAML, err := readLockFile(markdownPath)
+	if err != nil {
+		return nil, err
+	}
+
 	onSection, exists := workflowYAML["on"]
 	if !exists {
 		return nil, nil
 	}
 
-	// Convert to map if possible
 	onMap, ok := onSection.(map[string]any)
 	if !ok {
 		return nil, nil
 	}
 
-	// Get workflow_dispatch section
 	workflowDispatch, exists := onMap["workflow_dispatch"]
 	if !exists {
 		return nil, nil
 	}
 
-	// Convert to map
 	workflowDispatchMap, ok := workflowDispatch.(map[string]any)
 	if !ok {
-		// workflow_dispatch might be null/empty
 		return nil, nil
 	}
 
-	// Get inputs section
 	inputsSection, exists := workflowDispatchMap["inputs"]
 	if !exists {
 		return nil, nil
 	}
 
-	// Convert to map
 	inputsMap, ok := inputsSection.(map[string]any)
 	if !ok {
 		return nil, nil
 	}
 
-	// Parse input definitions
 	return workflow.ParseInputDefinitions(inputsMap), nil
 }
 

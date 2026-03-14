@@ -20,27 +20,11 @@ func parseProjectViews(configMap map[string]any, log *logger.Logger) []ProjectVi
 		if !ok {
 			continue
 		}
-		view := ProjectView{}
-
-		// Parse name (required)
-		if name, exists := viewMap["name"]; exists {
-			if nameStr, ok := name.(string); ok {
-				view.Name = nameStr
-			}
-		}
-
-		// Parse layout (required)
-		if layout, exists := viewMap["layout"]; exists {
-			if layoutStr, ok := layout.(string); ok {
-				view.Layout = layoutStr
-			}
-		}
-
-		// Parse filter (optional)
-		if filter, exists := viewMap["filter"]; exists {
-			if filterStr, ok := filter.(string); ok {
-				view.Filter = filterStr
-			}
+		view := ProjectView{
+			Name:        extractStringFromMap(viewMap, "name", nil),
+			Layout:      extractStringFromMap(viewMap, "layout", nil),
+			Filter:      extractStringFromMap(viewMap, "filter", nil),
+			Description: extractStringFromMap(viewMap, "description", nil),
 		}
 
 		// Parse visible-fields (optional)
@@ -51,13 +35,6 @@ func parseProjectViews(configMap map[string]any, log *logger.Logger) []ProjectVi
 						view.VisibleFields = append(view.VisibleFields, fieldInt)
 					}
 				}
-			}
-		}
-
-		// Parse description (optional)
-		if description, exists := viewMap["description"]; exists {
-			if descStr, ok := description.(string); ok {
-				view.Description = descStr
 			}
 		}
 
@@ -95,20 +72,12 @@ func parseProjectFieldDefinitions(configMap map[string]any, log *logger.Logger) 
 			continue
 		}
 
-		field := ProjectFieldDefinition{}
-
-		if name, exists := fieldMap["name"]; exists {
-			if nameStr, ok := name.(string); ok {
-				field.Name = nameStr
-			}
+		field := ProjectFieldDefinition{
+			Name:     extractStringFromMap(fieldMap, "name", nil),
+			DataType: extractStringFromMap(fieldMap, "data-type", nil),
 		}
-
-		dataType, hasDataType := fieldMap["data-type"]
-		if !hasDataType {
-			dataType = fieldMap["data_type"]
-		}
-		if dataTypeStr, ok := dataType.(string); ok {
-			field.DataType = dataTypeStr
+		if field.DataType == "" {
+			field.DataType = extractStringFromMap(fieldMap, "data_type", nil)
 		}
 
 		if options, exists := fieldMap["options"]; exists {
