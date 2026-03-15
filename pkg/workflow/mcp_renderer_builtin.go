@@ -5,7 +5,10 @@ import (
 	"strings"
 
 	"github.com/github/gh-aw/pkg/constants"
+	"github.com/github/gh-aw/pkg/logger"
 )
+
+var mcpRendererBuiltinLog = logger.New("workflow:mcp_renderer_builtin")
 
 // RenderPlaywrightMCP generates the Playwright MCP server configuration
 func (r *MCPConfigRendererUnified) RenderPlaywrightMCP(yaml *strings.Builder, playwrightTool any) {
@@ -16,17 +19,23 @@ func (r *MCPConfigRendererUnified) RenderPlaywrightMCP(yaml *strings.Builder, pl
 
 	if r.options.Format == "toml" {
 		r.renderPlaywrightTOML(yaml, playwrightConfig)
+		// Add guard policies for TOML format as a separate section
+		if len(r.options.WriteSinkGuardPolicies) > 0 {
+			mcpRendererLog.Print("Adding guard-policies to playwright TOML (derived from GitHub guard-policy)")
+			renderGuardPoliciesToml(yaml, r.options.WriteSinkGuardPolicies, "playwright")
+		}
 		return
 	}
 
 	// JSON format
-	renderPlaywrightMCPConfigWithOptions(yaml, playwrightConfig, r.options.IsLast, r.options.IncludeCopilotFields, r.options.InlineArgs)
+	renderPlaywrightMCPConfigWithOptions(yaml, playwrightConfig, r.options.IsLast, r.options.IncludeCopilotFields, r.options.InlineArgs, r.options.WriteSinkGuardPolicies)
 }
 
 // renderPlaywrightTOML generates Playwright MCP configuration in TOML format
 // Per MCP Gateway Specification v1.0.0 section 3.2.1, stdio-based MCP servers MUST be containerized.
 // Uses MCP Gateway spec format: container, entrypointArgs, mounts, and args fields.
 func (r *MCPConfigRendererUnified) renderPlaywrightTOML(yaml *strings.Builder, playwrightConfig *PlaywrightToolConfig) {
+	mcpRendererBuiltinLog.Print("Rendering Playwright MCP in TOML format")
 	customArgs := getPlaywrightCustomArgs(playwrightConfig)
 
 	// Use official Playwright MCP Docker image (no version tag - only one image)
@@ -70,11 +79,16 @@ func (r *MCPConfigRendererUnified) RenderSerenaMCP(yaml *strings.Builder, serena
 
 	if r.options.Format == "toml" {
 		r.renderSerenaTOML(yaml, serenaTool)
+		// Add guard policies for TOML format as a separate section
+		if len(r.options.WriteSinkGuardPolicies) > 0 {
+			mcpRendererLog.Print("Adding guard-policies to serena TOML (derived from GitHub guard-policy)")
+			renderGuardPoliciesToml(yaml, r.options.WriteSinkGuardPolicies, "serena")
+		}
 		return
 	}
 
 	// JSON format
-	renderSerenaMCPConfigWithOptions(yaml, serenaTool, r.options.IsLast, r.options.IncludeCopilotFields, r.options.InlineArgs)
+	renderSerenaMCPConfigWithOptions(yaml, serenaTool, r.options.IsLast, r.options.IncludeCopilotFields, r.options.InlineArgs, r.options.WriteSinkGuardPolicies)
 }
 
 // renderSerenaTOML generates Serena MCP configuration in TOML format
@@ -82,6 +96,7 @@ func (r *MCPConfigRendererUnified) RenderSerenaMCP(yaml *strings.Builder, serena
 // - "docker" (default): Uses Docker container with stdio transport
 // - "local": Uses local uvx with HTTP transport
 func (r *MCPConfigRendererUnified) renderSerenaTOML(yaml *strings.Builder, serenaTool any) {
+	mcpRendererBuiltinLog.Print("Rendering Serena MCP in TOML format")
 	customArgs := getSerenaCustomArgs(serenaTool)
 
 	yaml.WriteString("          \n")
@@ -175,11 +190,16 @@ func (r *MCPConfigRendererUnified) RenderMCPScriptsMCP(yaml *strings.Builder, mc
 
 	if r.options.Format == "toml" {
 		r.renderMCPScriptsTOML(yaml, mcpScripts, workflowData)
+		// Add guard policies for TOML format as a separate section
+		if len(r.options.WriteSinkGuardPolicies) > 0 {
+			mcpRendererLog.Print("Adding guard-policies to mcp-scripts TOML (derived from GitHub guard-policy)")
+			renderGuardPoliciesToml(yaml, r.options.WriteSinkGuardPolicies, constants.MCPScriptsMCPServerID.String())
+		}
 		return
 	}
 
 	// JSON format
-	renderMCPScriptsMCPConfigWithOptions(yaml, mcpScripts, r.options.IsLast, r.options.IncludeCopilotFields, workflowData)
+	renderMCPScriptsMCPConfigWithOptions(yaml, mcpScripts, r.options.IsLast, r.options.IncludeCopilotFields, workflowData, r.options.WriteSinkGuardPolicies)
 }
 
 // renderMCPScriptsTOML generates MCP Scripts configuration in TOML format
@@ -211,16 +231,22 @@ func (r *MCPConfigRendererUnified) RenderAgenticWorkflowsMCP(yaml *strings.Build
 
 	if r.options.Format == "toml" {
 		r.renderAgenticWorkflowsTOML(yaml)
+		// Add guard policies for TOML format as a separate section
+		if len(r.options.WriteSinkGuardPolicies) > 0 {
+			mcpRendererLog.Print("Adding guard-policies to agentic-workflows TOML (derived from GitHub guard-policy)")
+			renderGuardPoliciesToml(yaml, r.options.WriteSinkGuardPolicies, constants.AgenticWorkflowsMCPServerID.String())
+		}
 		return
 	}
 
 	// JSON format
-	renderAgenticWorkflowsMCPConfigWithOptions(yaml, r.options.IsLast, r.options.IncludeCopilotFields, r.options.ActionMode)
+	renderAgenticWorkflowsMCPConfigWithOptions(yaml, r.options.IsLast, r.options.IncludeCopilotFields, r.options.ActionMode, r.options.WriteSinkGuardPolicies)
 }
 
 // renderAgenticWorkflowsTOML generates Agentic Workflows MCP configuration in TOML format
 // Per MCP Gateway Specification v1.0.0 section 3.2.1, stdio-based MCP servers MUST be containerized.
 func (r *MCPConfigRendererUnified) renderAgenticWorkflowsTOML(yaml *strings.Builder) {
+	mcpRendererBuiltinLog.Printf("Rendering Agentic Workflows MCP in TOML format: action_mode=%s", r.options.ActionMode)
 	yaml.WriteString("          \n")
 	yaml.WriteString("          [mcp_servers." + constants.AgenticWorkflowsMCPServerID.String() + "]\n")
 
