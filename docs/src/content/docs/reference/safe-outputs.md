@@ -1404,7 +1404,7 @@ safe-outputs:
 
 Accepts a plain string or an object with `name` and optional `url`, consistent with the top-level `environment:` syntax.
 
-### Text Sanitization (`allowed-domains:`, `allowed-github-references:`)
+### Text Sanitization (`allowed-domains:`, `allowed-url-domains:`, `allowed-github-references:`)
 
 The text output by AI agents is automatically sanitized to prevent injection of malicious content and ensure safe rendering on GitHub. The auto-sanitization applied is: XML escaped, HTTPS only, domain allowlist (GitHub by default), 0.5MB/65k line limits, control char stripping.
 
@@ -1416,7 +1416,18 @@ safe-outputs:
   allowed-github-references: []      # Escape all GitHub references
 ```
 
-**Domain Filtering** (`allowed-domains`): Controls which domains are allowed in URLs. URLs from other domains are replaced with `(redacted)`.
+**Domain Filtering** (`allowed-domains`): Controls which domains are allowed in URLs. URLs from other domains are replaced with `(redacted)`. This field **replaces** the default domain set (GitHub domains are always retained, but engine and network defaults are not applied).
+
+**Additive Domain Filtering** (`allowed-url-domains`): Extends the domain allowlist **additively** — unions extra domains with the engine and `network.allowed` base set rather than replacing it. Supports the same ecosystem identifiers as `network.allowed` (e.g., `node`, `python`). Use this when you want to allow additional domains in sanitized output without losing the defaults already provided by your network configuration:
+
+```yaml wrap
+safe-outputs:
+  allowed-url-domains:
+    - "docs.example.com"   # Allow this domain in addition to engine defaults
+    - python               # Ecosystem identifier — adds all Python/PyPI domains
+```
+
+`allowed-domains` and `allowed-url-domains` are mutually exclusive: if `allowed-domains` is set it takes full precedence and `allowed-url-domains` is ignored.
 
 **Reference Escaping** (`allowed-github-references`): Controls which GitHub repository references (`#123`, `owner/repo#456`) are allowed in workflow output. When configured, references to unlisted repositories are escaped with backticks to prevent GitHub from creating timeline items. This is particularly useful for [SideRepoOps](/gh-aw/patterns/side-repo-ops/) workflows to prevent automation from cluttering your main repository's timeline.
 

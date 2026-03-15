@@ -407,6 +407,20 @@ gh aw health issue-monster --days 90  # 90-day metrics for workflow
 
 Shows success/failure rates, trend indicators (↑ improving, → stable, ↓ degrading), execution duration, token usage, costs, and alerts when success rate drops below threshold.
 
+#### `domains`
+
+List network domains configured in agentic workflows. Without a workflow argument, lists all workflows with a summary of their allowed and blocked domain counts. When a workflow is specified, lists all effective domains for that workflow—including domains expanded from ecosystem identifiers (e.g., `node`, `python`, `github`) and engine defaults.
+
+```bash wrap
+gh aw domains                              # List all workflows with domain count summary
+gh aw domains weekly-research              # List effective domains for a workflow
+gh aw domains weekly-research --json       # Output in JSON format
+```
+
+The workflow argument accepts a workflow ID (basename without `.md`, e.g., `weekly-research`) or a file path (e.g., `weekly-research.md` or `.github/workflows/weekly-research.md`). Use this command to verify that your `network:` configuration expands to the intended set of domains before deploying a workflow.
+
+**Options:** `--json`
+
 ### Management
 
 #### `enable`
