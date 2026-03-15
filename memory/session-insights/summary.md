@@ -1,8 +1,7 @@
-# Session Analysis 2026-03-13
+# Session Analysis 2026-03-15
 
-50 sessions: 1 copilot in-progress, 49 action_req (review agents).
-Branch: copilot/update-action-files-location. Burst: 8.3 min (21:59–22:08 UTC).
-Review agents: Scout×9, Q×8, PR Nitpick×8, Security×8, Grumpy×8, /cloclo×8.
-Copilot: "Addressing comment on PR #20864" still in-progress at snapshot.
-Standard run (random=84). No experimental strategy.
-21-day aggregate: 92.5% copilot success (37/40 completed sessions).
+50 sessions: 4 copilot (4 success, 0 fail), 24 action_req (review), 14 skipped, 12 success.
+Branches: improve-error-message-quality, fix-http-safe-outputs-registration, update-compiler-label-command-support.
+Copilot: 1 agent run (7.7m) + 3 PR comment responses (6–16.5m). 100% success.
+Experimental: Review Agent Consensus Analysis (random=2 → experimental). Uniform action_required from all 6 review agents.
+21-day aggregate: ~86% copilot success (recent 7 days), 0 failures today.
