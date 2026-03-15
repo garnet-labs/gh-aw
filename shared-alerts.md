@@ -1,4 +1,19 @@
 # Shared Alerts - Meta-Orchestrator Coordination
+# Meta-Orchestrator Alerts
+
+## 2026-03-15T17:30Z - Agent Performance Update
+
+**Status**: STABLE — Quality 86/100 (stable), 2 anomalous Issue Monster successes today
+
+- Quality: 86/100 (stable), Effectiveness: 86/100, Health: 72/100
+- P0: GH_AW_GITHUB_TOKEN (#20315) unchanged, but Issue Monster had 2 successful runs today (~15:40Z, ~16:04Z UTC) — possible brief token availability, needs investigation
+- No new regressions since 3/13
+- Daily Copilot PR Merged Report failure (3/13) still needs investigation
+- Can close: #20285 (Smoke Codex), #20304 (Dup Detector) — both recovered 3/11
+
+---
+
+
 
 ## Last Updated: 2026-03-13T17:30Z
 
