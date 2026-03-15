@@ -59,6 +59,26 @@ func translateYAMLMessage(message string) string {
 	return message
 }
 
+// findFrontmatterFieldLine searches frontmatterLines for a line whose first
+// non-space key matches fieldName (e.g., "engine") and returns the 1-based
+// document line number.  frontmatterStart is the 1-based line number of the
+// first frontmatter line (i.e., the line immediately after the opening "---").
+// Returns 0 if the field is not found.
+//
+// Only top-level (non-indented) keys are matched.  Nested values that happen
+// to contain the field name are ignored.
+func findFrontmatterFieldLine(frontmatterLines []string, frontmatterStart int, fieldName string) int {
+	prefix := fieldName + ":"
+	for i, line := range frontmatterLines {
+		// Match only non-indented lines so nested YAML values are not confused
+		// with top-level keys (e.g. "  engine: ..." inside a mapping is ignored).
+		if strings.HasPrefix(line, prefix) {
+			return frontmatterStart + i
+		}
+	}
+	return 0
+}
+
 // createFrontmatterError creates a detailed error for frontmatter parsing issues
 // frontmatterLineOffset is the line number where the frontmatter content begins (1-based)
 // Returns error in VSCode-compatible format: filename:line:column: error message
