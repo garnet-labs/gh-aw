@@ -1,7 +1,7 @@
-# Session Analysis 2026-03-15
+# Session Analysis 2026-03-16
 
-50 sessions: 4 copilot (4 success, 0 fail), 24 action_req (review), 14 skipped, 12 success.
-Branches: improve-error-message-quality, fix-http-safe-outputs-registration, update-compiler-label-command-support.
-Copilot: 1 agent run (7.7m) + 3 PR comment responses (6–16.5m). 100% success.
-Experimental: Review Agent Consensus Analysis (random=2 → experimental). Uniform action_required from all 6 review agents.
-21-day aggregate: ~86% copilot success (recent 7 days), 0 failures today.
+50 sessions: 1 copilot (in-progress), 37 action_req (review), 10 skipped, 2 success.
+Branches: update-runtime-check-lockdown, add-versioning-to-microsoft-apm, support-github-app-auth.
+Copilot: 1 PR comment response (Addressing comment on PR #21287, 0.2m, still in-progress at snapshot time).
+Experimental: Task Name Prefix Analysis (random=18 → experimental). 'add-*' branches show highest success, 'fix-*' longest durations.
+22-day aggregate: ~87% copilot success rate. CI: 1 success + 1 action_required (2 runs total).
