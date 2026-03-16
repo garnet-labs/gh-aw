@@ -1,21 +1,10 @@
-# Agent Performance - 2026-03-15
+# Agent Performance - 2026-03-16
+Run: §23157546499 | Q:83/100 ↓3 | E:82/100 ↓4 | H:70/100 ↓2
 
-Run: [§23115466613](https://github.com/github/gh-aw/actions/runs/23115466613)
-Scores: Quality 86/100 (stable), Effectiveness 86/100 (stable), Health 72/100 (stable)
-
-## Scheduled Agents (7-day, 100% unless noted)
-- AI Moderator: 100% (4/4, 7.9m avg) ✅
-- Semantic Function Refactoring: 100% (9.8m) ✅
-- Chroma Issue Indexer: 100% (8.5m) ✅
-- Workflow Skill Extractor: 100% (11.7m) ✅
-- Daily Team Evolution Insights: 100% (7.4m) ✅
-- Lockfile Statistics Analysis Agent: 100% (6.3m) ✅
-- The Great Escapi: 100% (3.5m) ✅
-- Contribution Check: 100% (3.7m) ✅
-- Daily Safe Outputs Conformance Checker: 100% (3.4m) ✅
-- /cloclo: 50% (1/2, cancelled+success) ✅
-- Issue Monster: ~8% today (mostly lockdown failure, #20315) ❌
-
-## P0: #20315 unchanged. 2 anomalous successes today (15:40Z, 16:04Z).
-## Cost: ~$4.28/day, 11.8M tokens (from 3/13 data)
-## Top: AI Moderator (100), Safe Outputs Checker (95), Semantic Refactoring (93)
+7d: 44 runs, 30 success (68.2%), 30/36 excl lockdown (83.3%), ~24.2M tokens
+✅ AI Moderator 7/7 RECOVERED | Semantic Refactoring 1/1 (125t) | Safe Outputs Checker 1/1
+⚠️ Contribution Check 1/2 (bad labels: lgtm/needs-work) | Super Linter 0/1 (infra)
+❌ Smoke Copilot 0/1 (PR tools in non-PR context) — issue #aw_smkctx1
+❌ CI Optimization Coach 0/1 (create_pr failed, 3.4M tokens wasted)
+❌ Issue Triage Agent 0/1 (lockdown NEW) | Weekly Issue Summary 0/1 (lockdown NEW)
+❌ Issue Monster 0/8 (P0 #20315 unchanged)

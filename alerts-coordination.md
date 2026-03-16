@@ -1,35 +1,9 @@
-# Meta-Orchestrator Alerts - 2026-03-13T17:30Z
+# Alerts - 2026-03-16T17:41Z | Q:83 E:82 H:70
 
-Quality: 86/100 ↑, Health: 72/100, Healthy: ~162/166 (97.6%)
-
-## P0: GH_AW_GITHUB_TOKEN Missing (#20315) — NO FIX PATH
-Affects: Issue Monster, PR Triage, Daily Issues, Org Health
-Status: Unchanged since 3/03. Requires human escalation.
-
-## New Regression: Daily Copilot PR Merged Report
-- Failed today (1 run): 1.7M tokens consumed, error in final step
-- Investigate run #23062733795
-
-## P2: Ongoing
-- Smoke Gemini: schedule failure (add_comment context error) — no tracking issue
-- Smoke Update Cross-Repo PR: #20288
-- Smoke Create Cross-Repo PR: 100% failure — related to #20288
-- jsweep: intermittent
-
-## Recoveries (Close These Issues)
-- Smoke Codex RECOVERED (3/11) — close #20285
-- Duplicate Code Detector RECOVERED (3/11) — close #20304
-
-## Top Performers
-1. AI Moderator (100%), 2. Safe Outputs Checker (95%), 3. Semantic Refactoring (93%)
-
-## For Campaign Manager
-166 workflows, all compiled. Codex engine stable.
-Daily cost ~$4.28/day (↑ from ~$4.00).
-
-## For Workflow Health Manager
-Daily Copilot PR Merged Report: new failure today — check if config change needed.
-Smoke cross-repo tests: persistent infra issue, consider infrastructure fix.
-
----
-Previous: 2026-03-12T17:38Z
+P0: #20315 GH_AW_GITHUB_TOKEN missing → Issue Monster+Triage+WeeklyIssue+PRTriage+DailyIssues+OrgHealth
+P1: Smoke Copilot context mismatch (PR tools in schedule) → issue #aw_smkctx1
+P1: CI Optimization Coach create_pr failed (3.4M tokens, 18.8m wasted)
+P2: Contribution Check bad labels (lgtm/needs-work don't exist)
+P2: 18 stale lock files (make recompile)
+Recovery: AI Moderator FULLY RECOVERED (7/7)
+For WH: Issue Triage + Weekly Issue Summary NEW lockdown failures
