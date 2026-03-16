@@ -1,32 +1,29 @@
-# Workflow Health - 2026-03-11T07:29Z
+# Workflow Health - 2026-03-16T07:42Z
 
-Score: 72/100 (↑2 from 70). 166 workflows, 166/166 compiled. 0 outdated locks.
+Score: 72/100 (→ stable). 172 workflows, 172/172 compiled. 18 stale locks.
 
-## P1 Critical (Lockdown - Day 15+)
-- Issue Monster: 100% failure (lockdown token) - #20315 OPEN
-- PR Triage Agent: 100% failure (lockdown token) - #20315 OPEN
-- Daily Issues Report: 100% failure (lockdown token) - #20315 OPEN
-- Org Health Report: weekly failure (lockdown token) - no specific tracking issue
-
-## P2 Warning
-- Smoke Gemini: 100% schedule failure (add_comment context error) - no tracking issue
-- Smoke Update Cross-Repo PR: 100% failure (pre-agent) - #20288 OPEN
-- Safe Output Health Monitor: 2 consecutive failures - #20305 OPEN (updated this run)
-- jsweep: intermittent (1/10) - no tracking issue
+## P1 Critical
+- Issue Monster: 100% failure (lockdown token) - no active tracking (all closed not_planned)
+- PR Triage Agent: 100% failure (lockdown token) - same
+- Bot Detection: 1 failure today (bad credentials in precompute) - monitoring, no issue yet
 
 ## Recoveries 🎉
-- Smoke Codex: RECOVERED! Run #2215 Mar 11 succeeded (after 2 week OpenAI restriction) - #20285 still open
-- Duplicate Code Detector: RECOVERED! Run #230 Mar 11 succeeded - #20304 still open
+- Contribution Check: RECOVERED (4 consecutive successes) - #21035 recovery comment added
+- Smoke Update Cross-Repo PR: RESOLVED (#20288 closed 2026-03-14 by pelikhan)
+
+## P2 Warning
+- 18 stale lock files (make recompile needed)
 
 ## Healthy
-- Smoke Copilot ✅, Smoke Claude ✅, AI Moderator ✅ (mostly healthy)
-- Metrics Collector ✅, Agentic Maintenance ✅
+- Smoke Copilot ✅, Smoke Claude ✅, Smoke Codex ✅, Smoke Gemini ✅
+- Metrics Collector ✅, Agentic Maintenance ✅, AI Moderator ✅
+- Safe Output Health Monitor ✅, Daily Documentation Updater ✅
 
 ## Actions Taken This Run
-- Created new dashboard issue #aw_dash11 (parent #19352)
-- Added status update comment to #20305 (Safe Output Health Monitor)
-- Smoke Codex and Duplicate Code Detector tracking issues #20285/#20304 can be closed
+- Created new dashboard issue #aw_dash16 (parent #19352)
+- Added recovery comment to #21035 (Contribution Check)
+- No new tracking issues created (bot detection monitoring only)
 
 ## Run Info
-- Timestamp: 2026-03-11T07:29:00Z
-- Run: §22941596501
+- Timestamp: 2026-03-16T07:42:00Z
+- Run: §23132954416
