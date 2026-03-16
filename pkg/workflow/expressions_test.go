@@ -942,8 +942,8 @@ func TestBreakLongExpression(t *testing.T) {
 
 			// Verify that joined lines equal normalized original (whitespace differences allowed)
 			joined := strings.Join(lines, " ")
-			originalNorm := NormalizeExpressionForComparison(tt.expression)
-			joinedNorm := NormalizeExpressionForComparison(joined)
+			originalNorm := strings.Join(strings.Fields(tt.expression), " ")
+			joinedNorm := strings.Join(strings.Fields(joined), " ")
 
 			if joinedNorm != originalNorm {
 				t.Errorf("Joined lines don't match original expression\nOriginal: %s\nJoined:   %s", originalNorm, joinedNorm)
@@ -981,53 +981,11 @@ func TestBreakAtParentheses(t *testing.T) {
 
 			// Verify that joined lines equal normalized original
 			joined := strings.Join(lines, " ")
-			originalNorm := NormalizeExpressionForComparison(tt.expression)
-			joinedNorm := NormalizeExpressionForComparison(joined)
+			originalNorm := strings.Join(strings.Fields(tt.expression), " ")
+			joinedNorm := strings.Join(strings.Fields(joined), " ")
 
 			if joinedNorm != originalNorm {
 				t.Errorf("Joined lines don't match original expression\nOriginal: %s\nJoined:   %s", originalNorm, joinedNorm)
-			}
-		})
-	}
-}
-
-// TestNormalizeExpressionForComparison tests the expression normalization function
-func TestNormalizeExpressionForComparison(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    string
-		expected string
-	}{
-		{
-			name:     "single line with extra spaces",
-			input:    "github.event_name  ==  'issues'  ||  github.event.action  ==  'opened'",
-			expected: "github.event_name == 'issues' || github.event.action == 'opened'",
-		},
-		{
-			name: "multiline expression",
-			input: `github.event_name == 'issues' ||
-github.event_name == 'pull_request' ||
-github.event.action == 'opened'`,
-			expected: "github.event_name == 'issues' || github.event_name == 'pull_request' || github.event.action == 'opened'",
-		},
-		{
-			name: "expression with mixed whitespace",
-			input: `github.event_name == 'issues'   ||   
-		github.event_name == 'pull_request'`,
-			expected: "github.event_name == 'issues' || github.event_name == 'pull_request'",
-		},
-		{
-			name:     "expression with leading/trailing whitespace",
-			input:    "   github.event_name == 'issues'   ",
-			expected: "github.event_name == 'issues'",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := NormalizeExpressionForComparison(tt.input)
-			if result != tt.expected {
-				t.Errorf("NormalizeExpressionForComparison() = '%s', expected '%s'", result, tt.expected)
 			}
 		})
 	}
@@ -1075,8 +1033,8 @@ github.event_name == 'issue_comment' ||
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			singleNorm := NormalizeExpressionForComparison(tt.singleLine)
-			multiNorm := NormalizeExpressionForComparison(tt.multiLine)
+			singleNorm := strings.Join(strings.Fields(tt.singleLine), " ")
+			multiNorm := strings.Join(strings.Fields(tt.multiLine), " ")
 
 			isEqual := singleNorm == multiNorm
 			if isEqual != tt.shouldBeEqual {
@@ -1130,8 +1088,8 @@ func TestLongExpressionBreakingDetailed(t *testing.T) {
 
 			// Most importantly: verify equivalence
 			joined := strings.Join(lines, " ")
-			originalNorm := NormalizeExpressionForComparison(tt.expression)
-			joinedNorm := NormalizeExpressionForComparison(joined)
+			originalNorm := strings.Join(strings.Fields(tt.expression), " ")
+			joinedNorm := strings.Join(strings.Fields(joined), " ")
 
 			if joinedNorm != originalNorm {
 				t.Errorf("Broken expression is not equivalent to original\nOriginal: %s\nBroken:   %s\nJoined:   %s\nOriginal normalized: %s\nJoined normalized:   %s",
@@ -1171,8 +1129,8 @@ func TestExpressionBreakingWithQuotes(t *testing.T) {
 
 			// Verify that quotes are preserved and no breaking happens inside quoted strings
 			joined := strings.Join(lines, " ")
-			originalNorm := NormalizeExpressionForComparison(tt.expression)
-			joinedNorm := NormalizeExpressionForComparison(joined)
+			originalNorm := strings.Join(strings.Fields(tt.expression), " ")
+			joinedNorm := strings.Join(strings.Fields(joined), " ")
 
 			if joinedNorm != originalNorm {
 				t.Errorf("Expression with quotes not preserved correctly\nOriginal: %s\nJoined:   %s", originalNorm, joinedNorm)

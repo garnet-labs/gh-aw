@@ -422,8 +422,6 @@ on: push
 		t.Fatal(err)
 	}
 
-	compiler.customOutput = tmpDir
-
 	// This should succeed because validation is skipped by default
 	if err := compiler.CompileWorkflow(testFile); err != nil {
 		t.Errorf("CompileWorkflow() should succeed when validation is skipped, but got error: %v", err)

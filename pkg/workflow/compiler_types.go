@@ -22,11 +22,6 @@ func WithEngineOverride(engine string) CompilerOption {
 	return func(c *Compiler) { c.engineOverride = engine }
 }
 
-// WithCustomOutput sets a custom output path for the compiled workflow
-func WithCustomOutput(path string) CompilerOption {
-	return func(c *Compiler) { c.customOutput = path }
-}
-
 // WithVersion overrides the auto-detected version
 func WithVersion(version string) CompilerOption {
 	return func(c *Compiler) { c.version = version }
@@ -72,7 +67,6 @@ type Compiler struct {
 	verbose                 bool
 	quiet                   bool // If true, suppress success messages (for interactive mode)
 	engineOverride          string
-	customOutput            string              // If set, output will be written to this path instead of default location
 	version                 string              // Version of the extension
 	skipValidation          bool                // If true, skip schema validation
 	noEmit                  bool                // If true, validate without generating lock files
@@ -109,7 +103,7 @@ type Compiler struct {
 
 // NewCompiler creates a new workflow compiler with functional options.
 // By default, it auto-detects the version and action mode.
-// Common options: WithVerbose, WithEngineOverride, WithCustomOutput, WithVersion, WithActionMode
+// Common options: WithVerbose, WithEngineOverride, WithVersion, WithActionMode
 func NewCompiler(opts ...CompilerOption) *Compiler {
 	// Get default version
 	version := defaultVersion
