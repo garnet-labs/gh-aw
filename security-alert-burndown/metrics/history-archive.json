@@ -11,5 +11,6 @@
 {"date":"2026-03-13","t":5,"c":4,"k":4},
 {"date":"2026-03-14","t":5,"c":4,"k":4},
 {"date":"2026-03-15","t":5,"c":4,"k":4,"open":3},
-{"date":"2026-03-16","t":9,"c":4,"k":4,"open":5,"new":2}
-],"legend":{"t":"tasks_total","c":"tasks_completed","k":"kpi_high_severity_fixed","open":"open_alerts","new":"new_alerts"}}
+{"date":"2026-03-16","t":9,"c":4,"k":4,"open":5,"new":2},
+{"date":"2026-03-17","t":5,"c":4,"k":4,"open":5,"fw":0,"epic":"recreated"}
+],"legend":{"t":"tasks_total","c":"tasks_completed","k":"kpi_high_severity_fixed","open":"open_alerts","new":"new_alerts","fw":"file_write_fixed","epic":"epic_note"}}
