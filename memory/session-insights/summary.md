@@ -1,7 +1,7 @@
-# Session Analysis 2026-03-16
+# Session Analysis 2026-03-17
 
-50 sessions: 1 copilot (in-progress), 37 action_req (review), 10 skipped, 2 success.
-Branches: update-runtime-check-lockdown, add-versioning-to-microsoft-apm, support-github-app-auth.
-Copilot: 1 PR comment response (Addressing comment on PR #21287, 0.2m, still in-progress at snapshot time).
-Experimental: Task Name Prefix Analysis (random=18 → experimental). 'add-*' branches show highest success, 'fix-*' longest durations.
-22-day aggregate: ~87% copilot success rate. CI: 1 success + 1 action_required (2 runs total).
+50 sessions: 6 copilot (3 success, 2 fail, 1 skip), 7 review agents (action_req/skip), 21 smoke tests (4 success, 17 skip), 16 lock.yml failures.
+Branches: ensure-safe-outputs-staged-support (6 success, 19 skip), fix-copilot-access-azure-apis (18 fail: 16 lock.yml + 2 copilot), update-ci-yml-build-job-commands (1 success + 6 review).
+Key: lock.yml failures are infrastructure/branch conflict issue, not copilot reasoning. PR #21443 blocked twice; #21450 succeeded.
+7-day avg completion: 56.3%. 30-day avg: 59.2%. Declining trend since Mar 13.
+Standard analysis run (random=62). Charts generated and uploaded.
