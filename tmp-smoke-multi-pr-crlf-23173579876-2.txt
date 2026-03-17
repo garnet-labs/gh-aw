@@ -1,0 +1,5 @@
+CRLF smoke test for multi-PR workflow
+Run ID: 23173579876
+Created at: Tue Mar 17 01:12:00 UTC 2026
+PR: 2 of 2
+Line ending: CRLF (Windows-style \r\n)
