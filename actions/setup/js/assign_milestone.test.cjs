@@ -209,4 +209,111 @@ describe("assign_milestone (Handler Factory Architecture)", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("Invalid milestone_number");
   });
+
+  it("should return staged preview without calling API when staged mode is enabled", async () => {
+    const origStaged = process.env.GH_AW_SAFE_OUTPUTS_STAGED;
+    process.env.GH_AW_SAFE_OUTPUTS_STAGED = "true";
+
+    const { main } = require("./assign_milestone.cjs");
+    const stagedHandler = await main({ max: 10 });
+
+    const message = {
+      type: "assign_milestone",
+      issue_number: 42,
+      milestone_number: 5,
+    };
+
+    const result = await stagedHandler(message, {});
+
+    expect(result.success).toBe(true);
+    expect(result.staged).toBe(true);
+    expect(result.previewInfo.issue_number).toBe(42);
+    expect(result.previewInfo.milestone_number).toBe(5);
+    expect(mockGithub.rest.issues.update).not.toHaveBeenCalled();
+
+    process.env.GH_AW_SAFE_OUTPUTS_STAGED = origStaged ?? "";
+  });
+
+  it("should handle failure when fetching milestones for allowed list validation", async () => {
+    const { main } = require("./assign_milestone.cjs");
+    const handlerWithAllowed = await main({
+      max: 10,
+      allowed: ["v1.0"],
+    });
+
+    mockGithub.rest.issues.listMilestones.mockRejectedValue(new Error("Network error"));
+
+    const result = await handlerWithAllowed({ issue_number: 42, milestone_number: 5 }, {});
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Failed to fetch milestones for validation");
+    expect(result.error).toContain("Network error");
+  });
+
+  it("should return error when milestone not found in repository", async () => {
+    const { main } = require("./assign_milestone.cjs");
+    const handlerWithAllowed = await main({
+      max: 10,
+      allowed: ["v1.0"],
+    });
+
+    mockGithub.rest.issues.listMilestones.mockResolvedValue({
+      data: [{ number: 7, title: "v2.0" }],
+    });
+
+    const result = await handlerWithAllowed({ issue_number: 42, milestone_number: 99 }, {});
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("not found in repository");
+  });
+
+  it("should allow milestone matched by number string in allowed list", async () => {
+    const { main } = require("./assign_milestone.cjs");
+    const handlerWithAllowed = await main({
+      max: 10,
+      allowed: ["5"], // Allowed by number as string
+    });
+
+    mockGithub.rest.issues.listMilestones.mockResolvedValue({
+      data: [{ number: 5, title: "v1.0" }],
+    });
+    mockGithub.rest.issues.update.mockResolvedValue({});
+
+    const result = await handlerWithAllowed({ issue_number: 42, milestone_number: 5 }, {});
+
+    expect(result.success).toBe(true);
+  });
+
+  it("should use cached milestones on second call", async () => {
+    const { main } = require("./assign_milestone.cjs");
+    const handlerWithAllowed = await main({
+      max: 10,
+      allowed: ["v1.0"],
+    });
+
+    mockGithub.rest.issues.listMilestones.mockResolvedValue({
+      data: [{ number: 5, title: "v1.0" }],
+    });
+    mockGithub.rest.issues.update.mockResolvedValue({});
+
+    await handlerWithAllowed({ issue_number: 42, milestone_number: 5 }, {});
+    await handlerWithAllowed({ issue_number: 43, milestone_number: 5 }, {});
+
+    // Should only fetch milestones once (cached after first call)
+    expect(mockGithub.rest.issues.listMilestones).toHaveBeenCalledTimes(1);
+  });
+
+  it("should handle zero issue_number as invalid", async () => {
+    const result = await handler({ issue_number: 0, milestone_number: 5 }, {});
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Invalid issue_number");
+  });
+
+  it("should handle zero milestone_number as invalid", async () => {
+    const result = await handler({ issue_number: 42, milestone_number: 0 }, {});
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Invalid milestone_number");
+  });
 });

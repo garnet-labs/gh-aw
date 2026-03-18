@@ -9,9 +9,6 @@ const { getErrorMessage } = require("./error_helpers.cjs");
 const { logStagedPreviewInfo } = require("./staged_preview.cjs");
 const { createAuthenticatedGitHubClient } = require("./handler_auth.cjs");
 
-/** @type {string} Safe output type handled by this module */
-const HANDLER_TYPE = "assign_milestone";
-
 /**
  * Main handler factory for assign_milestone
  * Returns a message handler function that processes individual assign_milestone messages
@@ -55,24 +52,22 @@ async function main(config = {}) {
 
     processedCount++;
 
-    const item = message;
-
-    const issueNumber = Number(item.issue_number);
-    const milestoneNumber = Number(item.milestone_number);
+    const issueNumber = Number(message.issue_number);
+    const milestoneNumber = Number(message.milestone_number);
 
     if (isNaN(issueNumber) || issueNumber <= 0) {
-      core.error(`Invalid issue_number: ${item.issue_number}`);
+      core.error(`Invalid issue_number: ${message.issue_number}`);
       return {
         success: false,
-        error: `Invalid issue_number: ${item.issue_number}`,
+        error: `Invalid issue_number: ${message.issue_number}`,
       };
     }
 
     if (isNaN(milestoneNumber) || milestoneNumber <= 0) {
-      core.error(`Invalid milestone_number: ${item.milestone_number}`);
+      core.error(`Invalid milestone_number: ${message.milestone_number}`);
       return {
         success: false,
-        error: `Invalid milestone_number: ${item.milestone_number}`,
+        error: `Invalid milestone_number: ${message.milestone_number}`,
       };
     }
 
@@ -121,20 +116,20 @@ async function main(config = {}) {
     }
 
     // Assign the milestone to the issue
-    try {
-      // If in staged mode, preview without executing
-      if (isStaged) {
-        logStagedPreviewInfo(`Would assign milestone #${milestoneNumber} to issue #${issueNumber}`);
-        return {
-          success: true,
-          staged: true,
-          previewInfo: {
-            issue_number: issueNumber,
-            milestone_number: milestoneNumber,
-          },
-        };
-      }
+    // If in staged mode, preview without executing
+    if (isStaged) {
+      logStagedPreviewInfo(`Would assign milestone #${milestoneNumber} to issue #${issueNumber}`);
+      return {
+        success: true,
+        staged: true,
+        previewInfo: {
+          issue_number: issueNumber,
+          milestone_number: milestoneNumber,
+        },
+      };
+    }
 
+    try {
       await githubClient.rest.issues.update({
         owner: context.repo.owner,
         repo: context.repo.repo,
