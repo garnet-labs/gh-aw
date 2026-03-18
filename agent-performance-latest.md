@@ -1,7 +1,10 @@
-# Agent Performance - 2026-03-17
-Run: §23207992326 | Q:81/100 ↓2 | E:80/100 ↓2 | H:68/100 ↓2
+# Agent Performance - 2026-03-18
+Run: §23258588521 | Q:79/100 ↓2 | E:78/100 ↓2 | H:65/100 ↓3
 
-✅ AI Moderator 5/5 RECOVERED | Daily Safe Outputs Checker 6/6 | WHM 3/4
-⚠️ Contribution Check 8/10 (token variance) | Safe Output Integrator 3.1M spike
-❌ Issue Monster 0/50 P0 (#20315) | Bot Detection 84% fail P1
-📊 16 stale locks
+✅ The Great Escapi 3/3 | Auto-Triage Issues 2/2 | Daily Chronicle 1/1 | Lockfile Stats 2/2 | Conformance Checker 2/2
+⚠️ Contribution Check 2/3 (56-turn spike P2) | Bot Detection RECOVERED
+❌ Issue Monster 0/8 P0 (GH_AW_GITHUB_TOKEN missing) | PR Triage 0/? P0 | Issue Triage 0/? P0
+📊 Daily Workflow Updater: P1 (9 consecutive failures since Mar 9)
+📊 7 stale lock files | Mar 17 disruption resolved
+
+Discussion created: "Agent Performance Report — Week of 2026-03-18"

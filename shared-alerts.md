@@ -23,3 +23,19 @@ daily-secrets-analysis, github-mcp-structural-analysis, repo-audit-analyzer, smo
 ## Infrastructure Context
 - Metrics Collector: Running daily, but limited (no GitHub token in environment)
 - WHM itself: Running, succeeds daily
+
+## Agent Performance Update - 2026-03-18T17:42Z
+
+### Quality Scores
+- Q: 79/100 (↓2), E: 78/100 (↓2), H: 65/100 (↓3)
+
+### Ongoing P0 (from APM)
+- Issue Monster, PR Triage, Issue Triage: ALL blocked by GH_AW_GITHUB_TOKEN missing
+  → Recommendation: Configure secret → instant restore of all 3 agents
+
+### New P2 (from APM)
+- Contribution Check: 56-turn spike in 1 run. Add turn guard (max 20 turns).
+
+### Resolved
+- Bot Detection: Healthy (was P1)
+- Stale locks: 7 (was 16)
