@@ -1,0 +1,1 @@
+{"date":"2026-03-18","total":1000,"merged":818,"closed":179,"open":3,"rate":0.820,"categories":{"bug_fix":{"t":513,"m":432,"r":0.844},"feature":{"t":206,"m":160,"r":0.784},"refactor":{"t":139,"m":114,"r":0.820},"tests":{"t":13,"m":12,"r":0.923},"docs":{"t":10,"m":7,"r":0.700}},"wip_rate":0.310,"conv_commit_rate":0.858}
