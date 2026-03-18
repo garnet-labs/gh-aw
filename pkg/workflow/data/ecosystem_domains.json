@@ -1,5 +1,6 @@
 {
-  "bazel": ["releases.bazel.build", "mirror.bazel.build", "bcr.bazel.build", "blog.bazel.build", "pypi.org", "files.pythonhosted.org"],
+  "bazel": ["releases.bazel.build", "mirror.bazel.build", "bcr.bazel.build", "blog.bazel.build"],
+  "chrome": ["*.google.com", "*.googleapis.com", "*.gvt1.com"],
   "clojure": ["repo.clojars.org", "clojars.org"],
   "containers": ["ghcr.io", "registry.hub.docker.com", "*.docker.io", "*.docker.com", "production.cloudflare.docker.com", "dl.k8s.io", "pkgs.k8s.io", "quay.io", "mcr.microsoft.com", "gcr.io", "auth.docker.io"],
   "dart": ["pub.dev", "pub.dartlang.org", "storage.googleapis.com"],
@@ -40,6 +41,7 @@
     "packages.microsoft.com",
     "www.googleapis.com"
   ],
+  "deno": ["deno.land", "jsr.io", "*.jsr.io", "googleapis.deno.dev", "fresh.deno.dev"],
   "dev-tools": [
     "app.renovatebot.com",
     "appveyor.com",
@@ -62,7 +64,6 @@
     "sonarqube.com",
     "travis-ci.com"
   ],
-  "local": ["127.0.0.1", "::1", "localhost"],
   "dotnet": [
     "nuget.org",
     "dist.nuget.org",
@@ -176,6 +177,7 @@
     "download.opensuse.org",
     "cdn.redhat.com"
   ],
+  "local": ["127.0.0.1", "::1", "localhost"],
   "lua": ["luarocks.org", "www.luarocks.org"],
   "node": [
     "npmjs.org",
