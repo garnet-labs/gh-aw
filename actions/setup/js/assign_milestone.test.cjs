@@ -316,4 +316,65 @@ describe("assign_milestone (Handler Factory Architecture)", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("Invalid milestone_number");
   });
+
+  describe("temporary ID resolution", () => {
+    it("should resolve temporary ID in issue_number to real issue number", async () => {
+      mockGithub.rest.issues.update.mockResolvedValue({});
+
+      const result = await handler(
+        {
+          type: "assign_milestone",
+          issue_number: "aw_issue1",
+          milestone_number: 5,
+        },
+        { aw_issue1: { repo: "test-owner/test-repo", number: 42 } }
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.issue_number).toBe(42);
+      expect(mockGithub.rest.issues.update).toHaveBeenCalledWith({
+        owner: "test-owner",
+        repo: "test-repo",
+        issue_number: 42,
+        milestone: 5,
+      });
+    });
+
+    it("should defer when issue_number is an unresolved temporary ID", async () => {
+      const result = await handler(
+        {
+          type: "assign_milestone",
+          issue_number: "aw_issue1",
+          milestone_number: 5,
+        },
+        {}
+      );
+
+      expect(result.success).toBe(false);
+      expect(result.deferred).toBe(true);
+      expect(result.error).toContain("aw_issue1");
+    });
+
+    it("should resolve temporary ID with hash prefix in issue_number", async () => {
+      mockGithub.rest.issues.update.mockResolvedValue({});
+
+      const result = await handler(
+        {
+          type: "assign_milestone",
+          issue_number: "#aw_issue1",
+          milestone_number: 5,
+        },
+        { aw_issue1: { repo: "test-owner/test-repo", number: 99 } }
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.issue_number).toBe(99);
+      expect(mockGithub.rest.issues.update).toHaveBeenCalledWith({
+        owner: "test-owner",
+        repo: "test-repo",
+        issue_number: 99,
+        milestone: 5,
+      });
+    });
+  });
 });

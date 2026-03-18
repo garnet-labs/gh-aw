@@ -8,6 +8,7 @@
 const { getErrorMessage } = require("./error_helpers.cjs");
 const { logStagedPreviewInfo } = require("./staged_preview.cjs");
 const { createAuthenticatedGitHubClient } = require("./handler_auth.cjs");
+const { loadTemporaryIdMapFromResolved, resolveRepoIssueTarget } = require("./temporary_id.cjs");
 
 /**
  * Main handler factory for assign_milestone
@@ -52,16 +53,31 @@ async function main(config = {}) {
 
     processedCount++;
 
-    const issueNumber = Number(message.issue_number);
-    const milestoneNumber = Number(message.milestone_number);
+    // Build temporary ID map from resolved IDs
+    const temporaryIdMap = loadTemporaryIdMapFromResolved(resolvedTemporaryIds);
 
-    if (isNaN(issueNumber) || issueNumber <= 0) {
+    // Determine target issue number, with temporary ID support
+    const resolvedTarget = resolveRepoIssueTarget(message.issue_number, temporaryIdMap, context.repo.owner, context.repo.repo);
+
+    if (resolvedTarget.wasTemporaryId && !resolvedTarget.resolved) {
+      core.info(`Deferring assign_milestone: unresolved temporary ID (${message.issue_number})`);
+      return {
+        success: false,
+        deferred: true,
+        error: resolvedTarget.errorMessage || `Unresolved temporary ID: ${message.issue_number}`,
+      };
+    }
+
+    if (resolvedTarget.errorMessage || !resolvedTarget.resolved) {
       core.error(`Invalid issue_number: ${message.issue_number}`);
       return {
         success: false,
         error: `Invalid issue_number: ${message.issue_number}`,
       };
     }
+
+    const issueNumber = resolvedTarget.resolved.number;
+    const milestoneNumber = Number(message.milestone_number);
 
     if (isNaN(milestoneNumber) || milestoneNumber <= 0) {
       core.error(`Invalid milestone_number: ${message.milestone_number}`);
