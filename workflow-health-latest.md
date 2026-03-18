@@ -1,28 +1,35 @@
-# Workflow Health - 2026-03-17T07:32Z
+# Workflow Health - 2026-03-18T07:32Z
 
-Score: 68/100 (↓ from 72). 172 workflows, 172/172 compiled. 16 stale locks.
+Score: 62/100 (↓ from 68). 174 workflows, 7 stale lock files (↓ from 16).
 
-## P1 Critical
-- **Issue Monster**: 100% failure (GH_AW_GITHUB_TOKEN missing) - `pre_activation` fails at "Generate GitHub App token for skip-if checks". 30/30 failures since March 15.
-- **PR Triage Agent**: 100% failure (same token issue). 30/30 failures since March 15.
-- **Bot Detection**: ESCALATED from "monitoring" → P1. 84% failure rate (11/13 since Mar 15, 13/20 overall). Failing in `precompute` step - "Precompute deterministic findings". First seen March 14, now consistently failing.
+## P0 Critical
+- **Issue Monster**: 100% failure (GH_AW_GITHUB_TOKEN missing) - ongoing since Mar 15. All runs failing.
+- **PR Triage Agent**: 100% failure (same token issue) - ongoing since Mar 15.
+- **Issue Triage Agent**: 100% failure (same token issue) - ongoing.
 
-## Recoveries / Healthy ✅
-- Smoke Copilot ✅, Smoke Claude ✅, Smoke Codex ✅, Smoke Gemini ✅
-- Metrics Collector ✅, Agentic Maintenance ✅, Auto-Triage Issues ✅
-- AI Moderator: action_required (approval gate, not broken)
-- Contribution Check: continuing recovery trend
-- Static Analysis Report ✅, CodeQL ✅, CI ✅
+## P1 Escalated
+- **Daily Workflow Updater**: NEW P1. 9 consecutive failures since March 9. Last success: March 8. ~10 min runs, schedule daily at 03:00 UTC. Need to investigate root cause at run#110. Issue created.
+
+## Recoveries ✅
+- **Bot Detection**: RECOVERED from P1. 2 consecutive successes today (00:24, 06:24 UTC). Downgraded to Healthy.
+- Smoke Copilot ✅ | Smoke Claude ✅ | Smoke Codex ✅ (all healthy)
+- Auto-Triage Issues ✅ | Contribution Check ✅ | Metrics Collector ✅
+- AI Moderator ✅
 
 ## P2 Warning
-- 16 stale lock files (make recompile needed, down from 18)
-- Stale: ai-moderator, ci-doctor, copilot-agent-analysis, copilot-pr-nlp-analysis, daily-architecture-diagram, daily-code-metrics, deep-report, docs-noob-tester, firewall-escape, pr-nitpick-reviewer, repository-quality-improver, scout, smoke-claude, smoke-gemini, sub-issue-closer, test-project-url-default
+- **Smoke Gemini**: 50% failure (alternating). Intermittent Gemini API issues.
+- **7 stale lock files**: daily-architecture-diagram, daily-compiler-quality, daily-mcp-concurrency-analysis, daily-secrets-analysis, github-mcp-structural-analysis, repo-audit-analyzer, smoke-call-workflow
+
+## Systemic Patterns
+- GitHub Actions disruption Mar 17 15:00-22:00 UTC (most workflows recovered after 22:54)
+- WHM itself affected by disruption (mostly failing in that window)
 
 ## Actions Taken This Run
-- Bot Detection escalated to P1 tracking issue (new issue created)
-- Dashboard issue updated with current status
-- Updated shared-alerts.md with Bot Detection escalation
+- Dashboard issue created (2026-03-18)
+- Daily Workflow Updater P1 issue created
+- Bot Detection downgraded from P1 → Healthy
+- Stale lock count: 7 (↓ from 16)
 
 ## Run Info
-- Timestamp: 2026-03-17T07:32:00Z
-- Run: §23183314863
+- Timestamp: 2026-03-18T07:32:00Z
+- Run: §23233873324

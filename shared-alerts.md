@@ -1,15 +1,25 @@
-# Shared Alerts - 2026-03-17T17:40Z
+# Shared Alerts - 2026-03-18T07:32Z
 
 ## P0: GH_AW_GITHUB_TOKEN Missing
-Affects: Issue Monster, PR Triage, Issue Triage, Weekly Issue Summary, Daily Issues, Org Health. Track: #20315
+Affects: Issue Monster, PR Triage, Issue Triage (all 100% failing)
+Root cause: Repository secret `GH_AW_GITHUB_TOKEN` not configured
+Status: ONGOING since Mar 15
 
-## P1: Bot Detection — precompute failure (11/13 since Mar 15)
-## P1: Smoke Copilot — PR tools in non-PR context
-## P1: CI Optimization Coach — create_pull_request failing
+## P1: Daily Workflow Updater — 9 consecutive failures (NEW)
+First seen: March 9. Last success: March 8 (run#109).
+9 consecutive failures. Issue created.
 
-## P2: Contribution Check — token variance (228K-2.9M)
-## P2: Daily Safe Output Integrator — 3.1M token spike
-## P2: 16 stale lock files
+## P2: Smoke Gemini — 50% failure (intermittent Gemini API)
+Alternating success/failure pattern
+
+## P2: 7 stale lock files (need make recompile)
+daily-architecture-diagram, daily-compiler-quality, daily-mcp-concurrency-analysis,
+daily-secrets-analysis, github-mcp-structural-analysis, repo-audit-analyzer, smoke-call-workflow
 
 ## Recoveries
-- AI Moderator: RECOVERED (2+ weeks) | Contribution Check: recovering
+- Bot Detection: RECOVERED (was P1, now 2 consecutive successes as of Mar 18)
+- Mar 17 15:00-22:00 UTC: Systemic GitHub Actions disruption (resolved)
+
+## Infrastructure Context
+- Metrics Collector: Running daily, but limited (no GitHub token in environment)
+- WHM itself: Running, succeeds daily
