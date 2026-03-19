@@ -1,5 +1,6 @@
-## Flagged Items (2026-03-18)
-- Repeated failures in Issue Monster runs suggest a durable regression; prioritize targeted run-audit and retry hardening.
-- Open unlabeled issues remain small but non-zero (#21436, #21434, #21403); lightweight triage automation can close this gap.
-- Firewall denials against blocked domains continue in active workflows; confirm MCP/tool configuration to avoid avoidable network attempts.
-- Monitor token-heavy workflows (`Daily Security Red Team Agent`, `Daily CLI Performance Agent`) for prompt/context bloat and unnecessary turns.
+## Flagged Items (2026-03-19)
+- Repeated `Issue Monster` failures continue (#3072, #3073, #3074 in sampled runs); investigate shared failure signature and add failure-tolerant guardrails.
+- Unlabeled open issues increased to 9, including active product bugs (#21816, #21813, #21794, #21792); triage latency risk is rising.
+- AI Moderator runs show repeated `missing_data` on issue payload fetches (issues #21816 and #21813), which can reduce moderation reliability.
+- Firewall blocks remain concentrated on `ab.chatgpt.com:443`; this suggests recurring network attempts that should be removed from prompts/tool flows.
+- Token pressure remains high in a small set of workflows; prioritize prompt-size and context-pruning work in top token consumers.

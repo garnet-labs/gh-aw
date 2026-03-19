@@ -1,6 +1,6 @@
-## Known Patterns (2026-03-18)
-- Weekly issue throughput is high and net-positive for closure (439 closed vs 61 open in the weekly slice), with only 3 unlabeled open issues remaining.
-- Recent discussions are heavily audit-driven (32/42 recent discussions in `audits`), indicating strong observability cadence.
-- Failure concentration persists in a small workflow set; `Issue Monster` failed twice in the latest 15-run sample, while most other failures are singletons.
-- Token usage remains concentrated in a few workflows; `Daily Security Red Team Agent` and `Daily CLI Performance Agent` dominate measured token volume.
-- Firewall blocks are still present in sampled runs (14 blocked requests), mostly against disallowed `github.com`/`ab.chatgpt.com` domains.
+## Known Patterns (2026-03-19)
+- Discussion activity is still audit-heavy: 32 of 42 recent discussions are in `audits`, with one `daily-news` post and limited general discussion.
+- Failure concentration remains narrow but persistent in `Issue Monster` (3 failures in recent sampled runs), with additional single-run failures in `Issue Triage Agent`, `Super Linter Report`, and `Breaking Change Checker`.
+- Token consumption remains highly skewed to a few workflows: `Daily Security Red Team Agent` (1.10M in sampled runs), `Daily CLI Performance Agent` (0.80M), and `Constraint Solving — Problem of the Day` (0.32M).
+- Open issue quality regressed slightly: open issues increased to 76 and unlabeled open issues increased from 3 to 9.
+- Firewall denials continue, especially blocked requests to `ab.chatgpt.com:443`, indicating recurring prompt/tool paths still attempting disallowed egress.
