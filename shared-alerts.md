@@ -1,36 +1,18 @@
-# Shared Alerts - 2026-03-19T07:30Z
+# Shared Alerts - 2026-03-19T17:45Z (APM)
 
-## P0: GH_AW_GITHUB_TOKEN Missing (Day 4+)
-Affects: Issue Monster, PR Triage, Issue Triage (all 100% failing)
-Root cause: Repository secret `GH_AW_GITHUB_TOKEN` not configured
-Status: ONGOING since Mar 15. Unchanged.
+P0-NEW: Lockdown mode wave (Mar 19 ~15:00) - 15+ workflows failing activation
+  Error: "Lockdown mode: true but no GH_AW_GITHUB_TOKEN configured"
+  Same fix as Issue Monster P0: configure GH_AW_GITHUB_TOKEN secret
 
-## P1: Daily Workflow Updater — 10+ consecutive failures
-First seen: March 9. Last success: March 8 (run#109).
-Now run#131, ~11 consecutive failures. Issue likely created previously.
-Impact: GitHub Actions version updates no longer applied.
+P0-NEW: safe_outputs job failing after agent success
+  Great Escapi §23308006673, Contribution Check §23307476240
+  Agent work lost even when agent completes
 
-## P1: Smoke Gemini — ESCALATED from P2 (4 consecutive failures)
-Last success: Mar 17T00:51. Since then: 4 consecutive failures.
-Mar 17T12:36, Mar 18T00:54, Mar 18T12:36, Mar 19T00:55 all FAILURE.
-Pattern changed from alternating to consistent failure.
+P0-ONG: GH_AW_GITHUB_TOKEN missing (day 5, since Mar 15)
+  Issue Monster, PR Triage, Issue Triage, Weekly Issue Summary
 
-## P2: 15 stale lock files (need make recompile)
-NEW COUNT (↑ from 7): agent-performance-analyzer, blog-auditor, brave, ci-doctor,
-contribution-check, daily-semgrep-scan, dependabot-go-checker, duplicate-code-detector,
-functional-pragmatist, instructions-janitor, repo-audit-analyzer, smoke-copilot-arm,
-smoke-project, technical-doc-writer, tidy.
+P1: Daily Workflow Updater - 11+ failures since Mar 9
+P1: Smoke Gemini - 5+ failures (escalated P2→P1)
+P2: 15 stale lock files (need make recompile)
 
-## Recoveries (confirmed healthy)
-- Bot Detection: HEALTHY (5/5 consecutive successes as of Mar 19)
-- Previous stale 7 files (daily-architecture-diagram etc.) appear FIXED
-
-## Infrastructure Context
-- Metrics Collector: Running (success Mar 18T18:29)
-- WHM: Running (this run: §23284419210)
-- Ecosystem: 175 workflows now (up from 174 last run)
-
-## Agent Performance Notes (from Mar 18 APM run)
-- Q: 79/100, E: 78/100, H: 65/100 (all declining)
-- P0 agents blocked same GH_AW_GITHUB_TOKEN issue
-- Contribution Check: 56-turn spike noted (P2)
+Scores: Q:76 E:55 H:40 (all declining, driven by lockdown wave)
