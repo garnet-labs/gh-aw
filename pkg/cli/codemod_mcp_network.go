@@ -146,7 +146,7 @@ func getMCPNetworkMigrationCodemod() Codemod {
 
 // removeFieldFromMCPServer removes a field from a specific MCP server configuration
 func removeFieldFromMCPServer(lines []string, serverName string, fieldName string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inMCPServers bool
 	var mcpServersIndent string
@@ -283,7 +283,7 @@ func addTopLevelNetwork(lines []string, domains []string) []string {
 
 // updateNetworkAllowed updates the existing top-level network.allowed configuration
 func updateNetworkAllowed(lines []string, domains []string) []string {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var inNetworkBlock bool
 	var networkIndent string
 	var inAllowedBlock bool
@@ -359,7 +359,7 @@ func updateNetworkAllowed(lines []string, domains []string) []string {
 
 // addAllowedToNetwork adds an allowed field to an existing network block
 func addAllowedToNetwork(lines []string, domains []string) []string {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var inNetworkBlock bool
 	var networkIndent string
 	var insertIndex = -1

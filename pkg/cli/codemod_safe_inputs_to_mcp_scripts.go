@@ -33,7 +33,7 @@ func getSafeInputsToMCPScriptsCodemod() Codemod {
 
 // renameTopLevelKey renames a top-level YAML key from oldKey to newKey, preserving formatting.
 func renameTopLevelKey(lines []string, oldKey, newKey string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	applied := false
 
 	for _, line := range lines {

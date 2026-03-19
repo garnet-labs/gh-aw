@@ -64,7 +64,7 @@ func getExpiresIntegerToStringCodemod() Codemod {
 // convertExpiresIntegersToDayStrings converts integer expires values to day strings within safe-outputs blocks.
 // Only affects expires lines nested inside a safe-outputs block.
 func convertExpiresIntegersToDayStrings(lines []string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inSafeOutputsBlock bool
 	var safeOutputsIndent string

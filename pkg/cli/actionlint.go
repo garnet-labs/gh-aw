@@ -210,7 +210,7 @@ func runActionlintOnFiles(lockFiles []string, verbose bool, strict bool) error {
 	}
 
 	// Get relative paths from git root for all files
-	var relPaths []string
+	relPaths := make([]string, 0, len(lockFiles))
 	for _, lockFile := range lockFiles {
 		relPath, err := filepath.Rel(gitRoot, lockFile)
 		if err != nil {

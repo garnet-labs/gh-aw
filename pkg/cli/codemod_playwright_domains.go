@@ -106,7 +106,7 @@ func getPlaywrightDomainsCodemod() Codemod {
 
 // removeFieldFromPlaywright removes a field from the tools.playwright block (two-level nesting)
 func removeFieldFromPlaywright(lines []string, fieldName string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inTools bool
 	var toolsIndent string

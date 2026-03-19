@@ -112,7 +112,7 @@ func applyFrontmatterLineTransform(content string, transform func([]string) ([]s
 // removeFieldFromBlock removes a field and its nested content from a YAML block
 // Returns the modified lines and whether any changes were made
 func removeFieldFromBlock(lines []string, fieldName string, parentBlock string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inParentBlock bool
 	var parentIndent string

@@ -49,7 +49,7 @@ func getBashAnonymousRemovalCodemod() Codemod {
 
 // replaceBashAnonymousWithTrue replaces 'bash:' with 'bash: true' in the tools block
 func replaceBashAnonymousWithTrue(lines []string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inToolsBlock bool
 	var toolsIndent string

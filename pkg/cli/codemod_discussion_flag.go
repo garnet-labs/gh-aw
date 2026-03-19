@@ -45,7 +45,7 @@ func getDiscussionFlagRemovalCodemod() Codemod {
 			}
 
 			newContent, applied, err := applyFrontmatterLineTransform(content, func(lines []string) ([]string, bool) {
-				var result []string
+				result := make([]string, 0, len(lines))
 				var modified bool
 				var inSafeOutputsBlock bool
 				var safeOutputsIndent string

@@ -85,7 +85,7 @@ func (c *AddInteractiveConfig) selectAIEngineAndKey() error {
 	// Build engine options with notes about existing secrets and workflow specification.
 	// The list of engines is derived from the catalog to ensure all registered engines appear.
 	catalog := workflow.NewEngineCatalog(workflow.NewEngineRegistry())
-	var engineOptions []huh.Option[string]
+	engineOptions := make([]huh.Option[string], 0, len(catalog.All()))
 	for _, def := range catalog.All() {
 		opt := constants.GetEngineOption(def.ID)
 		label := fmt.Sprintf("%s - %s", def.DisplayName, def.Description)

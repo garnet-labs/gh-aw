@@ -62,7 +62,7 @@ func getSerenaLocalModeCodemod() Codemod {
 // replaceSerenaLocalModeWithDocker replaces 'mode: local' with 'mode: docker' within the
 // tools.serena block in frontmatter lines.
 func replaceSerenaLocalModeWithDocker(lines []string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inTools bool
 	var toolsIndent string

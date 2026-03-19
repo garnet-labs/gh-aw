@@ -80,7 +80,7 @@ func hasDeprecatedAppField(frontmatter map[string]any) bool {
 
 // renameAppToGitHubApp renames 'app:' to 'github-app:' within tools.github, safe-outputs, and checkout blocks.
 func renameAppToGitHubApp(lines []string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	modified := false
 
 	// Block tracking

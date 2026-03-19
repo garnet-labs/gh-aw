@@ -320,7 +320,7 @@ func collectInputsWithMap(inputs map[string]*workflow.InputDefinition) ([]string
 	}
 
 	// Collect the final values from the pointers
-	var result []string
+	result := make([]string, 0, len(inputPtrs))
 	for name, valuePtr := range inputPtrs {
 		value := *valuePtr
 		if value != "" {

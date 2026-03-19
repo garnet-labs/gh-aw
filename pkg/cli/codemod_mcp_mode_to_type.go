@@ -55,7 +55,7 @@ func getMCPModeToTypeCodemod() Codemod {
 
 // renameModeToTypeInMCPServers renames 'mode:' to 'type:' within mcp-servers blocks
 func renameModeToTypeInMCPServers(lines []string) ([]string, bool) {
-	var result []string
+	result := make([]string, 0, len(lines))
 	var modified bool
 	var inMCPServers bool
 	var mcpServersIndent string
