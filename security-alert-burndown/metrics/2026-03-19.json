@@ -1,0 +1,14 @@
+{
+  "campaign_id": "security-alert-burndown",
+  "date": "2026-03-19",
+  "tasks_total": 20,
+  "tasks_completed": 6,
+  "tasks_in_progress": 1,
+  "tasks_blocked": 0,
+  "velocity_per_day": 0.3,
+  "estimated_completion": "2026-04-09",
+  "kpi_high_severity_fixed": 6,
+  "kpi_file_write_fixed": 3,
+  "open_alerts": 1,
+  "notes": "6 high/critical severity alerts fixed (5 go/unsafe-quoting critical + 1 actions/if-expression-always-true high). 3 file write alerts fixed (js/http-to-file-access medium). 1 open critical alert remaining: #562 go/unsafe-quoting."
+}

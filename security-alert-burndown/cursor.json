@@ -1,1 +1,1 @@
-{"last_run":"2026-03-18","epic_temporary_id":"aw_epic002","epic_issue_number":null,"kpi_high_fixed":4,"kpi_fw_fixed":0,"open_alerts":5,"status":"AT_RISK","alerts":["#543 url-scheme markdown_security_scanner.go:483","#555-556 alloc-overflow checkout_manager.go:600","#557-558 alloc-overflow domains_command.go:253"]}
+{"last_run":"2026-03-19","epic_temporary_id":"aw_epic003","epic_issue_number":null,"kpi_high_fixed":6,"kpi_fw_fixed":3,"open_alerts":1,"status":"AT_RISK","alerts":["#562 go/unsafe-quoting (critical, open)"]}
