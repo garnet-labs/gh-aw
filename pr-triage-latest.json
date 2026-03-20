@@ -1,1 +1,16 @@
-{"run_date":"2026-03-20T06:16:01Z","run_id":"23331438660","total_prs_triaged":0,"fork_prs_found":0,"agent_prs_found":2,"notes":"2 agent PRs (#21914, #21877) skipped - same-repo branches, not forks","trends":{"previous_run":{"date":"2026-02-13T18:19:57Z","run_id":"21997868197","agent_prs":1}}}
+{
+  "run_date": "2026-03-20T12:07:44Z",
+  "run_id": "23342068451",
+  "total_prs_triaged": 0,
+  "fork_prs_found": 0,
+  "agent_prs_found": 10,
+  "notes": "10 open PRs found, all from same-repo branches (not forks) — skipped per triage rules. PRs: #21948, #21947, #21946, #21945, #21932, #21928, #21927, #21920, #21914, #21877",
+  "trends": {
+    "previous_run": {
+      "date": "2026-03-20T06:16:01Z",
+      "run_id": "23331438660",
+      "agent_prs": 2,
+      "fork_prs": 0
+    }
+  }
+}
