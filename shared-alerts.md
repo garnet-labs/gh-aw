@@ -1,19 +1,11 @@
-# Shared Alerts - 2026-03-20T07:28Z (Workflow Health Manager)
+# Shared Alerts - 2026-03-20T17:40Z
 
-P0-NEW: Issue Triage Agent - 14+ day continuous failure (INDEPENDENT root cause)
-  Not related to GH_AW_GITHUB_TOKEN. Failing since March 6 (pre-dates token crisis).
-  Schedule-only failures. Need structural investigation.
+P0: Issue Triage Agent - 15+ days failure (structural, not GH_AW_GITHUB_TOKEN)
+P1: Smoke Gemini - 6+ consecutive failures, check API key
+P2: 14 stale locks (make recompile)
+P2: Contribution Check safe_outputs failure (missing pr-filter-results.json in schedule runs)
+P2: AI Moderator PR branch checkout race on closed PRs
 
-P0-RESOLVED: GH_AW_GITHUB_TOKEN issue (was affecting Issue Monster, PR Triage, Issue Triage)
-  Issue Monster: FULLY RECOVERED ✅
-  PR Triage Agent: RECOVERING ✅ (1/5 today = success)
-  Issue Triage Agent: STILL FAILING (separate issue — see P0-NEW above)
+RESOLVED: GH_AW_GITHUB_TOKEN (Issue Monster ✅ PR Triage ✅ Daily WF Updater ✅)
 
-P1-ONG: Smoke Gemini - 6 consecutive schedule failures (Mar 15-20)
-  Last success: Mar 17 00:51 UTC (run #373). May be Gemini API/key issue.
-
-P1-RESOLVED: Daily Workflow Updater - RECOVERED (11-day streak ended Mar 19)
-
-P2: 14 stale lock files (down from 15). Run `make recompile` to fix.
-
-Scores: H:66 (↑10 from 56)
+Scores: Q:79 (↑3) E:72 (↑17) H:66 (↑26)

@@ -1,13 +1,13 @@
-# Agent Performance - 2026-03-19
-Run: §23308384912 | Q:76 ↓3 | E:55 ↓23 | H:40 ↓25
+# Agent Performance - 2026-03-20
+Run: §23354846206 | Q:79 ↑3 | E:72 ↑17 | H:66 ↑26
 
-P0-NEW: Lockdown mode failure wave - 15+ workflows failing (started Mar 19 ~15:00)
-P0-ONG: Issue Monster/PR Triage/Issue Triage (GH_AW_GITHUB_TOKEN, day 5)
-P0-NEW: safe_outputs job failing after agent completion (Great Escapi, Contribution Check)
-P1: Daily Workflow Updater (11+ failures since Mar 9)
-P1: Smoke Gemini (5+ failures)
-P2: 15 stale lock files
+P0: Issue Triage Agent (15+ days, structural)
+P1: Smoke Gemini (6+ failures, API/key issue)
+P2: Contribution Check safe_outputs failure | AI Moderator PR race | 14 stale locks
 
-✅ Great Escapi: A+ prompt injection detection | Auto-Triage Issues 2/2
-📊 175 workflows | Copilot 117, Claude 41, Codex 16, Gemini 1
-Discussion created: "Agent Performance Report — Week of 2026-03-19"
+Top: Issue Monster 4/4 ✅ | Auto-Triage 2/2 ✅ | Great Escapi ✅ | Lockfile Stats ✅
+Failed: Contribution Check (0%, agent OK, safe_outputs infra) | AI Moderator (83%, codex)
+Recovery: GH_AW_GITHUB_TOKEN ✅ | Lockdown mode ✅ | Daily WF Updater ✅
+
+Stats: 22 active runs, 20 ok (91%), 7.52M tokens, $2.80 total
+Discussion: "Agent Performance Report — Week of 2026-03-20"
