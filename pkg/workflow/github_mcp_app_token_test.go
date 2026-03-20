@@ -14,7 +14,7 @@ import (
 
 // TestGitHubMCPAppTokenConfiguration tests that app configuration is correctly parsed for GitHub tool
 func TestGitHubMCPAppTokenConfiguration(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	markdown := `---
 on: issues
@@ -58,7 +58,7 @@ Test workflow with GitHub MCP Server app configuration.
 
 // TestGitHubMCPAppTokenMintingStep tests that token minting step is generated
 func TestGitHubMCPAppTokenMintingStep(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	markdown := `---
 on: issues
@@ -117,7 +117,7 @@ Test workflow with GitHub MCP app token minting.
 
 // TestGitHubMCPAppTokenAndGitHubTokenMutuallyExclusive tests that setting both app and github-token is rejected
 func TestGitHubMCPAppTokenAndGitHubTokenMutuallyExclusive(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	markdown := `---
 on: issues
@@ -151,7 +151,7 @@ Test that setting both app and github-token is an error.
 
 // TestGitHubMCPAppTokenWithRemoteMode tests that app token works with remote mode
 func TestGitHubMCPAppTokenWithRemoteMode(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	markdown := `---
 on: issues
@@ -204,7 +204,7 @@ Test app token with remote GitHub MCP Server.
 
 // TestGitHubMCPAppTokenOrgWide tests org-wide GitHub MCP token with wildcard
 func TestGitHubMCPAppTokenOrgWide(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	markdown := `---
 on: issues
@@ -259,7 +259,7 @@ Test org-wide GitHub MCP app token.
 // Repo-scoping from a GitHub App token does not substitute for author-integrity filtering
 // inside a repository; public repos still need automatic min-integrity: approved protection.
 func TestGitHubMCPAppTokenWithLockdownDetectionStep(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	markdown := `---
 on: issues

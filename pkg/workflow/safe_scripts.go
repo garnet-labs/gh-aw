@@ -74,20 +74,6 @@ func parseSafeScriptsConfig(scriptsMap map[string]any) map[string]*SafeScriptCon
 	return result
 }
 
-// extractSafeScriptsFromFrontmatter extracts safe-scripts configuration from frontmatter.
-func extractSafeScriptsFromFrontmatter(frontmatter map[string]any) map[string]*SafeScriptConfig {
-	if safeOutputs, exists := frontmatter["safe-outputs"]; exists {
-		if safeOutputsMap, ok := safeOutputs.(map[string]any); ok {
-			if scripts, exists := safeOutputsMap["scripts"]; exists {
-				if scriptsMap, ok := scripts.(map[string]any); ok {
-					return parseSafeScriptsConfig(scriptsMap)
-				}
-			}
-		}
-	}
-	return make(map[string]*SafeScriptConfig)
-}
-
 // buildCustomSafeOutputScriptsJSON builds a JSON mapping of custom safe output script names to their
 // .cjs filenames, for use in the GH_AW_SAFE_OUTPUT_SCRIPTS env var of the handler manager step.
 // This allows the handler manager to load and dispatch messages to inline script handlers.

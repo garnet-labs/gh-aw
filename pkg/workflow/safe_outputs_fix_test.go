@@ -145,7 +145,7 @@ func TestSafeOutputsConfigYAMLTags(t *testing.T) {
 // (Footer, AllowGitHubReferences, GroupReports, MaxBotMentions, Mentions) are correctly
 // merged from imported workflow configs when absent in the top-level config.
 func TestMergeSafeOutputsMetaFieldsUnit(t *testing.T) {
-	compiler := NewCompilerWithVersion("1.0.0")
+	compiler := NewCompiler(WithVersion("1.0.0"))
 
 	tests := []struct {
 		name      string

@@ -146,15 +146,6 @@ func NewCompiler(opts ...CompilerOption) *Compiler {
 	return c
 }
 
-// NewCompilerWithVersion creates a new workflow compiler with the legacy signature.
-// Deprecated: Use NewCompiler with functional options instead.
-// This function is kept for backward compatibility during migration.
-func NewCompilerWithVersion(version string) *Compiler {
-	return NewCompiler(
-		WithVersion(version),
-	)
-}
-
 // SetSkipValidation configures whether to skip schema validation
 func (c *Compiler) SetSkipValidation(skip bool) {
 	c.skipValidation = skip

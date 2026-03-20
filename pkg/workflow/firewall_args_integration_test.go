@@ -45,7 +45,7 @@ Test workflow with custom AWF arguments.
 		}
 
 		// Compile the workflow
-		compiler := NewCompilerWithVersion("test-firewall-args")
+		compiler := NewCompiler(WithVersion("test-firewall-args"))
 		compiler.SetSkipValidation(true)
 
 		if err := compiler.CompileWorkflow(workflowPath); err != nil {
@@ -119,7 +119,7 @@ Test workflow without custom AWF arguments.
 		}
 
 		// Compile the workflow
-		compiler := NewCompilerWithVersion("test-no-custom-args")
+		compiler := NewCompiler(WithVersion("test-no-custom-args"))
 		compiler.SetSkipValidation(true)
 
 		if err := compiler.CompileWorkflow(workflowPath); err != nil {
@@ -189,7 +189,7 @@ Test workflow with SSL bump and allow-urls configuration.
 		}
 
 		// Compile the workflow
-		compiler := NewCompilerWithVersion("test-ssl-bump")
+		compiler := NewCompiler(WithVersion("test-ssl-bump"))
 		compiler.SetSkipValidation(true)
 
 		if err := compiler.CompileWorkflow(workflowPath); err != nil {
