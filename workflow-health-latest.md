@@ -1,29 +1,31 @@
-# Workflow Health - 2026-03-19T07:30Z
+# Workflow Health - 2026-03-20T07:28Z
 
-Score: 56/100 (↓6 from 62). 175 workflows, 15 stale lock files (↑8 from 7 last run).
+Score: 66/100 (↑10 from 56). 175 workflows, 14 stale lock files (↓1 from 15).
 
-## P0 Critical (Ongoing)
-- **Issue Monster**: 100% failure — `GH_AW_GITHUB_TOKEN` missing. Now day 4+ (since Mar 15). 5/5 recent runs failing today.
-- **PR Triage Agent**: 100% failure — same root cause. 5/5 recent runs failing.
-- **Issue Triage Agent**: 100% failure — same root cause.
+## P0 Critical
+- **Issue Triage Agent**: 100% failure, 14+ days (since Mar 6). INDEPENDENT from GH_AW_GITHUB_TOKEN. Pre-existing structural issue.
 
 ## P1 High
-- **Daily Workflow Updater**: Now 10+ consecutive failures (since March 9). Last success: March 8 (run#109). At run#131. Issue previously created (#21538, but search returned empty - may not exist in accessible search).
-- **Smoke Gemini**: ESCALATED P2→P1. 4 consecutive schedule failures (Mar 17T12:36, Mar 18T00:54, Mar 18T12:36, Mar 19T00:55). Last success Mar 17T00:51. No longer alternating.
+- **Smoke Gemini**: 6 consecutive schedule failures (Mar 15-20). Last success Mar 17 00:51. Possible API/model issue.
+
+## Recoveries ✅
+- **Issue Monster**: FULLY RECOVERED (5/5 today). GH_AW_GITHUB_TOKEN resolved. P0→Healthy.
+- **PR Triage Agent**: RECOVERING (run #265 success Mar 20 06:14). GH_AW_GITHUB_TOKEN resolved.
+- **Daily Workflow Updater**: RECOVERED (run #132 success Mar 19 09:28). 11-day failure streak ended.
 
 ## P2 Warning
-- **Stale lock files INCREASED 7→15**: agent-performance-analyzer, blog-auditor, brave, ci-doctor, contribution-check, daily-semgrep-scan, dependabot-go-checker, duplicate-code-detector, functional-pragmatist, instructions-janitor, repo-audit-analyzer, smoke-copilot-arm, smoke-project, technical-doc-writer, tidy. Action: `make recompile`
+- 14 stale lock files: blog-auditor, breaking-change-checker, copilot-cli-deep-research, daily-multi-device-docs-tester, daily-regulatory, dependabot-go-checker, discussion-task-miner, example-workflow-analyzer, jsweep, prompt-clustering-analysis, release, security-alert-burndown.campaign.g, update-astro, workflow-skill-extractor
+- Fix: `make recompile`
 
 ## Healthy
-- Bot Detection: ✅ 5/5 consecutive successes (fully recovered)
-- Metrics Collector: ✅ healthy (ran Mar 18T18:29 success)
-- Smoke Copilot ✅ | Smoke Claude ✅ | Smoke Codex ✅ (assumed healthy from prior run)
+- Issue Monster ✅ | PR Triage ✅ (recovering) | Daily WF Updater ✅
+- Bot Detection ✅ | Safe Output Health ✅ | Metrics Collector ✅
+- Smoke Copilot ✅ | Smoke Claude ✅ | Smoke Codex ✅
 
-## Actions Taken This Run
-- Created dashboard issue for 2026-03-19
-- Escalated Smoke Gemini from P2→P1 in report
-- Updated shared memory
+## Actions Taken
+- Created dashboard issue #aw_wfh0320 for 2026-03-20
+- Escalated Issue Triage Agent to P0 (separate root cause from GH_AW_GITHUB_TOKEN)
 
 ## Run Info
-- Timestamp: 2026-03-19T07:30:00Z
-- Run: §23284419210
+- Timestamp: 2026-03-20T07:28:00Z
+- Run: §23333198222

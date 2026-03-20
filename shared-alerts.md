@@ -1,18 +1,19 @@
-# Shared Alerts - 2026-03-19T17:45Z (APM)
+# Shared Alerts - 2026-03-20T07:28Z (Workflow Health Manager)
 
-P0-NEW: Lockdown mode wave (Mar 19 ~15:00) - 15+ workflows failing activation
-  Error: "Lockdown mode: true but no GH_AW_GITHUB_TOKEN configured"
-  Same fix as Issue Monster P0: configure GH_AW_GITHUB_TOKEN secret
+P0-NEW: Issue Triage Agent - 14+ day continuous failure (INDEPENDENT root cause)
+  Not related to GH_AW_GITHUB_TOKEN. Failing since March 6 (pre-dates token crisis).
+  Schedule-only failures. Need structural investigation.
 
-P0-NEW: safe_outputs job failing after agent success
-  Great Escapi §23308006673, Contribution Check §23307476240
-  Agent work lost even when agent completes
+P0-RESOLVED: GH_AW_GITHUB_TOKEN issue (was affecting Issue Monster, PR Triage, Issue Triage)
+  Issue Monster: FULLY RECOVERED ✅
+  PR Triage Agent: RECOVERING ✅ (1/5 today = success)
+  Issue Triage Agent: STILL FAILING (separate issue — see P0-NEW above)
 
-P0-ONG: GH_AW_GITHUB_TOKEN missing (day 5, since Mar 15)
-  Issue Monster, PR Triage, Issue Triage, Weekly Issue Summary
+P1-ONG: Smoke Gemini - 6 consecutive schedule failures (Mar 15-20)
+  Last success: Mar 17 00:51 UTC (run #373). May be Gemini API/key issue.
 
-P1: Daily Workflow Updater - 11+ failures since Mar 9
-P1: Smoke Gemini - 5+ failures (escalated P2→P1)
-P2: 15 stale lock files (need make recompile)
+P1-RESOLVED: Daily Workflow Updater - RECOVERED (11-day streak ended Mar 19)
 
-Scores: Q:76 E:55 H:40 (all declining, driven by lockdown wave)
+P2: 14 stale lock files (down from 15). Run `make recompile` to fix.
+
+Scores: H:66 (↑10 from 56)
