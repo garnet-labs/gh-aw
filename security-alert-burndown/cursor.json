@@ -1,1 +1,1 @@
-{"last_run":"2026-03-19","epic_temporary_id":"aw_epic003","epic_issue_number":null,"kpi_high_fixed":6,"kpi_fw_fixed":3,"open_alerts":1,"status":"AT_RISK","alerts":["#562 go/unsafe-quoting (critical, open)"]}
+{"last_run":"2026-03-20","epic_issue_number":"aw_epic20","kpi_high_fixed":6,"kpi_fw_fixed":3,"open_alerts":9,"status":"AT_RISK","open_critical":["#562","#561","#559","#554"],"open_high":["#558","#557","#556","#555","#543"]}
