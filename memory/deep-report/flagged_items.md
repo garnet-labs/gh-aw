@@ -4,3 +4,7 @@
 - AI Moderator runs show repeated `missing_data` on issue payload fetches (issues #21816 and #21813), which can reduce moderation reliability.
 - Firewall blocks remain concentrated on `ab.chatgpt.com:443`; this suggests recurring network attempts that should be removed from prompts/tool flows.
 - Token pressure remains high in a small set of workflows; prioritize prompt-size and context-pruning work in top token consumers.
+
+## Update (2026-03-20)
+- Duplicate open `Security Alert Burndown` issues (3) need consolidation.
+- Integrity-filtered issue reads continue to trigger missing_data in agent workflows.
