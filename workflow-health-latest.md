@@ -1,31 +1,35 @@
-# Workflow Health - 2026-03-20T07:28Z
+# Workflow Health - 2026-03-21T07:22Z
 
-Score: 66/100 (↑10 from 56). 175 workflows, 14 stale lock files (↓1 from 15).
+Score: 74/100 (↑8 from 66). 176 workflows, 13 stale lock files (↓1 from 14).
 
 ## P0 Critical
-- **Issue Triage Agent**: 100% failure, 14+ days (since Mar 6). INDEPENDENT from GH_AW_GITHUB_TOKEN. Pre-existing structural issue.
+- NONE ✅
 
-## P1 High
-- **Smoke Gemini**: 6 consecutive schedule failures (Mar 15-20). Last success Mar 17 00:51. Possible API/model issue.
-
-## Recoveries ✅
-- **Issue Monster**: FULLY RECOVERED (5/5 today). GH_AW_GITHUB_TOKEN resolved. P0→Healthy.
-- **PR Triage Agent**: RECOVERING (run #265 success Mar 20 06:14). GH_AW_GITHUB_TOKEN resolved.
-- **Daily Workflow Updater**: RECOVERED (run #132 success Mar 19 09:28). 11-day failure streak ended.
+## Recoveries This Run ✅
+- **Issue Triage Agent**: RECOVERED! Run #136 (Mar 20 14:20) SUCCESS after 15+ day outage. P0→Healthy.
+- **Smoke Gemini**: RECOVERED! Run #486 (Mar 21 00:49) SUCCESS after 7 consecutive schedule failures. P1→Healthy.
 
 ## P2 Warning
-- 14 stale lock files: blog-auditor, breaking-change-checker, copilot-cli-deep-research, daily-multi-device-docs-tester, daily-regulatory, dependabot-go-checker, discussion-task-miner, example-workflow-analyzer, jsweep, prompt-clustering-analysis, release, security-alert-burndown.campaign.g, update-astro, workflow-skill-extractor
-- Fix: `make recompile`
+- 13 stale lock files (need `make recompile`):
+  agent-performance-analyzer, bot-detection, ci-doctor, daily-doc-updater,
+  daily-security-red-team, daily-testify-uber-super-expert, delight,
+  duplicate-code-detector, mcp-inspector, python-data-charts, smoke-copilot,
+  ubuntu-image-analyzer, workflow-normalizer
+
+## Known Pre-existing Issues (tracked)
+- Contribution Check: safe_outputs failure on schedule (pr-filter-results.json missing)
+- AI Moderator: race on closed PRs (83% success rate)
 
 ## Healthy
-- Issue Monster ✅ | PR Triage ✅ (recovering) | Daily WF Updater ✅
-- Bot Detection ✅ | Safe Output Health ✅ | Metrics Collector ✅
-- Smoke Copilot ✅ | Smoke Claude ✅ | Smoke Codex ✅
+- Issue Monster ✅ (run #3147 success) | PR Triage ✅ (run #269 success)
+- Smoke Gemini ✅ (RECOVERED) | Issue Triage Agent ✅ (RECOVERED)
+- No missing lock files (176 MD = 176 lock files)
 
 ## Actions Taken
-- Created dashboard issue #aw_wfh0320 for 2026-03-20
-- Escalated Issue Triage Agent to P0 (separate root cause from GH_AW_GITHUB_TOKEN)
+- Updated workflow-health-latest.md
+- Updated shared-alerts.md
+- Reported noop (no new issues needed - all P0/P1 resolved)
 
 ## Run Info
-- Timestamp: 2026-03-20T07:28:00Z
-- Run: §23333198222
+- Timestamp: 2026-03-21T07:22:00Z
+- Run: §23374688097
