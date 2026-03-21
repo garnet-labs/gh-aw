@@ -46,6 +46,25 @@ For complete documentation, examples, and guides, see the [Documentation](https:
 
 For development setup and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## 🌍 Community Contributions
+
+Thank you to the community members whose issue reports were resolved in this project!
+This list is updated automatically and reflects all attributed contributions.
+
+| Issue | Title | Author | Resolved By | Attribution |
+|-------|-------|--------|-------------|-------------|
+| [#21630](https://github.com/github/gh-aw/issues/21630) | Support sparse-checkout in compiled workflows for large monorepos | @Mossaka | [#21655](https://github.com/github/gh-aw/pull/21655) | direct |
+| [#21243](https://github.com/github/gh-aw/issues/21243) | Support `github-app:` auth and Claude Code plugin registration for `dependencies:` (APM) | @holwerda | [#21286](https://github.com/github/gh-aw/pull/21286) | direct |
+| [#20299](https://github.com/github/gh-aw/issues/20299) | Bug: `gh aw upgrade` generates lock files with previous version after upgrade | @grahame-white | [#20300](https://github.com/github/gh-aw/pull/20300) | direct |
+| [#20249](https://github.com/github/gh-aw/issues/20249) | Feature Request: Cross-repo `workflow_call` validation and docs | @mvdbos | [#20301](https://github.com/github/gh-aw/pull/20301) | direct |
+| [#18480](https://github.com/github/gh-aw/issues/18480) | gh-aw not working in cloud enterprise environments | @JoshGreenslade | [#21993](https://github.com/github/gh-aw/pull/21993) | direct |
+
+### ⚠️ Attribution Candidates Need Review
+
+The following community issues were closed during this period but could not be automatically linked to a specific merged PR. Please verify whether they should be credited:
+
+241 community-labeled issues were closed during the review window (2026-02-26 – 2026-03-21) without a confirmed PR linkage. Run the [community attribution workflow](https://github.com/github/gh-aw/actions/workflows/daily-community-attribution.yml) or review [community-labeled closed issues](https://github.com/github/gh-aw/issues?q=is%3Aissue+label%3Acommunity+is%3Aclosed) to identify and credit additional contributors.
+
 ## Share Feedback
 
 We welcome your feedback on GitHub Agentic Workflows! 
