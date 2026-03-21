@@ -94,9 +94,9 @@ function generateDifcFilteredSection(filteredEvents) {
 
   let section = "\n\n> [!NOTE]\n";
   section += `> <details>\n`;
-  section += `> <summary>🔒 Integrity filter blocked ${count} ${itemWord}</summary>\n`;
+  section += `> <summary>**🔒 Integrity filter blocked ${count} ${itemWord}**</summary>\n`;
   section += `>\n`;
-  section += `> The following ${itemWord} were blocked because they don't meet the GitHub [\`min-integrity\`](https://github.github.com/gh-aw/reference/integrity/) level.\n`;
+  section += `> The following ${itemWord} were blocked because they don't meet the GitHub integrity level.\n`;
   section += `>\n`;
 
   const maxItems = 16;
