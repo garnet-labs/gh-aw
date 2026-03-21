@@ -1,0 +1,13 @@
+{
+  "date": "2026-03-21",
+  "total_prs": 1000,
+  "merged": 821,
+  "closed": 177,
+  "open": 2,
+  "success_rate": 0.823,
+  "top_prefixes": {"ci": 1.0, "perf": 1.0, "chore": 0.95, "refactor": 0.881, "fix": 0.875},
+  "categories": {"documentation": 0.862, "bug_fix": 0.837, "testing": 0.828, "refactor": 0.825, "feature": 0.818},
+  "wip_closed_pct": 20.9,
+  "wip_merged_pct": 2.2,
+  "avg_body": {"merged": 904, "closed": 937}
+}
