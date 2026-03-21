@@ -1,16 +1,9 @@
 {
-  "run_date": "2026-03-20T18:10:00Z",
-  "run_id": "23356302654",
+  "run_date": "2026-03-21T00:10:12Z",
+  "run_id": "23367547192",
   "total_prs_triaged": 0,
   "fork_prs_found": 0,
-  "agent_prs_found": 7,
-  "notes": "7 open Copilot PRs found, all from same-repo branches (not forks) — skipped per triage rules. PRs: #22008, #22007, #22005, #21999, #21998, #21997, #21968",
-  "trends": {
-    "previous_run": {
-      "date": "2026-03-20T12:07:44Z",
-      "run_id": "23342068451",
-      "agent_prs": 10,
-      "fork_prs": 0
-    }
-  }
+  "agent_prs_found": 5,
+  "notes": "All 5 Copilot PRs (#22048,#22044,#22042,#22025,#22005) from same-repo branches — no fork PRs to triage",
+  "prev_run": {"date": "2026-03-20T18:10:00Z", "run_id": "23356302654", "agent_prs": 7, "fork_prs": 0}
 }
