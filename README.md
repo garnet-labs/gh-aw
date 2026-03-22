@@ -1,5 +1,2 @@
 # PR Triage Memory
-
-Files: `pr-triage-latest.json` (last run)
-
-Last run: 2026-03-22T00:10:53Z | Run: 23391811735 | Agent PRs: 4 (0 fork PRs to triage)
+Last: 2026-03-22T06:15:31Z | Run: 23397154197 | Fork PRs: 0
