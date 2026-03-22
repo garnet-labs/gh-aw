@@ -255,11 +255,11 @@ export default defineConfig({
 					label: 'Guides',
 					items: [
 						{ label: 'Agentic Authoring', link: '/guides/agentic-authoring/' },
-						{ label: 'Ephemerals', link: '/guides/ephemerals/' },
 						{ label: 'GitHub Actions Primer', link: '/guides/github-actions-primer/' },
 						{ label: 'Reusing Workflows', link: '/guides/packaging-imports/' },
-						{ label: 'Self-Hosted Runners', link: '/guides/self-hosted-runners/' },
 						{ label: 'Using Custom MCPs', link: '/guides/mcps/' },
+						{ label: 'Self-Hosted Runners', link: '/guides/self-hosted-runners/' },
+						{ label: 'Ephemerals', link: '/guides/ephemerals/' },
 						{ label: 'Web Search', link: '/guides/web-search/' },
 					],
 				},
