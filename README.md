@@ -2,4 +2,4 @@
 
 Files: `pr-triage-latest.json` (last run)
 
-Last run: 2026-03-21T18:05:24Z | Run: 23385496608 | Agent PRs: 1 (0 fork PRs to triage)
+Last run: 2026-03-22T00:10:53Z | Run: 23391811735 | Agent PRs: 4 (0 fork PRs to triage)
