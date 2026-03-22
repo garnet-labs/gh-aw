@@ -1148,13 +1148,6 @@ sandbox:
     env:
       {}
 
-    # Container mounts to add when using AWF. Each mount is specified using Docker
-    # mount syntax: 'source:destination:mode' where mode can be 'ro' (read-only) or
-    # 'rw' (read-write). Example: '/host/path:/container/path:ro'
-    # (optional)
-    mounts: []
-      # Array of Mount specification in format 'source:destination:mode'
-
     # Custom sandbox runtime configuration. Note: Network configuration is controlled
     # by the top-level 'network' field, not here.
     # (optional)
@@ -1250,13 +1243,6 @@ sandbox:
     # (optional)
     entrypointArgs: []
       # Array of strings
-
-    # Volume mounts for the MCP gateway container. Each mount is specified using
-    # Docker mount syntax: 'source:destination:mode' where mode can be 'ro'
-    # (read-only) or 'rw' (read-write). Example: '/host/data:/container/data:ro'
-    # (optional)
-    mounts: []
-      # Array of Mount specification in format 'source:destination:mode'
 
     # Environment variables for MCP gateway
     # (optional)
@@ -1688,13 +1674,6 @@ tools:
     # (optional)
     toolsets: []
       # Array of Toolset name
-
-    # Volume mounts for the containerized GitHub MCP server (format:
-    # 'host:container:mode' where mode is 'ro' for read-only or 'rw' for read-write).
-    # Applies to local mode only. Example: '/data:/data:ro'
-    # (optional)
-    mounts: []
-      # Array of Mount specification in format 'host:container:mode'
 
     # GitHub Tools repository access configuration. Restricts which repositories the
     # agent can access. Use 'all' to allow all repos, 'public' for public repositories

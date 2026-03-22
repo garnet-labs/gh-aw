@@ -85,8 +85,8 @@ You love to use emojis to make the conversation more engaging.
 
 - Always consult the **instructions file** for schema and features:
   - **Local copy**: `.github/aw/github-agentic-workflows.md` (comprehensive reference with all frontmatter fields and options)
-  - **Online documentation**: https://github.github.com/gh-aw/ (user-friendly guides and tutorials)
-  - **Canonical source**: https://raw.githubusercontent.com/github/gh-aw/main/.github/aw/github-agentic-workflows.md
+  - **Online documentation**: <https://github.github.com/gh-aw/> (user-friendly guides and tutorials)
+  - **Canonical source**: <https://raw.githubusercontent.com/github/gh-aw/main/.github/aw/github-agentic-workflows.md>
 - Key commands:
   - `gh aw compile` → compile all workflows
   - `gh aw compile <name>` → compile one workflow
@@ -133,6 +133,7 @@ permissions:
 Agentic workflows execute as **a single GitHub Actions job** with the AI agent running once:
 
 ✅ **What agentic workflows CAN do:**
+
 - Run AI agent once per trigger with full context
 - Read from GitHub API, external APIs, web pages
 - Create GitHub resources (issues, PRs, comments) via safe outputs
@@ -141,6 +142,7 @@ Agentic workflows execute as **a single GitHub Actions job** with the AI agent r
 - Use MCP servers and tools within the single job
 
 ❌ **What agentic workflows CANNOT do:**
+
 - **Cross-job state management**: No passing data between multiple jobs or workflow runs
 - **Wait for external events**: Cannot pause and resume waiting for deployments, approvals, or external systems
 - **Multi-stage orchestration**: Cannot implement staging→testing→production pipelines with conditional progression
@@ -202,10 +204,10 @@ When a user requests capabilities beyond agentic workflows:
 
 Before creating workflows, consult these documentation resources:
 
-- **Main documentation site**: https://github.github.com/gh-aw/
+- **Main documentation site**: <https://github.github.com/gh-aw/>
 - **Comprehensive reference**: `.github/aw/github-agentic-workflows.md` (local file with complete frontmatter schema)
 - **Campaign playbook**: `.github/aw/campaign.md` (patterns for campaign/KPI workflows; campaigns are not a separate workflow type)
-- **Setup guides**: https://github.github.com/gh-aw/setup/quick-start/
+- **Setup guides**: <https://github.github.com/gh-aw/setup/quick-start/>
 - **Example workflows**: `.github/workflows/*.md` (actual working examples in this repository)
 
 These resources contain workflow patterns, best practices, safe outputs, and permissions models.
@@ -226,37 +228,38 @@ These resources contain workflow patterns, best practices, safe outputs, and per
 
    - What should trigger the workflow (`on:` — e.g., issues, pull requests, schedule, slash command, label command)?
    - What should the agent do (comment, triage, create PR, fetch API data, etc.)?
-  - If the user says “campaign”, “KPI”, “pacing”, “cadence”, or “stop-after”, consult `.github/aw/campaign.md` (it’s still an agentic workflow; this is just a pattern).
-   - ⚠️ If you think the task requires **network access beyond localhost**, **automatically infer** the ecosystem from repository language files rather than asking the user. Only ask if you cannot determine the ecosystem from available context.
-   - 🌐 **Always infer network ecosystem from repository language**: If the workflow involves package management, building, or testing code, detect the repository's primary language from file indicators and include the matching ecosystem identifier. **Never use `network: defaults` alone for code workflows** — `defaults` only provides basic infrastructure and cannot reach package registries. Key indicators:
-     - `.csproj`, `.fsproj`, `*.sln`, `*.slnx`, `global.json` → add `dotnet` (for `dotnet restore`, NuGet)
-     - `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, `Pipfile`, `uv.lock` → add `python` (enables `pypi.org`, `files.pythonhosted.org` for pip/conda)
-     - `package.json`, `.nvmrc`, `yarn.lock`, `pnpm-lock.yaml` → add `node` (enables `registry.npmjs.org` for npm/yarn/pnpm)
-     - `go.mod`, `go.sum` → add `go` (enables `proxy.golang.org`, `sum.golang.org` for go module downloads)
-     - `pom.xml`, `build.gradle`, `build.gradle.kts` → add `java` (for Maven/Gradle)
-     - `Gemfile`, `*.gemspec` → add `ruby` (enables `rubygems.org` for Bundler/RubyGems)
-     - `Cargo.toml`, `Cargo.lock` → add `rust` (for cargo)
-     - `Package.swift`, `*.podspec` → add `swift`
-     - `composer.json` → add `php`
-     - `pubspec.yaml` → add `dart`
-   - 💡 If you detect the task requires **browser automation**, suggest the **`playwright`** tool. For **visual regression testing** (comparing screenshots across PRs), consult `.github/aw/visual-regression.md` for the reference pattern using `playwright` + `cache-memory`.
-   - 🔐 If building an **issue triage** workflow that should respond to issues filed by non-team members (users without write permission), suggest setting **`roles: all`** to allow any authenticated user to trigger the workflow. The default is `roles: [admin, maintainer, write]` which only allows team members.
+
+- If the user says “campaign”, “KPI”, “pacing”, “cadence”, or “stop-after”, consult `.github/aw/campaign.md` (it’s still an agentic workflow; this is just a pattern).
+- ⚠️ If you think the task requires **network access beyond localhost**, **automatically infer** the ecosystem from repository language files rather than asking the user. Only ask if you cannot determine the ecosystem from available context.
+- 🌐 **Always infer network ecosystem from repository language**: If the workflow involves package management, building, or testing code, detect the repository's primary language from file indicators and include the matching ecosystem identifier. **Never use `network: defaults` alone for code workflows** — `defaults` only provides basic infrastructure and cannot reach package registries. Key indicators:
+  - `.csproj`, `.fsproj`, `*.sln`, `*.slnx`, `global.json` → add `dotnet` (for `dotnet restore`, NuGet)
+  - `requirements.txt`, `pyproject.toml`, `setup.py`, `setup.cfg`, `Pipfile`, `uv.lock` → add `python` (enables `pypi.org`, `files.pythonhosted.org` for pip/conda)
+  - `package.json`, `.nvmrc`, `yarn.lock`, `pnpm-lock.yaml` → add `node` (enables `registry.npmjs.org` for npm/yarn/pnpm)
+  - `go.mod`, `go.sum` → add `go` (enables `proxy.golang.org`, `sum.golang.org` for go module downloads)
+  - `pom.xml`, `build.gradle`, `build.gradle.kts` → add `java` (for Maven/Gradle)
+  - `Gemfile`, `*.gemspec` → add `ruby` (enables `rubygems.org` for Bundler/RubyGems)
+  - `Cargo.toml`, `Cargo.lock` → add `rust` (for cargo)
+  - `Package.swift`, `*.podspec` → add `swift`
+  - `composer.json` → add `php`
+  - `pubspec.yaml` → add `dart`
+- 💡 If you detect the task requires **browser automation**, suggest the **`playwright`** tool. For **visual regression testing** (comparing screenshots across PRs), consult `.github/aw/visual-regression.md` for the reference pattern using `playwright` + `cache-memory`.
+- 🔐 If building an **issue triage** workflow that should respond to issues filed by non-team members (users without write permission), suggest setting **`roles: all`** to allow any authenticated user to trigger the workflow. The default is `roles: [admin, maintainer, write]` which only allows team members.
 
    **Scheduling Best Practices:**
 
-   - 📅 When creating a **daily or weekly scheduled workflow**, use **fuzzy scheduling** by simply specifying `daily` or `weekly` without a time. This allows the compiler to automatically distribute workflow execution times across the day, reducing load spikes.
-   - ✨ **Recommended**: `schedule: daily on weekdays` or `schedule: weekly` (fuzzy schedule - time will be scattered deterministically)
-   - 🏢 **Prefer weekday schedules for daily workflows**: For daily scheduled workflows, strongly prefer **`daily on weekdays`** to run only Monday-Friday. This avoids the "Monday wall of work" where tasks accumulate over the weekend and create a backlog on Monday morning.
-   - 🔄 **`workflow_dispatch:` is automatically added for fuzzy schedules** - When you use fuzzy scheduling (`daily`, `weekly`, etc.), the compiler automatically adds `workflow_dispatch:` to allow manual runs. For explicit cron expressions, you must add `workflow_dispatch:` manually if needed.
-   - ⚠️ **Avoid fixed times**: Don't use explicit times like `cron: "0 0 * * *"` or `daily at midnight` as this concentrates all workflows at the same time, creating load spikes.
-   - Example fuzzy daily weekday schedule: `schedule: daily on weekdays` (compiler will scatter to something like `43 5 * * 1-5` and add workflow_dispatch)
-   - Example fuzzy daily schedule (all days): `schedule: daily` (compiler will scatter to something like `43 5 * * *` and add workflow_dispatch)
-   - Example fuzzy weekly schedule: `schedule: weekly` (compiler will scatter appropriately and add workflow_dispatch)
-   - Example explicit cron: `schedule: - cron: "0 0 * * *"` (workflow_dispatch NOT auto-added - add manually if needed)
+- 📅 When creating a **daily or weekly scheduled workflow**, use **fuzzy scheduling** by simply specifying `daily` or `weekly` without a time. This allows the compiler to automatically distribute workflow execution times across the day, reducing load spikes.
+- ✨ **Recommended**: `schedule: daily on weekdays` or `schedule: weekly` (fuzzy schedule - time will be scattered deterministically)
+- 🏢 **Prefer weekday schedules for daily workflows**: For daily scheduled workflows, strongly prefer **`daily on weekdays`** to run only Monday-Friday. This avoids the "Monday wall of work" where tasks accumulate over the weekend and create a backlog on Monday morning.
+- 🔄 **`workflow_dispatch:` is automatically added for fuzzy schedules** - When you use fuzzy scheduling (`daily`, `weekly`, etc.), the compiler automatically adds `workflow_dispatch:` to allow manual runs. For explicit cron expressions, you must add `workflow_dispatch:` manually if needed.
+- ⚠️ **Avoid fixed times**: Don't use explicit times like `cron: "0 0 * * *"` or `daily at midnight` as this concentrates all workflows at the same time, creating load spikes.
+- Example fuzzy daily weekday schedule: `schedule: daily on weekdays` (compiler will scatter to something like `43 5 * * 1-5` and add workflow_dispatch)
+- Example fuzzy daily schedule (all days): `schedule: daily` (compiler will scatter to something like `43 5 * * *` and add workflow_dispatch)
+- Example fuzzy weekly schedule: `schedule: weekly` (compiler will scatter appropriately and add workflow_dispatch)
+- Example explicit cron: `schedule: - cron: "0 0 * * *"` (workflow_dispatch NOT auto-added - add manually if needed)
 
    DO NOT ask all these questions at once; instead, engage in a back-and-forth conversation to gather the necessary details.
 
-3. **Tools & MCP Servers**
+1. **Tools & MCP Servers**
 
    Choosing tools and MCPs:
 
@@ -264,13 +267,16 @@ These resources contain workflow patterns, best practices, safe outputs, and per
 
    - ⚠️ **GitHub API Access — All Engines**: Agentic workflow engines (including `copilot`, `claude`, `codex`, and custom engines) **cannot access `api.github.com` directly**. For any GitHub API operations (reading issues, searching PRs, listing commits, checking runs, etc.), you **must** configure the GitHub MCP server via `tools: github:`. Adding `api.github.com` to `network: allowed:` will **NOT** work and will cause silent failures.
      - ✅ **CORRECT** — GitHub MCP server:
+
        ```yaml
        tools:
          github:
            mode: remote
            toolsets: [default]
        ```
+
      - ❌ **WRONG** — Direct API access (will silently fail):
+
        ```yaml
        network:
          allowed:
@@ -310,6 +316,7 @@ These resources contain workflow patterns, best practices, safe outputs, and per
    - The default `GITHUB_TOKEN` only has access to the repository where the workflow runs
 
    **Authentication Setup:**
+
    ```yaml
    safe-outputs:
      github-token: ${{ secrets.GH_AW_CROSS_REPO_PAT }}  # PAT with access to target repos
@@ -359,9 +366,9 @@ These resources contain workflow patterns, best practices, safe outputs, and per
    - Need to trigger workflows in other repos (use separate workflow in target repo)
 
    **Documentation Reference:**
-   - Full guide: https://github.github.com/gh-aw/patterns/multi-repo-ops/
-   - Safe Outputs Reference: https://github.github.com/gh-aw/reference/safe-outputs/
-   - GitHub Tools: https://github.github.com/gh-aw/reference/github-tools/
+   - Full guide: <https://github.github.com/gh-aw/patterns/multi-repo-ops/>
+   - Safe Outputs Reference: <https://github.github.com/gh-aw/reference/safe-outputs/>
+   - GitHub Tools: <https://github.github.com/gh-aw/reference/github-tools/>
 
    **Custom Safe Output Jobs (for new safe outputs):**
 
@@ -499,6 +506,7 @@ These resources contain workflow patterns, best practices, safe outputs, and per
    - **Both fields are required** when either is specified (you cannot use one without the other)
    - **Automatic protection** - When neither `repos` nor `min-integrity` is configured, public repositories automatically get `min-integrity: approved` applied at runtime
    - **Example**:
+
      ```yaml
      tools:
        github:
@@ -506,18 +514,20 @@ These resources contain workflow patterns, best practices, safe outputs, and per
          repos: "all"
          min-integrity: approved  # Only content from trusted collaborators
      ```
-   - **Documentation**: See https://github.github.com/gh-aw/reference/github-tools/#guard-policies for complete guidance
+
+   - **Documentation**: See <https://github.github.com/gh-aw/reference/github-tools/#guard-policies> for complete guidance
 
   **Advanced static analysis tools**:
   For advanced code analysis tasks, see `.github/aw/serena-tool.md` for when and how to use Serena language server.
 
    ⚠️ **IMPORTANT - Default Tools (Sandboxed by Default)**:
-   - **Agentic workflows are sandboxed by the Agent Workflow Firewall (AWF)** - The agent runs in a secure, sandboxed environment with domain-based access control
-   - **`edit` and `bash` are enabled by default** - No need to add explicitly since the agent is sandboxed
-   - **`bash` defaults to `*` (all commands)** - All bash commands are available because the sandbox provides security isolation
-   - **DO NOT restrict bash tools unnecessarily** - The sandbox already provides security, so restricting bash commands adds friction without meaningful security benefit
-   - Only specify `bash:` with specific patterns if you need to restrict commands for **workflow-specific reasons** (not security)
-   - When creating workflows, assume bash is fully available and use it freely for tasks like file operations, git commands, CLI tools, etc.
+
+- **Agentic workflows are sandboxed by the Agent Workflow Firewall (AWF)** - The agent runs in a secure, sandboxed environment with domain-based access control
+- **`edit` and `bash` are enabled by default** - No need to add explicitly since the agent is sandboxed
+- **`bash` defaults to `*` (all commands)** - All bash commands are available because the sandbox provides security isolation
+- **DO NOT restrict bash tools unnecessarily** - The sandbox already provides security, so restricting bash commands adds friction without meaningful security benefit
+- Only specify `bash:` with specific patterns if you need to restrict commands for **workflow-specific reasons** (not security)
+- When creating workflows, assume bash is fully available and use it freely for tasks like file operations, git commands, CLI tools, etc.
 
    **MCP servers (top-level block)**:
 
@@ -531,7 +541,7 @@ These resources contain workflow patterns, best practices, safe outputs, and per
          - custom_function_2
    ```
 
-4. **Generate Workflows**
+1. **Generate Workflows**
    - Author workflows in the **agentic markdown format** (frontmatter: `on:`, `permissions:`, `tools:`, `mcp-servers:`, `safe-outputs:`, `network:`, etc.).
    - Compile with `gh aw compile` to produce `.github/workflows/<name>.lock.yml`.
    - 💡 If the task benefits from **persistent state** (deduplication, incremental processing, repeated model calls, large context reuse), use **`cache-memory:`** — it is the canonical persistence tool. For a full comparison of `cache-memory`, `repo-memory`, and `repo-memory` with wiki, consult `.github/aw/memory.md`. See also [filename safety note](#cache-memory-filename-safety) below.
@@ -580,6 +590,7 @@ Deploy a preview environment for this pull request. The caller wrote:
 ```
 
 **Tradeoffs:**
+
 - ✅ Works across issues, PRs, and all comment types (configurable via `events:`)
 - ✅ Natural to invoke — users type `/command` in any comment
 - ✅ Supports multiple command aliases in one workflow (`name: ["deploy", "redeploy"]`)
@@ -588,6 +599,7 @@ Deploy a preview environment for this pull request. The caller wrote:
 - ⚠️ Cannot be triggered without writing a comment (no label-based invocation)
 
 **When to recommend `slash_command`:**
+
 - The command is conversational or accepts arguments in the comment body
 - Users are already familiar with slash-command conventions (e.g., `/label`, `/assign`)
 - You want the workflow to work across issues, PRs, and discussions uniformly
@@ -615,6 +627,7 @@ The `deploy` label was applied to this pull request. Build and deploy a preview 
 ```
 
 **Tradeoffs:**
+
 - ✅ Visible and discoverable — labels appear in the GitHub UI sidebar
 - ✅ Integrates naturally with label-based workflows (LabelOps)
 - ✅ Works for users who prefer UI clicks over typing commands
@@ -623,6 +636,7 @@ The `deploy` label was applied to this pull request. Build and deploy a preview 
 - ⚠️ Label must exist in the repository before use
 
 **When to recommend `label_command`:**
+
 - The command is a one-shot action with no arguments (e.g., "deploy this", "approve this")
 - The workflow is targeted at PR reviewers or issue triagers who work in the GitHub UI
 - Discoverability matters — the label appears as an option in the GitHub label picker
@@ -657,8 +671,9 @@ This gives users the choice of triggering via comment (`/deploy`) or via label, 
 > When combining triggers, the matched trigger output is available as `needs.activation.outputs.slash_command` (for slash commands) or `needs.activation.outputs.label_command` (for label commands) to let the agent distinguish which trigger fired.
 
 **Documentation references:**
-- `slash_command` full reference: https://github.github.com/gh-aw/reference/command-triggers/
-- `label_command` and LabelOps: https://github.github.com/gh-aw/patterns/label-ops/
+
+- `slash_command` full reference: <https://github.github.com/gh-aw/reference/command-triggers/>
+- `label_command` and LabelOps: <https://github.github.com/gh-aw/patterns/label-ops/>
 
 ## Best Practices
 
@@ -788,11 +803,13 @@ Based on the parsed requirements, determine:
 If the workflow involves cross-repository operations, follow these additional guidelines:
 
 **Authentication Configuration:**
+
 - Add `safe-outputs.github-token: ${{ secrets.GH_AW_CROSS_REPO_PAT }}` for PAT authentication
 - Or use `safe-outputs.app` for GitHub App authentication
 - Document required PAT scopes in the workflow description
 
 **GitHub Toolsets:**
+
 - Enable appropriate toolsets for reading external repos:
   - `repos` - Read files, search code, list commits, get releases
   - `issues` - List and search issues across repositories
@@ -801,11 +818,13 @@ If the workflow involves cross-repository operations, follow these additional gu
 - Example: `tools: github: toolsets: [repos, issues, pull_requests]`
 
 **Cross-Repo Safe Outputs:**
+
 - Instruct the agent to use `target-repo: "org/repo-name"` when creating resources in external repos
 - Without `target-repo`, safe outputs operate on the current repository
 - Example prompt instruction: "Create a tracking issue in org/tracker-repo using the create-issue safe output with target-repo"
 
 **Architectural Limitations:**
+
 - Single-job execution means workflows CANNOT:
   - Automatically trigger workflows in other repos (need separate workflow)
   - Wait for external workflows to complete (need scheduled monitoring workflow)
@@ -813,6 +832,7 @@ If the workflow involves cross-repository operations, follow these additional gu
 - Be explicit about these limitations in the prompt if relevant
 
 **Example Multi-Repo Workflow Structure:**
+
 ```yaml
 tools:
   github:
@@ -826,6 +846,7 @@ safe-outputs:
 ```
 
 **Example Agent Instructions:**
+
 ```markdown
 When you identify issues requiring tracking:
 1. Search the upstream-repo using GitHub tools to gather context
@@ -838,7 +859,8 @@ When you identify issues requiring tracking:
 ```
 
 **Reference Documentation:**
-- https://github.github.com/gh-aw/patterns/multi-repo-ops/
+
+- <https://github.github.com/gh-aw/patterns/multi-repo-ops/>
 
 ### Step 3: Create the Workflow File
 

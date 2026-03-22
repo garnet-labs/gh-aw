@@ -24,7 +24,6 @@ package workflow
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/github/gh-aw/pkg/constants"
@@ -152,19 +151,6 @@ func BuildAWFArgs(config AWFCommandConfig) []string {
 		"--mount", "\""+ghAwDir+":/host"+ghAwDir+":ro\"",
 	)
 	awfHelpersLog.Print("Mounted ${RUNNER_TEMP}/gh-aw read-only in AWF container")
-
-	// Add custom mounts from agent config if specified
-	if agentConfig != nil && len(agentConfig.Mounts) > 0 {
-		// Sort mounts for consistent output
-		sortedMounts := make([]string, len(agentConfig.Mounts))
-		copy(sortedMounts, agentConfig.Mounts)
-		sort.Strings(sortedMounts)
-
-		for _, mount := range sortedMounts {
-			awfArgs = append(awfArgs, "--mount", mount)
-		}
-		awfHelpersLog.Printf("Added %d custom mounts from agent config", len(sortedMounts))
-	}
 
 	// Add allowed domains
 	// Use double-quoted form (via shellDoubleQuoteArg) so wildcards like *.domain.com are

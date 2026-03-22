@@ -37,32 +37,13 @@ If `sandbox` is not specified in your workflow, it defaults to `sandbox.agent: a
 
 Setting `sandbox.agent: false` disables only the agent firewall while keeping the MCP gateway enabled. This reduces security isolation and should only be used when necessary. The MCP gateway cannot be disabled and remains active in all workflows.
 
-### MCP Gateway (Experimental)
+### MCP Gateway
 
 Route MCP server calls through a unified HTTP gateway:
 
 ```yaml wrap
 features:
   mcp-gateway: true
-
-sandbox:
-  mcp:
-    port: 8080
-    api-key: "${{ secrets.MCP_GATEWAY_API_KEY }}"
-```
-
-### Combined Configuration
-
-Use both coding agent sandbox and MCP gateway together:
-
-```yaml wrap
-features:
-  mcp-gateway: true
-
-sandbox:
-  agent: awf
-  mcp:
-    port: 8080
 ```
 
 ## Coding Agent Sandbox Types
@@ -92,8 +73,6 @@ AWF makes the host filesystem visible inside the container with appropriate perm
 | User paths | Read-write | `$HOME`, `$GITHUB_WORKSPACE`, `/tmp` |
 | System paths | Read-only | `/usr`, `/opt`, `/bin`, `/lib` |
 | Docker socket | Hidden | `/var/run/docker.sock` (security) |
-
-Custom mounts can still be added via `sandbox.agent.mounts` for paths that need different permissions.
 
 #### Host Binaries
 
@@ -146,39 +125,12 @@ sandbox:
       DEBUG_LEVEL: "verbose"
 ```
 
-##### Custom Mounts
-
-Add custom container mounts to make host paths available inside the AWF container:
-
-```yaml wrap
-sandbox:
-  agent:
-    id: awf
-    mounts:
-      - "/host/data:/data:ro"
-      - "/usr/local/bin/custom-tool:/usr/local/bin/custom-tool:ro"
-      - "/tmp/cache:/cache:rw"
-```
-
-Mount syntax follows Docker's format: `source:destination:mode`
-
-- `source`: Path on the host system
-- `destination`: Path inside the container
-- `mode`: Either `ro` (read-only) or `rw` (read-write)
-
-Custom mounts are useful for:
-
-- Providing access to datasets or configuration files
-- Making custom tools available in the container
-- Sharing cache directories between host and container
-
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | `string` | Agent identifier: `awf` |
 | `command` | `string` | Custom command to replace AWF binary installation |
 | `args` | `string[]` | Additional arguments appended to the command |
 | `env` | `object` | Environment variables set on the execution step |
-| `mounts` | `string[]` | Container mounts using syntax `source:destination:mode` |
 
 When `command` is specified, the standard AWF installation is skipped and your custom command is used instead.
 

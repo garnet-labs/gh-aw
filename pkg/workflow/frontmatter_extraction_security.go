@@ -307,17 +307,6 @@ func (c *Compiler) extractAgentSandboxConfig(agentVal any) *AgentSandboxConfig {
 		}
 	}
 
-	// Extract mounts (container mounts for AWF)
-	if mountsVal, hasMounts := agentObj["mounts"]; hasMounts {
-		if mountsSlice, ok := mountsVal.([]any); ok {
-			for _, mount := range mountsSlice {
-				if mountStr, ok := mount.(string); ok {
-					agentConfig.Mounts = append(agentConfig.Mounts, mountStr)
-				}
-			}
-		}
-	}
-
 	return agentConfig
 }
 
@@ -422,17 +411,6 @@ func (c *Compiler) extractMCPGatewayConfig(mcpVal any) *MCPGatewayRuntimeConfig 
 			for key, value := range envObj {
 				if valueStr, ok := value.(string); ok {
 					mcpConfig.Env[key] = valueStr
-				}
-			}
-		}
-	}
-
-	// Extract mounts (volume mounts for container)
-	if mountsVal, hasMounts := mcpObj["mounts"]; hasMounts {
-		if mountsSlice, ok := mountsVal.([]any); ok {
-			for _, mount := range mountsSlice {
-				if mountStr, ok := mount.(string); ok {
-					mcpConfig.Mounts = append(mcpConfig.Mounts, mountStr)
 				}
 			}
 		}

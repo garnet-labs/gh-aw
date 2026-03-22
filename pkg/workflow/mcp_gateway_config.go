@@ -86,16 +86,6 @@ func ensureDefaultMCPGatewayConfig(workflowData *WorkflowData) {
 		}
 	}
 
-	// Ensure default mounts are set if not provided
-	if len(workflowData.SandboxConfig.MCP.Mounts) == 0 {
-		mcpGatewayConfigLog.Print("Setting default gateway mounts")
-		workflowData.SandboxConfig.MCP.Mounts = []string{
-			"/opt:/opt:ro",
-			"/tmp:/tmp:rw",
-			"${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}:rw",
-		}
-	}
-
 	// Ensure default payloadDir is set if not provided
 	if workflowData.SandboxConfig.MCP.PayloadDir == "" {
 		mcpGatewayConfigLog.Print("Setting default gateway payloadDir")

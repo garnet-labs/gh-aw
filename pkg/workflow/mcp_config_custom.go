@@ -137,10 +137,7 @@ func renderSharedMCPConfig(yaml *strings.Builder, toolName string, toolConfig ma
 			if len(mcpConfig.EntrypointArgs) > 0 {
 				existingProperties = append(existingProperties, prop)
 			}
-		case "mounts":
-			if len(mcpConfig.Mounts) > 0 {
-				existingProperties = append(existingProperties, prop)
-			}
+
 		case "command":
 			if mcpConfig.Command != "" {
 				existingProperties = append(existingProperties, prop)
@@ -277,38 +274,6 @@ func renderSharedMCPConfig(yaml *strings.Builder, toolName string, toolConfig ma
 						argValue = ReplaceTemplateExpressionsWithEnvVars(argValue)
 					}
 					fmt.Fprintf(yaml, "%s  \"%s\"%s\n", renderer.IndentLevel, argValue, argComma)
-				}
-				fmt.Fprintf(yaml, "%s]%s\n", renderer.IndentLevel, comma)
-			}
-		case "mounts":
-			// Mounts field - per MCP Gateway Specification v1.0.0
-			// Volume mounts for the container
-			if renderer.Format == "toml" {
-				fmt.Fprintf(yaml, "%smounts = [", renderer.IndentLevel)
-				for mountIndex, mount := range mcpConfig.Mounts {
-					if mountIndex > 0 {
-						yaml.WriteString(", ")
-					}
-					fmt.Fprintf(yaml, "\"%s\"", mount)
-				}
-				yaml.WriteString("]\n")
-			} else {
-				comma := ","
-				if isLast {
-					comma = ""
-				}
-				fmt.Fprintf(yaml, "%s\"mounts\": [\n", renderer.IndentLevel)
-				for mountIndex, mount := range mcpConfig.Mounts {
-					mountComma := ","
-					if mountIndex == len(mcpConfig.Mounts)-1 {
-						mountComma = ""
-					}
-					// Replace template expressions with environment variable references
-					mountValue := mount
-					if renderer.RequiresCopilotFields {
-						mountValue = ReplaceTemplateExpressionsWithEnvVars(mountValue)
-					}
-					fmt.Fprintf(yaml, "%s  \"%s\"%s\n", renderer.IndentLevel, mountValue, mountComma)
 				}
 				fmt.Fprintf(yaml, "%s]%s\n", renderer.IndentLevel, comma)
 			}

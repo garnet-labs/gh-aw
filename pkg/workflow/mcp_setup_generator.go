@@ -747,13 +747,6 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 		containerCmd.WriteString(" -v " + payloadDir + ":" + payloadDir + ":rw")
 	}
 
-	// Then add user-configured mounts
-	if len(gatewayConfig.Mounts) > 0 {
-		for _, mount := range gatewayConfig.Mounts {
-			containerCmd.WriteString(" -v " + mount)
-		}
-	}
-
 	// Add entrypoint override if specified
 	if gatewayConfig.Entrypoint != "" {
 		containerCmd.WriteString(" --entrypoint " + shellEscapeArg(gatewayConfig.Entrypoint))

@@ -33,7 +33,6 @@ func TestEnsureDefaultMCPGatewayConfig(t *testing.T) {
 				assert.Equal(t, string(constants.DefaultMCPGatewayVersion), wd.SandboxConfig.MCP.Version, "Version should be default")
 				assert.Equal(t, int(DefaultMCPGatewayPort), wd.SandboxConfig.MCP.Port, "Port should be default")
 				assert.Equal(t, constants.DefaultMCPGatewayPayloadDir, wd.SandboxConfig.MCP.PayloadDir, "PayloadDir should be default")
-				assert.Len(t, wd.SandboxConfig.MCP.Mounts, 3, "Should have 3 default mounts")
 			},
 		},
 		{
@@ -97,41 +96,6 @@ func TestEnsureDefaultMCPGatewayConfig(t *testing.T) {
 			},
 			validate: func(t *testing.T, wd *WorkflowData) {
 				assert.Equal(t, "latest", wd.SandboxConfig.MCP.Version, "User-specified 'latest' version should be preserved")
-			},
-		},
-		{
-			name: "adds default mounts when none exist",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						Container: "custom-container",
-						Version:   "v1.0.0",
-						Port:      8080,
-					},
-				},
-			},
-			validate: func(t *testing.T, wd *WorkflowData) {
-				assert.Len(t, wd.SandboxConfig.MCP.Mounts, 3, "Should have 3 default mounts")
-				assert.Contains(t, wd.SandboxConfig.MCP.Mounts, "/opt:/opt:ro", "Should have /opt mount")
-				assert.Contains(t, wd.SandboxConfig.MCP.Mounts, "/tmp:/tmp:rw", "Should have /tmp mount")
-				assert.Contains(t, wd.SandboxConfig.MCP.Mounts, "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}:rw", "Should have GITHUB_WORKSPACE mount")
-			},
-		},
-		{
-			name: "preserves custom mounts",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						Container: "custom-container",
-						Version:   "v1.0.0",
-						Port:      8080,
-						Mounts:    []string{"/custom:/mount:ro"},
-					},
-				},
-			},
-			validate: func(t *testing.T, wd *WorkflowData) {
-				assert.Len(t, wd.SandboxConfig.MCP.Mounts, 1, "Should preserve custom mounts")
-				assert.Equal(t, "/custom:/mount:ro", wd.SandboxConfig.MCP.Mounts[0], "Custom mount should be preserved")
 			},
 		},
 		{

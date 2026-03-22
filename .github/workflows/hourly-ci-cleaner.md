@@ -30,13 +30,7 @@ tools:
   edit:
 sandbox:
   agent:
-    mounts:
-      - "/usr/bin/make:/usr/bin/make:ro"
-      - "/usr/bin/go:/usr/bin/go:ro"
-      - "/usr/local/bin/node:/usr/local/bin/node:ro"
-      - "/usr/local/bin/npm:/usr/local/bin/npm:ro"
-      - "/usr/local/lib/node_modules:/usr/local/lib/node_modules:ro"
-      - "/opt/hostedtoolcache/go:/opt/hostedtoolcache/go:ro"
+    id: awf
 if: needs.check_ci_status.outputs.ci_needs_fix == 'true'
 jobs:
   check_ci_status:

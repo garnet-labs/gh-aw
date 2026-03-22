@@ -1,7 +1,6 @@
 // This file provides sandbox validation functions for agentic workflow compilation.
 //
 // This file contains domain-specific validation functions for sandbox configuration:
-//   - validateMountsSyntax() - Validates container mount syntax
 //   - validateSandboxConfig() - Validates complete sandbox configuration
 //
 // These validation functions are organized in a dedicated file following the validation
@@ -11,59 +10,10 @@
 package workflow
 
 import (
-	"fmt"
-
 	"github.com/github/gh-aw/pkg/constants"
 )
 
 var sandboxValidationLog = newValidationLogger("sandbox")
-
-// validateMountsSyntax validates that mount strings follow the correct syntax
-// Expected format: "source:destination:mode" where mode is either "ro" or "rw"
-func validateMountsSyntax(mounts []string) error {
-	for i, mount := range mounts {
-		source, dest, mode, err := validateMountStringFormat(mount)
-		if err != nil {
-			// Distinguish format error (3-parts) from mode error
-			if source == "" && dest == "" && mode == "" {
-				return NewValidationError(
-					fmt.Sprintf("sandbox.mounts[%d]", i),
-					mount,
-					"mount syntax must follow 'source:destination:mode' format with exactly 3 colon-separated parts",
-					fmt.Sprintf("Use the format 'source:destination:mode'.\n\nExample:\nsandbox:\n  mounts:\n    - \"/host/path:/container/path:ro\"\n\nSee: %s", constants.DocsSandboxURL),
-				)
-			}
-			return NewValidationError(
-				fmt.Sprintf("sandbox.mounts[%d].mode", i),
-				mode,
-				"mount mode must be 'ro' (read-only) or 'rw' (read-write)",
-				fmt.Sprintf("Change the mount mode to either 'ro' or 'rw'.\n\nExample:\nsandbox:\n  mounts:\n    - \"/host/path:/container/path:ro\"  # read-only\n    - \"/host/path:/container/path:rw\"  # read-write\n\nSee: %s", constants.DocsSandboxURL),
-			)
-		}
-
-		// Validate that source and destination are not empty
-		if source == "" {
-			return NewValidationError(
-				fmt.Sprintf("sandbox.mounts[%d].source", i),
-				mount,
-				"source path cannot be empty",
-				fmt.Sprintf("Provide a valid source path.\n\nExample:\nsandbox:\n  mounts:\n    - \"/host/path:/container/path:ro\"\n\nSee: %s", constants.DocsSandboxURL),
-			)
-		}
-		if dest == "" {
-			return NewValidationError(
-				fmt.Sprintf("sandbox.mounts[%d].destination", i),
-				mount,
-				"destination path cannot be empty",
-				fmt.Sprintf("Provide a valid destination path.\n\nExample:\nsandbox:\n  mounts:\n    - \"/host/path:/container/path:ro\"\n\nSee: %s", constants.DocsSandboxURL),
-			)
-		}
-
-		sandboxValidationLog.Printf("Validated mount %d: source=%s, dest=%s, mode=%s", i, source, dest, mode)
-	}
-
-	return nil
-}
 
 // validateSandboxConfig validates the sandbox configuration
 // Returns an error if the configuration is invalid
@@ -85,14 +35,6 @@ func validateSandboxConfig(workflowData *WorkflowData) error {
 		// sandbox.agent: false is allowed in non-strict mode, so we don't error here
 		// The warning is emitted in compiler.go
 		sandboxValidationLog.Print("sandbox.agent: false detected, will be validated by strict mode check")
-	}
-
-	// Validate mounts syntax if specified in agent config
-	agentConfig := getAgentConfig(workflowData)
-	if agentConfig != nil && len(agentConfig.Mounts) > 0 {
-		if err := validateMountsSyntax(agentConfig.Mounts); err != nil {
-			return err
-		}
 	}
 
 	// Validate config structure if provided (deprecated - was only for SRT)
