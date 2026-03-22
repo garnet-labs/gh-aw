@@ -1,35 +1,36 @@
-# Workflow Health - 2026-03-21T07:22Z
+# Workflow Health - 2026-03-22T07:25Z
 
-Score: 74/100 (↑8 from 66). 176 workflows, 13 stale lock files (↓1 from 14).
+Score: 69/100 (↓5 from 74). 177 workflows, 20 stale lock files (↑20 regression).
 
-## P0 Critical
-- NONE ✅
-
-## Recoveries This Run ✅
-- **Issue Triage Agent**: RECOVERED! Run #136 (Mar 20 14:20) SUCCESS after 15+ day outage. P0→Healthy.
-- **Smoke Gemini**: RECOVERED! Run #486 (Mar 21 00:49) SUCCESS after 7 consecutive schedule failures. P1→Healthy.
+## P1 Issues
+- **Smoke Update Cross-Repo PR**: 0/6 schedule failures (100% failure rate, 7+ days). Issue created #aw_sxrpr1. Companion create workflow healthy (83%).
+- **Daily Rendering Scripts Verifier**: schedule still failing (P1 pre-existing, tracked). Manual dispatch succeeded (run #44 Mar 21).
 
 ## P2 Warning
-- 13 stale lock files (need `make recompile`):
-  agent-performance-analyzer, bot-detection, ci-doctor, daily-doc-updater,
-  daily-security-red-team, daily-testify-uber-super-expert, delight,
-  duplicate-code-detector, mcp-inspector, python-data-charts, smoke-copilot,
-  ubuntu-image-analyzer, workflow-normalizer
+- 20 stale lock files appeared since Mar 21 17:25Z (need `make recompile`):
+  copilot-pr-nlp-analysis, daily-architecture-diagram, daily-code-metrics, daily-function-namer,
+  daily-mcp-concurrency-analysis, daily-performance-summary, daily-semgrep-scan, daily-workflow-updater,
+  dependabot-go-checker, dictation-prompt, glossary-maintainer, gpclean, pdf-summary, pr-nitpick-reviewer,
+  schema-feature-coverage, smoke-agent-all-merged, smoke-claude, smoke-gemini, test-dispatcher,
+  workflow-skill-extractor
+- Contribution Check: safe_outputs failure on schedule (pre-existing, 67% success)
+- AI Moderator: action_required on closed PRs (expected)
 
-## Known Pre-existing Issues (tracked)
-- Contribution Check: safe_outputs failure on schedule (pr-filter-results.json missing)
-- AI Moderator: race on closed PRs (83% success rate)
+## Recoveries 🎉
+- **PR Triage Agent**: RECOVERED! 9 consecutive successes after 21-run outage (Mar 16-20)
+- **Smoke Gemini**: Holding recovery (3 consecutive schedule successes)
 
 ## Healthy
-- Issue Monster ✅ (run #3147 success) | PR Triage ✅ (run #269 success)
-- Smoke Gemini ✅ (RECOVERED) | Issue Triage Agent ✅ (RECOVERED)
-- No missing lock files (176 MD = 176 lock files)
+- Issue Monster ✅ 30/30 (100%) | PR Triage Agent ✅ (RECOVERED)
+- Smoke Copilot ✅ 88% | Smoke Claude ✅ 80% | Smoke Gemini ✅ (recovering)
+- Metrics Collector ✅ 5/5 scheduled | Smoke Codex ✅
 
 ## Actions Taken
-- Updated workflow-health-latest.md
+- Created issue for Smoke Update Cross-Repo PR (P1)
+- Updated dashboard issue #22108
 - Updated shared-alerts.md
-- Reported noop (no new issues needed - all P0/P1 resolved)
 
 ## Run Info
-- Timestamp: 2026-03-21T07:22:00Z
-- Run: §23374688097
+- Timestamp: 2026-03-22T07:25:00Z
+- Run: §23398187371
+- Score change: 74→69 (↓5)

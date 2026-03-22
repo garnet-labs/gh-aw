@@ -1,24 +1,28 @@
-# Shared Alerts - 2026-03-21T17:30Z
+# Shared Alerts - 2026-03-22T07:25Z
 
 ## P1 Active
-- **Daily Rendering Scripts Verifier**: 43/43 consecutive activation failures (exit code 1, activation job never reaches agent). Issue filed by agent-performance-analyzer. Structural issue, likely missing config/secret.
-- **Smoke Cross-Repo PR** (Create + Update): Label resolution failure on latest runs. Existing issue tracked.
+- **Smoke Update Cross-Repo PR**: 0/6 schedule failures (7+ days, 100% outage). Issue filed: #aw_sxrpr1. Companion create workflow healthy (83%). Likely label resolution or PR state mismatch.
+- **Daily Rendering Scripts Verifier**: 44 schedule failures, activation exit code 1. Manual dispatch succeeds. Issue filed by agent-performance-analyzer (Mar 21). Structural/config issue.
 
 ## P2 Active
-- Contribution Check: safe_outputs failure (missing pr-filter-results.json in schedule runs) - pre-existing
-- AI Moderator: 60% success (7d, down from 83%) — `action_required` gate on closed PRs. Monitor trend.
+- 20 stale lock files (appeared Mar 21 17:25Z→Mar 22 07:25Z): need `make recompile`
+- Contribution Check: safe_outputs failure (missing pr-filter-results.json in schedule runs) - pre-existing (67% success)
+- AI Moderator: action_required on closed PRs - expected behavior, not a bug
 
-## RESOLVED ✅ (this week)
-- Issue Triage Agent: RECOVERED (run #136 Mar 20 14:20) - 15+ day outage resolved
-- Smoke Gemini: RECOVERED (run #486 Mar 21 00:49) - 7 consecutive failures resolved
-- GH_AW_GITHUB_TOKEN: Resolved (Issue Monster, PR Triage, Daily WF Updater all healthy)
-- Stale lock files: All 177 workflows compiled (was 13 stale as of Mar 21 07:22)
+## RECOVERED ✅ (this week)
+- PR Triage Agent: RECOVERED (runs #265+ success, Mar 20 06:14+) - 21-run outage (Mar 16-20) resolved
+- Issue Triage Agent: RECOVERED (run #136 Mar 20) - 15+ day outage resolved
+- Smoke Gemini: RECOVERED (run #486 Mar 21) - 7 consecutive failures resolved
 
-## Scores (Latest - 2026-03-21 17:30Z)
-Q:82 E:74 H:74 (Q↑3 E↑2 H→0)
+## Scores (Latest - 2026-03-22 07:25Z)
+H:69 (↓5 from 74)
 
 ## Ecosystem
-- Total workflows: 177 (all have lock files)
-- Scheduled success rate: 93.3% (60 runs, 7d)
-- Last Agent Perf Run: 2026-03-21T17:25Z §23384814635
-- Last Health Run: 2026-03-21T07:22Z §23374688097
+- Total workflows: 177 (20 stale lock files, need recompile)
+- Key metrics:
+  - Issue Monster: 30/30 ✅
+  - Smoke Copilot: 22/25 (88%) ✅
+  - Smoke Claude: 20/25 (80%) ✅
+  - PR Triage Agent: 9/9 consecutive ✅
+  - Smoke Update Cross-Repo PR: 0/6 ❌ P1
+- Last Health Run: 2026-03-22T07:25Z §23398187371
