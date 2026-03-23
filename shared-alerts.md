@@ -1,31 +1,36 @@
-# Shared Alerts - 2026-03-22T17:30Z
+# Shared Alerts - 2026-03-23T07:38Z
 
 ## P1 Active
-- **Smoke Update Cross-Repo PR**: 0/6 schedule failures (7+ days, 100% outage). Issue filed: #aw_sxrpr1. Companion create workflow healthy (83%). Label resolution or PR state mismatch.
-- **Daily Rendering Scripts Verifier**: RECOVERING 🎉 - Mar 22 schedule SUCCESS after 43+ consecutive failures. Mar 21 manual dispatch SUCCESS. Monitor 3-5 more days before closing P1 issue.
+- **Smoke Update Cross-Repo PR**: 0/10+ schedule failures (8+ days, 100% outage). Issue #22241 filed and updated. Label resolution or PR state mismatch suspected.
+- **Issue Triage Agent**: Partial recovery - 1 success (run #136, Mar 20) after 5+ consecutive failures. No runs observed Mar 21-22 (may have run but not indexed). Monitor closely.
 
 ## P2 Active
-- 20 stale lock files (appeared Mar 21 17:25Z→Mar 22 07:25Z): need `make recompile`
-  - Affected: copilot-pr-nlp-analysis, daily-architecture-diagram, daily-code-metrics, daily-function-namer, daily-mcp-concurrency-analysis, daily-performance-summary, daily-semgrep-scan, daily-workflow-updater, dependabot-go-checker, dictation-prompt, glossary-maintainer, gpclean, pdf-summary, pr-nitpick-reviewer, schema-feature-coverage, smoke-agent-all-merged, smoke-claude, smoke-gemini, test-dispatcher, workflow-skill-extractor
-- AI Moderator: action_required on closed PRs - confirmed expected behavior (not a bug)
+- 19 stale lock files (NEW set since previous 20): claude-code-user-docs-review, code-scanning-fixer, constraint-solving-potd, daily-copilot-token-report, daily-malicious-code-scan, daily-repo-chronicle, delight, developer-docs-consolidator, github-mcp-structural-analysis, glossary-maintainer, go-pattern-detector, pdf-summary, portfolio-analyst, security-review, smoke-agent-public-approved, smoke-codex, smoke-workflow-call, super-linter, workflow-normalizer
+  - Indicates ongoing code churn; `make recompile` needed
+- Smoke Create Cross-Repo PR: intermittent failures (run #293 failed Mar 23, #285 failed Mar 21), ~75% success rate
 
 ## RECOVERED ✅ (this week)
-- PR Triage Agent: RECOVERED fully (9 consecutive successes after 21-run outage Mar 16-20)
-- Issue Triage Agent: RECOVERED (run #136 Mar 20) - 15+ day outage resolved
-- Smoke Gemini: Holding recovery (3+ consecutive schedule successes)
-- Contribution Check: Improved 67% → 90% (9/10 most recent runs - pre-existing safe_outputs issue appears resolved)
+- PR Triage Agent: HOLDING recovery - 10+ consecutive successes
+- Daily Rendering Scripts Verifier: HOLDING recovery - 2/2 recent schedule successes (was 43+ consecutive failures)
+- Smoke Gemini: SOLIDIFIED recovery - 5/5 consecutive schedule successes (Mar 21-23)
+- Issue Triage Agent: Partial recovery (1 success Mar 20 after long outage) - monitor
+- Contribution Check: 89% success rate (stable)
 
-## Scores (Latest - 2026-03-22 17:30Z)
-Q:82 → | E:74 → | H:69 ↓5
+## Scores (Latest - 2026-03-23 07:38Z)
+Q: -- | E: -- | H:71 ↑2
 
 ## Ecosystem
-- Total workflows: 177 (20 stale lock files, need recompile)
+- Total workflows: 177 (19 stale lock files)
 - Key metrics:
-  - Issue Monster: 30/30 ✅
+  - Issue Monster: 10/10 ✅
   - Smoke Copilot: 88% ✅
   - Smoke Claude: 80% ✅
-  - PR Triage Agent: 9/9 consecutive ✅ (RECOVERED)
-  - Smoke Update Cross-Repo PR: 0/6+ ❌ P1 (issue #aw_sxrpr1)
-  - Daily Rendering Scripts Verifier: RECOVERING (2/2 recent) 🎉
-- Last Agent Performance Run: 2026-03-22T17:30Z §23408443798
-- Last Health Run: 2026-03-22T07:25Z §23398187371
+  - Smoke Gemini: 5/5 consecutive ✅ (SOLIDIFIED)
+  - Smoke Codex: 87% ✅
+  - PR Triage Agent: 10/10 ✅ (FULLY RECOVERED)
+  - Auto-Triage Issues: 6/6 ✅
+  - Metrics Collector: 8/8 ✅
+  - Smoke Update Cross-Repo PR: 0/10+ ❌ P1 (issue #22241)
+  - Daily Rendering Scripts Verifier: HOLDING recovery (2/2 recent) 🎉
+  - Issue Triage Agent: Partial recovery (1/1 most recent) ⚠️
+- Last Health Run: 2026-03-23T07:38Z §23426422007
