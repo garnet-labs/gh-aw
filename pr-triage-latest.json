@@ -1,22 +1,28 @@
 {
-  "run_date": "2026-03-23T12:12:20Z",
-  "run_id": "23436626752",
+  "run_date": "2026-03-23T18:18:43Z",
+  "run_id": "23453128918",
   "fork_prs": 0,
-  "agent_prs_found": 5,
-  "agent_prs_excluded": 5,
-  "notes": "All 5 agent PRs are same-repo branches, not forks. Excluded per fork-only policy. No fork PRs to triage.",
+  "agent_prs_found": 11,
+  "agent_prs_excluded": 11,
+  "notes": "All 11 agent PRs are same-repo branches, not forks. Excluded per fork-only policy. No fork PRs to triage.",
   "prs_examined": [
+    {"number": 22485, "title": "[dead-code] chore: remove dead functions — 1 function remove", "author": "github-actions[bot]", "same_repo": true},
+    {"number": 22483, "title": "ci-doctor: add label_command trigger for PR check diagnosis", "author": "Copilot", "same_repo": true},
+    {"number": 22481, "title": "[WIP] Add aw_context input for workflow dispatch with caller", "author": "Copilot", "same_repo": true},
+    {"number": 22480, "title": "Optimize fuzzy scheduler to avoid hour-boundary peaks", "author": "Copilot", "same_repo": true},
+    {"number": 22479, "title": "[WIP] Add aw_context input for workflow dispatch with caller", "author": "Copilot", "same_repo": true},
+    {"number": 22474, "title": "refactor: resolve semantic function clustering issues in pkg", "author": "Copilot", "same_repo": true},
+    {"number": 22472, "title": "perf(parser): fix ParseWorkflow regression — eliminate redun", "author": "Copilot", "same_repo": true},
+    {"number": 22464, "title": "perf: fix BenchmarkCompileMemoryUsage regression (+81.9%)", "author": "Copilot", "same_repo": true},
     {"number": 22410, "title": "test: add comprehensive per-handler staged mode coverage", "author": "Copilot", "same_repo": true},
-    {"number": 22405, "title": "Fix missing model and version in activation run details", "author": "Copilot", "same_repo": true},
-    {"number": 22402, "title": "[actions] Update GitHub Actions versions - 2026-03-23", "author": "github-actions[bot]", "same_repo": true},
     {"number": 22384, "title": "feat: add label update support to update-discussion safe-output", "author": "Copilot", "same_repo": true},
     {"number": 22183, "title": "Add builtin `qmd` documentation search tool (experimental)", "author": "Copilot", "same_repo": true}
   ],
   "prev": {
-    "run_date": "2026-03-23T06:22:40Z",
-    "run_id": "23424257725",
+    "run_date": "2026-03-23T12:12:20Z",
+    "run_id": "23436626752",
     "fork_prs": 0,
-    "agent_prs_found": 4,
-    "agent_prs_excluded": 4
+    "agent_prs_found": 5,
+    "agent_prs_excluded": 5
   }
 }
