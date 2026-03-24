@@ -1,28 +1,64 @@
 {
-  "run_date": "2026-03-23T18:18:43Z",
-  "run_id": "23453128918",
+  "run_date": "2026-03-24T00:10:26Z",
+  "run_id": "23466480999",
   "fork_prs": 0,
-  "agent_prs_found": 11,
-  "agent_prs_excluded": 11,
-  "notes": "All 11 agent PRs are same-repo branches, not forks. Excluded per fork-only policy. No fork PRs to triage.",
+  "agent_prs_found": 3,
+  "agent_prs_excluded": 3,
+  "notes": "All 3 agent PRs are same-repo branches, not forks. Excluded per fork-only policy. No fork PRs to triage.",
+  "total_prs_triaged": 0,
+  "auto_merge_candidates": [],
+  "fast_track_needed": [],
+  "batches": {},
+  "close_candidates": [],
+  "statistics": {
+    "by_category": {},
+    "by_risk": {},
+    "by_priority": {},
+    "by_action": {}
+  },
   "prs_examined": [
-    {"number": 22485, "title": "[dead-code] chore: remove dead functions — 1 function remove", "author": "github-actions[bot]", "same_repo": true},
-    {"number": 22483, "title": "ci-doctor: add label_command trigger for PR check diagnosis", "author": "Copilot", "same_repo": true},
-    {"number": 22481, "title": "[WIP] Add aw_context input for workflow dispatch with caller", "author": "Copilot", "same_repo": true},
-    {"number": 22480, "title": "Optimize fuzzy scheduler to avoid hour-boundary peaks", "author": "Copilot", "same_repo": true},
-    {"number": 22479, "title": "[WIP] Add aw_context input for workflow dispatch with caller", "author": "Copilot", "same_repo": true},
-    {"number": 22474, "title": "refactor: resolve semantic function clustering issues in pkg", "author": "Copilot", "same_repo": true},
-    {"number": 22472, "title": "perf(parser): fix ParseWorkflow regression — eliminate redun", "author": "Copilot", "same_repo": true},
-    {"number": 22464, "title": "perf: fix BenchmarkCompileMemoryUsage regression (+81.9%)", "author": "Copilot", "same_repo": true},
-    {"number": 22410, "title": "test: add comprehensive per-handler staged mode coverage", "author": "Copilot", "same_repo": true},
-    {"number": 22384, "title": "feat: add label update support to update-discussion safe-output", "author": "Copilot", "same_repo": true},
-    {"number": 22183, "title": "Add builtin `qmd` documentation search tool (experimental)", "author": "Copilot", "same_repo": true}
+    {
+      "number": 22551,
+      "title": "[WIP] Add upload step for firewall audit logs as GitHub Actions artifacts",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "head_repo": "github/gh-aw",
+      "base_repo": "github/gh-aw",
+      "created_at": "2026-03-24T00:09:07Z",
+      "ci_status": "in_progress",
+      "excluded_reason": "same-repo branch, not a fork"
+    },
+    {
+      "number": 22547,
+      "title": "Update fuzzy schedule algorithm with weighted preferred windows and peak avoidance",
+      "author": "Copilot",
+      "draft": false,
+      "same_repo": true,
+      "head_repo": "github/gh-aw",
+      "base_repo": "github/gh-aw",
+      "created_at": "2026-03-23T23:18:11Z",
+      "ci_status": "passing",
+      "excluded_reason": "same-repo branch, not a fork"
+    },
+    {
+      "number": 22537,
+      "title": "Add `skip-if-check-failing` pre-activation gate",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "head_repo": "github/gh-aw",
+      "base_repo": "github/gh-aw",
+      "created_at": "2026-03-23T22:40:00Z",
+      "ci_status": "in_progress",
+      "excluded_reason": "same-repo branch, not a fork"
+    }
   ],
   "prev": {
-    "run_date": "2026-03-23T12:12:20Z",
-    "run_id": "23436626752",
+    "run_date": "2026-03-23T18:18:43Z",
+    "run_id": "23453128918",
     "fork_prs": 0,
-    "agent_prs_found": 5,
-    "agent_prs_excluded": 5
+    "agent_prs_found": 11,
+    "agent_prs_excluded": 11
   }
 }
