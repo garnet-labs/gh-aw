@@ -574,9 +574,5 @@ func TestDIFCProxyInjectedInIndexingJob(t *testing.T) {
 		assert.Contains(t, startStep, "Start DIFC proxy for pre-agent gh calls")
 		assert.Contains(t, startStep, "start_difc_proxy.sh")
 		assert.Contains(t, startStep, `"allow-only"`)
-
-		stopStep := buildStopDIFCProxyStepYAML()
-		assert.Contains(t, stopStep, "Stop DIFC proxy")
-		assert.Contains(t, stopStep, "stop_difc_proxy.sh")
 	})
 }

@@ -247,16 +247,6 @@ func (c *Compiler) generateStopDIFCProxyStep(yaml *strings.Builder, data *Workfl
 	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/stop_difc_proxy.sh\n")
 }
 
-// buildStopDIFCProxyStepYAML returns the YAML for the "Stop DIFC proxy" step as a string.
-// The step runs even if earlier steps failed to ensure cleanup of container and CA cert.
-// Used by the indexing job which manages steps as []string.
-func buildStopDIFCProxyStepYAML() string {
-	return "      - name: Stop DIFC proxy\n" +
-		"        if: always()\n" +
-		"        continue-on-error: true\n" +
-		"        run: bash ${RUNNER_TEMP}/gh-aw/actions/stop_difc_proxy.sh\n"
-}
-
 // difcProxyLogPaths returns the artifact paths for DIFC proxy logs.
 // Returns an empty slice when no DIFC proxy is needed or configured.
 func difcProxyLogPaths(data *WorkflowData) []string {
