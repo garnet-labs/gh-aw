@@ -1,18 +1,20 @@
-# Shared Alerts - 2026-03-23T17:37Z | Q:82 E:75↑1 H:71↑2
+# Shared Alerts - 2026-03-24T12:15Z | Q:82 E:75 H:72↑1
 
 ## P1
-- Smoke Update Cross-Repo PR: 0/10+ ❌ issue #22241 (escalate if no fix by Mar 30)
-- Issue Triage Agent: partial recovery, 1/1 most recent, monitor ⚠️
+- Smoke Update Cross-Repo PR: 0/12+ ❌ issue #22523 (expires Mar 25, current tracking)
+  - Run #316 failed 2026-03-24T00:57. 9+ day outage.
 
 ## P2
-- 19 stale lock files (rotating set - systemic, agents editing .md without recompile)
+- Smoke Claude: alternating failure/success ⚠️ (run #2442 failed Mar 24 00:47, 2/4 recent)
+- Issue Monster: transient failure #3278 (Mar 24 11:48), surrounded by 7 successes ⚠️
+- 20 stale lock files (rotating set - systemic)
 
 ## Recovered ✅
-- PR Triage Agent: 10/10 FULLY RECOVERED
-- Smoke Gemini: 5/5 SOLIDIFIED → healthy
-- Daily Rendering Verifier: HOLDING 2/2 🎉
-- Contribution Check: 89% stable
+- PR Triage Agent: 4+ consecutive FULLY RECOVERED + holding
+- Daily Rendering Verifier: 4/4 SOLIDIFIED 🎉
+- Smoke Gemini: 7/7 consecutive solid
+- Issue Triage Agent: 2/2 recent improving
 
 ## Healthy
-Issue Monster 100% | Smoke Copilot 88% | Smoke Claude 80% | Smoke Codex 87%
-Last health run: §23426422007 (2026-03-23T07:38Z)
+Issue Monster 100% (minus 1 transient) | Smoke Copilot 88% | Smoke Gemini 100% | Contribution Check 100% | Metrics Collector 100%
+Last health run: §23488413680 (2026-03-24T12:15Z)
