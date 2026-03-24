@@ -1,13 +1,10 @@
-## Trend Data (2026-03-19)
-- Weekly issues: 500 total, 76 open, 424 closed, 9 unlabeled open.
-- Weekly issue movement: 450 created in-period, 401 closed in-period, 477 updated in-period.
-- Issue creation by day (sample): 2026-03-16 to 2026-03-19 = 78, 70, 76, 65.
-- Issue closure by day (sample): 2026-03-16 to 2026-03-19 = 49, 66, 86, 45.
-- Discussions (7d): 42 updated discussions out of 100 total; category mix = audits 32, announcements 8, daily-news 1, general 1.
-- Workflow logs sample A (latest 20): 2 in-progress, 13 failures, 5 successes; 2.33M tokens; 14 errors; 2 missing-data events; 11 blocked firewall requests.
-- Workflow logs sample B (latest 35): 2 in-progress, 4 failures, 3 successes, 26 skipped; 106,541 tokens; 4 errors; 2 blocked firewall requests.
-
-## Update (2026-03-20)
-- Recent 30-run sample: 6.24M tokens, 50.4m, 0 missing tools, 0 blocked firewall requests.
-- Daily CLI Performance latest success: 2.99M tokens.
-- Daily Security Red Team latest success: 1.31M tokens, 37 turns.
+## Trend Data (2026-03-24)
+- Discussions (7d): 42 updated of 100 total; categories = audits 32, announcements 6, general 2, daily-news 1, dev 1.
+- Weekly issues snapshot: 500 total, 71 open, 429 closed.
+- Issue movement (last 3d): 196 created, 183 closed.
+- Open-issue quality: 5 unlabeled open issues, 22 stale open issues (>3 days without update).
+- Label concentration: automation 229, testing 184, cookie 138, agentic-workflows 52, community 39.
+- Open smoke test issues: 4 (`#22706`, `#22704`, `#22691`, `#22690`).
+- Workflow sample A (latest 40): 4.3m total duration, mostly skipped/in-progress runs, 0 errors/warnings/missing tools.
+- Workflow sample B (older 25): 14.3m duration, one long AI Moderator success (12.5m), 1 missing_data event, 0 errors/warnings/missing tools.
+- Integrity-filtered event observed in workflow logs: issue read for `#22703` blocked by trust policy, producing `safeoutputs_missing_data`.
