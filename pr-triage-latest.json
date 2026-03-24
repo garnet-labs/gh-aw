@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-24T12:13:00Z",
-  "run_id": "23488752498",
+  "run_date": "2026-03-24T18:17:27Z",
+  "run_id": "23505354286",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "All 4 agent PRs are same-repo branches, not forks. Excluded per fork-only policy. No fork PRs to triage.",
+  "agent_prs_found": 1,
+  "agent_prs_excluded": 1,
+  "notes": "1 agent PR found (by Copilot/copilot-swe-agent), but it is a same-repo branch, not a fork. Excluded per fork-only policy. No fork PRs to triage.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,55 +18,22 @@
   },
   "prs_examined": [
     {
-      "number": 22671,
-      "title": "[WIP] Fix tests or compiled code",
+      "number": 22733,
+      "title": "[WIP] Fix: include policy-manifest.json and audit directory in firewall-audit-logs artifact",
       "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "head_repo": "github/gh-aw",
       "base_repo": "github/gh-aw",
-      "created_at": "2026-03-24T12:12:01Z",
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 22670,
-      "title": "[WIP] Ignore failure on 403 error",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "head_repo": "github/gh-aw",
-      "base_repo": "github/gh-aw",
-      "created_at": "2026-03-24T12:11:12Z",
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 22669,
-      "title": "[WIP] Improve diagnostics and messaging in update command",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "head_repo": "github/gh-aw",
-      "base_repo": "github/gh-aw",
-      "created_at": "2026-03-24T12:10:21Z",
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 22657,
-      "title": "[WIP] Update MCP Gateway to v0.2.4",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "head_repo": "github/gh-aw",
-      "base_repo": "github/gh-aw",
-      "created_at": "2026-03-24T11:26:29Z",
+      "created_at": "2026-03-24T18:06:41Z",
       "excluded_reason": "same-repo branch, not a fork"
     }
   ],
-  "prev": {
-    "run_date": "2026-03-24T06:20:51Z",
-    "run_id": "23476011491",
-    "fork_prs": 0,
-    "agent_prs_found": 3,
-    "agent_prs_excluded": 3
+  "previous_run": {
+    "run_id": "23488752498",
+    "run_date": "2026-03-24T12:13:00Z",
+    "agent_prs_found": 4,
+    "agent_prs_excluded": 4,
+    "fork_prs": 0
   }
 }
