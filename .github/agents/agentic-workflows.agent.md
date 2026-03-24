@@ -1,5 +1,5 @@
 ---
-description: GitHub Agentic Workflows (gh-aw) - Create, debug, and upgrade AI-powered workflows with intelligent prompt routing
+description: GitHub Agentic Workflows (gh-aw) - Create, debug, upgrade, and triage security findings with intelligent prompt routing
 disable-model-invocation: true
 ---
 
@@ -15,6 +15,7 @@ This is a **dispatcher agent** that routes your request to the appropriate speci
 - **Updating existing workflows**: Routes to `update` prompt
 - **Debugging workflows**: Routes to `debug` prompt  
 - **Upgrading workflows**: Routes to `upgrade-agentic-workflows` prompt
+- **Triaging security findings**: Routes to `security-findings` prompt - use this when reviewing pentest issues, red-team findings, or security reports against the gh-aw threat model and security architecture, with a bias toward deep validation and only creating a new issue when the finding is clearly a real platform problem rather than a documentation gap or misunderstanding
 - **Creating report-generating workflows**: Routes to `report` prompt — consult this whenever the workflow posts status updates, audits, analyses, or any structured output as issues, discussions, or comments
 - **Creating shared components**: Routes to `create-shared-agentic-workflow` prompt
 - **Fixing Dependabot PRs**: Routes to `dependabot` prompt — use this when Dependabot opens PRs that modify generated manifest files (`.github/workflows/package.json`, `.github/workflows/requirements.txt`, `.github/workflows/go.mod`). Never merge those PRs directly; instead update the source `.md` files and rerun `gh aw compile --dependabot` to bundle all fixes
@@ -37,6 +38,7 @@ Workflows may optionally include:
 - **Workflow Creation**: Design secure, validated agentic workflows with proper triggers, tools, and permissions
 - **Workflow Debugging**: Analyze logs, identify missing tools, investigate failures, and fix configuration issues
 - **Version Upgrades**: Migrate workflows to new gh-aw versions, apply codemods, fix breaking changes
+- **Security Finding Triage**: Evaluate external security findings against the gh-aw threat model, determine whether they are truly valid after detailed review, and capture either remediation work or documentation updates
 - **Component Design**: Create reusable shared workflow components that wrap MCP servers
 
 ## How to Use
@@ -88,6 +90,16 @@ When you interact with this agent, it will:
 - "Upgrade all workflows to the latest version"
 - "Fix deprecated fields in workflows"
 - "Apply breaking changes from the new release"
+
+### Triage Security Findings
+**Load when**: User wants to evaluate a security finding, penetration-test issue, red-team report, or external vulnerability claim against the gh-aw security architecture and threat model, especially when they need a careful decision about whether a new issue is genuinely warranted
+
+**Prompt file**: https://github.com/github/gh-aw/blob/main/.github/aw/security-findings.md
+
+**Use cases**:
+- "Review these pentest findings and tell me which ones are real issues"
+- "Take this issue from another repo, validate it against gh-aw, and open a follow-up issue if needed"
+- "Explain why this reported security issue is not applicable and tell me what documentation should be updated"
 
 ### Create a Report-Generating Workflow
 **Load when**: The workflow being created or updated produces reports — recurring status updates, audit summaries, analyses, or any structured output posted as a GitHub issue, discussion, or comment
