@@ -103,11 +103,16 @@ function parseDetectionLog(content) {
     return { error: "No THREAT_DETECTION_RESULT found in detection log. The detection model may have failed to follow the output format." };
   }
 
-  if (matches.length > 1) {
-    return { error: `Multiple THREAT_DETECTION_RESULT entries found (${matches.length}) in detection log. Expected exactly one. Entries: ${matches.map((m, i) => `\n  [${i + 1}] ${m}`).join("")}` };
+  // Deduplicate identical results. The detection command writes to the same file
+  // via both --debug-file and tee, so the same line often appears 2-3 times.
+  // Only error if the entries actually disagree (different verdicts).
+  const uniqueMatches = [...new Set(matches)];
+
+  if (uniqueMatches.length > 1) {
+    return { error: `Multiple conflicting THREAT_DETECTION_RESULT entries found (${uniqueMatches.length} unique out of ${matches.length} total) in detection log. Expected one consistent verdict. Entries: ${uniqueMatches.map((m, i) => `\n  [${i + 1}] ${m}`).join("")}` };
   }
 
-  const jsonPart = matches[0].substring(RESULT_PREFIX.length);
+  const jsonPart = uniqueMatches[0].substring(RESULT_PREFIX.length);
   try {
     const parsed = JSON.parse(jsonPart);
 

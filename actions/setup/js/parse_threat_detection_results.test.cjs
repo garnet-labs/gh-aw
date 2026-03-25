@@ -154,7 +154,25 @@ describe("parseDetectionLog", () => {
   });
 
   describe("multiple result lines", () => {
-    it("should return error when multiple THREAT_DETECTION_RESULT lines found", () => {
+    it("should deduplicate identical THREAT_DETECTION_RESULT lines", () => {
+      // --debug-file and tee both write to the same file, causing duplicates
+      const content = [
+        'THREAT_DETECTION_RESULT:{"prompt_injection":false,"secret_leak":false,"malicious_patch":false,"reasons":[]}',
+        'THREAT_DETECTION_RESULT:{"prompt_injection":false,"secret_leak":false,"malicious_patch":false,"reasons":[]}',
+        'THREAT_DETECTION_RESULT:{"prompt_injection":false,"secret_leak":false,"malicious_patch":false,"reasons":[]}',
+      ].join("\n");
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(error).toBeUndefined();
+      expect(verdict).toEqual({
+        prompt_injection: false,
+        secret_leak: false,
+        malicious_patch: false,
+        reasons: [],
+      });
+    });
+
+    it("should error when conflicting THREAT_DETECTION_RESULT lines found", () => {
       const content = [
         'THREAT_DETECTION_RESULT:{"prompt_injection":false,"secret_leak":false,"malicious_patch":false,"reasons":[]}',
         'THREAT_DETECTION_RESULT:{"prompt_injection":true,"secret_leak":false,"malicious_patch":false,"reasons":["injection"]}',
@@ -162,10 +180,10 @@ describe("parseDetectionLog", () => {
       const { verdict, error } = parseDetectionLog(content);
 
       expect(verdict).toBeUndefined();
-      expect(error).toContain("Multiple THREAT_DETECTION_RESULT entries found (2)");
+      expect(error).toContain("Multiple conflicting THREAT_DETECTION_RESULT entries");
     });
 
-    it("should include raw lines in error for debugging", () => {
+    it("should include unique lines in error for debugging", () => {
       const content = [
         'THREAT_DETECTION_RESULT:{"prompt_injection":false,"secret_leak":false,"malicious_patch":false,"reasons":[]}',
         "some other output",
@@ -353,7 +371,7 @@ describe("main", () => {
       await mod.main();
 
       expect(mockCore.setOutput).toHaveBeenCalledWith("success", "false");
-      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("Multiple THREAT_DETECTION_RESULT entries found"));
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("Multiple conflicting THREAT_DETECTION_RESULT entries"));
     });
 
     it("should fail when result JSON is invalid", async () => {
