@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-24T18:17:27Z",
-  "run_id": "23505354286",
+  "run_date": "2026-03-25T00:12:15Z",
+  "run_id": "23518407341",
   "fork_prs": 0,
-  "agent_prs_found": 1,
-  "agent_prs_excluded": 1,
-  "notes": "1 agent PR found (by Copilot/copilot-swe-agent), but it is a same-repo branch, not a fork. Excluded per fork-only policy. No fork PRs to triage.",
+  "agent_prs_found": 2,
+  "agent_prs_excluded": 2,
+  "notes": "2 agent PRs found (by copilot-swe-agent), but both are same-repo branches, not forks. Excluded per fork-only policy. No fork PRs to triage.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,22 +18,37 @@
   },
   "prs_examined": [
     {
-      "number": 22733,
-      "title": "[WIP] Fix: include policy-manifest.json and audit directory in firewall-audit-logs artifact",
+      "number": 22782,
+      "title": "Move threat detection into a separate `detection` job",
       "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "head_repo": "github/gh-aw",
       "base_repo": "github/gh-aw",
-      "created_at": "2026-03-24T18:06:41Z",
+      "created_at": "2026-03-24T22:56:18Z",
+      "ci_status": "partial_failure",
+      "ci_notes": "Integration: Workflow Infra = failure; copilot check in_progress; most other checks passing",
+      "excluded_reason": "same-repo branch, not a fork"
+    },
+    {
+      "number": 22775,
+      "title": "feat: implement APM unpack in JavaScript, replace microsoft/apm-action restore step in agent job",
+      "author": "Copilot",
+      "draft": false,
+      "same_repo": true,
+      "head_repo": "github/gh-aw",
+      "base_repo": "github/gh-aw",
+      "created_at": "2026-03-24T21:54:14Z",
+      "ci_status": "partial_failure",
+      "ci_notes": "js = failure, js-integration-live-api = failure, js-qmd-index = failure; APM integration = success",
       "excluded_reason": "same-repo branch, not a fork"
     }
   ],
   "previous_run": {
-    "run_id": "23488752498",
-    "run_date": "2026-03-24T12:13:00Z",
-    "agent_prs_found": 4,
-    "agent_prs_excluded": 4,
+    "run_id": "23505354286",
+    "run_date": "2026-03-24T18:17:27Z",
+    "agent_prs_found": 1,
+    "agent_prs_excluded": 1,
     "fork_prs": 0
   }
 }
