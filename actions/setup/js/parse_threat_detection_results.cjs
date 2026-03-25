@@ -111,6 +111,11 @@ function parseDetectionLog(content) {
   try {
     const parsed = JSON.parse(jsonPart);
 
+    // The result must be a plain object, not null, an array, or a primitive.
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { error: `THREAT_DETECTION_RESULT JSON must be an object, got ${parsed === null ? "null" : Array.isArray(parsed) ? "array" : typeof parsed}. Raw value: ${matches[0]}` };
+    }
+
     // Validate that threat flags are actual booleans.
     // Boolean("false") === true, so accepting non-boolean types would cause
     // false positives (string "false" treated as a detection).

@@ -203,6 +203,42 @@ describe("parseDetectionLog", () => {
       expect(verdict).toBeUndefined();
       expect(error).toContain("Failed to parse JSON");
     });
+
+    it("should return error when JSON is null", () => {
+      const content = "THREAT_DETECTION_RESULT:null";
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(verdict).toBeUndefined();
+      expect(error).toContain("must be an object");
+      expect(error).toContain("got null");
+    });
+
+    it("should return error when JSON is an array", () => {
+      const content = "THREAT_DETECTION_RESULT:[]";
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(verdict).toBeUndefined();
+      expect(error).toContain("must be an object");
+      expect(error).toContain("got array");
+    });
+
+    it("should return error when JSON is a string", () => {
+      const content = 'THREAT_DETECTION_RESULT:"clean"';
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(verdict).toBeUndefined();
+      expect(error).toContain("must be an object");
+      expect(error).toContain("got string");
+    });
+
+    it("should return error when JSON is a number", () => {
+      const content = "THREAT_DETECTION_RESULT:42";
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(verdict).toBeUndefined();
+      expect(error).toContain("must be an object");
+      expect(error).toContain("got number");
+    });
   });
 
   describe("stream-json format (--output-format stream-json)", () => {
