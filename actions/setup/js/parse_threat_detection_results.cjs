@@ -109,7 +109,9 @@ function parseDetectionLog(content) {
   const uniqueMatches = [...new Set(matches)];
 
   if (uniqueMatches.length > 1) {
-    return { error: `Multiple conflicting THREAT_DETECTION_RESULT entries found (${uniqueMatches.length} unique out of ${matches.length} total) in detection log. Expected one consistent verdict. Entries: ${uniqueMatches.map((m, i) => `\n  [${i + 1}] ${m}`).join("")}` };
+    return {
+      error: `Multiple conflicting THREAT_DETECTION_RESULT entries found (${uniqueMatches.length} unique out of ${matches.length} total) in detection log. Expected one consistent verdict. Entries: ${uniqueMatches.map((m, i) => `\n  [${i + 1}] ${m}`).join("")}`,
+    };
   }
 
   const jsonPart = uniqueMatches[0].substring(RESULT_PREFIX.length);
