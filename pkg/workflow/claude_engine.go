@@ -242,7 +242,11 @@ func (e *ClaudeEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 	var promptSetup string
 	var promptCommand string
 	if workflowData.AgentFile != "" {
-		agentPath := ResolveAgentFilePath(workflowData.AgentFile)
+		agentPath, err := ResolveAgentFilePath(workflowData.AgentFile)
+		if err != nil {
+			claudeLog.Printf("Error: %v", err)
+			return []GitHubActionStep{}
+		}
 		claudeLog.Printf("Using custom agent file: %s", workflowData.AgentFile)
 		// Extract markdown body from custom agent file and prepend to prompt
 		promptSetup = fmt.Sprintf(`# Extract markdown body from custom agent file (skip frontmatter)
@@ -267,11 +271,11 @@ func (e *ClaudeEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 
 	commandParts := []string{commandName}
 	commandParts = append(commandParts, claudeArgs...)
-	commandParts = append(commandParts, promptCommand)
 
-	// Join command parts with proper escaping using shellJoinArgs helper
-	// This handles already-quoted arguments correctly and prevents double-escaping
-	claudeCommand := shellJoinArgs(commandParts)
+	// Join command parts with proper escaping using shellJoinArgs helper.
+	// The promptCommand is appended raw (not through shellJoinArgs) because it
+	// contains shell variable references that must expand at runtime.
+	claudeCommand := shellJoinArgs(commandParts) + " " + promptCommand
 
 	// When model is not configured, use the GH_AW_MODEL_AGENT_CLAUDE fallback env var
 	// via shell expansion so users can set a default via GitHub Actions variables.

@@ -568,7 +568,7 @@ func TestGenerateHeredocDelimiter_Uniqueness(t *testing.T) {
 	// Each call must produce a unique delimiter to prevent injection
 	input := "PROMPT"
 	seen := make(map[string]bool)
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		result := GenerateHeredocDelimiter(input)
 		assert.False(t, seen[result],
 			"GenerateHeredocDelimiter must produce unique delimiters, got duplicate: %s", result)

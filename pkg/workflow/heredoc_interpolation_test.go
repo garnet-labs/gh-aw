@@ -5,6 +5,7 @@ package workflow
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -56,15 +57,17 @@ Actor: ${{ github.actor }}
 
 	compiledStr := string(compiledYAML)
 
-	// Verify that heredoc delimiters ARE quoted (should be 'GH_AW_PROMPT_EOF' not GH_AW_PROMPT_EOF)
+	// Verify that heredoc delimiters ARE quoted (should be 'GH_AW_PROMPT_..._EOF' not GH_AW_PROMPT_..._EOF)
 	// This prevents shell variable interpolation
-	if !strings.Contains(compiledStr, "<< 'GH_AW_PROMPT_EOF'") {
-		t.Error("GH_AW_PROMPT_EOF delimiter should be quoted to prevent shell variable interpolation")
+	quotedDelimRE := regexp.MustCompile(`<< 'GH_AW_PROMPT_[0-9a-f]{16}_EOF'`)
+	if !quotedDelimRE.MatchString(compiledStr) {
+		t.Error("GH_AW_PROMPT_*_EOF delimiter should be quoted to prevent shell variable interpolation")
 
 		// Show the problematic lines
+		unquotedDelimRE := regexp.MustCompile(`<< GH_AW_PROMPT_[0-9a-f]{16}_EOF`)
 		lines := strings.Split(compiledStr, "\n")
 		for i, line := range lines {
-			if strings.Contains(line, "<< GH_AW_PROMPT_EOF") && !strings.Contains(line, "'GH_AW_PROMPT_EOF'") {
+			if unquotedDelimRE.MatchString(line) && !quotedDelimRE.MatchString(line) {
 				t.Logf("Line %d with unquoted delimiter: %s", i, line)
 			}
 		}
@@ -139,9 +142,10 @@ Actor: ${{ github.actor }}
 	compiledStr := string(compiledYAML)
 
 	// All heredoc delimiters should be quoted to prevent shell expansion
-	quotedCount := strings.Count(compiledStr, "<< 'GH_AW_PROMPT_EOF'")
-	if quotedCount == 0 {
-		t.Error("Expected quoted GH_AW_PROMPT_EOF delimiters to prevent shell variable interpolation")
+	quotedDelimCountRE := regexp.MustCompile(`<< 'GH_AW_PROMPT_[0-9a-f]{16}_EOF'`)
+	quotedMatches := quotedDelimCountRE.FindAllString(compiledStr, -1)
+	if len(quotedMatches) == 0 {
+		t.Error("Expected quoted GH_AW_PROMPT_*_EOF delimiters to prevent shell variable interpolation")
 	}
 
 	// Verify interpolation and template rendering step exists

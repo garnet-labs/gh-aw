@@ -21,27 +21,14 @@ func shellJoinArgs(args []string) string {
 	return result
 }
 
-// shellEscapeArg escapes a single argument for safe use in shell commands
-// Arguments containing special characters are wrapped in single quotes
+// shellEscapeArg escapes a single argument for safe use in shell commands.
+// Arguments containing special characters are wrapped in single quotes.
+// Interior content is always validated — no pre-quoted fast-paths.
 func shellEscapeArg(arg string) string {
-	// If the argument is already properly quoted with double quotes, leave it as-is
-	if len(arg) >= 2 && arg[0] == '"' && arg[len(arg)-1] == '"' {
-		shellLog.Print("Argument already double-quoted, leaving as-is")
-		return arg
-	}
-
-	// If the argument is already properly quoted with single quotes, leave it as-is
-	if len(arg) >= 2 && arg[0] == '\'' && arg[len(arg)-1] == '\'' {
-		shellLog.Print("Argument already single-quoted, leaving as-is")
-		return arg
-	}
-
 	// Check if the argument contains special shell characters that need escaping
 	if strings.ContainsAny(arg, "()[]{}*?$`\"'\\|&;<> \t\n") {
 		shellLog.Print("Argument contains special characters, applying escaping")
 		// Handle single quotes in the argument by escaping them
-		// Use '\'' instead of '\"'\"' to avoid creating double-quoted contexts
-		// that would interpret backslash escape sequences
 		escaped := strings.ReplaceAll(arg, "'", "'\\''")
 		return "'" + escaped + "'"
 	}

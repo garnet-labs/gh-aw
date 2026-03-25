@@ -100,7 +100,7 @@ func TestWasmGolden_CompileFixtures(t *testing.T) {
 			delimNormRE := regexp.MustCompile(`GH_AW_([A-Z0-9_]*)_[0-9a-f]{16}_EOF`)
 			normExpected := delimNormRE.ReplaceAllString(string(expected), "GH_AW_${1}_NORM_EOF")
 			normActual := delimNormRE.ReplaceAllString(yamlOutput, "GH_AW_${1}_NORM_EOF")
-			require.Equal(t, normExpected, normActual, "output differs from golden for %s", fixture) //nolint:testifylint // golden test requires exact string comparison, not semantic YAML equality
+			require.Equal(t, normExpected, normActual, "output differs from golden for %s", fixture)
 		})
 	}
 }

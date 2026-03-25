@@ -4,6 +4,7 @@ package workflow
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -190,7 +191,7 @@ func TestCodexEngineRenderMCPConfig(t *testing.T) {
 			},
 			mcpTools: []string{"github"},
 			expected: []string{
-				"cat > /tmp/gh-aw/mcp-config/config.toml << GH_AW_MCP_CONFIG_EOF",
+				"cat > /tmp/gh-aw/mcp-config/config.toml << GH_AW_MCP_CONFIG_NORM_EOF",
 				"[history]",
 				"persistence = \"none\"",
 				"",
@@ -205,10 +206,10 @@ func TestCodexEngineRenderMCPConfig(t *testing.T) {
 				fmt.Sprintf("container = \"ghcr.io/github/github-mcp-server:%s\"", constants.DefaultGitHubMCPServerVersion),
 				"env = { \"GITHUB_HOST\" = \"$GITHUB_SERVER_URL\", \"GITHUB_PERSONAL_ACCESS_TOKEN\" = \"$GH_AW_GITHUB_TOKEN\", \"GITHUB_READ_ONLY\" = \"1\", \"GITHUB_TOOLSETS\" = \"context,repos,issues,pull_requests\" }",
 				"env_vars = [\"GITHUB_HOST\", \"GITHUB_PERSONAL_ACCESS_TOKEN\", \"GITHUB_READ_ONLY\", \"GITHUB_TOOLSETS\"]",
-				"GH_AW_MCP_CONFIG_EOF",
+				"GH_AW_MCP_CONFIG_NORM_EOF",
 				"",
 				"# Generate JSON config for MCP gateway",
-				"cat << GH_AW_MCP_CONFIG_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh",
+				"cat << GH_AW_MCP_CONFIG_NORM_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh",
 				"{",
 				"\"mcpServers\": {",
 				"\"github\": {",
@@ -234,7 +235,7 @@ func TestCodexEngineRenderMCPConfig(t *testing.T) {
 				"\"payloadDir\": \"${MCP_GATEWAY_PAYLOAD_DIR}\"",
 				"}",
 				"}",
-				"GH_AW_MCP_CONFIG_EOF",
+				"GH_AW_MCP_CONFIG_NORM_EOF",
 			},
 		},
 	}
@@ -250,15 +251,21 @@ func TestCodexEngineRenderMCPConfig(t *testing.T) {
 			result := yaml.String()
 			lines := strings.Split(strings.TrimSpace(result), "\n")
 
+			// Normalize heredoc delimiters for comparison (randomized at compile time)
+			heredocRE := regexp.MustCompile(`GH_AW_([A-Z_]+)_[0-9a-f]{16}_EOF`)
+			normalizeHeredoc := func(s string) string {
+				return heredocRE.ReplaceAllString(s, "GH_AW_${1}_NORM_EOF")
+			}
+
 			// Remove indentation from both expected and actual lines for comparison
 			var normalizedResult []string
 			for _, line := range lines {
-				normalizedResult = append(normalizedResult, strings.TrimSpace(line))
+				normalizedResult = append(normalizedResult, normalizeHeredoc(strings.TrimSpace(line)))
 			}
 
 			var normalizedExpected []string
 			for _, line := range tt.expected {
-				normalizedExpected = append(normalizedExpected, strings.TrimSpace(line))
+				normalizedExpected = append(normalizedExpected, normalizeHeredoc(strings.TrimSpace(line)))
 			}
 
 			if len(normalizedResult) != len(normalizedExpected) {

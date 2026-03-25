@@ -389,11 +389,11 @@ func TestRenderJSONMCPConfig(t *testing.T) {
 				},
 			},
 			expectedContent: []string{
-				"cat << GH_AW_MCP_CONFIG_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh",
+				"cat << GH_AW_MCP_CONFIG_",
+				"_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh",
 				"\"mcpServers\": {",
 				"\"github\": { \"test\": true },",
 				"\"playwright\": { \"test\": true }",
-				"GH_AW_MCP_CONFIG_EOF",
 			},
 		},
 		{
@@ -426,7 +426,8 @@ func TestRenderJSONMCPConfig(t *testing.T) {
 				},
 			},
 			expectedContent: []string{
-				"cat << GH_AW_MCP_CONFIG_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh",
+				"cat << GH_AW_MCP_CONFIG_",
+				"_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh",
 				"\"github\": { \"filtered\": true }",
 			},
 			unexpectedContent: []string{
@@ -458,7 +459,7 @@ func TestRenderJSONMCPConfig(t *testing.T) {
 				},
 			},
 			expectedContent: []string{
-				"GH_AW_MCP_CONFIG_EOF",
+				"_EOF",
 			},
 			unexpectedContent: []string{
 				"echo \"DEBUG OUTPUT\"",

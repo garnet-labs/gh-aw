@@ -183,7 +183,7 @@ func TestGenerateUnifiedPromptCreationStep_MultipleUserChunks(t *testing.T) {
 	delimiterRE := regexp.MustCompile(`GH_AW_PROMPT_[0-9a-f]+_EOF`)
 	matches := delimiterRE.FindAllString(output, -1)
 	expectedEOFCount := 4 + (len(userPromptChunks) * 2) // 4 for system tags, 2 per user chunk
-	assert.Equal(t, expectedEOFCount, len(matches), "Should have correct number of heredoc delimiter markers")
+	assert.Len(t, matches, expectedEOFCount, "Should have correct number of heredoc delimiter markers")
 
 	// Verify all user chunks are present and in order
 	part1Pos := strings.Index(output, "# Part 1")

@@ -33,6 +33,7 @@ package workflow
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -107,30 +108,28 @@ func GetBaseInstallationSteps(config EngineInstallConfig, workflowData *Workflow
 	return steps
 }
 
+// agentFilePathRE validates that agent file paths contain only safe characters.
+// This prevents shell injection via crafted filenames (POSIX allows ", $, `, ;, | in filenames).
+var agentFilePathRE = regexp.MustCompile(`^[A-Za-z0-9._/ -]+$`)
+
 // ResolveAgentFilePath returns the properly quoted agent file path with GITHUB_WORKSPACE prefix.
-// This helper extracts the common pattern shared by Copilot, Codex, and Claude engines.
-//
-// The agent file path is relative to the repository root, so we prefix it with ${GITHUB_WORKSPACE}
-// and wrap the entire expression in double quotes to handle paths with spaces while allowing
-// shell variable expansion.
+// The path is validated against a strict allowlist of safe characters to prevent shell injection
+// via crafted filenames.
 //
 // Parameters:
 //   - agentFile: The relative path to the agent file (e.g., ".github/agents/test-agent.md")
 //
 // Returns:
-//   - string: The double-quoted path with GITHUB_WORKSPACE prefix (e.g., "${GITHUB_WORKSPACE}/.github/agents/test-agent.md")
-//
-// Example:
-//
-//	agentPath := ResolveAgentFilePath(".github/agents/my-agent.md")
-//	// Returns: "${GITHUB_WORKSPACE}/.github/agents/my-agent.md"
-//
-// Note: The entire path is wrapped in double quotes (not just the variable) to ensure:
-//  1. The shellEscapeArg function recognizes it as already-quoted and doesn't add single quotes
-//  2. Shell variable expansion works (${GITHUB_WORKSPACE} gets expanded inside double quotes)
-//  3. Paths with spaces are properly handled
-func ResolveAgentFilePath(agentFile string) string {
-	return fmt.Sprintf("\"${GITHUB_WORKSPACE}/%s\"", agentFile)
+//   - string: The safely quoted path with GITHUB_WORKSPACE prefix
+//   - error: If the path contains disallowed characters
+func ResolveAgentFilePath(agentFile string) (string, error) {
+	if !agentFilePathRE.MatchString(agentFile) {
+		return "", fmt.Errorf("agent file path contains disallowed characters: %q", agentFile)
+	}
+	// The path is validated against agentFilePathRE which only allows [A-Za-z0-9._/ -].
+	// These characters are all safe inside double quotes, so we can wrap directly
+	// without shellDoubleQuoteArg (which would escape ${GITHUB_WORKSPACE}).
+	return fmt.Sprintf("\"${GITHUB_WORKSPACE}/%s\"", agentFile), nil
 }
 
 // BuildStandardNpmEngineInstallSteps creates standard npm installation steps for engines

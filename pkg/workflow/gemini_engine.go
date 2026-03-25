@@ -220,8 +220,10 @@ func (e *GeminiEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 	// Add streaming JSON output (JSONL format, compatible with the log parser)
 	geminiArgs = append(geminiArgs, "--output-format", "stream-json")
 
-	// Add prompt argument
-	geminiArgs = append(geminiArgs, "--prompt", "\"$(cat /tmp/gh-aw/aw-prompts/prompt.txt)\"")
+	// Build the prompt argument separately — it contains shell command substitution
+	// that must NOT go through shellEscapeArg (which would single-quote it and
+	// prevent expansion).
+	promptArg := `--prompt "$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"`
 
 	// Build the command
 	commandName := "gemini"
@@ -229,7 +231,7 @@ func (e *GeminiEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 		commandName = workflowData.EngineConfig.Command
 	}
 
-	geminiCommand := fmt.Sprintf("%s %s", commandName, shellJoinArgs(geminiArgs))
+	geminiCommand := fmt.Sprintf("%s %s %s", commandName, shellJoinArgs(geminiArgs), promptArg)
 
 	// Build the full command with AWF wrapping if enabled
 	var command string

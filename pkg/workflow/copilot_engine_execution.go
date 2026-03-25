@@ -118,11 +118,14 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		copilotArgs = append(copilotArgs, workflowData.EngineConfig.Args...)
 	}
 
-	// Add prompt argument - inline for sandbox modes, variable for non-sandbox
+	// Build the prompt argument separately — it contains shell variable references
+	// that must NOT go through shellEscapeArg (which would single-quote them and
+	// prevent variable expansion).
+	var promptArg string
 	if sandboxEnabled {
-		copilotArgs = append(copilotArgs, "--prompt", "\"$(cat /tmp/gh-aw/aw-prompts/prompt.txt)\"")
+		promptArg = `--prompt "$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"`
 	} else {
-		copilotArgs = append(copilotArgs, "--prompt", "\"$COPILOT_CLI_INSTRUCTION\"")
+		promptArg = `--prompt "$COPILOT_CLI_INSTRUCTION"`
 	}
 
 	// Extract all --add-dir paths and generate mkdir commands
@@ -163,7 +166,8 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 	}
 
 	// Build the command - model is always passed via COPILOT_MODEL env var (see env block below)
-	copilotCommand = fmt.Sprintf("%s %s", commandName, shellJoinArgs(copilotArgs))
+	// promptArg is appended raw (not through shellJoinArgs) to preserve variable expansion
+	copilotCommand = fmt.Sprintf("%s %s %s", commandName, shellJoinArgs(copilotArgs), promptArg)
 
 	// Conditionally wrap with sandbox (AWF only)
 	var command string

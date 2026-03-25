@@ -345,7 +345,8 @@ func TestBuildCustomScriptFilesStep(t *testing.T) {
 
 	assert.Contains(t, fullYAML, "Setup Safe Outputs Custom Scripts", "Should have setup step name")
 	assert.Contains(t, fullYAML, "safe_output_script_my_handler.cjs", "Should reference the output filename")
-	assert.Contains(t, fullYAML, "GH_AW_SAFE_OUTPUT_SCRIPT_MY_HANDLER_EOF", "Should use correct heredoc delimiter")
+	assert.Contains(t, fullYAML, "GH_AW_SAFE_OUTPUT_SCRIPT_MY_HANDLER_", "Should use correct heredoc delimiter prefix")
+	assert.Contains(t, fullYAML, "_EOF", "Should use heredoc delimiter EOF suffix")
 	// Verify the compiler generates the full outer wrapper
 	assert.Contains(t, fullYAML, "async function main(config = {}) {", "Should generate main function declaration")
 	assert.Contains(t, fullYAML, "const { channel } = config;", "Should generate config input destructuring")

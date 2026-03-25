@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -566,11 +567,13 @@ func (c *Compiler) writeWorkflowOutput(lockFile, yamlContent string, markdownPat
 	} else {
 		log.Printf("Writing output to: %s", lockFile)
 
-		// Check if content has actually changed
+		// Check if content has actually changed.
+		// Heredoc delimiters contain random hex to prevent injection, so we normalize
+		// them before comparing to avoid unnecessary rewrites when only delimiters differ.
 		contentUnchanged := false
 		if existingContent, err := os.ReadFile(lockFile); err == nil {
-			if string(existingContent) == yamlContent {
-				// Content is identical - skip write to preserve timestamp
+			if normalizeHeredocDelimiters(string(existingContent)) == normalizeHeredocDelimiters(yamlContent) {
+				// Content is identical (ignoring randomized heredoc delimiters) - skip write to preserve timestamp
 				contentUnchanged = true
 				log.Print("Lock file content unchanged - skipping write to preserve timestamp")
 			}
@@ -611,6 +614,15 @@ func (c *Compiler) writeWorkflowOutput(lockFile, yamlContent string, markdownPat
 		}
 	}
 	return nil
+}
+
+// heredocDelimiterRE matches randomized heredoc delimiters like GH_AW_PROMPT_a1b2c3d4e5f6g7h8_EOF
+var heredocDelimiterRE = regexp.MustCompile(`GH_AW_([A-Z0-9_]+)_[0-9a-f]{16}_EOF`)
+
+// normalizeHeredocDelimiters replaces randomized heredoc delimiters with a static
+// placeholder so that content comparison ignores delimiter differences.
+func normalizeHeredocDelimiters(content string) string {
+	return heredocDelimiterRE.ReplaceAllString(content, "GH_AW_${1}_NORM_EOF")
 }
 
 // CompileWorkflowData compiles pre-parsed workflow content into GitHub Actions YAML.
