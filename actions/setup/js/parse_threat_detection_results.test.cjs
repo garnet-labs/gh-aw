@@ -102,15 +102,30 @@ describe("parseDetectionLog", () => {
       expect(verdict.prompt_injection).toBe(false);
     });
 
-    it("should coerce non-boolean values to booleans", () => {
+    it("should reject non-boolean values with a type error", () => {
       const content = 'THREAT_DETECTION_RESULT:{"prompt_injection":1,"secret_leak":0,"malicious_patch":"yes","reasons":"not-array"}';
       const { verdict, error } = parseDetectionLog(content);
 
-      expect(error).toBeUndefined();
-      expect(verdict.prompt_injection).toBe(true);
-      expect(verdict.secret_leak).toBe(false);
-      expect(verdict.malicious_patch).toBe(true);
-      expect(verdict.reasons).toEqual([]);
+      expect(verdict).toBeUndefined();
+      expect(error).toContain('Invalid type for "prompt_injection"');
+      expect(error).toContain("expected boolean");
+    });
+
+    it('should reject string "false" as non-boolean', () => {
+      const content = 'THREAT_DETECTION_RESULT:{"prompt_injection":"false","secret_leak":false,"malicious_patch":false,"reasons":[]}';
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(verdict).toBeUndefined();
+      expect(error).toContain('Invalid type for "prompt_injection"');
+      expect(error).toContain("got string");
+    });
+
+    it('should reject string "true" as non-boolean', () => {
+      const content = 'THREAT_DETECTION_RESULT:{"prompt_injection":"true","secret_leak":false,"malicious_patch":false,"reasons":[]}';
+      const { verdict, error } = parseDetectionLog(content);
+
+      expect(verdict).toBeUndefined();
+      expect(error).toContain('Invalid type for "prompt_injection"');
     });
   });
 
@@ -290,7 +305,7 @@ describe("main", () => {
       await mod.main();
 
       expect(mockCore.setOutput).toHaveBeenCalledWith("success", "false");
-      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("No THREAT_DETECTION_RESULT line found"));
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("No THREAT_DETECTION_RESULT found"));
     });
 
     it("should fail when detection log has multiple result lines", async () => {
@@ -302,7 +317,7 @@ describe("main", () => {
       await mod.main();
 
       expect(mockCore.setOutput).toHaveBeenCalledWith("success", "false");
-      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("Multiple THREAT_DETECTION_RESULT lines found"));
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("Multiple THREAT_DETECTION_RESULT entries found"));
     });
 
     it("should fail when result JSON is invalid", async () => {

@@ -110,10 +110,20 @@ function parseDetectionLog(content) {
   const jsonPart = matches[0].substring(RESULT_PREFIX.length);
   try {
     const parsed = JSON.parse(jsonPart);
+
+    // Validate that threat flags are actual booleans.
+    // Boolean("false") === true, so accepting non-boolean types would cause
+    // false positives (string "false" treated as a detection).
+    for (const field of ["prompt_injection", "secret_leak", "malicious_patch"]) {
+      if (typeof parsed[field] !== "boolean") {
+        return { error: `Invalid type for "${field}": expected boolean, got ${typeof parsed[field]} (${JSON.stringify(parsed[field])}). Raw value: ${matches[0]}` };
+      }
+    }
+
     const verdict = {
-      prompt_injection: Boolean(parsed.prompt_injection),
-      secret_leak: Boolean(parsed.secret_leak),
-      malicious_patch: Boolean(parsed.malicious_patch),
+      prompt_injection: parsed.prompt_injection,
+      secret_leak: parsed.secret_leak,
+      malicious_patch: parsed.malicious_patch,
       reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
     };
     return { verdict };
