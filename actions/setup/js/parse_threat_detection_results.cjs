@@ -164,10 +164,10 @@ async function main() {
   // Parse the detection result
   const { verdict, error } = parseDetectionLog(logContent);
 
-  if (error) {
-    core.error("❌ " + error);
+  if (error || !verdict) {
+    core.error("❌ " + (error || "No verdict returned from detection log parser"));
     core.setOutput("success", "false");
-    core.setFailed(`${ERR_PARSE}: ❌ ${error}`);
+    core.setFailed(`${ERR_PARSE}: ❌ ${error || "No verdict returned from detection log parser"}`);
     return;
   }
 
