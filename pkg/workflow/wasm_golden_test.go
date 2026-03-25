@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -95,7 +96,11 @@ func TestWasmGolden_CompileFixtures(t *testing.T) {
 			}
 			expected, err := os.ReadFile(goldenPath)
 			require.NoError(t, err, "golden file not found for %s (run with -update to create)", fixture)
-			require.Equal(t, string(expected), yamlOutput, "output differs from golden for %s", fixture) //nolint:testifylint // golden test requires exact string comparison, not semantic YAML equality
+			// Normalize random heredoc delimiters before comparing since they change each compilation
+			delimNormRE := regexp.MustCompile(`GH_AW_([A-Z0-9_]*)_[0-9a-f]{16}_EOF`)
+			normExpected := delimNormRE.ReplaceAllString(string(expected), "GH_AW_${1}_NORM_EOF")
+			normActual := delimNormRE.ReplaceAllString(yamlOutput, "GH_AW_${1}_NORM_EOF")
+			require.Equal(t, normExpected, normActual, "output differs from golden for %s", fixture) //nolint:testifylint // golden test requires exact string comparison, not semantic YAML equality
 		})
 	}
 }
@@ -172,8 +177,15 @@ This workflow tests that compilation is deterministic.
 		results[i] = yamlOutput
 	}
 
-	require.Equal(t, results[0], results[1], "compilation 1 and 2 differ")
-	require.Equal(t, results[1], results[2], "compilation 2 and 3 differ")
+	// Normalize heredoc delimiters before comparison since they contain random hex.
+	// The delimiter format is GH_AW_<NAME>_<RANDOM_HEX>_EOF.
+	delimiterNormRE := regexp.MustCompile(`GH_AW_([A-Z0-9_]*)_[0-9a-f]{16}_EOF`)
+	normalizeDelimiters := func(s string) string {
+		return delimiterNormRE.ReplaceAllString(s, "GH_AW_${1}_NORMALIZED_EOF")
+	}
+
+	require.Equal(t, normalizeDelimiters(results[0]), normalizeDelimiters(results[1]), "compilation 1 and 2 differ")
+	require.Equal(t, normalizeDelimiters(results[1]), normalizeDelimiters(results[2]), "compilation 2 and 3 differ")
 }
 
 // TestWasmGolden_NativeVsStringAPI compiles a workflow using both the native

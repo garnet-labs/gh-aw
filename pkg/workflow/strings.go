@@ -79,6 +79,8 @@
 package workflow
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"regexp"
 	"slices"
@@ -259,24 +261,21 @@ func ShortenCommand(command string) string {
 	return shortened
 }
 
-// GenerateHeredocDelimiter creates a standardized heredoc delimiter with the GH_AW prefix.
-// All heredoc delimiters in compiled lock.yml files should use this format for consistency.
+// GenerateHeredocDelimiter generates a cryptographically random heredoc delimiter
+// that cannot be predicted or injected by workflow authors. Each call produces a
+// unique delimiter, preventing delimiter injection attacks where user-authored
+// prompt content could close the heredoc early and execute arbitrary shell commands.
 //
-// The function generates delimiters in the format: GH_AW_<NAME>_EOF
+// The delimiter format is: GH_AW_<NAME>_<RANDOM_HEX>_EOF
 //
 // Parameters:
 //   - name: A descriptive identifier for the heredoc content (e.g., "PROMPT", "MCP_CONFIG", "TOOLS_JSON")
 //     The name should use SCREAMING_SNAKE_CASE without the _EOF suffix.
 //
-// Returns a delimiter string in the format "GH_AW_<NAME>_EOF"
-//
 // Example:
 //
-//	GenerateHeredocDelimiter("PROMPT")          // returns "GH_AW_PROMPT_EOF"
-//	GenerateHeredocDelimiter("MCP_CONFIG")      // returns "GH_AW_MCP_CONFIG_EOF"
-//	GenerateHeredocDelimiter("TOOLS_JSON")      // returns "GH_AW_TOOLS_JSON_EOF"
-//	GenerateHeredocDelimiter("SRT_CONFIG")      // returns "GH_AW_SRT_CONFIG_EOF"
-//	GenerateHeredocDelimiter("FILE_123ABC")     // returns "GH_AW_FILE_123ABC_EOF"
+//	GenerateHeredocDelimiter("")               // returns e.g. "GH_AW_a1b2c3d4e5f67890_EOF"
+//	GenerateHeredocDelimiter("PROMPT")         // returns e.g. "GH_AW_PROMPT_a1b2c3d4e5f67890_EOF"
 //
 // Usage in heredoc generation:
 //
@@ -285,10 +284,21 @@ func ShortenCommand(command string) string {
 //	yaml.WriteString("content here\n")
 //	yaml.WriteString(delimiter + "\n")
 func GenerateHeredocDelimiter(name string) string {
-	if name == "" {
-		return "GH_AW_EOF"
+	var b [8]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		// Fallback: this should never happen with crypto/rand, but if it does,
+		// use a prefix that makes collision with user content extremely unlikely.
+		stringsLog.Printf("Warning: crypto/rand failed (%v), using fallback delimiter", err)
+		if name == "" {
+			return "GH_AW__FALLBACK_HEREDOC_DELIMITER__EOF"
+		}
+		return "GH_AW_" + strings.ToUpper(name) + "__FALLBACK_HEREDOC_DELIMITER__EOF"
 	}
-	return "GH_AW_" + strings.ToUpper(name) + "_EOF"
+	randomHex := hex.EncodeToString(b[:])
+	if name == "" {
+		return fmt.Sprintf("GH_AW_%s_EOF", randomHex)
+	}
+	return fmt.Sprintf("GH_AW_%s_%s_EOF", strings.ToUpper(name), randomHex)
 }
 
 // PrettifyToolName removes "mcp__" prefix and formats tool names nicely

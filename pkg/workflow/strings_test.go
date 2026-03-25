@@ -510,127 +510,68 @@ func TestSanitizeName_NilOptions(t *testing.T) {
 
 func TestGenerateHeredocDelimiter(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    string
-		expected string
+		name   string
+		input  string
+		prefix string
 	}{
 		{
-			name:     "simple name",
-			input:    "PROMPT",
-			expected: "GH_AW_PROMPT_EOF",
+			name:   "simple name",
+			input:  "PROMPT",
+			prefix: "GH_AW_PROMPT_",
 		},
 		{
-			name:     "multi-word name with underscores",
-			input:    "MCP_CONFIG",
-			expected: "GH_AW_MCP_CONFIG_EOF",
+			name:   "multi-word name with underscores",
+			input:  "MCP_CONFIG",
+			prefix: "GH_AW_MCP_CONFIG_",
 		},
 		{
-			name:     "tools json",
-			input:    "TOOLS_JSON",
-			expected: "GH_AW_TOOLS_JSON_EOF",
+			name:   "empty string returns default format",
+			input:  "",
+			prefix: "GH_AW_",
 		},
 		{
-			name:     "SRT config",
-			input:    "SRT_CONFIG",
-			expected: "GH_AW_SRT_CONFIG_EOF",
-		},
-		{
-			name:     "SRT wrapper",
-			input:    "SRT_WRAPPER",
-			expected: "GH_AW_SRT_WRAPPER_EOF",
-		},
-		{
-			name:     "file with hash",
-			input:    "FILE_123ABC",
-			expected: "GH_AW_FILE_123ABC_EOF",
-		},
-		{
-			name:     "mcp-scripts",
-			input:    "MCP_SCRIPTS",
-			expected: "GH_AW_MCP_SCRIPTS_EOF",
-		},
-		{
-			name:     "JS file suffix",
-			input:    "EOFJS_TOOL_NAME",
-			expected: "GH_AW_EOFJS_TOOL_NAME_EOF",
-		},
-		{
-			name:     "shell file suffix",
-			input:    "EOFSH_TOOL_NAME",
-			expected: "GH_AW_EOFSH_TOOL_NAME_EOF",
-		},
-		{
-			name:     "python file suffix",
-			input:    "EOFPY_TOOL_NAME",
-			expected: "GH_AW_EOFPY_TOOL_NAME_EOF",
-		},
-		{
-			name:     "go file suffix",
-			input:    "EOFGO_TOOL_NAME",
-			expected: "GH_AW_EOFGO_TOOL_NAME_EOF",
-		},
-		{
-			name:     "lowercase input gets uppercased",
-			input:    "prompt",
-			expected: "GH_AW_PROMPT_EOF",
-		},
-		{
-			name:     "mixed case input",
-			input:    "Mcp_Config",
-			expected: "GH_AW_MCP_CONFIG_EOF",
-		},
-		{
-			name:     "empty string returns default",
-			input:    "",
-			expected: "GH_AW_EOF",
-		},
-		{
-			name:     "single character",
-			input:    "A",
-			expected: "GH_AW_A_EOF",
-		},
-		{
-			name:     "numbers only",
-			input:    "123",
-			expected: "GH_AW_123_EOF",
-		},
-		{
-			name:     "alphanumeric with underscores",
-			input:    "CONFIG_V2_TEST",
-			expected: "GH_AW_CONFIG_V2_TEST_EOF",
+			name:   "lowercase input gets uppercased",
+			input:  "prompt",
+			prefix: "GH_AW_PROMPT_",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := GenerateHeredocDelimiter(tt.input)
-			assert.Equal(t, tt.expected, result, "GenerateHeredocDelimiter failed for test case: %s", tt.name)
+			assert.True(t, strings.HasPrefix(result, tt.prefix),
+				"delimiter should start with %q, got %q", tt.prefix, result)
+			assert.True(t, strings.HasSuffix(result, "_EOF"),
+				"delimiter should end with _EOF, got %q", result)
+
+			// Verify format is valid for heredoc usage (uppercase alphanumeric + underscore + hex)
+			validPattern := regexp.MustCompile(`^[A-Za-z0-9_]+$`)
+			assert.True(t, validPattern.MatchString(result),
+				"delimiter should contain only alphanumeric and underscores, got %q", result)
 		})
 	}
 }
 
 func TestGenerateHeredocDelimiter_Usage(t *testing.T) {
-	// Test that the delimiter can be used in actual heredoc patterns
 	delimiter := GenerateHeredocDelimiter("TEST")
-	assert.Equal(t, "GH_AW_TEST_EOF", delimiter)
 
 	// Verify format is correct for heredoc usage
-	assert.True(t, strings.HasPrefix(delimiter, "GH_AW_"), "Delimiter should start with GH_AW_")
+	assert.True(t, strings.HasPrefix(delimiter, "GH_AW_TEST_"), "Delimiter should start with GH_AW_TEST_")
 	assert.True(t, strings.HasSuffix(delimiter, "_EOF"), "Delimiter should end with _EOF")
 
-	// Test that it contains only uppercase alphanumeric and underscores (valid for heredoc)
-	validPattern := regexp.MustCompile(`^[A-Z0-9_]+$`)
-	assert.True(t, validPattern.MatchString(delimiter), "Delimiter should contain only uppercase alphanumeric and underscores")
+	// Verify contains random hex component (at least 16 hex chars)
+	assert.Greater(t, len(delimiter), len("GH_AW_TEST__EOF"),
+		"Delimiter should contain random hex component")
 }
 
-func TestGenerateHeredocDelimiter_Consistency(t *testing.T) {
-	// Test that calling the function multiple times with same input produces same output
-	input := "CONSISTENT_TEST"
-	result1 := GenerateHeredocDelimiter(input)
-	result2 := GenerateHeredocDelimiter(input)
-	result3 := GenerateHeredocDelimiter(input)
-
-	assert.Equal(t, result1, result2, "GenerateHeredocDelimiter should be consistent")
-	assert.Equal(t, result2, result3, "GenerateHeredocDelimiter should be consistent")
-	assert.Equal(t, "GH_AW_CONSISTENT_TEST_EOF", result1)
+func TestGenerateHeredocDelimiter_Uniqueness(t *testing.T) {
+	// Each call must produce a unique delimiter to prevent injection
+	input := "PROMPT"
+	seen := make(map[string]bool)
+	for i := 0; i < 100; i++ {
+		result := GenerateHeredocDelimiter(input)
+		assert.False(t, seen[result],
+			"GenerateHeredocDelimiter must produce unique delimiters, got duplicate: %s", result)
+		seen[result] = true
+	}
 }

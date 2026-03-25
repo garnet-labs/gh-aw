@@ -5,6 +5,7 @@ package workflow
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -122,17 +123,15 @@ func extractMCPServerEntryPoint(yamlStr string) string {
 		return ""
 	}
 
-	// Generate the expected heredoc delimiter (same as the generator uses)
-	delimiter := GenerateHeredocDelimiter("MCP_SCRIPTS_SERVER")
-	heredocMarker := "<< '" + delimiter + "'"
-
-	// Find the heredoc start marker
-	heredocStart := strings.Index(yamlStr[start:], heredocMarker)
-	if heredocStart == -1 {
+	// Find the heredoc start marker using a regex for randomized delimiters
+	heredocRE := regexp.MustCompile(`<< '(GH_AW_MCP_SCRIPTS_SERVER_[0-9a-f]+_EOF)'`)
+	loc := heredocRE.FindStringSubmatchIndex(yamlStr[start:])
+	if loc == nil {
 		return ""
 	}
+	delimiter := yamlStr[start+loc[2] : start+loc[3]]
 	// Move past the heredoc start and newline to the actual content
-	contentStart := start + heredocStart + len(heredocMarker) + 1 // +1 for newline
+	contentStart := start + loc[1] + 1 // +1 for newline
 
 	// Find the delimiter marker that ends the heredoc (should be at start of a line)
 	endMarkerWithSpaces := "\n          " + delimiter
