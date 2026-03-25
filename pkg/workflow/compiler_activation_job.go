@@ -201,7 +201,7 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 		steps = append(steps, fmt.Sprintf("        uses: %s\n", GetActionPin("actions/github-script")))
 		if len(data.Bots) > 0 {
 			steps = append(steps, "        env:\n")
-			steps = append(steps, fmt.Sprintf("          GH_AW_ALLOWED_BOTS: %s\n", strings.Join(data.Bots, ",")))
+			steps = append(steps, fmt.Sprintf("          GH_AW_ALLOWED_BOTS: %q\n", strings.Join(data.Bots, ",")))
 		}
 		steps = append(steps, "        with:\n")
 		steps = append(steps, "          script: |\n")

@@ -106,13 +106,13 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 			if err != nil {
 				return fmt.Errorf("failed to marshal repository imports for merge step: %w", err)
 			}
-			fmt.Fprintf(yaml, "          GH_AW_REPOSITORY_IMPORTS: '%s'\n", string(repoImportsJSON))
+			fmt.Fprintf(yaml, "          GH_AW_REPOSITORY_IMPORTS: %q\n", string(repoImportsJSON))
 		}
 
 		// Set agent import spec if present (legacy path)
 		if data.AgentFile != "" && data.AgentImportSpec != "" {
-			fmt.Fprintf(yaml, "          GH_AW_AGENT_FILE: \"%s\"\n", data.AgentFile)
-			fmt.Fprintf(yaml, "          GH_AW_AGENT_IMPORT_SPEC: \"%s\"\n", data.AgentImportSpec)
+			fmt.Fprintf(yaml, "          GH_AW_AGENT_FILE: %q\n", data.AgentFile)
+			fmt.Fprintf(yaml, "          GH_AW_AGENT_IMPORT_SPEC: %q\n", data.AgentImportSpec)
 		}
 
 		yaml.WriteString("        with:\n")
