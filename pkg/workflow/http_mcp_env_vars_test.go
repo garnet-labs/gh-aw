@@ -91,3 +91,21 @@ func TestCollectMCPEnvironmentVariables_HTTPMCPWithoutSecrets(t *testing.T) {
 	// Should not add any env vars since there are no secrets
 	assert.Empty(t, envVars, "Should not add environment variables for HTTP MCP without secrets")
 }
+
+func TestCollectMCPEnvironmentVariables_GHECAPITargetSetsGitHubAPIURL(t *testing.T) {
+	tools := map[string]any{
+		"github": map[string]any{
+			"mode": "remote",
+		},
+	}
+
+	mcpTools := []string{"github"}
+	workflowData := &WorkflowData{
+		EngineConfig: &EngineConfig{
+			APITarget: "copilot-api.contoso.ghe.com",
+		},
+	}
+
+	envVars := collectMCPEnvironmentVariables(tools, mcpTools, workflowData, false)
+	assert.Equal(t, "https://copilot-api.contoso.ghe.com", envVars["GITHUB_API_URL"], "GHEC api-target should set GITHUB_API_URL for proxy/gateway routing")
+}

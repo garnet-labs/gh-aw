@@ -49,6 +49,7 @@ import (
 	"maps"
 
 	"slices"
+	"strings"
 
 	"github.com/github/gh-aw/pkg/logger"
 )
@@ -87,6 +88,16 @@ func collectMCPEnvironmentVariables(tools map[string]any, mcpTools []string, wor
 		if !guardPoliciesExplicit {
 			envVars["GITHUB_MCP_GUARD_MIN_INTEGRITY"] = "${{ steps.determine-automatic-lockdown.outputs.min_integrity }}"
 			envVars["GITHUB_MCP_GUARD_REPOS"] = "${{ steps.determine-automatic-lockdown.outputs.repos }}"
+		}
+
+		// For GHEC data residency targets (*.ghe.com), force the proxy/gateway upstream API URL
+		// to the workflow's configured api-target host. This ensures integrity filtering for
+		// gh CLI and actions/github-script traffic points to the tenant API endpoint.
+		if workflowData != nil && workflowData.EngineConfig != nil {
+			apiTarget := normalizeHostOnly(workflowData.EngineConfig.APITarget)
+			if strings.HasSuffix(strings.ToLower(apiTarget), ".ghe.com") {
+				envVars["GITHUB_API_URL"] = "https://" + apiTarget
+			}
 		}
 	}
 
@@ -187,4 +198,14 @@ func collectMCPEnvironmentVariables(tools map[string]any, mcpTools []string, wor
 	}
 
 	return envVars
+}
+
+func normalizeHostOnly(value string) string {
+	host := strings.TrimSpace(value)
+	host = strings.TrimPrefix(host, "https://")
+	host = strings.TrimPrefix(host, "http://")
+	if idx := strings.Index(host, "/"); idx >= 0 {
+		host = host[:idx]
+	}
+	return host
 }

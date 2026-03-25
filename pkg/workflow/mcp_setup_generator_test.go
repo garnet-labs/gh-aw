@@ -531,3 +531,42 @@ Test that multiple secrets are passed to gateway container.
 	assert.Contains(t, yamlStr, "-e DD_APP_KEY",
 		"DD_APP_KEY should be passed to container")
 }
+
+func TestGHECApiTargetPassesGitHubAPIURLToGatewayContainer(t *testing.T) {
+	frontmatter := `---
+on: workflow_dispatch
+engine:
+  id: copilot
+  api-target: copilot-api.contoso.ghe.com
+tools:
+  github:
+    mode: remote
+    toolsets: [repos]
+---
+
+# Test GHEC API target to gateway
+
+Test that GITHUB_API_URL is set from api-target and passed to the gateway container.
+`
+
+	compiler := NewCompiler()
+
+	tmpDir := t.TempDir()
+	inputFile := filepath.Join(tmpDir, "test.md")
+
+	err := os.WriteFile(inputFile, []byte(frontmatter), 0644)
+	require.NoError(t, err, "Failed to write test input file")
+
+	err = compiler.CompileWorkflow(inputFile)
+	require.NoError(t, err, "Compilation should succeed")
+
+	outputFile := stringutil.MarkdownToLockFile(inputFile)
+	content, err := os.ReadFile(outputFile)
+	require.NoError(t, err, "Failed to read output file")
+	yamlStr := string(content)
+
+	assert.Contains(t, yamlStr, "GITHUB_API_URL: https://copilot-api.contoso.ghe.com",
+		"GITHUB_API_URL should be set in Start MCP Gateway env from engine.api-target")
+	assert.Contains(t, yamlStr, "-e GITHUB_API_URL",
+		"GITHUB_API_URL should be passed to gateway container")
+}
