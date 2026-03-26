@@ -43,6 +43,18 @@ const KNOWN_WASM_DIVERGENCE = new Set([
   "dev-hawk",             // workflow_run trigger: missing zizmor annotation + fork validation
 ]);
 
+// Error substrings that indicate a fixture cannot compile in the wasm/js environment
+// due to missing filesystem support or other wasm limitations.
+const WASM_LIMITATION_MESSAGES = [
+  "not implemented on js",
+  "import file not found",
+  "must be within .github folder",
+  "fuzzy cron expression",
+  "Configuration error",
+  "Validation failed",
+  "file not found in virtual filesystem",
+];
+
 // ── Build wasm if needed ─────────────────────────────────────────────
 function ensureWasmBuilt() {
   if (!existsSync(WASM_FILE)) {
@@ -248,11 +260,11 @@ async function main() {
           }
         }
         if (wasmLines.length !== goldenLines.length) {
+          const lineCountMsg = `Line count: wasm=${wasmLines.length}, golden=${goldenLines.length}`;
+          const existingError = failures.length > 0 ? failures[failures.length - 1].error + "\n" : "";
           failures.push({
             name: fixture.name,
-            error:
-              (failures.length > 0 ? failures[failures.length - 1].error + "\n" : "") +
-              `Line count: wasm=${wasmLines.length}, golden=${goldenLines.length}`,
+            error: existingError + lineCountMsg,
           });
         }
         failed++;
@@ -262,14 +274,7 @@ async function main() {
       // wasm/js environment. Some fixtures compile fine with disk access
       // (Go test) but fail in wasm due to missing filesystem support.
       const msg = err.message || String(err);
-      const isWasmLimitation =
-        msg.includes("not implemented on js") ||
-        msg.includes("import file not found") ||
-        msg.includes("must be within .github folder") ||
-        msg.includes("fuzzy cron expression") ||
-        msg.includes("Configuration error") ||
-        msg.includes("Validation failed") ||
-        msg.includes("file not found in virtual filesystem");
+      const isWasmLimitation = WASM_LIMITATION_MESSAGES.some((m) => msg.includes(m));
       if (isWasmLimitation) {
         console.log("SKIP (cannot compile in wasm)");
         skipped++;
