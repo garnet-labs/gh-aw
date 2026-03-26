@@ -417,6 +417,29 @@ Logs are saved to `logs/run-{id}/` with filenames indicating the extraction leve
 | **Jobs** | Status of each GitHub Actions job in the run |
 | **Artifacts** | Downloaded artifacts and their contents |
 
+#### `audit diff`
+
+Compare workflow run behavior between two runs to detect policy regressions, new unauthorized domains, behavioral drift, and changes in MCP tool usage or run metrics. Downloads artifacts for both runs (using cached data when available) and produces a diff across three areas.
+
+```bash wrap
+gh aw audit diff 12345 12346                        # Compare two runs
+gh aw audit diff 12345 12346 --format markdown      # Markdown output for PR comments
+gh aw audit diff 12345 12346 --json                 # JSON for CI integration
+gh aw audit diff 12345 12346 --repo owner/repo      # Specify repository
+```
+
+**Options:** `--format` (pretty, markdown, json), `--json`, `--repo/-r`
+
+**Diff sections:**
+
+| Section | Description |
+|---------|-------------|
+| **Firewall** | New/removed domains, allowed ↔ denied status changes, volume drift (>100% threshold), anomaly flags |
+| **MCP tools** | New/removed tool invocations, call count and error count changes between runs |
+| **Run metrics** | Token usage, duration, and turn count changes (when cached audit data is available) |
+
+Auto-detects GHES host from the git remote when `--repo` is not specified.
+
 #### `health`
 
 Display workflow health metrics and success rates.
