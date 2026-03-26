@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-26T06:22:51Z",
-  "run_id": "23580548645",
+  "run_date": "2026-03-26T12:15:06Z",
+  "run_id": "23593690977",
   "fork_prs": 0,
-  "agent_prs_found": 8,
-  "agent_prs_excluded": 8,
-  "notes": "8 Copilot agent PRs found, all originate from same-repo branches (not forks). Excluded per fork-only policy. 5 new draft WIP PRs created this run (#23059-#23063) for code scanning fixes, plus #23047 for audit report feature, plus 2 carry-over (#22829, #22794). No fork PRs to triage.",
+  "agent_prs_found": 14,
+  "agent_prs_excluded": 14,
+  "notes": "14 agent PRs found (Copilot + github-actions[bot]), all originate from same-repo branches (not forks). Excluded per fork-only policy. New since last run: #23069 (ENOBUFS fix), #23070 (env.* compile rejection), #23077 (fp-enhancer refactor draft), #23085 (community docs draft), #23086 (instructions sync), #23090 (docs consolidation). No fork PRs to triage.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,6 +17,12 @@
     "by_action": {}
   },
   "prs_examined": [
+    {"number": 23090, "title": "[docs] Consolidate developer specifications into instructions file", "author": "github-actions[bot]", "draft": false, "same_repo": true, "created_at": "2026-03-26T11:19:21Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23086, "title": "[instructions] Sync github-agentic-workflows.md with v0.40.1", "author": "github-actions[bot]", "draft": false, "same_repo": true, "created_at": "2026-03-26T10:58:44Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23085, "title": "[community] docs: update community contributions", "author": "github-actions[bot]", "draft": true, "same_repo": true, "created_at": "2026-03-26T10:57:35Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23077, "title": "[fp-enhancer] refactor(cli): functional/immutability improvements to pkg/cli", "author": "github-actions[bot]", "draft": true, "same_repo": true, "created_at": "2026-03-26T09:38:00Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23070, "title": "fix: reject env.* expressions in markdown at compile time", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-26T06:54:26Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23069, "title": "fix: prevent ENOBUFS in push_repo_memory on large repos", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-26T06:52:49Z", "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23063, "title": "[WIP] Fix code scanning alert 546", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:46Z", "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23062, "title": "[WIP] Fix code scanning alerts flagged in repository", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:42Z", "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23061, "title": "[WIP] Fix code scanning alert 551", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:34Z", "excluded_reason": "same-repo branch, not a fork"},
