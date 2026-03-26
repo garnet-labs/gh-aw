@@ -270,14 +270,10 @@ func parseFirewallLog(logPath string, verbose bool) (*FirewallAnalysis, error) {
 
 		if isAllowed {
 			analysis.AllowedRequests++
-			if !allowedDomainsSet[domain] {
-				allowedDomainsSet[domain] = true
-			}
+			allowedDomainsSet[domain] = true
 		} else {
 			analysis.BlockedRequests++
-			if !blockedDomainsSet[domain] {
-				blockedDomainsSet[domain] = true
-			}
+			blockedDomainsSet[domain] = true
 		}
 
 		// Track request count per domain

@@ -197,17 +197,26 @@ func CheckAndPrepareDockerImages(ctx context.Context, useZizmor, usePoutine, use
 		return nil
 	}
 
+	// Declare the images to check up front so both the Docker availability check
+	// and the image availability loop share a single source of truth.
+	type imageEntry struct {
+		use   bool
+		image string
+		name  string
+	}
+	imagesToCheck := []imageEntry{
+		{useZizmor, ZizmorImage, "zizmor"},
+		{usePoutine, PoutineImage, "poutine"},
+		{useActionlint, ActionlintImage, "actionlint"},
+	}
+
 	// Check if Docker daemon is available before attempting any image operations
 	if !IsDockerAvailable() {
-		var requestedTools []string
-		if useZizmor {
-			requestedTools = append(requestedTools, "zizmor")
-		}
-		if usePoutine {
-			requestedTools = append(requestedTools, "poutine")
-		}
-		if useActionlint {
-			requestedTools = append(requestedTools, "actionlint")
+		requestedTools := make([]string, 0, len(imagesToCheck))
+		for _, img := range imagesToCheck {
+			if img.use {
+				requestedTools = append(requestedTools, img.name)
+			}
 		}
 		toolsList := strings.Join(requestedTools, " and ")
 		flagsList := "--" + strings.Join(requestedTools, "/--")
@@ -220,17 +229,6 @@ func CheckAndPrepareDockerImages(ctx context.Context, useZizmor, usePoutine, use
 
 	var missingImages []string
 	var downloadingImages []string
-
-	// Check which images are needed and their availability
-	imagesToCheck := []struct {
-		use   bool
-		image string
-		name  string
-	}{
-		{useZizmor, ZizmorImage, "zizmor"},
-		{usePoutine, PoutineImage, "poutine"},
-		{useActionlint, ActionlintImage, "actionlint"},
-	}
 
 	for _, img := range imagesToCheck {
 		if !img.use {
