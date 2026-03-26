@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-25T18:17:32Z",
-  "run_id": "23556917305",
+  "run_date": "2026-03-26T00:14:11Z",
+  "run_id": "23570778352",
   "fork_prs": 0,
-  "agent_prs_found": 9,
-  "agent_prs_excluded": 9,
-  "notes": "9 Copilot agent PRs found + 1 human PR, all originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage.",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 Copilot agent PRs found + 1 human PR, all originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,15 +17,10 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 22944, "title": "[WIP] Increase Copilot engine turn limit for complex build workflow", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22943, "title": "[WIP] Add maven-central.storage-download.googleapis.com to Kotlin ecosystem allowlist", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22942, "title": "[WIP] Add missing domains to Kotlin ecosystem allowlist", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22941, "title": "[WIP] Add missing domains to R ecosystem allowlist", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22938, "title": "feat: add post cleanup script to actions/setup to remove temp files", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22932, "title": "feat: expand gh aw audit with engine config, prompt, and permissions display", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22931, "title": "fix: enforce MCP gateway tool allowlist and restrict GitHub tools", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23004, "title": "[WIP] Fix heredoc delimiter injection to prevent code-review bypass", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 22996, "title": "feat: gh aw audit diff — compare firewall behavior across runs", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 22829, "title": "feat: add imports.marketplaces and imports.plugins support", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22794, "title": "Apply DIFC integrity filtering to pre-agentic activation checks", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 22794, "title": "Apply DIFC integrity filtering to pre-agentic activation and checks", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 22916, "title": "docs: add consolidated token reference page", "author": "lpcox", "draft": false, "same_repo": true, "excluded_reason": "human author, not agent PR"}
   ]
 }
