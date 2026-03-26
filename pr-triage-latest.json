@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-26T00:14:11Z",
-  "run_id": "23570778352",
+  "run_date": "2026-03-26T06:22:51Z",
+  "run_id": "23580548645",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 Copilot agent PRs found + 1 human PR, all originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage.",
+  "agent_prs_found": 8,
+  "agent_prs_excluded": 8,
+  "notes": "8 Copilot agent PRs found, all originate from same-repo branches (not forks). Excluded per fork-only policy. 5 new draft WIP PRs created this run (#23059-#23063) for code scanning fixes, plus #23047 for audit report feature, plus 2 carry-over (#22829, #22794). No fork PRs to triage.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,10 +17,13 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 23004, "title": "[WIP] Fix heredoc delimiter injection to prevent code-review bypass", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22996, "title": "feat: gh aw audit diff — compare firewall behavior across runs", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22829, "title": "feat: add imports.marketplaces and imports.plugins support", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22794, "title": "Apply DIFC integrity filtering to pre-agentic activation and checks", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22916, "title": "docs: add consolidated token reference page", "author": "lpcox", "draft": false, "same_repo": true, "excluded_reason": "human author, not agent PR"}
+    {"number": 23063, "title": "[WIP] Fix code scanning alert 546", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:46Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23062, "title": "[WIP] Fix code scanning alerts flagged in repository", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:42Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23061, "title": "[WIP] Fix code scanning alert 551", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:34Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23060, "title": "[WIP] Fix code scanning alert 495", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:06Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23059, "title": "[WIP] Fix code scanning alert 558", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:20:47Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23047, "title": "feat: `gh aw audit report` — cross-run security audit reports", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-26T05:24:25Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 22829, "title": "feat: add imports.plugins support with all Copilot CLI spec formats", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-25T04:25:39Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 22794, "title": "Apply DIFC integrity filtering to pre-agentic activation and pre-activation job steps", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-25T00:22:09Z", "excluded_reason": "same-repo branch, not a fork"}
   ]
 }
