@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-27T06:23:59Z",
-  "run_id": "23634083171",
+  "run_date": "2026-03-27T12:12:14Z",
+  "run_id": "23645566574",
   "fork_prs": 0,
-  "agent_prs_found": 10,
-  "agent_prs_excluded": 10,
-  "notes": "10 open PRs found (6 Copilot, 3 github-actions[bot], 1 dsyme). All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Same situation as previous run (23624419258).",
+  "agent_prs_found": 13,
+  "agent_prs_excluded": 13,
+  "notes": "13 open PRs found (6 Copilot, 6 github-actions[bot], 1 dsyme). All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Same situation as previous runs (23624419258, 23634083171). 3 new PRs since last run: #23222, #23219, #23216.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,85 +17,18 @@
     "by_action": {}
   },
   "prs_examined": [
-    {
-      "number": 23211,
-      "title": "[code-simplifier] refactor: use getErrorMessage helper in extra_empty_commit.cjs",
-      "author": "github-actions[bot]",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23208,
-      "title": "[jsweep] Clean add_workflow_run_comment.cjs",
-      "author": "github-actions[bot]",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23204,
-      "title": "[docs] docs: unbloat SpecOps pattern page",
-      "author": "github-actions[bot]",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23192,
-      "title": "feat: support `uses`/`with` import syntax and `import-schema` validation",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23190,
-      "title": "feat(safe-outputs): add `patch-format: bundle` transport for code-push",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23185,
-      "title": "fix: skip detection job at job-level when agent produces no outputs or patch",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23181,
-      "title": "chore: bump gh-aw-firewall to v0.25.2",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 23165,
-      "title": "fix: trial command missing remote dependency fetching for imports",
-      "author": "dsyme",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork (also not agent-created)"
-    },
-    {
-      "number": 23141,
-      "title": "Pass --openai-api-base-path / --anthropic-api-base-path to AWF when URL contains",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    },
-    {
-      "number": 22794,
-      "title": "Apply DIFC integrity filtering to the main agent job (post-activation only)",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork"
-    }
+    {"number": 23222, "title": "[rendering-scripts] fix(copilot): add rich text format parse", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23219, "title": "[docs] Consolidate developer specs — v4.4 (2026-03-27)", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23216, "title": "[community] Update community contributions in README", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23211, "title": "[code-simplifier] refactor: use getErrorMessage helper in extra_empty_commit.cjs", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23208, "title": "[jsweep] Clean add_workflow_run_comment.cjs", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23204, "title": "[docs] docs: unbloat SpecOps pattern page", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23192, "title": "feat: support `uses`/`with` import syntax and `import-schema` validation", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23190, "title": "feat(safe-outputs): add `patch-format: bundle` transport for code-push", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23185, "title": "fix: skip detection job at job-level when agent produces no outputs or patch", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23181, "title": "chore: bump gh-aw-firewall to v0.25.2", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23165, "title": "fix: trial command missing remote dependency fetching for imports", "author": "dsyme", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork (also not agent-created)"},
+    {"number": 23141, "title": "Pass --openai-api-base-path / --anthropic-api-base-path to AWF when URL contains", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 22794, "title": "Apply DIFC integrity filtering to the main agent job (post-activation only)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ]
 }
