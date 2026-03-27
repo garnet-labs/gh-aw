@@ -57,6 +57,11 @@ function parseCopilotLog(logContent) {
     } else {
       // Try JSONL format using shared function
       logEntries = parseLogEntries(logContent);
+
+      // If JSONL also fails, try rich text format (Copilot CLI modern output with ●/✓/✗ symbols)
+      if (!logEntries || logEntries.length === 0) {
+        logEntries = parseRichTextFormat(logContent);
+      }
     }
   }
 
@@ -696,11 +701,178 @@ function parseDebugLogFormat(logContent) {
   return entries;
 }
 
+/**
+ * Parses the statistics footer section of a Copilot CLI rich text log.
+ * Extracts model name, token counts, and session duration from lines like:
+ *   Total session time:     7m 57s
+ *   claude-sonnet-4.6        3.8m in, 23.7k out, 3.7m cached
+ * @param {string} statsText - Text of the statistics section
+ * @returns {{ model: string, usage: { input_tokens: number, output_tokens: number }, duration_ms: number }}
+ */
+function parseRichTextStats(statsText) {
+  let model = "unknown";
+  let totalInput = 0;
+  let totalOutput = 0;
+  let duration_ms = 0;
+
+  const timeMatch = statsText.match(/Total session time:\s+(\d+)m\s+(\d+)s/);
+  if (timeMatch) {
+    duration_ms = (parseInt(timeMatch[1]) * 60 + parseInt(timeMatch[2])) * 1000;
+  }
+
+  // Parse lines like: " claude-sonnet-4.6   3.8m in, 23.7k out, ..."
+  const mult = s => ({ k: 1000, m: 1000000, b: 1000000000 }[s.toLowerCase()] || 1);
+  const modelRe = /^\s+([\w./-]+)\s+([\d.]+)([kmb]?) in,\s+([\d.]+)([kmb]?) out/gim;
+  let firstModel = null;
+  let match;
+  while ((match = modelRe.exec(statsText)) !== null) {
+    if (!firstModel) firstModel = match[1];
+    totalInput += Math.round(parseFloat(match[2]) * mult(match[3]));
+    totalOutput += Math.round(parseFloat(match[4]) * mult(match[5]));
+  }
+  if (firstModel) model = firstModel;
+
+  return {
+    model,
+    usage: { input_tokens: totalInput, output_tokens: totalOutput },
+    duration_ms,
+  };
+}
+
+/**
+ * Parses Copilot CLI "rich text" format output (modern Copilot CLI with Unicode symbols).
+ * The format uses ● (neutral), ✓ (success), ✗ (failure) to prefix tool calls, with
+ * arguments indented by "  │ " and results by "  └ ".
+ * @param {string} logContent - The raw log content
+ * @returns {Array|null} Array of structured log entries, or null if format not recognized
+ */
+function parseRichTextFormat(logContent) {
+  const lines = logContent.split("\n");
+
+  // Quick check: must have at least one rich text tool line
+  if (!lines.some(line => /^[✓✗●]/.test(line))) return null;
+
+  const entries = [];
+  let toolCallId = 0;
+  const currentTextLines = [];
+  let agentStarted = false; // True after the first tool call; before that everything is infrastructure
+
+  const ARG_PREFIX = "  │";
+  const RES_PREFIX = "  └";
+  const INFRA_RE = /^\[(WARN|INFO|SUCCESS|entrypoint|health-check)\]/;
+  const STATS_RE = /^(Total usage est:|Total session time:|API time spent:|Total code changes:|Breakdown by AI model:)/;
+
+  function flushText() {
+    const text = currentTextLines.join("\n").trim();
+    currentTextLines.length = 0;
+    if (!text) return;
+    entries.push({ type: "assistant", message: { content: [{ type: "text", text }] } });
+  }
+
+  let i = 0;
+  for (; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (STATS_RE.test(line)) break;
+    if (INFRA_RE.test(line)) continue;
+
+    const toolMatch = line.match(/^([✓✗●]) (.+)$/);
+    if (toolMatch) {
+      agentStarted = true;
+      flushText();
+
+      const statusChar = toolMatch[1];
+      const rawName = toolMatch[2].trim();
+      const isError = statusChar === "✗";
+
+      // Collect argument lines (│) and the result line (└)
+      const argLines = [];
+      let resultText = "";
+      while (i + 1 < lines.length) {
+        const next = lines[i + 1];
+        if (next.startsWith(ARG_PREFIX)) {
+          argLines.push(next.slice(ARG_PREFIX.length).replace(/^ /, ""));
+          i++;
+        } else if (next.startsWith(RES_PREFIX)) {
+          resultText = next.slice(RES_PREFIX.length).replace(/^ /, "");
+          i++;
+          break;
+        } else {
+          break;
+        }
+      }
+
+      // Map raw display name to an internal tool name and build input
+      const toolId = `richtext_${toolCallId++}`;
+      let mappedName, input;
+
+      if (rawName.endsWith(" (shell)")) {
+        mappedName = "Bash";
+        input = { command: argLines.join("\n"), description: rawName.slice(0, -8) };
+      } else if (rawName === "Search (glob)") {
+        mappedName = "Glob";
+        input = { pattern: argLines.join("\n") };
+      } else if (rawName === "Search (grep)") {
+        mappedName = "Grep";
+        input = { pattern: argLines.join("\n") };
+      } else if (rawName.startsWith("Explore ") || rawName.startsWith("Read (Explore agent")) {
+        mappedName = "Agent";
+        input = { description: rawName };
+      } else if (rawName === "Read" || rawName.startsWith("Read ")) {
+        mappedName = "Read";
+        input = { file_path: argLines[0] || rawName.slice(5).trim() };
+      } else if (rawName.startsWith("List directory")) {
+        mappedName = "Bash";
+        input = { command: `ls "${rawName.slice(15).trim() || argLines[0] || "."}"`, description: rawName };
+      } else {
+        // Generic tool (MCP calls, etc.) — use the display name as-is
+        mappedName = rawName;
+        input = argLines.length > 0 ? { content: argLines.join("\n") } : {};
+      }
+
+      entries.push({ type: "assistant", message: { content: [{ type: "tool_use", id: toolId, name: mappedName, input }] } });
+      entries.push({ type: "user", message: { content: [{ type: "tool_result", tool_use_id: toolId, content: resultText, is_error: isError }] } });
+      continue;
+    }
+
+    // Plain text line — may be agent message or blank separator.
+    // Only collect text after the first tool call to avoid including Docker startup noise.
+    if (agentStarted) {
+      currentTextLines.push(line);
+    }
+  }
+
+  flushText();
+
+  if (entries.length === 0) return null;
+
+  // Parse statistics footer
+  const stats = parseRichTextStats(lines.slice(i).join("\n"));
+
+  entries.unshift({
+    type: "system",
+    subtype: "init",
+    session_id: null,
+    model: stats.model,
+    tools: [],
+  });
+
+  entries.push({
+    type: "result",
+    num_turns: toolCallId,
+    usage: stats.usage,
+    duration_ms: stats.duration_ms,
+  });
+
+  return entries;
+}
+
 // Export for testing
 if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     main,
     parseCopilotLog,
     extractPremiumRequestCount,
+    parseRichTextFormat,
   };
 }
