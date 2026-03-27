@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-26T12:15:06Z",
-  "run_id": "23593690977",
+  "run_date": "2026-03-27T00:13:10Z",
+  "run_id": "23624419258",
   "fork_prs": 0,
-  "agent_prs_found": 14,
-  "agent_prs_excluded": 14,
-  "notes": "14 agent PRs found (Copilot + github-actions[bot]), all originate from same-repo branches (not forks). Excluded per fork-only policy. New since last run: #23069 (ENOBUFS fix), #23070 (env.* compile rejection), #23077 (fp-enhancer refactor draft), #23085 (community docs draft), #23086 (instructions sync), #23090 (docs consolidation). No fork PRs to triage.",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 agent PRs found (all Copilot), all originate from same-repo branches (not forks). Excluded per fork-only policy. New since last run: #23185 (Fix detection job - no outputs/patch), #23181 (bump gh-aw-firewall v0.25.2), #23141 (Pass --openai-api-base-path/--anthropic-api-base-path). Remaining from prev run: #22794 (DIFC integrity filtering). Previous run had 14 PRs - most have been merged/closed.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,19 +17,9 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 23090, "title": "[docs] Consolidate developer specifications into instructions file", "author": "github-actions[bot]", "draft": false, "same_repo": true, "created_at": "2026-03-26T11:19:21Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23086, "title": "[instructions] Sync github-agentic-workflows.md with v0.40.1", "author": "github-actions[bot]", "draft": false, "same_repo": true, "created_at": "2026-03-26T10:58:44Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23085, "title": "[community] docs: update community contributions", "author": "github-actions[bot]", "draft": true, "same_repo": true, "created_at": "2026-03-26T10:57:35Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23077, "title": "[fp-enhancer] refactor(cli): functional/immutability improvements to pkg/cli", "author": "github-actions[bot]", "draft": true, "same_repo": true, "created_at": "2026-03-26T09:38:00Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23070, "title": "fix: reject env.* expressions in markdown at compile time", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-26T06:54:26Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23069, "title": "fix: prevent ENOBUFS in push_repo_memory on large repos", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-26T06:52:49Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23063, "title": "[WIP] Fix code scanning alert 546", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:46Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23062, "title": "[WIP] Fix code scanning alerts flagged in repository", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:42Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23061, "title": "[WIP] Fix code scanning alert 551", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:34Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23060, "title": "[WIP] Fix code scanning alert 495", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:22:06Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23059, "title": "[WIP] Fix code scanning alert 558", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-26T06:20:47Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23047, "title": "feat: `gh aw audit report` — cross-run security audit reports", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-26T05:24:25Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22829, "title": "feat: add imports.plugins support with all Copilot CLI spec formats", "author": "Copilot", "draft": false, "same_repo": true, "created_at": "2026-03-25T04:25:39Z", "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 22794, "title": "Apply DIFC integrity filtering to pre-agentic activation and pre-activation job steps", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-25T00:22:09Z", "excluded_reason": "same-repo branch, not a fork"}
+    {"number": 23185, "title": "[WIP] Fix detection job running with no outputs or patch", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-27T00:00:00Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23181, "title": "chore: bump gh-aw-firewall to v0.25.2", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-27T00:00:00Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23141, "title": "Pass --openai-api-base-path / --anthropic-api-base-path to AWF when URL contains", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-27T00:00:00Z", "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 22794, "title": "Apply DIFC integrity filtering to the main agent job (post-activation only)", "author": "Copilot", "draft": true, "same_repo": true, "created_at": "2026-03-25T00:22:09Z", "excluded_reason": "same-repo branch, not a fork"}
   ]
 }
