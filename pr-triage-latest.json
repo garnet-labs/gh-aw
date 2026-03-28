@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-28T06:18:34Z",
-  "run_id": "23679184082",
+  "run_date": "2026-03-28T12:06:41Z",
+  "run_id": "23684837522",
   "fork_prs": 0,
-  "agent_prs_found": 11,
-  "agent_prs_excluded": 11,
-  "notes": "11 open PRs found (8 Copilot/github-actions[bot], 1 dsyme, others mixed). All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. New PRs since last run (23672832361): #23318, #23315, #23311, #23310, #23308, #23300. Closed/merged since last run: #23284, #23279, #23208.",
+  "agent_prs_found": 8,
+  "agent_prs_excluded": 8,
+  "notes": "8 open PRs found (7 Copilot, 1 dsyme). All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. PRs since last run (23679184082): #23343 (Copilot, WIP dependency auto-remediation), #23342 (Copilot, WIP update-discussion), #23340 (Copilot, WIP fix update-discussion). Old PRs still open: #23192, #23181, #23165, #23141, #22794.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,16 +17,13 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 23318, "title": "[code-simplifier] refactor: remove redundant footer variable", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23315, "title": "[jsweep] Clean assign_agent_helpers.cjs", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23311, "title": "[docs] docs: consolidate token reference to reduce repetition", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23310, "title": "fix: missing-tool and missing-data create-issue defaults", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23308, "title": "fix: pass GITHUB_SERVER_URL to DIFC proxy container for GHEC", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23300, "title": "Add .github/aw/.gitignore to exclude imports and logs folder", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23192, "title": "feat: support uses/with import syntax, import-schema validation", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23343, "title": "[WIP] Add agentic workflow for proactive dependency auto-remediation", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23342, "title": "[WIP] Add target: created support to update-discussion handler", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23340, "title": "[WIP] Fix update-discussion API error when targeting explicit discussion number", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23192, "title": "feat: support uses/with import syntax, import-schema validation", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23181, "title": "chore: bump gh-aw-firewall to v0.25.2", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23165, "title": "fix: trial command missing remote dependency fetching for imports", "author": "dsyme", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23141, "title": "Pass --openai-api-base-path / --anthropic-api-base-path to AWF when URL contains", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23141, "title": "Pass --openai-api-base-path / --anthropic-api-base-path to AWF when URL contains path", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 22794, "title": "Apply DIFC integrity filtering to the main agent job (post-activation only)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ]
 }
