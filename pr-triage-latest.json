@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-27T18:15:57Z",
-  "run_id": "23660968453",
+  "run_date": "2026-03-28T00:12:28Z",
+  "run_id": "23672832361",
   "fork_prs": 0,
-  "agent_prs_found": 10,
-  "agent_prs_excluded": 10,
-  "notes": "10 open agent PRs found (6 Copilot, 4 github-actions[bot]). All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Consistent with previous runs (23645566574, 23624419258, 23634083171). New PRs since last run: #23259, #23256 (Copilot WIP PRs for missing-tool/missing-data fix). 3 PRs from last run expired/closed: #23222, #23219, #23204.",
+  "agent_prs_found": 8,
+  "agent_prs_excluded": 8,
+  "notes": "8 open PRs found (5 Copilot, 1 github-actions[bot], 1 dsyme, 1 mixed). All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Consistent with previous runs. New PRs since last run (23660968453): #23284, #23279, #23165. Closed/merged since last run: #23259, #23256, #23216, #23211, #23190.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,14 +17,12 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 23259, "title": "[WIP] Fix surprising create-issue behavior for missing-tool and missing-data", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23256, "title": "[WIP] Update compiler and JavaScript to include missing-tool entries", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23216, "title": "[community] Update community contributions in README", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23211, "title": "[code-simplifier] refactor: use getErrorMessage helper in extra_empty_commit.cjs", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23284, "title": "Fix: treat workflow run as successful when agent fails after capturing", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23279, "title": "Fix update_discussion safe outputs: label-only config must not modify discussion", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23208, "title": "[jsweep] Clean add_workflow_run_comment.cjs", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23192, "title": "feat: support uses/with import syntax and import-schema validation", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23190, "title": "feat(safe-outputs): add patch-format: bundle transport for code-push", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23181, "title": "chore: bump gh-aw-firewall to v0.25.2", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 23165, "title": "fix: trial command missing remote dependency fetching for imports", "author": "dsyme", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 23141, "title": "Pass --openai-api-base-path / --anthropic-api-base-path to AWF when URL contains", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 22794, "title": "Apply DIFC integrity filtering to the main agent job (post-activation only)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ]
