@@ -1,38 +1,39 @@
-# Workflow Health - 2026-03-27T12:03Z
+# Workflow Health - 2026-03-28T12:00Z
 
-Score: 71/100 (↓1 from 72). 178 workflows, 0 stale lock files.
+Score: 70/100 (↓1 from 71). 178 workflows, 0 stale lock files.
 
 ## P1 Issues
-- **PR Triage Agent**: 6 consecutive failures (runs #288-#293, since 2026-03-26T00:12). Issue #23109 open. Pattern: `push_repo_memory → Post Setup Scripts` failure (systemic). Copilot auto-fix failed with ruleset violation. Added comment to #23109 (this run).
-- **Smoke Update Cross-Repo PR**: Run #417 (2026-03-27T01:01) FAILED. ERROR MODE CHANGED from "missing smoke-test label" to "engine terminated unexpectedly". Auto-generated issue #23193 created. Original #21797 closed 2026-03-26T14:59. Needs investigation.
+- **PR Triage Agent**: 10 consecutive failures (runs #288-#297, since 2026-03-26T00:12). Issue #23151 open. Pattern: `push_repo_memory → Post Setup Scripts` failure (systemic bug). Added escalation comment this run.
+- **Smoke Update Cross-Repo PR**: Schedule run #428 (2026-03-28T00:58) FAILED. PR_request runs (#429, #430) SUCCEED. Error: `agent` job terminates unexpectedly + `detection` job fails (no THREAT_DETECTION_RESULT). Issue #23193 open. Added status comment this run. Root cause differs from PR Triage (not push_repo_memory).
 
-## P2 Warnings  
-- **Metrics Collector**: Run #106 (2026-03-26T19:39) FAILED — first failure after 105 consecutive successes. Dual failure: agent inference error (Copilot API) + push_repo_memory Post Setup Scripts. Likely transient. Monitor next run.
-- **Smoke Copilot**: 3 failures during ~20:00-20:16 UTC window on 2026-03-26 (runs #2646, #2647, #2648 failed). Recovered — runs #2651, #2652 are success. Coincides with mass-skipped runs across multiple workflows. Likely transient GitHub outage window.
+## P2 Warnings
+- **Metrics Collector**: 2 consecutive failures (runs #106-#107). NEW issue created (#aw_mc001). Root cause: agent writes `agent-performance-latest.md` to artifact root instead of `metrics/latest.json`. Glob filter `metrics/**` skips it → 0 metrics saved. Secondary: same post-setup cleanup bug. Metrics now stale since 2026-03-25.
+- **Workflow Health Manager (self)**: Runs #282, #283 failed (same push_repo_memory systemic bug). Current run #284 in_progress.
 
-## Systemic Issue Confirmed
-- **`push_repo_memory → Post Setup Scripts` failure** affects ALL workflows using repo-memory when workspace branch switches to `memory/*` branch during push. Fix needed in `pkg/workflow/compiler_yaml.go`. Affects: PR Triage Agent (6 runs), Metrics Collector (1 run).
+## Systemic Bug: `push_repo_memory → Post Setup Scripts` failure
+- Affects ALL workflows using repo-memory when workspace switches to `memory/*` branch during push
+- Fix: Add `git checkout main` restore step in `compiler_yaml.go` push_repo_memory job
+- Confirmed affected: PR Triage Agent (10 runs), WHM (2 runs), Smoke Update Cross-Repo PR (different manifestation)
+- Issue #23151 tracks this
 
 ## Resolved ✅
-- **Stale lock files**: 0 confirmed (false positives from last run fully confirmed clean).
-- **Smoke Claude**: Solid — runs #2544, #2545 success.
-- **Smoke Codex**: Run #2527 success — solid.
-- **Smoke Copilot**: Recovered from transient outage window.
-- **Daily Rendering Scripts Verifier**: Run #50 (2026-03-27T11:10) SUCCESS — solid.
-- **Issue Triage Agent**: Run #140 success — solid.
-- **Issue Monster**: Run #3384 success — solid.
+- **Smoke Copilot**: Fully recovered. Runs #2663, #2664, #2665 all SUCCESS.
+- **Smoke Update Cross-Repo PR** (PR triggers): Succeeding ✅
+- **Stale lock files**: 0 confirmed.
 
 ## Actions Taken
-- Added escalation comment to issue #23109 (PR Triage Agent, now 6 consecutive failures + systemic pattern confirmed)
+- Added escalation comment to #23151 (PR Triage Agent, now 10 consecutive failures)
+- Added status comment to #23193 (Smoke Update Cross-Repo PR, schedule still failing)
+- Created new issue #aw_mc001 (Metrics Collector 2 consecutive failures, metrics infrastructure degraded)
 
 ## Score Breakdown
-- PR Triage Agent: continued P1 → no change from yesterday (already factored)
-- Smoke Update Cross-Repo PR: still failing → no change (already factored)  
-- Metrics Collector: new failure (1 run) → -1
-- Post Setup Scripts systemic: confirmed multi-workflow → factored into -1 already
-- Recovered items (stale locks, Claude, Codex) → offsetting
+- PR Triage Agent: P1 continued (10 runs) → unchanged
+- Metrics Collector: 2nd consecutive failure (worse) → -1
+- WHM self: continued systemic → unchanged
+- Smoke Copilot: recovered, stable → unchanged
+- Net: 71 → 70 (↓1)
 
 ## Run Info
-- Timestamp: 2026-03-27T12:03:00Z
-- Run: §23645263363
-- Score change: 72→71 (↓1)
+- Timestamp: 2026-03-28T12:00:00Z
+- Run: §23684685577
+- Score change: 71→70 (↓1)
