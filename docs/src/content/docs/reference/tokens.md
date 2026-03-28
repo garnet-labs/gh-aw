@@ -53,56 +53,19 @@ See [Authentication](/gh-aw/reference/auth/#copilot_github_token) for detailed s
 
 ---
 
-### `ANTHROPIC_API_KEY`
+### `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GEMINI_API_KEY`
 
-Authenticates the [Claude by Anthropic](/gh-aw/reference/engines/#available-coding-agents) engine.
+API keys for the [Claude (Anthropic)](/gh-aw/reference/engines/#available-coding-agents), [Codex (OpenAI)](/gh-aw/reference/engines/#available-coding-agents), and [Gemini (Google)](/gh-aw/reference/engines/#available-coding-agents) engines. Exactly one is required depending on your `engine:` setting. Each is stored as a repository secret with no fallback to `GITHUB_TOKEN`.
 
-| Property | Value |
-|---|---|
-| **Source** | Anthropic API key stored as repository secret |
-| **Required** | Yes, when using `engine: claude` |
-| **Permissions** | Anthropic API access (external service) |
-| **Fallback** | None |
-| **Used by** | Claude inference step |
+| Token | Engine setting | Source |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | `engine: claude` | Anthropic console |
+| `OPENAI_API_KEY` | `engine: codex` | OpenAI platform — also accepts `CODEX_API_KEY` (tried first: `${{ secrets.CODEX_API_KEY \|\| secrets.OPENAI_API_KEY }}`) |
+| `GEMINI_API_KEY` | `engine: gemini` | Google AI Studio |
 
 ```bash wrap
-gh aw secrets set ANTHROPIC_API_KEY --value "<your-anthropic-api-key>"
-```
-
----
-
-### `OPENAI_API_KEY`
-
-Authenticates the [Codex by OpenAI](/gh-aw/reference/engines/#available-coding-agents) engine.
-
-| Property | Value |
-|---|---|
-| **Source** | OpenAI API key stored as repository secret |
-| **Required** | Yes, when using `engine: codex` |
-| **Permissions** | OpenAI API access (external service) |
-| **Fallback** | Both `CODEX_API_KEY` and `OPENAI_API_KEY` are accepted; the runtime tries `CODEX_API_KEY` first (`${{ secrets.CODEX_API_KEY \|\| secrets.OPENAI_API_KEY }}`). No fallback to `GITHUB_TOKEN`. |
-| **Used by** | Codex inference step |
-
-```bash wrap
-gh aw secrets set OPENAI_API_KEY --value "<your-openai-api-key>"
-```
-
----
-
-### `GEMINI_API_KEY`
-
-Authenticates the [Gemini by Google](/gh-aw/reference/engines/#available-coding-agents) engine.
-
-| Property | Value |
-|---|---|
-| **Source** | Google AI Studio API key stored as repository secret |
-| **Required** | Yes, when using `engine: gemini` |
-| **Permissions** | Google AI Studio API access (external service) |
-| **Fallback** | None |
-| **Used by** | Gemini inference step |
-
-```bash wrap
-gh aw secrets set GEMINI_API_KEY --value "<your-gemini-api-key>"
+gh aw secrets set ANTHROPIC_API_KEY --value "<your-api-key>"
+# Replace with OPENAI_API_KEY or GEMINI_API_KEY as appropriate
 ```
 
 ---
@@ -347,78 +310,20 @@ Set on various workflow steps (checkout, `gh` CLI commands, pre-agentic steps) t
 
 ## Token Precedence Chains
 
-The compiler uses different precedence chains depending on the operation context. Each chain is a cascade expression — the first non-empty secret wins.
+Each operation context resolves tokens in cascade order — the first non-empty secret wins. When a GitHub App is configured, its token takes highest priority in all chains.
 
-### GitHub MCP Server
-
-```
-getEffectiveGitHubToken():
-  1. Custom github-token (from tools.github.github-token)
-  2. GH_AW_GITHUB_MCP_SERVER_TOKEN
-  3. GH_AW_GITHUB_TOKEN
-  4. GITHUB_TOKEN
-```
-
-If a GitHub App is configured, the App token overrides this entire chain.
-
-### Safe Outputs
-
-```
-getEffectiveSafeOutputGitHubToken():
-  1. Custom github-token (from safe-outputs.<type>.github-token)
-  2. GH_AW_GITHUB_TOKEN
-  3. GITHUB_TOKEN
-```
+| Context | Resolution order (highest → lowest) |
+|---|---|
+| GitHub MCP Server | Custom `github-token` → `GH_AW_GITHUB_MCP_SERVER_TOKEN` → `GH_AW_GITHUB_TOKEN` → `GITHUB_TOKEN` |
+| Safe Outputs | Custom `github-token` → `GH_AW_GITHUB_TOKEN` → `GITHUB_TOKEN` |
+| Copilot operations | Custom `github-token` → `COPILOT_GITHUB_TOKEN` (no further fallback) |
+| Agent assignment | Custom `github-token` → `GH_AW_AGENT_TOKEN` → `GH_AW_GITHUB_TOKEN` → `GITHUB_TOKEN` |
+| Projects v2 | Custom `github-token` → `GH_AW_PROJECT_GITHUB_TOKEN` (no further fallback) |
+| CI triggering | Custom `github-token` → `GH_AW_CI_TRIGGER_TOKEN` (no further fallback) |
+| APM dependencies | Custom `github-token` → `GH_AW_PLUGINS_TOKEN` → `GH_AW_GITHUB_TOKEN` → `GITHUB_TOKEN` |
 
 > [!NOTE]
-> `GH_AW_GITHUB_MCP_SERVER_TOKEN` is intentionally **not** in the safe outputs chain. Safe outputs use a simpler chain because MCP server-specific tokens should not leak into write operations.
-
-### Copilot Operations
-
-```
-getEffectiveCopilotRequestsToken():
-  1. Custom github-token
-  2. COPILOT_GITHUB_TOKEN
-  (no further fallback)
-```
-
-### Agent Assignment
-
-```
-getEffectiveCopilotCodingAgentGitHubToken():
-  1. Custom github-token
-  2. GH_AW_AGENT_TOKEN
-  3. GH_AW_GITHUB_TOKEN
-  4. GITHUB_TOKEN
-```
-
-### Projects v2
-
-```
-getEffectiveProjectGitHubToken():
-  1. Custom github-token
-  2. GH_AW_PROJECT_GITHUB_TOKEN
-  (no further fallback)
-```
-
-### CI Triggering
-
-```
-getEffectiveCITriggerGitHubToken():
-  1. Custom github-token
-  2. GH_AW_CI_TRIGGER_TOKEN
-  (no further fallback)
-```
-
-### APM Dependencies
-
-```
-getEffectiveAPMGitHubToken():
-  1. Custom github-token (from dependencies.github-token)
-  2. GH_AW_PLUGINS_TOKEN
-  3. GH_AW_GITHUB_TOKEN
-  4. GITHUB_TOKEN
-```
+> `GH_AW_GITHUB_MCP_SERVER_TOKEN` is intentionally absent from the Safe Outputs chain — MCP server tokens should not leak into write operations.
 
 ---
 
