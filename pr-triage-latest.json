@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-29T06:22:27Z",
-  "run_id": "23703077767",
+  "run_date": "2026-03-29T12:06:49Z",
+  "run_id": "23708643031",
   "fork_prs": 0,
-  "agent_prs_found": 5,
-  "agent_prs_excluded": 5,
-  "notes": "5 open PRs found. All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. PRs since last run (23684837522): #23417 (jsweep/clean-add-labels, github-actions[bot], draft), #23414 (docs/unbloat-imports, github-actions[bot], draft), #23408 (Copilot, fix dev mode checkout, draft), #23366 (Copilot, feat qmd parameterized, open), #23365 (Copilot, remove serena builtin, open, lgtm label). Old PRs from last run (#23343, #23342, #23340, #23192, #23181, #23165, #23141, #22794) appear to have been merged/closed.",
+  "agent_prs_found": 2,
+  "agent_prs_excluded": 2,
+  "notes": "2 open PRs found (#23440 draft, #23425 open). Both originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Changes since last run (23703077767): PRs #23417, #23414, #23408, #23366, #23365 appear to have been merged/closed. New PRs: #23440 (feat: replace microsoft/apm-action pack with JS apm_pack.cjs, draft, assignees: pelikhan+Copilot), #23425 (feat: integrity-aware cache-memory with git-backed integrity, labels: smoke-claude, assignees: pelikhan+Copilot).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,10 +17,23 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 23417, "title": "[jsweep] Clean add_labels.cjs", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "labels": ["automation", "unbloat"]},
-    {"number": 23414, "title": "[docs] docs: condense imports reference — consolidate merge-semantics table", "author": "github-actions[bot]", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "labels": ["documentation", "automation"]},
-    {"number": 23408, "title": "fix: checkout dev mode actions to `/tmp/gh-aw/dev-actions` (outside workspace) to prevent override", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 23366, "title": "feat: reimplement tools.qmd as parameterized shared import, remove builtin presets", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "labels": ["smoke-claude"]},
-    {"number": 23365, "title": "Remove builtin `tools.serena` support; mark removed in schema", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "labels": ["lgtm"]}
+    {
+      "number": 23440,
+      "title": "feat: replace microsoft/apm-action pack with JavaScript apm_pack.cjs",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "assignees": ["pelikhan", "Copilot"]
+    },
+    {
+      "number": 23425,
+      "title": "feat: integrity-aware cache-memory with git-backed integrity",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": ["smoke-claude"],
+      "assignees": ["pelikhan", "Copilot"]
+    }
   ]
 }
