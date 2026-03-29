@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-29T12:06:49Z",
-  "run_id": "23708643031",
+  "run_date": "2026-03-29T18:07:22Z",
+  "run_id": "23715564258",
   "fork_prs": 0,
   "agent_prs_found": 2,
   "agent_prs_excluded": 2,
-  "notes": "2 open PRs found (#23440 draft, #23425 open). Both originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Changes since last run (23703077767): PRs #23417, #23414, #23408, #23366, #23365 appear to have been merged/closed. New PRs: #23440 (feat: replace microsoft/apm-action pack with JS apm_pack.cjs, draft, assignees: pelikhan+Copilot), #23425 (feat: integrity-aware cache-memory with git-backed integrity, labels: smoke-claude, assignees: pelikhan+Copilot).",
+  "notes": "2 open Copilot PRs found (#23469 draft, #23440 open). Both originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. Changes since last run (23708643031): New PR #23469 (Add stable/latest version aliases to install-gh-aw.sh and upgrade command, draft, labels: lgtm). PR #23440 still open (feat: replace microsoft/apm-action pack, labels: smoke-claude, smoke-copilot, lgtm).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,22 +18,24 @@
   },
   "prs_examined": [
     {
-      "number": 23440,
-      "title": "feat: replace microsoft/apm-action pack with JavaScript apm_pack.cjs",
+      "number": 23469,
+      "title": "Add stable/latest version aliases to install-gh-aw.sh and upgrade command",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "assignees": ["pelikhan", "Copilot"]
+      "labels": ["lgtm"],
+      "assignees": ["pelikhan", "Copilot"],
+      "created_at": "2026-03-29T15:08:38Z"
     },
     {
-      "number": 23425,
-      "title": "feat: integrity-aware cache-memory with git-backed integrity",
+      "number": 23440,
+      "title": "feat: replace microsoft/apm-action pack with self-contained JavaScript APM implementation and add upstream mirror monitor",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["smoke-claude"],
-      "assignees": ["pelikhan", "Copilot"]
+      "labels": ["smoke-claude", "smoke-copilot", "lgtm"],
+      "assignees": ["pelikhan", "Copilot"],
+      "created_at": "2026-03-29T11:47:06Z"
     }
   ]
 }
