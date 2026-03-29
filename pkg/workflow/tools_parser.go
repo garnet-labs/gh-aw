@@ -410,6 +410,14 @@ func parsePlaywrightTool(val any) *PlaywrightToolConfig {
 	return &PlaywrightToolConfig{}
 }
 
+// isUnexpandedImportInput reports whether s is an unexpanded import-schema placeholder
+// of the form "${{ github.aw.import-inputs.<key> }}" that was left as a literal string
+// because the caller did not supply the optional input. It returns false for any other
+// value, including legitimate GitHub Actions expressions like "${{ hashFiles('...') }}".
+func isUnexpandedImportInput(s string) bool {
+	return strings.Contains(s, "github.aw.import-inputs.")
+}
+
 // parseQmdTool converts raw qmd tool configuration to QmdToolConfig.
 // Supported fields:
 //
@@ -427,8 +435,11 @@ func parseQmdTool(val any) *QmdToolConfig {
 	if configMap, ok := val.(map[string]any); ok {
 		config := &QmdToolConfig{}
 
-		// Handle cache-key field
-		if cacheKey, ok := configMap["cache-key"].(string); ok && cacheKey != "" {
+		// Handle cache-key field. Skip values that are unexpanded import-schema placeholders
+		// (exactly "${{ github.aw.import-inputs.cache-key }}") left as literal strings when
+		// the caller does not supply the optional input. Legitimate GitHub Actions expressions
+		// such as "qmd-${{ hashFiles('docs/**') }}" are kept as-is.
+		if cacheKey, ok := configMap["cache-key"].(string); ok && cacheKey != "" && !isUnexpandedImportInput(cacheKey) {
 			config.CacheKey = cacheKey
 			toolsParserLog.Printf("qmd tool cache-key: %s", cacheKey)
 		}
@@ -441,9 +452,11 @@ func parseQmdTool(val any) *QmdToolConfig {
 			}
 		}
 
-		// Handle runs-on field (override runner image for the indexing job)
+		// Handle runs-on field (override runner image for the indexing job). Skip values that
+		// are unexpanded import-schema placeholders. Legitimate GitHub Actions expressions are
+		// kept as-is.
 		if runsOnVal, exists := configMap["runs-on"]; exists {
-			if runsOnStr, ok := runsOnVal.(string); ok && runsOnStr != "" {
+			if runsOnStr, ok := runsOnVal.(string); ok && runsOnStr != "" && !isUnexpandedImportInput(runsOnStr) {
 				config.RunsOn = runsOnStr
 				toolsParserLog.Printf("qmd tool runs-on: %s", runsOnStr)
 			}
