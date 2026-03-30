@@ -1,28 +1,28 @@
-# Shared Alerts - 2026-03-29T12:00Z | Q:? E:? H:71↑1
+# Shared Alerts - 2026-03-30T12:00Z | Q:? E:? H:72↑1
 
 ## P1
-- **PR Triage Agent**: ✅ RECOVERED — Run #301 succeeded (2026-03-29T06:21Z) after 12 consecutive failures. Issue #23151 open, monitor for sustained recovery.
-  - WHM added recovery comment to #23151.
-- **Smoke Update Cross-Repo PR**: Schedule runs still failing. Issue #23193 open (updated 2026-03-29T12:00Z).
-  - PR-triggered runs: mixed (436 fail/437 success on same PR branch).
-  - Root cause: systemic push_repo_memory bug.
-- **Smoke Create Cross-Repo PR**: NEW P1. Every schedule run failing since 2026-03-25 (run #383+). Issue #aw_sccpr01 created.
-  - PR events: skipped (schedule-only smoke test).
-  - Root cause: same systemic push_repo_memory bug.
-- **Metrics Collector**: 3/3 ❌ New issue created (#aw_mc001).
-  - Agent writes wrong output path → push_repo_memory glob rejects → 0 metrics saved.
-  - Metrics stale since 2026-03-25. All meta-orchestrators affected.
+- **Smoke Codex** (#23431, escalated P2→P1): ALL run types now failing (schedule + PR). OpenAI API access restriction broadened. Last success run #2538 (2026-03-28T01:09Z). Check API credentials/quota.
+- **Smoke Update Cross-Repo PR** (#23193): Schedule runs still failing (#438, #442). PR runs succeeding. Systemic push_repo_memory bug.
+- **Smoke Create Cross-Repo PR** (#23447): 8+ consecutive schedule failures since 2026-03-25. Same push_repo_memory bug.
 
-## P2 (Transient)
-- **Smoke Codex** (#23431): Single failure. OpenAI API cybersecurity restriction (external). Monitor.
-- **Smoke Gemini** (#23399): Single schedule failure. PR runs succeeding. Likely transient.
-- **Lockfile Stats** (#23397): Single failure. Many previous successes. Likely transient.
+## P2 (Transient/Monitoring)
+- **Smoke Gemini** (#23399): Schedule #655 failed (2026-03-30T01:01Z). PR runs succeeding. Exit code 41. Monitor.
+- **WHM Self**: Runs #282-#285 failed in safe_outputs job. Run #286 appears to be succeeding.
 
-## Systemic Bug: `push_repo_memory → Post Setup Scripts` failure
-- Affects: PR Triage Agent (recovering), Smoke Update Cross-Repo PR, Smoke Create Cross-Repo PR
-- Fix: Add `git checkout main` restore in compiler_yaml.go push_repo_memory job
-- Issues: #23151 (recovering), #23193, #aw_sccpr01
+## Recovered ✅ (This Run)
+- PR Triage Agent (#23151 closed): 5 consecutive successes
+- Metrics Collector (#23446 closed): Run #109 succeeded
+- Lockfile Stats (#23397 closed): Run #211 succeeded
 
-## Healthy
-PR Triage Agent recovering ✅ | Daily Rendering Verifier 4x success ✅
-Last health run: §23708489882 (2026-03-29T12:00Z)
+## Systemic Bug: push_repo_memory → Post Setup Scripts
+- Affects: Smoke Update Cross-Repo PR (#23193), Smoke Create Cross-Repo PR (#23447)
+- Error: `Can't find 'action.yml' under '/home/runner/work/gh-aw/gh-aw/actions/setup'`
+- After push_repo_memory checks out memory/* branch, actions/setup disappears
+- Fix: Add `git checkout HEAD` restore step in compiler_yaml.go push_repo_memory job
+
+## Systemic Issue: Codex API Access Restriction
+- Affects: Smoke Codex (#23431)
+- Error: "This user's access to this model has been temporarily restricted"
+- Previously schedule-only, now ALL run types including PR
+
+Last WHM run: §23743866195 (2026-03-30T12:00Z) — Score 72/100
