@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-30T00:13:53Z",
-  "run_id": "23722452176",
+  "run_date": "2026-03-30T06:33:47Z",
+  "run_id": "23731204453",
   "fork_prs": 0,
   "agent_prs_found": 4,
   "agent_prs_excluded": 4,
-  "notes": "4 open Copilot PRs found. All originate from same-repo branches (not forks). Excluded per fork-only policy. No fork PRs to triage. New since last run (23715564258): #23490 (feat: add runs-on-activation, draft) and #23489 (fix: tighten repo-memory push concurrency key). Still open: #23469 (draft, lgtm), #23440 (smoke-claude, smoke-copilot, lgtm).",
+  "notes": "4 open Copilot/bot PRs found. All originate from same-repo branches (not forks). Excluded per fork-only policy. New since last run (23722452176): #23522 (code-simplifier refactor, draft) and #23509 (feat: shared/apm.md, draft). Closed/merged since last run: #23489, #23490. Still open: #23469 (lgtm, draft), #23440 (smoke-claude, smoke-copilot, lgtm).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,26 +18,27 @@
   },
   "prs_examined": [
     {
-      "number": 23490,
-      "title": "feat: add `runs-on-activation` for compile-stable framework job runner override",
+      "number": 23522,
+      "title": "[code-simplifier] refactor: combine requestedTools and paramsList building into single pass (#23515 follow-up)",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": ["automation", "code-quality", "refactoring"],
+      "created_at": "2026-03-30T06:19:00Z",
+      "updated_at": "2026-03-30T06:19:01Z",
+      "author": "github-actions[bot]"
+    },
+    {
+      "number": 23509,
+      "title": "feat: add shared/apm.md shared workflow with Microsoft APM support",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
       "assignees": ["pelikhan", "Copilot"],
-      "created_at": "2026-03-29T21:18:52Z",
-      "updated_at": "2026-03-30T00:11:05Z"
-    },
-    {
-      "number": 23489,
-      "title": "fix: tighten repo-memory push concurrency key to actual branch targets",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "assignees": ["pelikhan", "Copilot"],
-      "created_at": "2026-03-29T21:18:08Z",
-      "updated_at": "2026-03-30T00:03:43Z"
+      "created_at": "2026-03-30T04:33:51Z",
+      "updated_at": "2026-03-30T06:13:38Z",
+      "author": "Copilot"
     },
     {
       "number": 23469,
@@ -48,7 +49,8 @@
       "labels": ["lgtm"],
       "assignees": ["pelikhan", "Copilot"],
       "created_at": "2026-03-29T15:08:38Z",
-      "updated_at": "2026-03-29T17:06:32Z"
+      "updated_at": "2026-03-30T05:41:49Z",
+      "author": "Copilot"
     },
     {
       "number": 23440,
@@ -59,7 +61,8 @@
       "labels": ["smoke-claude", "smoke-copilot", "lgtm"],
       "assignees": ["pelikhan", "Copilot"],
       "created_at": "2026-03-29T11:47:06Z",
-      "updated_at": "2026-03-29T17:06:31Z"
+      "updated_at": "2026-03-30T02:45:51Z",
+      "author": "Copilot"
     }
   ]
 }
