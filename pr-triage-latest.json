@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-30T06:33:47Z",
-  "run_id": "23731204453",
+  "run_date": "2026-03-30T12:15:00Z",
+  "run_id": "23744133193",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 open Copilot/bot PRs found. All originate from same-repo branches (not forks). Excluded per fork-only policy. New since last run (23722452176): #23522 (code-simplifier refactor, draft) and #23509 (feat: shared/apm.md, draft). Closed/merged since last run: #23489, #23490. Still open: #23469 (lgtm, draft), #23440 (smoke-claude, smoke-copilot, lgtm).",
+  "agent_prs_found": 7,
+  "agent_prs_excluded": 7,
+  "notes": "7 open PRs found (4 from github-actions[bot], 3 from Copilot). All originate from same-repo branches (not forks). Excluded per fork-only policy. No change from previous run pattern - still no fork PRs. New PRs since last run (23731204453): #23535 ([docs] Consolidate subdirectory spec files), #23534 ([spec-review] Safe Outputs conformance), #23533 ([instructions] Sync github-agentic-workflows.md), #23525 ([specs] Update layout spec). #23522 appears to have been merged/closed. Still open: #23509, #23469, #23440.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,14 +18,39 @@
   },
   "prs_examined": [
     {
-      "number": 23522,
-      "title": "[code-simplifier] refactor: combine requestedTools and paramsList building into single pass (#23515 follow-up)",
-      "draft": true,
+      "number": 23535,
+      "title": "[docs] Consolidate 4 uncovered subdirectory spec files into dev.md (v4.6 -> v4.7)",
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["automation", "code-quality", "refactoring"],
-      "created_at": "2026-03-30T06:19:00Z",
-      "updated_at": "2026-03-30T06:19:01Z",
+      "labels": [],
+      "author": "github-actions[bot]"
+    },
+    {
+      "number": 23534,
+      "title": "[spec-review] Update Safe Outputs conformance checker for recent spec changes",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "author": "github-actions[bot]"
+    },
+    {
+      "number": 23533,
+      "title": "[instructions] Sync github-agentic-workflows.md with v0.40.1",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "author": "github-actions[bot]"
+    },
+    {
+      "number": 23525,
+      "title": "[specs] Update layout specification - 2026-03-30",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
       "author": "github-actions[bot]"
     },
     {
@@ -35,9 +60,6 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "assignees": ["pelikhan", "Copilot"],
-      "created_at": "2026-03-30T04:33:51Z",
-      "updated_at": "2026-03-30T06:13:38Z",
       "author": "Copilot"
     },
     {
@@ -46,10 +68,7 @@
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["lgtm"],
-      "assignees": ["pelikhan", "Copilot"],
-      "created_at": "2026-03-29T15:08:38Z",
-      "updated_at": "2026-03-30T05:41:49Z",
+      "labels": [],
       "author": "Copilot"
     },
     {
@@ -58,10 +77,7 @@
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["smoke-claude", "smoke-copilot", "lgtm"],
-      "assignees": ["pelikhan", "Copilot"],
-      "created_at": "2026-03-29T11:47:06Z",
-      "updated_at": "2026-03-30T02:45:51Z",
+      "labels": [],
       "author": "Copilot"
     }
   ]
