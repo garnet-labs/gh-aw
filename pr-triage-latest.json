@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-31T06:26:34Z",
-  "run_id": "23783618169",
+  "run_date": "2026-03-31T12:14:58Z",
+  "run_id": "23796679915",
   "fork_prs": 0,
   "agent_prs_found": 1,
   "agent_prs_excluded": 1,
-  "notes": "1 open agent PR found (#23651). It originates from the same repo (same-repo branch), not a fork. Excluded per fork-only triage policy. Previous PRs #23608, #23600, #23509, #23469 appear to have been closed/merged since last run (2026-03-31T00:14:03Z).",
+  "notes": "1 open agent PR found (#23685). It originates from the same repo (same-repo branch copilot/fix-functional-pragmatist-codeql-violations), not a fork. Excluded per fork-only triage policy. Previous PR #23651 appears to have been closed/merged since last run (2026-03-31T06:26:34Z).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,21 +18,31 @@
   },
   "prs_examined": [
     {
-      "number": 23651,
-      "title": "[code-simplifier] refactor: simplify detection job permissions and WASM result building",
+      "number": 23685,
+      "title": "[WIP] Fix functional-pragmatist workflow to avoid CodeQL violations",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["automation", "code-quality", "refactoring"],
-      "author": "github-actions[bot]",
-      "created_at": "2026-03-31T06:22:27Z",
-      "ci_status": "clean (mergeable_state: clean)"
+      "labels": [],
+      "author": "Copilot (copilot-swe-agent)",
+      "created_at": "2026-03-31T12:06:14Z",
+      "ci_status": "unstable (mergeable_state: unstable)",
+      "files_changed": 1,
+      "additions": 12,
+      "deletions": 13
+    },
+    {
+      "number": 23660,
+      "title": "chore(deps): bump @sentry/mcp-server from 0.29.0 to 0.31.0",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "not an agent PR (dependabot[bot])",
+      "labels": ["dependencies", "javascript"],
+      "author": "dependabot[bot]",
+      "created_at": "2026-03-31T10:25:29Z"
     }
   ],
   "closed_since_last_run": [
-    {"number": 23608, "title": "[WIP] Add trusted users to MCP Gateway config schema"},
-    {"number": 23600, "title": "feat: Allow extra permissions on tools.github.github-app token for org-level API access"},
-    {"number": 23509, "title": "feat: add shared/apm.md shared workflow with Microsoft APM support"},
-    {"number": 23469, "title": "Add stable/latest version aliases to install-gh-aw.sh and upgrade command"}
+    {"number": 23651, "title": "[code-simplifier] refactor: simplify detection job permissions and WASM result building"}
   ]
 }
