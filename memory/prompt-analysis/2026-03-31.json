@@ -1,0 +1,44 @@
+{
+  "date": "2026-03-31",
+  "total_prs": 1000,
+  "merged": 842,
+  "closed": 157,
+  "open": 1,
+  "success_rate": 0.843,
+  "top_prefixes": {
+    "ci": 1.0,
+    "perf": 1.0,
+    "docs": 0.93,
+    "fix": 0.89,
+    "refactor": 0.87,
+    "chore": 0.85,
+    "no-prefix": 0.84,
+    "feat": 0.83,
+    "WIP": 0.32
+  },
+  "categories": {
+    "testing": 1.0,
+    "documentation": 0.90,
+    "bug_fix": 0.86,
+    "other": 0.83,
+    "feature": 0.82,
+    "refactor": 0.79
+  },
+  "wip_total": 46,
+  "wip_merged": 15,
+  "wip_closed": 31,
+  "conventional_commits": {
+    "total": 504,
+    "merged": 447,
+    "rate": 0.887
+  },
+  "with_original_prompt": {
+    "total": 234,
+    "merged": 199,
+    "rate": 0.850
+  },
+  "avg_body_length": {
+    "merged": 9071,
+    "closed": 9250
+  }
+}
