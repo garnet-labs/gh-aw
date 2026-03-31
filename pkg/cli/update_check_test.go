@@ -3,11 +3,15 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/github/gh-aw/pkg/constants"
 )
 
 func TestShouldCheckForUpdate(t *testing.T) {
@@ -337,4 +341,176 @@ func TestCheckForUpdatesAsync_ContextCancellation(t *testing.T) {
 	// because the context was cancelled
 	// Note: The check might still run if it started before cancellation,
 	// so we just verify no panics occurred
+}
+
+func TestCheckForGhAwUpdates_NewVersionAvailable(t *testing.T) {
+	origGetLatestRelease := getLatestReleaseFunc
+	defer func() { getLatestReleaseFunc = origGetLatestRelease }()
+
+	getLatestReleaseFunc = func() (string, error) {
+		return "v9.9.9", nil
+	}
+
+	// Capture stderr output
+	oldStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	checkForGhAwUpdates("v1.0.0", false)
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	output := buf.String()
+
+	if !strings.Contains(output, "v9.9.9") {
+		t.Errorf("expected output to mention v9.9.9, got: %s", output)
+	}
+	if !strings.Contains(output, "v1.0.0") {
+		t.Errorf("expected output to mention v1.0.0, got: %s", output)
+	}
+	if !strings.Contains(output, "gh extension upgrade github/gh-aw") {
+		t.Errorf("expected update command in output, got: %s", output)
+	}
+}
+
+func TestCheckForGhAwUpdates_AlreadyUpToDate(t *testing.T) {
+	origGetLatestRelease := getLatestReleaseFunc
+	defer func() { getLatestReleaseFunc = origGetLatestRelease }()
+
+	getLatestReleaseFunc = func() (string, error) {
+		return "v1.0.0", nil
+	}
+
+	oldStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	checkForGhAwUpdates("v1.0.0", false)
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	output := buf.String()
+
+	if strings.Contains(output, "gh extension upgrade") {
+		t.Errorf("expected no update message when already up to date, got: %s", output)
+	}
+}
+
+func TestCheckForGhAwUpdates_CurrentNewerThanLatest(t *testing.T) {
+	origGetLatestRelease := getLatestReleaseFunc
+	defer func() { getLatestReleaseFunc = origGetLatestRelease }()
+
+	getLatestReleaseFunc = func() (string, error) {
+		return "v1.0.0", nil
+	}
+
+	oldStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	checkForGhAwUpdates("v9.9.9", false)
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	output := buf.String()
+
+	if strings.Contains(output, "gh extension upgrade") {
+		t.Errorf("expected no update message when current is newer, got: %s", output)
+	}
+}
+
+func TestCheckForAWFUpdates_NewVersionAvailable(t *testing.T) {
+	origGetLatestAWFRelease := getLatestAWFReleaseFunc
+	defer func() { getLatestAWFReleaseFunc = origGetLatestAWFRelease }()
+
+	getLatestAWFReleaseFunc = func() (string, error) {
+		return "v9.9.9", nil
+	}
+
+	oldStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	checkForAWFUpdates()
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	output := buf.String()
+
+	bundled := string(constants.DefaultFirewallVersion)
+
+	if !strings.Contains(output, "v9.9.9") {
+		t.Errorf("expected output to mention v9.9.9, got: %s", output)
+	}
+	if !strings.Contains(output, bundled) {
+		t.Errorf("expected output to mention bundled version %s, got: %s", bundled, output)
+	}
+	if !strings.Contains(output, "gh extension upgrade github/gh-aw") {
+		t.Errorf("expected update command in output, got: %s", output)
+	}
+}
+
+func TestCheckForAWFUpdates_AlreadyUpToDate(t *testing.T) {
+	origGetLatestAWFRelease := getLatestAWFReleaseFunc
+	defer func() { getLatestAWFReleaseFunc = origGetLatestAWFRelease }()
+
+	bundled := string(constants.DefaultFirewallVersion)
+	getLatestAWFReleaseFunc = func() (string, error) {
+		return bundled, nil
+	}
+
+	oldStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	checkForAWFUpdates()
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	output := buf.String()
+
+	if strings.Contains(output, "gh extension upgrade") {
+		t.Errorf("expected no update message when AWF is up to date, got: %s", output)
+	}
+}
+
+func TestCheckForAWFUpdates_BundledNewerThanLatest(t *testing.T) {
+	origGetLatestAWFRelease := getLatestAWFReleaseFunc
+	defer func() { getLatestAWFReleaseFunc = origGetLatestAWFRelease }()
+
+	getLatestAWFReleaseFunc = func() (string, error) {
+		return "v0.0.1", nil
+	}
+
+	oldStderr := os.Stderr
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	checkForAWFUpdates()
+
+	w.Close()
+	os.Stderr = oldStderr
+
+	var buf bytes.Buffer
+	_, _ = buf.ReadFrom(r)
+	output := buf.String()
+
+	if strings.Contains(output, "gh extension upgrade") {
+		t.Errorf("expected no update message when bundled is newer, got: %s", output)
+	}
 }

@@ -10,8 +10,10 @@ import (
 
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/github/gh-aw/pkg/console"
+	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/logger"
 	"github.com/github/gh-aw/pkg/workflow"
+	"golang.org/x/mod/semver"
 )
 
 var updateCheckLog = logger.New("cli:update_check")
@@ -99,6 +101,10 @@ func isRunningAsMCPServer() bool {
 var (
 	// getLastCheckFilePathFunc allows overriding in tests
 	getLastCheckFilePathFunc = getLastCheckFilePathImpl
+	// getLatestReleaseFunc allows overriding in tests
+	getLatestReleaseFunc = getLatestRelease
+	// getLatestAWFReleaseFunc allows overriding in tests
+	getLatestAWFReleaseFunc = getLatestAWFRelease
 )
 
 // getLastCheckFilePath returns the path to the last check timestamp file
@@ -138,7 +144,7 @@ func updateLastCheckTime() {
 	}
 }
 
-// checkForUpdates checks if a newer version of gh-aw is available
+// checkForUpdates checks if a newer version of gh-aw or gh-aw-firewall is available.
 // This function is non-blocking and ignores all errors (connectivity, API, etc.)
 func checkForUpdates(noCheckUpdate bool, verbose bool) {
 	// Quick check if we should even attempt the update check
@@ -158,8 +164,15 @@ func checkForUpdates(noCheckUpdate bool, verbose bool) {
 		return
 	}
 
+	// Check gh-aw and gh-aw-firewall for updates concurrently
+	checkForGhAwUpdates(currentVersion, verbose)
+	checkForAWFUpdates()
+}
+
+// checkForGhAwUpdates checks if a newer version of gh-aw is available and notifies the user.
+func checkForGhAwUpdates(currentVersion string, verbose bool) {
 	// Query GitHub API for latest release
-	latestVersion, err := getLatestRelease()
+	latestVersion, err := getLatestReleaseFunc()
 	if err != nil {
 		// Silently ignore errors - update check should never fail the command
 		updateCheckLog.Printf("Error checking for updates (ignoring): %v", err)
@@ -171,28 +184,21 @@ func checkForUpdates(noCheckUpdate bool, verbose bool) {
 		return
 	}
 
-	// Compare versions
-	if latestVersion == currentVersion {
+	// Ensure versions have 'v' prefix for semver comparison
+	current := ensureVPrefix(currentVersion)
+	latest := ensureVPrefix(latestVersion)
+
+	cmp := semver.Compare(current, latest)
+
+	if cmp == 0 {
 		if verbose {
 			updateCheckLog.Print("gh-aw is up to date")
 		}
 		return
 	}
 
-	// Normalize versions for comparison (remove 'v' prefix)
-	currentVersionNormalized := strings.TrimPrefix(currentVersion, "v")
-	latestVersionNormalized := strings.TrimPrefix(latestVersion, "v")
-
-	if currentVersionNormalized == latestVersionNormalized {
-		if verbose {
-			updateCheckLog.Print("gh-aw is up to date (version format differs)")
-		}
-		return
-	}
-
 	// Check if we're on a newer version (development/prerelease)
-	// Simple heuristic: if current version sorts after latest, we might be on a dev version
-	if currentVersionNormalized > latestVersionNormalized {
+	if cmp > 0 {
 		updateCheckLog.Printf("Current version (%s) appears newer than latest release (%s), skipping notification", currentVersion, latestVersion)
 		return
 	}
@@ -224,6 +230,73 @@ func getLatestRelease() (string, error) {
 
 	updateCheckLog.Printf("Latest release: %s", release.TagName)
 	return release.TagName, nil
+}
+
+// getLatestAWFRelease queries GitHub API for the latest release of gh-aw-firewall
+func getLatestAWFRelease() (string, error) {
+	updateCheckLog.Print("Querying GitHub API for latest gh-aw-firewall release...")
+
+	client, err := api.NewRESTClient(api.ClientOptions{})
+	if err != nil {
+		return "", fmt.Errorf("failed to create GitHub client: %w", err)
+	}
+
+	var release Release
+	err = client.Get("repos/github/gh-aw-firewall/releases/latest", &release)
+	if err != nil {
+		return "", fmt.Errorf("failed to query latest gh-aw-firewall release: %w", err)
+	}
+
+	updateCheckLog.Printf("Latest gh-aw-firewall release: %s", release.TagName)
+	return release.TagName, nil
+}
+
+// checkForAWFUpdates checks if a newer version of gh-aw-firewall is available
+// compared to the bundled default version. Errors are silently ignored.
+func checkForAWFUpdates() {
+	bundledVersion := string(constants.DefaultFirewallVersion)
+
+	latestVersion, err := getLatestAWFReleaseFunc()
+	if err != nil {
+		updateCheckLog.Printf("Error checking for gh-aw-firewall updates (ignoring): %v", err)
+		return
+	}
+
+	if latestVersion == "" {
+		updateCheckLog.Print("Could not determine latest gh-aw-firewall version")
+		return
+	}
+
+	// Ensure versions have 'v' prefix for semver comparison
+	bundled := ensureVPrefix(bundledVersion)
+	latest := ensureVPrefix(latestVersion)
+
+	cmp := semver.Compare(bundled, latest)
+
+	if cmp == 0 {
+		updateCheckLog.Print("gh-aw-firewall is up to date")
+		return
+	}
+
+	// If bundled version is already newer, skip
+	if cmp > 0 {
+		updateCheckLog.Printf("Bundled gh-aw-firewall (%s) appears newer than latest release (%s), skipping notification", bundledVersion, latestVersion)
+		return
+	}
+
+	// A newer AWF version is available – updating gh-aw will pick it up
+	updateCheckLog.Printf("Newer gh-aw-firewall available: %s (bundled: %s)", latestVersion, bundledVersion)
+	fmt.Fprintln(os.Stderr, console.FormatInfoMessage(fmt.Sprintf("A new version of gh-aw-firewall is available: %s (bundled: %s)", latestVersion, bundledVersion)))
+	fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Update with: gh extension upgrade github/gh-aw"))
+	fmt.Fprintln(os.Stderr, "")
+}
+
+// ensureVPrefix ensures a version string starts with 'v' as required by golang.org/x/mod/semver
+func ensureVPrefix(version string) string {
+	if !strings.HasPrefix(version, "v") {
+		return "v" + version
+	}
+	return version
 }
 
 // CheckForUpdatesAsync performs update check in background (best effort)
