@@ -30,6 +30,10 @@ imports:
   - shared/go-make.md
   - shared/github-mcp-app.md
   - shared/mcp/serena-go.md
+  - uses: shared/apm.md
+    with:
+      packages:
+        - microsoft/apm-sample-package
 network:
   allowed:
     - defaults
@@ -44,9 +48,6 @@ tools:
   edit:
   bash:
     - "*"
-dependencies:
-  packages:
-    - microsoft/apm-sample-package
 runtimes:
   go:
     version: "1.25"
@@ -84,6 +85,8 @@ safe-outputs:
       staged: true
       target: "*"
       if-no-changes: "warn"
+      allowed-files:
+        - ".github/smoke-claude-push-test.md"
     add-reviewer:
       max: 2
       target: "*"
