@@ -248,7 +248,19 @@ func (e *GeminiEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 		}
 
 		npmPathSetup := GetNpmBinPathSetup()
-		geminiCommandWithPath := fmt.Sprintf("%s && %s", npmPathSetup, geminiCommand)
+
+		// Inside the AWF container, GEMINI_API_KEY is excluded from the environment (via
+		// --exclude-env) so the agent cannot exfiltrate the real secret via bash tools.
+		// However, Gemini CLI v0.65.0+ performs a startup auth check and exits with code 41
+		// if no auth method is configured when GEMINI_API_BASE_URL (the api-proxy) is set.
+		// To satisfy this check, set a placeholder value for GEMINI_API_KEY inside the
+		// container — the real key is held by AWF's api-proxy sidecar which intercepts all
+		// LLM API calls and handles authentication transparently.
+		//
+		// Also create $HOME/.gemini/ so Gemini CLI can save its project registry without
+		// failing with ENOENT (the directory may not exist in the container filesystem).
+		awfContainerSetup := `mkdir -p "$HOME/.gemini" && export GEMINI_API_KEY="${GEMINI_API_KEY:-gemini-api-key-placeholder}"`
+		geminiCommandWithPath := fmt.Sprintf("%s && %s && %s", awfContainerSetup, npmPathSetup, geminiCommand)
 
 		command = BuildAWFCommand(AWFCommandConfig{
 			EngineName:     "gemini",
@@ -266,8 +278,11 @@ func (e *GeminiEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 			ExcludeEnvVarNames: ComputeAWFExcludeEnvVarNames(workflowData, []string{"GEMINI_API_KEY"}),
 		})
 	} else {
+		// Create $HOME/.gemini/ to prevent ENOENT when Gemini CLI saves its project
+		// registry (the directory may not exist on a fresh runner instance).
 		command = fmt.Sprintf(`set -o pipefail
 touch %s
+mkdir -p "$HOME/.gemini"
 %s 2>&1 | tee -a %s`, AgentStepSummaryPath, geminiCommand, logFile)
 	}
 

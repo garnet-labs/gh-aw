@@ -342,6 +342,13 @@ func TestGeminiEngineFirewallIntegration(t *testing.T) {
 		assert.Contains(t, stepContent, "--allow-domains", "Should include allow-domains flag")
 		assert.Contains(t, stepContent, "--enable-api-proxy", "Should include --enable-api-proxy flag")
 		assert.Contains(t, stepContent, "GEMINI_API_BASE_URL: http://host.docker.internal:10003", "Should set GEMINI_API_BASE_URL to LLM gateway URL")
+
+		// Should create ~/.gemini/ to prevent ENOENT when Gemini CLI saves project registry
+		assert.Contains(t, stepContent, `mkdir -p "$HOME/.gemini"`, "Should create ~/.gemini/ directory in container to prevent ENOENT")
+
+		// Should set placeholder GEMINI_API_KEY inside container so Gemini CLI passes its
+		// startup auth check (real key is held by AWF's api-proxy sidecar)
+		assert.Contains(t, stepContent, `GEMINI_API_KEY="${GEMINI_API_KEY:-gemini-api-key-placeholder}"`, "Should set placeholder GEMINI_API_KEY in container for startup auth check")
 	})
 
 	t.Run("firewall disabled", func(t *testing.T) {
@@ -363,6 +370,12 @@ func TestGeminiEngineFirewallIntegration(t *testing.T) {
 		assert.Contains(t, stepContent, "set -o pipefail", "Should use simple command with pipefail")
 		assert.NotContains(t, stepContent, "awf", "Should not use AWF when firewall is disabled")
 		assert.NotContains(t, stepContent, "GEMINI_API_BASE_URL", "Should not set GEMINI_API_BASE_URL when firewall is disabled")
+
+		// Should create ~/.gemini/ to prevent ENOENT when Gemini CLI saves project registry
+		assert.Contains(t, stepContent, `mkdir -p "$HOME/.gemini"`, "Should create ~/.gemini/ directory to prevent ENOENT")
+
+		// Should NOT set placeholder API key when firewall is disabled (real key is in env)
+		assert.NotContains(t, stepContent, "gemini-api-key-placeholder", "Should not set placeholder API key when firewall is disabled")
 	})
 }
 
