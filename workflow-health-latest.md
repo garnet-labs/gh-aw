@@ -1,35 +1,39 @@
-# Workflow Health - 2026-03-30T12:00Z
+# Workflow Health - 2026-03-31T12:06Z
 
-Score: 72/100 (↑1 from 71). 178 workflows total.
+Score: 73/100 (↑1 from 72). 178 workflows total. Run: §23796317224
 
 ## ✅ Recovered This Run
-- **PR Triage Agent** (#23151 closed): 5 consecutive successes #301-305. Fully recovered.
-- **Metrics Collector** (#23446 closed): Run #109 succeeded (2026-03-29T19:29Z) after 3 failures.
-- **Lockfile Stats** (#23397 closed): Run #211 succeeded (2026-03-30T00:00Z). Transient.
+- **PR Triage Agent** (#23151 still open): Runs #305-309 all success. Fully recovered. Manual close needed (update_issue fails in schedule context).
+- **Metrics Collector** (#109-110 success): Fully recovered. No open issue.
 
 ## P1 Issues (Ongoing)
-- **Smoke Codex** (#23431, updated → P1): ALL run types failing. 4 consecutive schedule + all PR runs. Last success: run #2538 (2026-03-28T01:09Z). Error: "access to this model temporarily restricted" — OpenAI API issue broadened to all contexts.
-- **Smoke Update Cross-Repo PR** (#23193, updated): Schedule #438, #442 failed. PR runs succeeding. Systemic push_repo_memory git branch bug.
-- **Smoke Create Cross-Repo PR** (#23447, updated): 8+ consecutive schedule failures since 2026-03-25. Same root cause.
+- **Smoke Update Cross-Repo PR** (#23193, open): Schedule runs #438-450 all failing. Root: push_repo_memory git branch bug. Run #450 failed 2026-03-31T01:01Z.
+- **Smoke Create Cross-Repo PR** (#23447 expired/closed, new issue needed): Schedule runs #434-450 all failing. Same root cause. Run #450 failed 2026-03-31T01:05Z. Created new tracking issue #aw_smkCreate287.
 
-## P2 Warnings
-- **Smoke Gemini** (#23399 open): Schedule #655 failed (2026-03-30T01:01Z). PR runs succeeding. Exit code 41. Intermittent.
-- **WHM Self**: Runs #282-#285 failed in safe_outputs job. Run #286 (current) expected to succeed.
+## P2 (Team decided "not_planned")
+- **Smoke Codex** (#23431 closed by pelikhan): API restriction. Still failing (run #2560 failed 2026-03-31T01:10Z).
+- **Smoke Gemini** (#23399 closed by pelikhan): Exit code 41. Still failing (run #663 failed 2026-03-31T00:58Z).
+
+## WHM Self-Failure Root Cause IDENTIFIED
+- Runs #282-286 ALL failed in safe_outputs
+- Root cause: WHM agent was calling `update_issue` (3 calls) in schedule context → "Target is triggering but not running in issue context"
+- Actions that DID work in run #286: add_comment to #23447/#23193/#23431, create_issue #23543 (dashboard)
+- Fix applied this run: DO NOT call update_issue; use add_comment only
+- Issue #23110 (WHM self): commented with root cause
 
 ## Systemic Bugs
-1. **push_repo_memory → Post Setup Scripts** failure: Affects Smoke Update + Smoke Create cross-repo PR. Fix: `git checkout HEAD` in compiler_yaml.go push_repo_memory job. Issues: #23193, #23447.
-2. **Codex API access**: Restriction broadened from schedule-only to all run types. Issue: #23431.
+1. **push_repo_memory → Post Setup Scripts**: Affects Smoke Update + Smoke Create cross-repo PR. Issues: #23193 (open), new issue #aw_smkCreate287.
+2. **Codex/Gemini API access**: External APIs restricted. Team closed as not_planned.
+3. **WHM update_issue in schedule context**: RESOLVED this run by using add_comment instead.
 
 ## Actions Taken This Run
-- Closed #23151 (PR Triage recovered)
-- Closed #23446 (Metrics Collector recovered)
-- Closed #23397 (Lockfile Stats transient)
-- Status comment on #23193 (Smoke Update still failing)
-- Status comment on #23447 (Smoke Create still failing)
-- Escalated #23431 Smoke Codex to P1 with comment
-- Created WHM Dashboard issue (#aw_whm286)
+- Commented on #23193 (Smoke Update still failing, runs #445/#450)
+- Commented on #23151 (PR Triage recovered, manual close needed)
+- Commented on #23110 (WHM root cause found)
+- Created new P1 issue for Smoke Create Cross-Repo PR (#aw_smkCreate287)
+- Created WHM Dashboard issue (#aw_whm287)
 
 ## Run Info
-- Timestamp: 2026-03-30T12:08:00Z
-- Run: §23743866195
-- Score: 71→72 (↑1)
+- Timestamp: 2026-03-31T12:06Z
+- Run: §23796317224
+- Score: 72→73 (↑1)
