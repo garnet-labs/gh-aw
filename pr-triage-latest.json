@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-31T00:14:03Z",
-  "run_id": "23774035152",
+  "run_date": "2026-03-31T06:26:34Z",
+  "run_id": "23783618169",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 open Copilot PRs found. All originate from same-repo branches (not forks). Excluded per fork-only policy. 2 new PRs since last run: #23600 (feat: Allow extra permissions on tools.github.github-app token, non-draft, CI mixed), #23608 (WIP: Add trusted users to MCP Gateway config schema, draft). Previous PRs #23571 and #23570 are now closed/merged.",
+  "agent_prs_found": 1,
+  "agent_prs_excluded": 1,
+  "notes": "1 open agent PR found (#23651). It originates from the same repo (same-repo branch), not a fork. Excluded per fork-only triage policy. Previous PRs #23608, #23600, #23509, #23469 appear to have been closed/merged since last run (2026-03-31T00:14:03Z).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,52 +18,21 @@
   },
   "prs_examined": [
     {
-      "number": 23608,
-      "title": "[WIP] Add trusted users to MCP Gateway config schema",
+      "number": 23651,
+      "title": "[code-simplifier] refactor: simplify detection job permissions and WASM result building",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "author": "Copilot",
-      "created_at": "2026-03-31T00:11:21Z",
-      "ci_status": "pending/incomplete"
-    },
-    {
-      "number": 23600,
-      "title": "feat: Allow extra permissions on `tools.github.github-app` token for org-level API access",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "author": "Copilot",
-      "created_at": "2026-03-30T22:55:01Z",
-      "ci_status": "mixed (some passing, some failing/in-progress)"
-    },
-    {
-      "number": 23509,
-      "title": "feat: add shared/apm.md shared workflow with Microsoft APM support",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["smoke-copilot"],
-      "author": "Copilot",
-      "created_at": "2026-03-30T04:33:51Z",
-      "ci_status": "mixed (some failing: APM Pack/Unpack Integration, Integration: Workflow Features)"
-    },
-    {
-      "number": 23469,
-      "title": "Add stable/latest version aliases to install-gh-aw.sh and upgrade command",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["lgtm"],
-      "author": "Copilot",
-      "created_at": "2026-03-29T15:08:38Z",
-      "ci_status": "unknown (draft)"
+      "labels": ["automation", "code-quality", "refactoring"],
+      "author": "github-actions[bot]",
+      "created_at": "2026-03-31T06:22:27Z",
+      "ci_status": "clean (mergeable_state: clean)"
     }
   ],
   "closed_since_last_run": [
-    {"number": 23571, "title": "fix: use git add --sparse to handle sparse-checkout on orphan branch first run"},
-    {"number": 23570, "title": "Add read role support to compiler; align docs with compiler behavior"}
+    {"number": 23608, "title": "[WIP] Add trusted users to MCP Gateway config schema"},
+    {"number": 23600, "title": "feat: Allow extra permissions on tools.github.github-app token for org-level API access"},
+    {"number": 23509, "title": "feat: add shared/apm.md shared workflow with Microsoft APM support"},
+    {"number": 23469, "title": "Add stable/latest version aliases to install-gh-aw.sh and upgrade command"}
   ]
 }
