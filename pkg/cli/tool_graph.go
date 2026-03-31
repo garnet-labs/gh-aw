@@ -2,8 +2,9 @@ package cli
 
 import (
 	"fmt"
+	"maps"
 	"os"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/github/gh-aw/pkg/console"
@@ -73,11 +74,7 @@ func (g *ToolGraph) GenerateMermaidGraph() string {
 
 	// Add tool states with normalized names for Mermaid
 	toolToStateMap := make(map[string]string)
-	var tools []string
-	for tool := range g.Tools {
-		tools = append(tools, tool)
-	}
-	sort.Strings(tools)
+	tools := slices.Sorted(maps.Keys(g.Tools))
 
 	for i, tool := range tools {
 		stateId := fmt.Sprintf("tool%d", i)
@@ -119,7 +116,7 @@ func (g *ToolGraph) GenerateMermaidGraph() string {
 	}
 
 	// Add transitions with counts as labels
-	var transitions []ToolTransition
+	transitions := make([]ToolTransition, 0, len(g.Transitions))
 	for key, count := range g.Transitions {
 		parts := strings.Split(key, "->")
 		if len(parts) == 2 {
@@ -132,14 +129,14 @@ func (g *ToolGraph) GenerateMermaidGraph() string {
 	}
 
 	// Sort transitions by count (descending) for better visualization
-	sort.Slice(transitions, func(i, j int) bool {
-		if transitions[i].Count != transitions[j].Count {
-			return transitions[i].Count > transitions[j].Count
+	slices.SortFunc(transitions, func(a, b ToolTransition) int {
+		if a.Count != b.Count {
+			return b.Count - a.Count // descending by count
 		}
-		if transitions[i].From != transitions[j].From {
-			return transitions[i].From < transitions[j].From
+		if a.From != b.From {
+			return strings.Compare(a.From, b.From)
 		}
-		return transitions[i].To < transitions[j].To
+		return strings.Compare(a.To, b.To)
 	})
 
 	for _, transition := range transitions {
