@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-03-31T12:14:58Z",
-  "run_id": "23796679915",
+  "run_date": "2026-03-31T18:17:05Z",
+  "run_id": "23812684765",
   "fork_prs": 0,
-  "agent_prs_found": 1,
-  "agent_prs_excluded": 1,
-  "notes": "1 open agent PR found (#23685). It originates from the same repo (same-repo branch copilot/fix-functional-pragmatist-codeql-violations), not a fork. Excluded per fork-only triage policy. Previous PR #23651 appears to have been closed/merged since last run (2026-03-31T06:26:34Z).",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 open PRs found (#23758, #23757, #23755, #23695). All originate from the same repo (same-repo branches), not forks. Excluded per fork-only triage policy. New since last run: #23758, #23757, #23755. PR #23685 from last run appears closed/merged.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,31 +18,47 @@
   },
   "prs_examined": [
     {
-      "number": 23685,
-      "title": "[WIP] Fix functional-pragmatist workflow to avoid CodeQL violations",
+      "number": 23758,
+      "title": "[WIP] Add auto-generate --allow-host-service-ports for service port mapping",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "author": "Copilot (copilot-swe-agent)",
-      "created_at": "2026-03-31T12:06:14Z",
-      "ci_status": "unstable (mergeable_state: unstable)",
-      "files_changed": 1,
-      "additions": 12,
-      "deletions": 13
+      "assignees": ["Mossaka", "Copilot"],
+      "created_at": "2026-03-31"
     },
     {
-      "number": 23660,
-      "title": "chore(deps): bump @sentry/mcp-server from 0.29.0 to 0.31.0",
+      "number": 23757,
+      "title": "[WIP] Fix workflow health dashboard issues",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "assignees": ["pelikhan", "Copilot"],
+      "created_at": "2026-03-31"
+    },
+    {
+      "number": 23755,
+      "title": "Remove releases.json aliases and stable release channel support",
       "draft": false,
       "same_repo": true,
-      "excluded_reason": "not an agent PR (dependabot[bot])",
-      "labels": ["dependencies", "javascript"],
-      "author": "dependabot[bot]",
-      "created_at": "2026-03-31T10:25:29Z"
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "assignees": ["pelikhan", "Copilot"],
+      "created_at": "2026-03-31"
+    },
+    {
+      "number": 23695,
+      "title": "fix: Gemini CLI exits 41 in AWF sandbox — missing API key and ~/.gemini dir",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": ["lgtm", "awf"],
+      "assignees": ["lpcox"],
+      "created_at": "2026-03-31"
     }
   ],
   "closed_since_last_run": [
-    {"number": 23651, "title": "[code-simplifier] refactor: simplify detection job permissions and WASM result building"}
+    {"number": 23685, "title": "[WIP] Fix functional-pragmatist workflow to avoid CodeQL violations"}
   ]
 }
