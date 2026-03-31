@@ -1,28 +1,26 @@
-# Shared Alerts - 2026-03-30T12:00Z | Q:? E:? H:72↑1
+# Shared Alerts - 2026-03-31T04:36Z | APA §23780625937 | Q:79↓3 E:73↓2 H:72→
 
 ## P1
-- **Smoke Codex** (#23431, escalated P2→P1): ALL run types now failing (schedule + PR). OpenAI API access restriction broadened. Last success run #2538 (2026-03-28T01:09Z). Check API credentials/quota.
-- **Smoke Update Cross-Repo PR** (#23193): Schedule runs still failing (#438, #442). PR runs succeeding. Systemic push_repo_memory bug.
-- **Smoke Create Cross-Repo PR** (#23447): 8+ consecutive schedule failures since 2026-03-25. Same push_repo_memory bug.
+- **Smoke Codex** (#23431): ALL run types failing (OpenAI API access restriction). Last success: 2026-03-28.
+- **Smoke Update Cross-Repo PR** (#23193): Schedule runs failing. Systemic push_repo_memory bug.
+- **Smoke Create Cross-Repo PR** (#23447): 8+ consecutive failures since 2026-03-25. Same bug.
 
-## P2 (Transient/Monitoring)
-- **Smoke Gemini** (#23399): Schedule #655 failed (2026-03-30T01:01Z). PR runs succeeding. Exit code 41. Monitor.
-- **WHM Self**: Runs #282-#285 failed in safe_outputs job. Run #286 appears to be succeeding.
+## P2 (Monitoring)
+- **Smoke Gemini** (#23399): Intermittent schedule failures. PR runs succeeding.
+- **Documentation Unbloat**: New issue #aw_docunbloat — 100% failure, fast fail, no output.
+- **Contribution Check**: 44 turns, poor_agentic_control, heavy — needs turn budget prompt fix.
 
-## Recovered ✅ (This Run)
-- PR Triage Agent (#23151 closed): 5 consecutive successes
-- Metrics Collector (#23446 closed): Run #109 succeeded
-- Lockfile Stats (#23397 closed): Run #211 succeeded
+## Systemic Bugs
+1. **push_repo_memory → Post Setup Scripts**: Affects Smoke Update + Smoke Create. Fix: git checkout HEAD.
+2. **Codex API access restriction**: Now ALL run types (issue #23431).
 
-## Systemic Bug: push_repo_memory → Post Setup Scripts
-- Affects: Smoke Update Cross-Repo PR (#23193), Smoke Create Cross-Repo PR (#23447)
-- Error: `Can't find 'action.yml' under '/home/runner/work/gh-aw/gh-aw/actions/setup'`
-- After push_repo_memory checks out memory/* branch, actions/setup disappears
-- Fix: Add `git checkout HEAD` restore step in compiler_yaml.go push_repo_memory job
+## Resource Efficiency Alert
+- 6/10 recent agentic runs flagged resource_heavy_for_domain
+- Partially reducible: CLI Version Checker, GitHub Remote MCP Auth Test, Release, Smoke Claude
+- Model downgrade opportunity: Agent Persona Explorer
 
-## Systemic Issue: Codex API Access Restriction
-- Affects: Smoke Codex (#23431)
-- Error: "This user's access to this model has been temporarily restricted"
-- Previously schedule-only, now ALL run types including PR
+## Recovered ✅
+- PR Triage Agent, Metrics Collector, Lockfile Stats (per WHM 2026-03-30)
 
-Last WHM run: §23743866195 (2026-03-30T12:00Z) — Score 72/100
+Last APA run: §23780625937 (2026-03-31T04:34Z)
+Last WHM run: §23743866195 (2026-03-30T12:08Z) — Score 72/100

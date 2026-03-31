@@ -1,10 +1,14 @@
-# Agent Performance - 2026-03-23
-Run: §23451246701 | Q:82 E:75↑1 H:71↑2
+# Agent Performance - 2026-03-31
+Run: §23780625937 | Q:79↓3 E:73↓2 H:72→
 
-Top: Issue Monster(92), Contribution Check(88), PR Triage(85), Smoke Gemini(82), APA(84)
-P1: Smoke Update Cross-Repo PR (0%, issue #22241, 8+days)
-Watch: Issue Triage Agent (partial recovery, 1/1 recent)
-Holding: Daily Rendering Verifier (2/2)
+Top: Issue Monster, Schema Consistency Checker, GitHub Remote MCP Auth Test, Smoke Copilot, CLI Version Checker
+P1 (ongoing): Smoke Codex (#23431, API), Smoke Update Cross-Repo PR (#23193), Smoke Create Cross-Repo PR (#23447)
+New: Documentation Unbloat 100% failure → issue #aw_docunbloat created
+Watch: Contribution Check (44 turns, poor_agentic_control, heavy, failure conclusion)
+Watch: Smoke Claude (persistent PR failure, resource_heavy; issue #23528 #23067)
 
-Stats: 177 wf, 19 stale locks, ~93% schedule success
-Discussion: "Agent Performance Report — Week of 2026-03-23"
+Stats: 178 wf (+1), 118 copilot / 40 claude / 19 codex / 1 gemini
+Systemic: 6/10 agentic runs resource_heavy; 5+ partially_reducible (deterministic pre-steps opportunity)
+Model downgrade: Agent Persona Explorer flagged model_downgrade_available
+
+Discussion: "Agent Performance Report — Week of 2026-03-31"
