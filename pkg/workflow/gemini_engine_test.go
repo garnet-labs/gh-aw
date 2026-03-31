@@ -3,6 +3,7 @@
 package workflow
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -348,7 +349,7 @@ func TestGeminiEngineFirewallIntegration(t *testing.T) {
 
 		// Should set placeholder GEMINI_API_KEY inside container so Gemini CLI passes its
 		// startup auth check (real key is held by AWF's api-proxy sidecar)
-		assert.Contains(t, stepContent, `GEMINI_API_KEY="${GEMINI_API_KEY:-gemini-api-key-placeholder}"`, "Should set placeholder GEMINI_API_KEY in container for startup auth check")
+		assert.Contains(t, stepContent, fmt.Sprintf(`GEMINI_API_KEY="${GEMINI_API_KEY:-%s}"`, geminiAPIKeyPlaceholder), "Should set placeholder GEMINI_API_KEY in container for startup auth check")
 	})
 
 	t.Run("firewall disabled", func(t *testing.T) {

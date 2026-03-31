@@ -10,6 +10,12 @@ import (
 
 var geminiLog = logger.New("workflow:gemini_engine")
 
+// geminiAPIKeyPlaceholder is the placeholder value set for GEMINI_API_KEY inside the AWF
+// container. The real key is excluded from the container (held by AWF's api-proxy sidecar),
+// but Gemini CLI v0.65.0+ requires some auth method configured before starting. The sidecar
+// intercepts all LLM API calls and handles authentication transparently.
+const geminiAPIKeyPlaceholder = "gemini-api-key-placeholder"
+
 // GeminiEngine represents the Google Gemini CLI agentic engine
 type GeminiEngine struct {
 	BaseEngine
@@ -259,7 +265,7 @@ func (e *GeminiEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 		//
 		// Also create $HOME/.gemini/ so Gemini CLI can save its project registry without
 		// failing with ENOENT (the directory may not exist in the container filesystem).
-		awfContainerSetup := `mkdir -p "$HOME/.gemini" && export GEMINI_API_KEY="${GEMINI_API_KEY:-gemini-api-key-placeholder}"`
+		awfContainerSetup := fmt.Sprintf(`mkdir -p "$HOME/.gemini" && export GEMINI_API_KEY="${GEMINI_API_KEY:-%s}"`, geminiAPIKeyPlaceholder)
 		geminiCommandWithPath := fmt.Sprintf("%s && %s && %s", awfContainerSetup, npmPathSetup, geminiCommand)
 
 		command = BuildAWFCommand(AWFCommandConfig{
