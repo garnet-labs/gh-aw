@@ -29,7 +29,6 @@ var (
 	workflowCallInputsRegex = regexp.MustCompile(`^inputs\.[a-zA-Z0-9_-]+$`)
 	awInputsRegex           = regexp.MustCompile(`^github\.aw\.inputs\.[a-zA-Z0-9_-]+$`)
 	awImportInputsRegex     = regexp.MustCompile(`^github\.aw\.import-inputs\.[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?$`)
-	envRegex                = regexp.MustCompile(`^env\.[a-zA-Z0-9_-]+$`)
 	// comparisonExtractionRegex extracts property accesses from comparison expressions
 	// Matches patterns like "github.workflow == 'value'" and extracts "github.workflow"
 	comparisonExtractionRegex = regexp.MustCompile(`([a-zA-Z_][a-zA-Z0-9_.]*)\s*(?:==|!=|<|>|<=|>=)\s*`)
@@ -72,7 +71,6 @@ func validateExpressionSafety(markdownContent string) error {
 					WorkflowCallInputsRe:    workflowCallInputsRegex,
 					AwInputsRe:              awInputsRegex,
 					AwImportInputsRe:        awImportInputsRegex,
-					EnvRe:                   envRegex,
 					UnauthorizedExpressions: &unauthorizedExpressions,
 				})
 			})
@@ -87,7 +85,6 @@ func validateExpressionSafety(markdownContent string) error {
 				WorkflowCallInputsRe:    workflowCallInputsRegex,
 				AwInputsRe:              awInputsRegex,
 				AwImportInputsRe:        awImportInputsRegex,
-				EnvRe:                   envRegex,
 				UnauthorizedExpressions: &unauthorizedExpressions,
 			})
 			if err != nil {
@@ -128,7 +125,6 @@ func validateExpressionSafety(markdownContent string) error {
 		allowedList.WriteString("  - github.aw.inputs.* (shared workflow inputs)\n")
 		allowedList.WriteString("  - github.aw.import-inputs.* (import-schema inputs)\n")
 		allowedList.WriteString("  - inputs.* (workflow_call)\n")
-		allowedList.WriteString("  - env.*\n")
 
 		return NewValidationError(
 			"expressions",
@@ -149,7 +145,6 @@ type ExpressionValidationOptions struct {
 	WorkflowCallInputsRe    *regexp.Regexp
 	AwInputsRe              *regexp.Regexp
 	AwImportInputsRe        *regexp.Regexp
-	EnvRe                   *regexp.Regexp
 	UnauthorizedExpressions *[]string
 }
 
@@ -214,8 +209,6 @@ func validateSingleExpression(expression string, opts ExpressionValidationOption
 		allowed = true
 	} else if opts.AwImportInputsRe != nil && opts.AwImportInputsRe.MatchString(expression) {
 		allowed = true
-	} else if opts.EnvRe.MatchString(expression) {
-		allowed = true
 	} else if slices.Contains(constants.AllowedExpressions, expression) {
 		allowed = true
 	}
@@ -271,8 +264,6 @@ func validateSingleExpression(expression string, opts ExpressionValidationOption
 					} else if opts.AwInputsRe.MatchString(property) {
 						propertyAllowed = true
 					} else if opts.AwImportInputsRe != nil && opts.AwImportInputsRe.MatchString(property) {
-						propertyAllowed = true
-					} else if opts.EnvRe.MatchString(property) {
 						propertyAllowed = true
 					} else if slices.Contains(constants.AllowedExpressions, property) {
 						propertyAllowed = true

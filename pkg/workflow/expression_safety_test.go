@@ -122,9 +122,22 @@ func TestValidateExpressionSafety(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:        "authorized_env_variable",
-			content:     "Environment: ${{ env.MY_VAR }}",
-			expectError: false,
+			name:           "blocked_env_variable",
+			content:        "Environment: ${{ env.MY_VAR }}",
+			expectError:    true,
+			expectedErrors: []string{"env.MY_VAR"},
+		},
+		{
+			name:           "blocked_env_github_token",
+			content:        "Token: ${{ env.GITHUB_TOKEN }}",
+			expectError:    true,
+			expectedErrors: []string{"env.GITHUB_TOKEN"},
+		},
+		{
+			name:           "blocked_env_underscore",
+			content:        "Config: ${{ env.NODE_VERSION }}",
+			expectError:    true,
+			expectedErrors: []string{"env.NODE_VERSION"},
 		},
 		{
 			name:        "unauthorized_steps_output",
@@ -143,7 +156,7 @@ func TestValidateExpressionSafety(t *testing.T) {
 			name:           "multiple_unauthorized_expressions",
 			content:        "Token: ${{ secrets.GITHUB_TOKEN }}, Valid: ${{ github.actor }}, Env: ${{ env.TEST }}",
 			expectError:    true,
-			expectedErrors: []string{"secrets.GITHUB_TOKEN"},
+			expectedErrors: []string{"secrets.GITHUB_TOKEN", "env.TEST"},
 		},
 		{
 			name:        "expressions_with_whitespace",
@@ -408,11 +421,11 @@ func TestValidateExpressionSafetyWithParser(t *testing.T) {
 - **Working directory**: ${{ github.workspace }}`,
 			wantErr: false,
 		},
-		// env.* with defaults
+		// env.* with defaults -- env.* is blocked, so this should error even with a fallback
 		{
 			name:    "env variable with string default",
 			content: `${{ env.LOG_LEVEL || 'info' }}`,
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 

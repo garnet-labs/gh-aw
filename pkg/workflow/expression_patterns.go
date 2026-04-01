@@ -16,7 +16,6 @@
 //   - InputsPattern - Matches github.event.inputs.* patterns
 //   - WorkflowCallInputsPattern - Matches inputs.* patterns (workflow_call)
 //   - AWInputsPattern - Matches github.aw.inputs.* patterns
-//   - EnvPattern - Matches env.* patterns
 //
 // ## Secret Patterns
 //   - SecretExpressionPattern - Matches ${{ secrets.SECRET_NAME }} expressions
@@ -111,10 +110,6 @@ var (
 	// Captures the full dotted path after "import-inputs." (e.g. "count" or "config.apiKey").
 	// Used for substitution of values provided via the 'with' key in import specifications.
 	AWImportInputsExpressionPattern = regexp.MustCompile(`\$\{\{\s*github\.aw\.import-inputs\.([a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?)\s*\}\}`)
-
-	// EnvPattern matches env.* patterns
-	// Example: env.NODE_VERSION
-	EnvPattern = regexp.MustCompile(`^env\.[a-zA-Z0-9_-]+$`)
 )
 
 // Secret Patterns
