@@ -93,11 +93,11 @@ func collectWorkflowStats(lockFilePath string) (*WorkflowStats, error) {
 
 // displayStatsTable displays workflow statistics in a sorted table
 func displayStatsTable(statsList []*WorkflowStats) {
-	compileStatsLog.Printf("Displaying stats table: workflow_count=%d", len(statsList))
 	if len(statsList) == 0 {
-		fmt.Fprintln(os.Stderr, console.FormatWarningMessage("No workflow statistics to display"))
 		return
 	}
+
+	compileStatsLog.Printf("Displaying stats table: workflow_count=%d", len(statsList))
 
 	// Sort by file size (descending)
 	sort.Slice(statsList, func(i, j int) bool {
