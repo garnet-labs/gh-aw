@@ -670,7 +670,7 @@ func parseTimeoutTool(val any) *string {
 		s := strconv.Itoa(int(v))
 		return &s
 	case string:
-		if strings.HasPrefix(v, "${{") && strings.HasSuffix(v, "}}") {
+		if isExpressionString(v) {
 			return &v
 		}
 		return nil // reject non-expression strings
@@ -698,7 +698,7 @@ func parseStartupTimeoutTool(val any) *string {
 		s := strconv.Itoa(int(v))
 		return &s
 	case string:
-		if strings.HasPrefix(v, "${{") && strings.HasSuffix(v, "}}") {
+		if isExpressionString(v) {
 			return &v
 		}
 		return nil // reject non-expression strings

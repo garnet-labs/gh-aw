@@ -157,7 +157,7 @@ func (c *Compiler) extractToolsTimeout(tools map[string]any) (string, error) {
 		frontmatterMetadataLog.Printf("Extracting tools.timeout value: type=%T", timeoutValue)
 		// Handle GitHub Actions expression strings
 		if strVal, ok := timeoutValue.(string); ok {
-			if strings.HasPrefix(strVal, "${{") && strings.HasSuffix(strVal, "}}") {
+			if isExpressionString(strVal) {
 				frontmatterMetadataLog.Printf("Extracted tools.timeout as expression: %s", strVal)
 				return strVal, nil
 			}
@@ -208,7 +208,7 @@ func (c *Compiler) extractToolsStartupTimeout(tools map[string]any) (string, err
 	if timeoutValue, exists := tools["startup-timeout"]; exists {
 		// Handle GitHub Actions expression strings
 		if strVal, ok := timeoutValue.(string); ok {
-			if strings.HasPrefix(strVal, "${{") && strings.HasSuffix(strVal, "}}") {
+			if isExpressionString(strVal) {
 				return strVal, nil
 			}
 			return "", fmt.Errorf("tools.startup-timeout must be an integer or a GitHub Actions expression (e.g. '${{ inputs.startup-timeout }}'), got string %q", strVal)
