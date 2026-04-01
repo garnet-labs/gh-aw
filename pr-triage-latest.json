@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-01T12:15:00Z",
-  "run_id": "23847991207",
+  "run_date": "2026-04-01T18:15:52Z",
+  "run_id": "23863767275",
   "fork_prs": 0,
   "agent_prs_found": 8,
   "agent_prs_excluded": 8,
-  "notes": "8 open Copilot PRs found (#23879, #23878, #23876, #23870, #23869, #23868, #23863, #23695). All originate from the same repo (same-repo branches), not forks. Excluded per fork-only triage policy. New since last run: #23879, #23878, #23876, #23870, #23869, #23868, #23863. PRs #23837, #23836, #23835, #23833 from last run appear closed/merged.",
+  "notes": "8 open Copilot PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. Notable: 7 new security-focused PRs created today (#23928-#23934). Previous batch (#23879, #23878, #23876, #23870, #23869, #23868, #23863) appear closed/merged since last run.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,74 +18,81 @@
   },
   "prs_examined": [
     {
-      "number": 23879,
-      "title": "bump: gh-aw-firewall v0.25.6, gh-aw-mcpg v0.2.11",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-01T12:09:10Z"
-    },
-    {
-      "number": 23878,
-      "title": "Remove noisy negative-result messages from compile output",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-01T12:08:59Z"
-    },
-    {
-      "number": 23876,
-      "title": "fix: update_cache_memory must not run if agent job failed",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-01T12:08:16Z"
-    },
-    {
-      "number": 23870,
-      "title": "[WIP] Allow engine.version to accept GitHub Actions expressions",
+      "number": 23934,
+      "title": "fix: address 4 security findings — env.* expression blocklist, protocol-relative",
       "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T11:58:19Z"
+      "created_at": "2026-04-01T16:41:44Z",
+      "category_hint": "security/bug"
     },
     {
-      "number": 23869,
-      "title": "[WIP] Parameterize tools config fields to accept expressions",
+      "number": 23933,
+      "title": "Enforce MCP gateway tool allowlist at the gateway layer and restrict config file",
       "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T11:58:06Z"
+      "created_at": "2026-04-01T16:31:08Z",
+      "category_hint": "security/feature"
     },
     {
-      "number": 23868,
-      "title": "Improve test quality: pkg/parser/frontmatter_utils_test.go",
+      "number": 23932,
+      "title": "fix: reject env.* expressions in markdown per documented safety policy",
       "author": "Copilot",
-      "draft": false,
+      "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T11:57:44Z"
+      "created_at": "2026-04-01T16:31:04Z",
+      "category_hint": "security/bug"
     },
     {
-      "number": 23863,
-      "title": "feat: allow `timeout-minutes` to accept GitHub Actions expressions",
+      "number": 23931,
+      "title": "fix: enforce mcp/fetch domain allowlist to close web-fetch AWF bypass",
       "author": "Copilot",
-      "draft": false,
+      "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T11:33:43Z"
+      "created_at": "2026-04-01T16:30:53Z",
+      "category_hint": "security/bug"
+    },
+    {
+      "number": 23930,
+      "title": "fix: treat protocol-relative URLs as blocked domains in safe-outputs sanitizer",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T16:30:48Z",
+      "category_hint": "security/bug"
+    },
+    {
+      "number": 23929,
+      "title": "fix(security): clear .git/hooks/ and disable hooksPath in cache-memory git setup",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T16:30:36Z",
+      "category_hint": "security/bug"
+    },
+    {
+      "number": 23928,
+      "title": "security: scope safe-outputs write-sink to a distinct bearer token",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T16:30:20Z",
+      "category_hint": "security/feature"
     },
     {
       "number": 23695,
@@ -95,13 +102,17 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": ["lgtm", "awf"],
-      "created_at": "2026-03-31T12:26:03Z"
+      "created_at": "2026-03-31T12:26:03Z",
+      "category_hint": "bug"
     }
   ],
   "closed_since_last_run": [
-    {"number": 23837, "title": "fix: use `token` instead of `github-token` for `upload-sarif` action"},
-    {"number": 23836, "title": "fix: thread discussion replies when add_comment triggered by discussion_comment event"},
-    {"number": 23835, "title": "docs: add concrete steps/mcp-servers/safe-outputs.jobs import examples"},
-    {"number": 23833, "title": "Docs: Add \"Supported Languages & Ecosystems\" reference page"}
+    {"number": 23879, "title": "bump: gh-aw-firewall v0.25.6, gh-aw-mcpg v0.2.11"},
+    {"number": 23878, "title": "Remove noisy negative-result messages from compile output"},
+    {"number": 23876, "title": "fix: update_cache_memory must not run if agent job failed"},
+    {"number": 23870, "title": "[WIP] Allow engine.version to accept GitHub Actions expressions"},
+    {"number": 23869, "title": "[WIP] Parameterize tools config fields to accept expressions"},
+    {"number": 23868, "title": "Improve test quality: pkg/parser/frontmatter_utils_test.go"},
+    {"number": 23863, "title": "feat: allow `timeout-minutes` to accept GitHub Actions expressions"}
   ]
 }
