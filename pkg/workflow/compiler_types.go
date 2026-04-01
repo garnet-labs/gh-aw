@@ -436,6 +436,7 @@ type WorkflowData struct {
 	IsDetectionRun              bool                      // true when this WorkflowData is used for inline threat detection (not the main agent run)
 	UpdateCheckDisabled         bool                      // true when check-for-updates: false is set in frontmatter (disables version check step in activation job)
 	EngineConfigSteps           []map[string]any          // steps returned by engine.RenderConfig — prepended before execution steps
+	ServicePortExpressions      string                    // comma-separated ${{ job.services['<id>'].ports['<port>'] }} expressions for AWF --allow-host-service-ports
 }
 
 // BaseSafeOutputConfig holds common configuration fields for all safe output types

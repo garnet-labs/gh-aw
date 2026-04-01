@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+	"os"
 	"strings"
 
+	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/logger"
 	"github.com/github/gh-aw/pkg/parser"
 	"github.com/goccy/go-yaml"
@@ -527,6 +529,20 @@ func (c *Compiler) processAndMergeServices(frontmatter map[string]any, workflowD
 					workflowData.Services = string(servicesYAML)
 				}
 			}
+		}
+	}
+
+	// Extract service port expressions for AWF --allow-host-service-ports
+	if workflowData.Services != "" {
+		expressions, warnings := ExtractServicePortExpressions(workflowData.Services)
+		workflowData.ServicePortExpressions = expressions
+		for _, w := range warnings {
+			orchestratorWorkflowLog.Printf("Warning: %s", w)
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(w))
+			c.IncrementWarningCount()
+		}
+		if expressions != "" {
+			orchestratorWorkflowLog.Printf("Extracted service port expressions: %s", expressions)
 		}
 	}
 }
