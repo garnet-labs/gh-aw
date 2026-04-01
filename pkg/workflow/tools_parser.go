@@ -650,26 +650,56 @@ func parseRepoMemoryTool(val any) *RepoMemoryToolConfig {
 	return &RepoMemoryToolConfig{Raw: val}
 }
 
-// parseTimeoutTool converts raw timeout tool configuration
-func parseTimeoutTool(val any) *int {
-	if intVal, ok := val.(int); ok {
-		return &intVal
-	}
-	if floatVal, ok := val.(float64); ok {
-		intVal := int(floatVal)
-		return &intVal
+// parseTimeoutTool converts raw timeout tool configuration.
+// Accepts integers (int, float64, etc.) and GitHub Actions expression strings.
+// Returns nil if the value is not a valid timeout.
+func parseTimeoutTool(val any) *string {
+	switch v := val.(type) {
+	case int:
+		s := strconv.Itoa(v)
+		return &s
+	case int64:
+		s := strconv.FormatInt(v, 10)
+		return &s
+	case float64:
+		s := strconv.Itoa(int(v))
+		return &s
+	case uint64:
+		s := strconv.FormatUint(v, 10)
+		return &s
+	case string:
+		// Accept GitHub Actions expressions only; reject free-form strings
+		if strings.HasPrefix(v, "${{") && strings.HasSuffix(v, "}}") {
+			return &v
+		}
+		return nil
 	}
 	return nil
 }
 
-// parseStartupTimeoutTool converts raw startup-timeout tool configuration
-func parseStartupTimeoutTool(val any) *int {
-	if intVal, ok := val.(int); ok {
-		return &intVal
-	}
-	if floatVal, ok := val.(float64); ok {
-		intVal := int(floatVal)
-		return &intVal
+// parseStartupTimeoutTool converts raw startup-timeout tool configuration.
+// Accepts integers (int, float64, etc.) and GitHub Actions expression strings.
+// Returns nil if the value is not a valid startup-timeout.
+func parseStartupTimeoutTool(val any) *string {
+	switch v := val.(type) {
+	case int:
+		s := strconv.Itoa(v)
+		return &s
+	case int64:
+		s := strconv.FormatInt(v, 10)
+		return &s
+	case float64:
+		s := strconv.Itoa(int(v))
+		return &s
+	case uint64:
+		s := strconv.FormatUint(v, 10)
+		return &s
+	case string:
+		// Accept GitHub Actions expressions only; reject free-form strings
+		if strings.HasPrefix(v, "${{") && strings.HasSuffix(v, "}}") {
+			return &v
+		}
+		return nil
 	}
 	return nil
 }

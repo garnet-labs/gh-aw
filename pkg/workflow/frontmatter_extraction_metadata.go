@@ -3,6 +3,7 @@ package workflow
 import (
 	"fmt"
 	"maps"
+	"strconv"
 	"strings"
 
 	"github.com/github/gh-aw/pkg/logger"
@@ -143,86 +144,119 @@ func buildSourceURL(source string) string {
 	return url
 }
 
-// extractToolsTimeout extracts the timeout setting from tools
-// Returns 0 if not set (engines will use their own defaults)
-// Returns error if timeout is explicitly set but invalid (< 1)
-func (c *Compiler) extractToolsTimeout(tools map[string]any) (int, error) {
+// extractToolsTimeout extracts the timeout setting from tools.
+// Returns "" if not set (engines will use their own defaults).
+// Returns the string representation of a literal integer, or a GitHub Actions expression string.
+// Returns error if timeout is explicitly set but invalid.
+func (c *Compiler) extractToolsTimeout(tools map[string]any) (string, error) {
 	if tools == nil {
-		return 0, nil // Use engine defaults
+		return "", nil // Use engine defaults
 	}
 
 	// Check if timeout is explicitly set in tools
 	if timeoutValue, exists := tools["timeout"]; exists {
 		frontmatterMetadataLog.Printf("Extracting tools.timeout value: type=%T", timeoutValue)
-		var timeout int
-		// Handle different numeric types with safe conversions to prevent overflow
 		switch v := timeoutValue.(type) {
 		case int:
-			timeout = v
+			if v < 1 {
+				return "", fmt.Errorf("tools.timeout must be at least 1 second, got %d. Example:\ntools:\n  timeout: 60", v)
+			}
+			frontmatterMetadataLog.Printf("Extracted tools.timeout: %d seconds", v)
+			return strconv.Itoa(v), nil
 		case int64:
-			timeout = int(v)
+			if v < 1 {
+				return "", fmt.Errorf("tools.timeout must be at least 1 second, got %d. Example:\ntools:\n  timeout: 60", v)
+			}
+			return strconv.FormatInt(v, 10), nil
 		case uint:
-			timeout = safeUintToInt(v) // Safe conversion to prevent overflow (alert #418)
+			n := safeUintToInt(v) // Safe conversion to prevent overflow (alert #418)
+			if n < 1 {
+				return "", fmt.Errorf("tools.timeout must be at least 1 second, got %d. Example:\ntools:\n  timeout: 60", n)
+			}
+			return strconv.Itoa(n), nil
 		case uint64:
-			timeout = safeUint64ToInt(v) // Safe conversion to prevent overflow (alert #416)
+			n := safeUint64ToInt(v) // Safe conversion to prevent overflow (alert #416)
+			if n < 1 {
+				return "", fmt.Errorf("tools.timeout must be at least 1 second, got %d. Example:\ntools:\n  timeout: 60", n)
+			}
+			return strconv.Itoa(n), nil
 		case float64:
-			timeout = int(v)
+			n := int(v)
+			if n < 1 {
+				return "", fmt.Errorf("tools.timeout must be at least 1 second, got %d. Example:\ntools:\n  timeout: 60", n)
+			}
+			return strconv.Itoa(n), nil
+		case string:
+			// Accept GitHub Actions expressions only
+			if strings.HasPrefix(v, "${{") && strings.HasSuffix(v, "}}") {
+				frontmatterMetadataLog.Printf("Extracted tools.timeout expression: %s", v)
+				return v, nil
+			}
+			frontmatterMetadataLog.Printf("Invalid tools.timeout string value: %s", v)
+			return "", fmt.Errorf("tools.timeout must be an integer or a GitHub Actions expression (e.g. '${{ inputs.timeout }}'), got string %q", v)
 		default:
 			frontmatterMetadataLog.Printf("Invalid tools.timeout type: %T", timeoutValue)
-			return 0, fmt.Errorf("tools.timeout must be an integer, got %T", timeoutValue)
+			return "", fmt.Errorf("tools.timeout must be an integer, got %T", timeoutValue)
 		}
-
-		// Validate minimum value per schema constraint
-		if timeout < 1 {
-			frontmatterMetadataLog.Printf("Invalid tools.timeout value: %d (must be >= 1)", timeout)
-			return 0, fmt.Errorf("tools.timeout must be at least 1 second, got %d. Example:\ntools:\n  timeout: 60", timeout)
-		}
-
-		frontmatterMetadataLog.Printf("Extracted tools.timeout: %d seconds", timeout)
-		return timeout, nil
 	}
 
-	// Default to 0 (use engine defaults)
-	return 0, nil
+	// Default to "" (use engine defaults)
+	return "", nil
 }
 
-// extractToolsStartupTimeout extracts the startup-timeout setting from tools
-// Returns 0 if not set (engines will use their own defaults)
-// Returns error if startup-timeout is explicitly set but invalid (< 1)
-func (c *Compiler) extractToolsStartupTimeout(tools map[string]any) (int, error) {
+// extractToolsStartupTimeout extracts the startup-timeout setting from tools.
+// Returns "" if not set (engines will use their own defaults).
+// Returns the string representation of a literal integer, or a GitHub Actions expression string.
+// Returns error if startup-timeout is explicitly set but invalid.
+func (c *Compiler) extractToolsStartupTimeout(tools map[string]any) (string, error) {
 	if tools == nil {
-		return 0, nil // Use engine defaults
+		return "", nil // Use engine defaults
 	}
 
 	// Check if startup-timeout is explicitly set in tools
 	if timeoutValue, exists := tools["startup-timeout"]; exists {
-		var timeout int
-		// Handle different numeric types with safe conversions to prevent overflow
 		switch v := timeoutValue.(type) {
 		case int:
-			timeout = v
+			if v < 1 {
+				return "", fmt.Errorf("tools.startup-timeout must be at least 1 second, got %d. Example:\ntools:\n  startup-timeout: 120", v)
+			}
+			return strconv.Itoa(v), nil
 		case int64:
-			timeout = int(v)
+			if v < 1 {
+				return "", fmt.Errorf("tools.startup-timeout must be at least 1 second, got %d. Example:\ntools:\n  startup-timeout: 120", v)
+			}
+			return strconv.FormatInt(v, 10), nil
 		case uint:
-			timeout = safeUintToInt(v) // Safe conversion to prevent overflow (alert #417)
+			n := safeUintToInt(v) // Safe conversion to prevent overflow (alert #417)
+			if n < 1 {
+				return "", fmt.Errorf("tools.startup-timeout must be at least 1 second, got %d. Example:\ntools:\n  startup-timeout: 120", n)
+			}
+			return strconv.Itoa(n), nil
 		case uint64:
-			timeout = safeUint64ToInt(v) // Safe conversion to prevent overflow (alert #415)
+			n := safeUint64ToInt(v) // Safe conversion to prevent overflow (alert #415)
+			if n < 1 {
+				return "", fmt.Errorf("tools.startup-timeout must be at least 1 second, got %d. Example:\ntools:\n  startup-timeout: 120", n)
+			}
+			return strconv.Itoa(n), nil
 		case float64:
-			timeout = int(v)
+			n := int(v)
+			if n < 1 {
+				return "", fmt.Errorf("tools.startup-timeout must be at least 1 second, got %d. Example:\ntools:\n  startup-timeout: 120", n)
+			}
+			return strconv.Itoa(n), nil
+		case string:
+			// Accept GitHub Actions expressions only
+			if strings.HasPrefix(v, "${{") && strings.HasSuffix(v, "}}") {
+				return v, nil
+			}
+			return "", fmt.Errorf("tools.startup-timeout must be an integer or a GitHub Actions expression (e.g. '${{ inputs.startup-timeout }}'), got string %q", v)
 		default:
-			return 0, fmt.Errorf("tools.startup-timeout must be an integer, got %T", timeoutValue)
+			return "", fmt.Errorf("tools.startup-timeout must be an integer, got %T", timeoutValue)
 		}
-
-		// Validate minimum value per schema constraint
-		if timeout < 1 {
-			return 0, fmt.Errorf("tools.startup-timeout must be at least 1 second, got %d. Example:\ntools:\n  startup-timeout: 120", timeout)
-		}
-
-		return timeout, nil
 	}
 
-	// Default to 0 (use engine defaults)
-	return 0, nil
+	// Default to "" (use engine defaults)
+	return "", nil
 }
 
 // extractToolsFromFrontmatter extracts tools section from frontmatter map
