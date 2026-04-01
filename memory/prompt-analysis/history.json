@@ -1,1 +1,61 @@
-{"summary":{"last_updated":"2026-03-31","trend":"stable","7d_avg_rate":84.3},"recent":[{"date":"2026-03-25","rate":71.0},{"date":"2026-03-26","rate":86.0},{"date":"2026-03-27","rate":77.0},{"date":"2026-03-28","rate":80.0},{"date":"2026-03-29","rate":80.0},{"date":"2026-03-30","rate":94.0},{"date":"2026-03-31","rate":84.3}]}
+{
+  "daily_analysis": [
+    {
+      "date": "2026-04-01",
+      "total_prs": 1000,
+      "merged": 832,
+      "closed": 164,
+      "open": 4,
+      "success_rate": 83.5,
+      "prompt_patterns": {
+        "bug_fix": {
+          "total": 518,
+          "merged": 441,
+          "closed": 75,
+          "rate": 85.5
+        },
+        "feature": {
+          "total": 420,
+          "merged": 344,
+          "closed": 74,
+          "rate": 82.3
+        },
+        "test": {
+          "total": 17,
+          "merged": 15,
+          "closed": 2,
+          "rate": 88.2
+        },
+        "docs": {
+          "total": 30,
+          "merged": 21,
+          "closed": 9,
+          "rate": 70.0
+        },
+        "refactor": {
+          "total": 14,
+          "merged": 10,
+          "closed": 4,
+          "rate": 71.4
+        }
+      },
+      "successful_keywords": [
+        "fix",
+        "refactor",
+        "remove",
+        "resolve",
+        "conventional_commit_style"
+      ],
+      "unsuccessful_keywords": [
+        "WIP",
+        "support",
+        "replace",
+        "update"
+      ],
+      "avg_body_words_merged": 835,
+      "avg_body_words_closed": 828,
+      "conventional_commit_success_rate": 89.0,
+      "non_conventional_commit_success_rate": 78.0
+    }
+  ]
+}
