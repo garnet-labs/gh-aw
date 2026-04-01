@@ -179,7 +179,7 @@ func (c *Compiler) extractToolsTimeout(tools map[string]any) (string, error) {
 			timeout = int(v)
 		default:
 			frontmatterMetadataLog.Printf("Invalid tools.timeout type: %T", timeoutValue)
-			return "", fmt.Errorf("tools.timeout must be an integer, got %T", timeoutValue)
+			return "", fmt.Errorf("tools.timeout must be an integer or a GitHub Actions expression, got %T", timeoutValue)
 		}
 
 		// Validate minimum value per schema constraint
@@ -227,7 +227,7 @@ func (c *Compiler) extractToolsStartupTimeout(tools map[string]any) (string, err
 		case float64:
 			timeout = int(v)
 		default:
-			return "", fmt.Errorf("tools.startup-timeout must be an integer, got %T", timeoutValue)
+			return "", fmt.Errorf("tools.startup-timeout must be an integer or a GitHub Actions expression, got %T", timeoutValue)
 		}
 
 		// Validate minimum value per schema constraint

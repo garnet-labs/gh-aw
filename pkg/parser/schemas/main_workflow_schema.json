@@ -4029,7 +4029,7 @@
           ]
         },
         "timeout": {
-          "description": "Timeout in seconds for tool/MCP server operations. Applies to all tools and MCP servers if supported by the engine. Default varies by engine (Claude: 60s, Codex: 120s). Supports GitHub Actions expressions for reusable workflow_call workflows.",
+          "description": "Timeout in seconds for tool/MCP server operations. Applies to all tools and MCP servers if supported by the engine. Default: 60 seconds (for both Claude and Codex). Supports GitHub Actions expressions for reusable workflow_call workflows.",
           "oneOf": [
             {
               "type": "integer",
@@ -4038,7 +4038,8 @@
             },
             {
               "type": "string",
-              "description": "GitHub Actions expression (e.g. '${{ inputs.tool-timeout }}')"
+              "description": "GitHub Actions expression (e.g. '${{ inputs.tool-timeout }}')",
+              "pattern": "^\\$\\{\\{.*\\}\\}$"
             }
           ]
         },
@@ -4052,7 +4053,8 @@
             },
             {
               "type": "string",
-              "description": "GitHub Actions expression (e.g. '${{ inputs.startup-timeout }}')"
+              "description": "GitHub Actions expression (e.g. '${{ inputs.startup-timeout }}')",
+              "pattern": "^\\$\\{\\{.*\\}\\}$"
             }
           ]
         },
