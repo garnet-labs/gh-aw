@@ -650,56 +650,58 @@ func parseRepoMemoryTool(val any) *RepoMemoryToolConfig {
 	return &RepoMemoryToolConfig{Raw: val}
 }
 
-// parseTimeoutTool converts raw timeout tool configuration to a string value.
+// parseTimeoutTool converts raw timeout tool configuration to a TemplatableInt32 value.
 // Accepts integers and GitHub Actions expressions (e.g. "${{ inputs.tool-timeout }}").
-func parseTimeoutTool(val any) *string {
+func parseTimeoutTool(val any) *TemplatableInt32 {
 	switch v := val.(type) {
 	case int:
-		s := strconv.Itoa(v)
-		return &s
+		t := TemplatableInt32(strconv.Itoa(v))
+		return &t
 	case int64:
-		s := strconv.FormatInt(v, 10)
-		return &s
+		t := TemplatableInt32(strconv.FormatInt(v, 10))
+		return &t
 	case uint:
-		s := strconv.FormatUint(uint64(v), 10)
-		return &s
+		t := TemplatableInt32(strconv.FormatUint(uint64(v), 10))
+		return &t
 	case uint64:
-		s := strconv.FormatUint(v, 10)
-		return &s
+		t := TemplatableInt32(strconv.FormatUint(v, 10))
+		return &t
 	case float64:
-		s := strconv.Itoa(int(v))
-		return &s
+		t := TemplatableInt32(strconv.Itoa(int(v)))
+		return &t
 	case string:
 		if isExpressionString(v) {
-			return &v
+			t := TemplatableInt32(v)
+			return &t
 		}
 		return nil // reject non-expression strings
 	}
 	return nil
 }
 
-// parseStartupTimeoutTool converts raw startup-timeout tool configuration to a string value.
+// parseStartupTimeoutTool converts raw startup-timeout tool configuration to a TemplatableInt32 value.
 // Accepts integers and GitHub Actions expressions (e.g. "${{ inputs.startup-timeout }}").
-func parseStartupTimeoutTool(val any) *string {
+func parseStartupTimeoutTool(val any) *TemplatableInt32 {
 	switch v := val.(type) {
 	case int:
-		s := strconv.Itoa(v)
-		return &s
+		t := TemplatableInt32(strconv.Itoa(v))
+		return &t
 	case int64:
-		s := strconv.FormatInt(v, 10)
-		return &s
+		t := TemplatableInt32(strconv.FormatInt(v, 10))
+		return &t
 	case uint:
-		s := strconv.FormatUint(uint64(v), 10)
-		return &s
+		t := TemplatableInt32(strconv.FormatUint(uint64(v), 10))
+		return &t
 	case uint64:
-		s := strconv.FormatUint(v, 10)
-		return &s
+		t := TemplatableInt32(strconv.FormatUint(v, 10))
+		return &t
 	case float64:
-		s := strconv.Itoa(int(v))
-		return &s
+		t := TemplatableInt32(strconv.Itoa(int(v)))
+		return &t
 	case string:
 		if isExpressionString(v) {
-			return &v
+			t := TemplatableInt32(v)
+			return &t
 		}
 		return nil // reject non-expression strings
 	}
