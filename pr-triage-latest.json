@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-01T06:31:26Z",
-  "run_id": "23835258499",
+  "run_date": "2026-04-01T12:15:00Z",
+  "run_id": "23847991207",
   "fork_prs": 0,
-  "agent_prs_found": 5,
-  "agent_prs_excluded": 5,
-  "notes": "5 open PRs found (#23837, #23836, #23835, #23833, #23695). All originate from the same repo (same-repo branches), not forks. Excluded per fork-only triage policy. New since last run: #23837, #23836, #23835, #23833. PRs #23778, #23776, #23760, #23755 from last run appear closed/merged.",
+  "agent_prs_found": 8,
+  "agent_prs_excluded": 8,
+  "notes": "8 open Copilot PRs found (#23879, #23878, #23876, #23870, #23869, #23868, #23863, #23695). All originate from the same repo (same-repo branches), not forks. Excluded per fork-only triage policy. New since last run: #23879, #23878, #23876, #23870, #23869, #23868, #23863. PRs #23837, #23836, #23835, #23833 from last run appear closed/merged.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,44 +18,74 @@
   },
   "prs_examined": [
     {
-      "number": 23837,
-      "title": "fix: use `token` instead of `github-token` for `upload-sarif` action",
+      "number": 23879,
+      "title": "bump: gh-aw-firewall v0.25.6, gh-aw-mcpg v0.2.11",
       "author": "Copilot",
-      "draft": true,
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T05:34:52Z"
+      "created_at": "2026-04-01T12:09:10Z"
     },
     {
-      "number": 23836,
-      "title": "fix: thread discussion replies when add_comment triggered by discussion_comment event",
+      "number": 23878,
+      "title": "Remove noisy negative-result messages from compile output",
       "author": "Copilot",
-      "draft": true,
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T05:32:27Z"
+      "created_at": "2026-04-01T12:08:59Z"
     },
     {
-      "number": 23835,
-      "title": "docs: add concrete steps/mcp-servers/safe-outputs.jobs import examples",
+      "number": 23876,
+      "title": "fix: update_cache_memory must not run if agent job failed",
       "author": "Copilot",
-      "draft": true,
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T05:29:55Z"
+      "created_at": "2026-04-01T12:08:16Z"
     },
     {
-      "number": 23833,
-      "title": "Docs: Add \"Supported Languages & Ecosystems\" reference page",
+      "number": 23870,
+      "title": "[WIP] Allow engine.version to accept GitHub Actions expressions",
       "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-01T05:27:39Z"
+      "created_at": "2026-04-01T11:58:19Z"
+    },
+    {
+      "number": 23869,
+      "title": "[WIP] Parameterize tools config fields to accept expressions",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T11:58:06Z"
+    },
+    {
+      "number": 23868,
+      "title": "Improve test quality: pkg/parser/frontmatter_utils_test.go",
+      "author": "Copilot",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T11:57:44Z"
+    },
+    {
+      "number": 23863,
+      "title": "feat: allow `timeout-minutes` to accept GitHub Actions expressions",
+      "author": "Copilot",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T11:33:43Z"
     },
     {
       "number": 23695,
@@ -69,9 +99,9 @@
     }
   ],
   "closed_since_last_run": [
-    {"number": 23778, "title": "[actions] Update GitHub Actions versions - 2026-03-31"},
-    {"number": 23776, "title": "[docs] docs: clarify service container accessibility from workflows"},
-    {"number": 23760, "title": "feat: auto-generate --allow-host-service-ports from service config"},
-    {"number": 23755, "title": "Remove releases.json aliases and stable release channel support"}
+    {"number": 23837, "title": "fix: use `token` instead of `github-token` for `upload-sarif` action"},
+    {"number": 23836, "title": "fix: thread discussion replies when add_comment triggered by discussion_comment event"},
+    {"number": 23835, "title": "docs: add concrete steps/mcp-servers/safe-outputs.jobs import examples"},
+    {"number": 23833, "title": "Docs: Add \"Supported Languages & Ecosystems\" reference page"}
   ]
 }
