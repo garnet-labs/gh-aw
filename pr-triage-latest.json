@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-01T00:14:48Z",
-  "run_id": "23825457287",
+  "run_date": "2026-04-01T06:31:26Z",
+  "run_id": "23835258499",
   "fork_prs": 0,
   "agent_prs_found": 5,
   "agent_prs_excluded": 5,
-  "notes": "5 open PRs found (#23778, #23776, #23760, #23755, #23695). All originate from the same repo (same-repo branches), not forks. Excluded per fork-only triage policy. New since last run: #23778, #23776, #23760. PRs #23758 and #23757 from last run appear closed/merged.",
+  "notes": "5 open PRs found (#23837, #23836, #23835, #23833, #23695). All originate from the same repo (same-repo branches), not forks. Excluded per fork-only triage policy. New since last run: #23837, #23836, #23835, #23833. PRs #23778, #23776, #23760, #23755 from last run appear closed/merged.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,44 +18,44 @@
   },
   "prs_examined": [
     {
-      "number": 23778,
-      "title": "[actions] Update GitHub Actions versions - 2026-03-31",
-      "author": "github-actions[bot]",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["automation", "dependencies"],
-      "created_at": "2026-03-31"
-    },
-    {
-      "number": 23776,
-      "title": "[docs] docs: clarify service container accessibility from workflows",
-      "author": "github-actions[bot]",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["documentation", "automation"],
-      "created_at": "2026-03-31"
-    },
-    {
-      "number": 23760,
-      "title": "feat: auto-generate --allow-host-service-ports from service config",
-      "author": "Mossaka",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["smoke-copilot"],
-      "created_at": "2026-03-31"
-    },
-    {
-      "number": 23755,
-      "title": "Remove releases.json aliases and stable release channel support",
+      "number": 23837,
+      "title": "fix: use `token` instead of `github-token` for `upload-sarif` action",
       "author": "Copilot",
-      "draft": false,
+      "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-03-31"
+      "created_at": "2026-04-01T05:34:52Z"
+    },
+    {
+      "number": 23836,
+      "title": "fix: thread discussion replies when add_comment triggered by discussion_comment event",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T05:32:27Z"
+    },
+    {
+      "number": 23835,
+      "title": "docs: add concrete steps/mcp-servers/safe-outputs.jobs import examples",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T05:29:55Z"
+    },
+    {
+      "number": 23833,
+      "title": "Docs: Add \"Supported Languages & Ecosystems\" reference page",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-01T05:27:39Z"
     },
     {
       "number": 23695,
@@ -65,11 +65,13 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": ["lgtm", "awf"],
-      "created_at": "2026-03-31"
+      "created_at": "2026-03-31T12:26:03Z"
     }
   ],
   "closed_since_last_run": [
-    {"number": 23758, "title": "[WIP] Add auto-generate --allow-host-service-ports for service port mapping"},
-    {"number": 23757, "title": "[WIP] Fix workflow health dashboard issues"}
+    {"number": 23778, "title": "[actions] Update GitHub Actions versions - 2026-03-31"},
+    {"number": 23776, "title": "[docs] docs: clarify service container accessibility from workflows"},
+    {"number": 23760, "title": "feat: auto-generate --allow-host-service-ports from service config"},
+    {"number": 23755, "title": "Remove releases.json aliases and stable release channel support"}
   ]
 }
