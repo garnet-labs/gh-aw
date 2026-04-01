@@ -46,6 +46,8 @@ describe("check_workflow_timestamp_api.cjs", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     delete process.env.GH_AW_WORKFLOW_FILE;
+    delete process.env.GITHUB_WORKFLOW_REF;
+    delete process.env.GITHUB_REPOSITORY;
 
     // Dynamically import the module to get fresh instance
     const module = await import("./check_workflow_timestamp_api.cjs");
@@ -102,6 +104,19 @@ engine: copilot
       expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("✅ Lock file is up to date (hashes match)"));
       expect(mockCore.setFailed).not.toHaveBeenCalled();
       expect(mockCore.summary.addRaw).not.toHaveBeenCalled();
+    });
+
+    it("should log same-repo invocation when GITHUB_WORKFLOW_REF matches GITHUB_REPOSITORY", async () => {
+      process.env.GITHUB_WORKFLOW_REF = "test-owner/test-repo/.github/workflows/test.lock.yml@refs/heads/main";
+      process.env.GITHUB_REPOSITORY = "test-owner/test-repo";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Same-repo invocation"));
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("GITHUB_WORKFLOW_REF:"));
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Resolved source repo:"));
     });
   });
 
@@ -464,6 +479,147 @@ model: claude-sonnet-4
       expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("frontmatter has changed"));
       expect(mockCore.summary.addRaw).toHaveBeenCalled();
       expect(mockCore.summary.write).toHaveBeenCalled();
+    });
+  });
+
+  describe("cross-repo invocation via org rulesets", () => {
+    beforeEach(() => {
+      process.env.GH_AW_WORKFLOW_FILE = "test.lock.yml";
+      // Simulate cross-repo: workflow defined in platform-repo, running in target-repo
+      process.env.GITHUB_WORKFLOW_REF = "source-owner/source-repo/.github/workflows/test.lock.yml@refs/heads/main";
+      process.env.GITHUB_REPOSITORY = "target-owner/target-repo";
+    });
+
+    it("should fetch files from the workflow source repo, not context.repo", async () => {
+      const validHash = "c2a79263dc72f28c76177afda9bf0935481b26da094407a50155a6e0244084e3";
+      const lockFileContent = `# frontmatter-hash: ${validHash}
+name: Test Workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"`;
+
+      const mdFileContent = `---
+engine: copilot
+---
+# Test Workflow`;
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(lockFileContent).toString("base64"),
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(mdFileContent).toString("base64"),
+          },
+        });
+
+      await main();
+
+      // Verify the API was called with the workflow source repo (source-owner/source-repo),
+      // not context.repo (test-owner/test-repo)
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "source-owner", repo: "source-repo" }));
+      expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ owner: "test-owner", repo: "test-repo" }));
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Cross-repo invocation detected"));
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("✅ Lock file is up to date (hashes match)"));
+      expect(mockCore.setFailed).not.toHaveBeenCalled();
+    });
+
+    it("should log GITHUB_WORKFLOW_REF, GITHUB_REPOSITORY, and resolved source repo", async () => {
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      expect(mockCore.info).toHaveBeenCalledWith("GITHUB_WORKFLOW_REF: source-owner/source-repo/.github/workflows/test.lock.yml@refs/heads/main");
+      expect(mockCore.info).toHaveBeenCalledWith("GITHUB_REPOSITORY: target-owner/target-repo");
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Resolved source repo: source-owner/source-repo @ refs/heads/main"));
+    });
+
+    it("should use the workflow ref from GITHUB_WORKFLOW_REF, not context.sha", async () => {
+      const validHash = "c2a79263dc72f28c76177afda9bf0935481b26da094407a50155a6e0244084e3";
+      const lockFileContent = `# frontmatter-hash: ${validHash}
+name: Test Workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest`;
+
+      const mdFileContent = `---
+engine: copilot
+---
+# Test Workflow`;
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(lockFileContent).toString("base64"),
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(mdFileContent).toString("base64"),
+          },
+        });
+
+      await main();
+
+      // Verify the API was called with the ref from GITHUB_WORKFLOW_REF (refs/heads/main),
+      // not context.sha (abc123)
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ ref: "refs/heads/main" }));
+      expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ ref: "abc123" }));
+    });
+
+    it("should fall back to context.repo when GITHUB_WORKFLOW_REF is not set", async () => {
+      delete process.env.GITHUB_WORKFLOW_REF;
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      // Falls back to context.repo for owner/repo; ref is undefined because workflowRepo
+      // (test-owner/test-repo) differs from currentRepo (target-owner/target-repo) — cross-repo
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "test-owner", repo: "test-repo" }));
+      expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ ref: "abc123" }));
+    });
+
+    it("should fall back to context.repo when GITHUB_WORKFLOW_REF is malformed", async () => {
+      process.env.GITHUB_WORKFLOW_REF = "not-a-valid-workflow-ref";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      // Falls back to context.repo for owner/repo; ref is undefined (cross-repo, no parsed ref)
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "test-owner", repo: "test-repo" }));
+      expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ ref: "abc123" }));
+    });
+
+    it("should use the default branch for cross-repo when GITHUB_WORKFLOW_REF has no @ref segment", async () => {
+      // GITHUB_WORKFLOW_REF with owner/repo but missing the @ref suffix
+      process.env.GITHUB_WORKFLOW_REF = "source-owner/source-repo/.github/workflows/test.lock.yml";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      // Should resolve to the source repo parsed from GITHUB_WORKFLOW_REF
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "source-owner", repo: "source-repo" }));
+      // Should NOT use context.sha — ref must be undefined so GitHub API uses the default branch
+      expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ ref: "abc123" }));
+      // Log should indicate default branch is being used
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("(default branch)"));
     });
   });
 });
