@@ -1,9 +1,7 @@
-## Trend Data (2026-03-26)
-- Discussions(7d): audits 29, announcements 6, daily-news 1.
-- Issues: total 500; open 79; closed 421; unlabeled open 6; stale open (>3d) 14.
-- Open Daily Status Report issues: 8.
-- Open `[aw] ... failed` issues: 26.
-- Workflow sample (40 latest runs): 0 errors/warnings/missing-tools.
-- AI Moderator sample (8): 1 failure (12.5%).
-- Issue Monster sample (8): 595,078 tokens, 16 turns, 0 failures.
-- Daily News sample (5): 2 failures (40%).
+## Trend Data (2026-04-01)
+- Discussions 7d: 39 (29 audits, 8 announcements, 2 general).
+- Issues: 500 total; open 41 (was 79, -48%); closed 459 (was 421).
+- Tokens/day: 94.7M (Copilot), -60% from Feb peak of 237.8M.
+- Safe-output failure: 16.7% (Smoke Claude config issue).
+- PR merge success: 70% on 4/1, down from 90% on 3/31.
+- Security findings open: 6.
