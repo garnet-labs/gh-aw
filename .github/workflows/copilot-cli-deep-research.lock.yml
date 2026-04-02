@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c81c971ba20815fcbef5154f00f789ca3105d6cc7bdef95f60c13260289abbf2","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c81c971ba20815fcbef5154f00f789ca3105d6cc7bdef95f60c13260289abbf2","compiled_hash":"2cea48dc091aa5926835abf262f383a1abf0a114872a2cd67a94e7010a241d7d","strict":true,"agent_id":"copilot"}
 
 name: "Copilot CLI Deep Research Agent"
 "on":

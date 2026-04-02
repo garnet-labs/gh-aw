@@ -787,4 +787,174 @@ engine: copilot
       expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("integrity check failed"));
     });
   });
+
+  describe("compiled hash verification", () => {
+    // compiled hash for the YAML body used in tests below:
+    //   name: Test Workflow\non: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo "test"
+    const validCompiledHash = "2d9f0be96f61f0e42ed7902788d309194b3535923ff312052a33a54b51e4aa61";
+    const validFrontmatterHash = "c2a79263dc72f28c76177afda9bf0935481b26da094407a50155a6e0244084e3";
+
+    beforeEach(() => {
+      process.env.GH_AW_WORKFLOW_FILE = "test.lock.yml";
+    });
+
+    it("should pass when compiled hash matches the YAML body", async () => {
+      const lockFileContent = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"${validFrontmatterHash}","compiled_hash":"${validCompiledHash}"}
+name: Test Workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"`;
+
+      const mdFileContent = `---
+engine: copilot
+---
+# Test Workflow`;
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(lockFileContent).toString("base64"),
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(mdFileContent).toString("base64"),
+          },
+        });
+
+      await main();
+
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("✅ Lock file is up to date (hashes match)"));
+      expect(mockCore.setFailed).not.toHaveBeenCalled();
+    });
+
+    it("should fail when compiled hash does not match the YAML body (tampered lock file)", async () => {
+      // Lock file with valid frontmatter hash and compiled hash that no longer matches
+      // (simulating a tampered YAML body where permissions were escalated)
+      const lockFileContent = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"${validFrontmatterHash}","compiled_hash":"${validCompiledHash}"}
+name: Test Workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"
+permissions:
+  contents: write`;
+
+      const mdFileContent = `---
+engine: copilot
+---
+# Test Workflow`;
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(lockFileContent).toString("base64"),
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(mdFileContent).toString("base64"),
+          },
+        });
+
+      await main();
+
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("compiled YAML body"));
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("integrity check failed"));
+      expect(mockCore.summary.addRaw).toHaveBeenCalledWith(expect.stringContaining("Tamper Detected"));
+      expect(mockCore.summary.write).toHaveBeenCalled();
+    });
+
+    it("should pass (backward compat) when compiled hash is absent from old lock files", async () => {
+      // Legacy lock file without compiled_hash - only frontmatter hash check applies
+      const lockFileContent = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"${validFrontmatterHash}"}
+name: Test Workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"`;
+
+      const mdFileContent = `---
+engine: copilot
+---
+# Test Workflow`;
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(lockFileContent).toString("base64"),
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(mdFileContent).toString("base64"),
+          },
+        });
+
+      await main();
+
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("No compiled hash in lock file"));
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("✅ Lock file is up to date (hashes match)"));
+      expect(mockCore.setFailed).not.toHaveBeenCalled();
+    });
+
+    it("should detect compiled hash mismatch even when frontmatter hash is valid", async () => {
+      // This is the key security test: .md is unchanged, but YAML body was tampered
+      const tamperedCompiledHash = "0000000000000000000000000000000000000000000000000000000000000000";
+      const lockFileContent = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"${validFrontmatterHash}","compiled_hash":"${tamperedCompiledHash}"}
+name: Test Workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "test"`;
+
+      const mdFileContent = `---
+engine: copilot
+---
+# Test Workflow`;
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(lockFileContent).toString("base64"),
+          },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            type: "file",
+            encoding: "base64",
+            content: Buffer.from(mdFileContent).toString("base64"),
+          },
+        });
+
+      await main();
+
+      // Frontmatter hash would match, but compiled hash mismatch is caught first
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("compiled YAML body"));
+      expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining("integrity check failed"));
+    });
+  });
 });

@@ -675,3 +675,38 @@ name: test
 	assert.Equal(t, "copilot", metadata.DetectionAgentID, "Should extract detection agent ID")
 	assert.Equal(t, "gpt-5.1-codex-mini", metadata.DetectionAgentModel, "Should extract detection agent model")
 }
+
+func TestExtractMetadataWithCompiledHash(t *testing.T) {
+	content := `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc123","compiled_hash":"deadbeef1234567890abcdef1234567890abcdef1234567890abcdef1234abcd"}
+name: test
+`
+	metadata, isLegacy, err := ExtractMetadataFromLockFile(content)
+	require.NoError(t, err, "Should parse metadata with compiled_hash")
+	assert.False(t, isLegacy, "Should not be legacy")
+	require.NotNil(t, metadata)
+	assert.Equal(t, LockSchemaV3, metadata.SchemaVersion)
+	assert.Equal(t, "abc123", metadata.FrontmatterHash)
+	assert.Equal(t, "deadbeef1234567890abcdef1234567890abcdef1234567890abcdef1234abcd", metadata.CompiledHash, "Should extract compiled_hash")
+}
+
+func TestLockMetadataCompiledHashSerialization(t *testing.T) {
+	metadata := &LockMetadata{
+		SchemaVersion:   LockSchemaV3,
+		FrontmatterHash: "frontmatter123",
+		CompiledHash:    "compiled456",
+	}
+	json, err := metadata.ToJSON()
+	require.NoError(t, err)
+	assert.Contains(t, json, `"compiled_hash":"compiled456"`, "compiled_hash should be included in JSON")
+	assert.Contains(t, json, `"frontmatter_hash":"frontmatter123"`)
+}
+
+func TestLockMetadataCompiledHashOmittedWhenEmpty(t *testing.T) {
+	metadata := &LockMetadata{
+		SchemaVersion:   LockSchemaV3,
+		FrontmatterHash: "frontmatter123",
+	}
+	json, err := metadata.ToJSON()
+	require.NoError(t, err)
+	assert.NotContains(t, json, `"compiled_hash"`, "compiled_hash should be omitted when empty")
+}

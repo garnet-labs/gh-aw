@@ -31,7 +31,7 @@
 #     - shared/go-source-analysis.md
 #     - shared/safe-output-app.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b0077a1af615ea44f936a06eeb0d4bf4a42b9202eddeed2d44bc9e90470f7317","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b0077a1af615ea44f936a06eeb0d4bf4a42b9202eddeed2d44bc9e90470f7317","compiled_hash":"5a53a72651677b2b0c5f1ca04643bcffd1e986320069e84837c3f7e84f92de93","strict":true,"agent_id":"copilot"}
 
 name: "Daily Testify Uber Super Expert"
 "on":

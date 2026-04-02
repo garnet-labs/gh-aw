@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/community-attribution.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"2e37f734fc14d80c9ec89e70f43f99924d7475aaedc34b4b35478b9b2e25dce9","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"2e37f734fc14d80c9ec89e70f43f99924d7475aaedc34b4b35478b9b2e25dce9","compiled_hash":"bced797c92e6250a8b4e89610daebe40527d07b8a9256aefadb2aa76619ec08a","strict":true,"agent_id":"copilot"}
 
 name: "Daily Community Attribution Updater"
 "on":

@@ -29,7 +29,7 @@
 #     - shared/jqschema.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bc15e125f7a0917d9dfbff47345821409216d8fe1f9c1bd55a3a19c2b285ca69","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bc15e125f7a0917d9dfbff47345821409216d8fe1f9c1bd55a3a19c2b285ca69","compiled_hash":"0ebbb7f90a8e77cc2f97e968ba9139f7c4e0353c52778419a406a4630a07d77d","strict":true,"agent_id":"claude"}
 
 name: "Daily Safe Output Tool Optimizer"
 "on":

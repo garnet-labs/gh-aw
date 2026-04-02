@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/mcp/semgrep.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"7a5a221735702a7991fbde05fac553787d4cfc4450c09c4962ab14031c99a869","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"7a5a221735702a7991fbde05fac553787d4cfc4450c09c4962ab14031c99a869","compiled_hash":"7ce87bc691a479a340fb64ae199ede4efb159d56a55f451565b61a04d279bab2","strict":true,"agent_id":"copilot"}
 
 name: "Daily Semgrep Scan"
 "on":

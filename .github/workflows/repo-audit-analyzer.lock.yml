@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"0b4bada9496a836ee6efdd29850596f977273575fd68151a8e99678edf7d635c","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"0b4bada9496a836ee6efdd29850596f977273575fd68151a8e99678edf7d635c","compiled_hash":"7a03101dbf678b25831877690b089d7035e84315401de2760fd81532f60ed89e","strict":true,"agent_id":"copilot"}
 
 name: "Repository Audit & Agentic Workflow Opportunity Analyzer"
 "on":

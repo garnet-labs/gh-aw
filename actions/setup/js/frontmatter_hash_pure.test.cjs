@@ -10,6 +10,8 @@ const {
   marshalCanonicalJSON,
   marshalSorted,
   extractHashFromLockFile,
+  extractCompiledHashFromLockFile,
+  computeCompiledHashFromLockFile,
   normalizeFrontmatterText,
   parseBoolFromFrontmatter,
   defaultFileReader,
@@ -436,6 +438,114 @@ name: "Test Workflow"`;
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
       }
+    });
+  });
+
+  describe("extractCompiledHashFromLockFile", () => {
+    it("should extract compiled_hash from JSON metadata", () => {
+      const content = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc123","compiled_hash":"xyz789"}
+
+name: "Test Workflow"
+on:
+  push:`;
+
+      const result = extractCompiledHashFromLockFile(content);
+      expect(result).toBe("xyz789");
+    });
+
+    it("should return empty string when compiled_hash is absent", () => {
+      const content = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc123"}
+
+name: "Test Workflow"`;
+
+      const result = extractCompiledHashFromLockFile(content);
+      expect(result).toBe("");
+    });
+
+    it("should return empty string when no metadata comment is present", () => {
+      const content = `name: "Test Workflow"
+on:
+  push:`;
+
+      const result = extractCompiledHashFromLockFile(content);
+      expect(result).toBe("");
+    });
+
+    it("should return empty string when metadata JSON is invalid", () => {
+      const content = `# gh-aw-metadata: {invalid json}
+
+name: "Test Workflow"`;
+
+      const result = extractCompiledHashFromLockFile(content);
+      expect(result).toBe("");
+    });
+  });
+
+  describe("computeCompiledHashFromLockFile", () => {
+    it("should produce a 64-character hex SHA-256 hash", () => {
+      const content = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc"}
+
+name: "Test"
+on:
+  push:
+permissions: {}`;
+
+      const result = computeCompiledHashFromLockFile(content);
+      expect(result).toMatch(/^[0-9a-f]{64}$/);
+    });
+
+    it("should exclude comment lines from the hash", () => {
+      const body = `name: "Test"\non:\n  push:\npermissions: {}`;
+      const contentWithComments = `# banner line\n# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc"}\n${body}`;
+      const contentNoComments = body;
+
+      const hashWithComments = computeCompiledHashFromLockFile(contentWithComments);
+      const hashNoComments = computeCompiledHashFromLockFile(contentNoComments);
+      expect(hashWithComments).toBe(hashNoComments);
+    });
+
+    it("should detect changes to non-comment YAML content", () => {
+      const base = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc"}
+
+name: "Test"
+permissions: {}`;
+      const tampered = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc"}
+
+name: "Test"
+permissions:
+  contents: write`;
+
+      const hashBase = computeCompiledHashFromLockFile(base);
+      const hashTampered = computeCompiledHashFromLockFile(tampered);
+      expect(hashBase).not.toBe(hashTampered);
+    });
+
+    it("should produce the same hash regardless of comment content", () => {
+      const body = `\nname: "Test"\npermissions: {}`;
+      const content1 = `# original comment${body}`;
+      const content2 = `# modified comment${body}`;
+
+      expect(computeCompiledHashFromLockFile(content1)).toBe(computeCompiledHashFromLockFile(content2));
+    });
+
+    it("should be consistent: same input always produces same output", () => {
+      const content = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc","compiled_hash":"xyz"}
+
+name: "Test"
+on:
+  push:`;
+
+      const hash1 = computeCompiledHashFromLockFile(content);
+      const hash2 = computeCompiledHashFromLockFile(content);
+      expect(hash1).toBe(hash2);
+    });
+
+    it("should not be affected by changes to the compiled_hash field itself (it's a comment)", () => {
+      const body = `\nname: "Test"\npermissions: {}`;
+      const content1 = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc","compiled_hash":"hash1"}${body}`;
+      const content2 = `# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc","compiled_hash":"hash2"}${body}`;
+
+      expect(computeCompiledHashFromLockFile(content1)).toBe(computeCompiledHashFromLockFile(content2));
     });
   });
 });

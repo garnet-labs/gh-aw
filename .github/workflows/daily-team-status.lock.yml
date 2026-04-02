@@ -32,7 +32,7 @@
 #   Imports:
 #     - githubnext/agentics/workflows/shared/reporting.md@d3422bf940923ef1d43db5559652b8e1e71869f3
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"5afa47f119a84ede8ca7bdd2ee1ad40e6e38520a56ae93dd6756366bc5bdcc47","stop_time":"2026-02-09 04:24:39","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"5afa47f119a84ede8ca7bdd2ee1ad40e6e38520a56ae93dd6756366bc5bdcc47","compiled_hash":"039350a9fc65b9afa502172070f6122980cb916bab98a9eafd767bde1b3b93a7","stop_time":"2026-02-09 04:24:39","strict":true,"agent_id":"copilot"}
 #
 # Effective stop-time: 2026-02-09 04:24:39
 

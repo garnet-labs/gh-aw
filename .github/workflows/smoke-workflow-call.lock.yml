@@ -22,7 +22,7 @@
 #
 # Reusable workflow to validate checkout from fork works correctly in workflow_call context
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"ec8e06e54f77696dc841d99cf0dbe8391ab81ac495ec1ebb806afab7287c77f1","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"ec8e06e54f77696dc841d99cf0dbe8391ab81ac495ec1ebb806afab7287c77f1","compiled_hash":"97b319335dc0562359464edb4715144548f14533d4250f22b22798e1c1265f29","strict":true,"agent_id":"copilot"}
 
 name: "Smoke Workflow Call"
 "on":

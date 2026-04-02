@@ -27,7 +27,7 @@
 #     - shared/github-guard-policy.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"395091b3248ae0bfdd9169fe4e375b45de1a524b5a1c7ac4189864a829171a9e","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"395091b3248ae0bfdd9169fe4e375b45de1a524b5a1c7ac4189864a829171a9e","compiled_hash":"9600bf2d648d1cc3b32643cb44f0a0557469d84a442fd381d015e1f7d7c17a6d","strict":true,"agent_id":"copilot"}
 
 name: "Auto-Triage Issues"
 "on":

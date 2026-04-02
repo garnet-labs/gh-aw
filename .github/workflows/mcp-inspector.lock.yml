@@ -43,7 +43,7 @@
 #     - shared/mcp/tavily.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c8a47c3aeff6acd01d5c5e432ecbc8b4ed86e51c2cf4e210a98e85e3f580fe3b","agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c8a47c3aeff6acd01d5c5e432ecbc8b4ed86e51c2cf4e210a98e85e3f580fe3b","compiled_hash":"6e51c6bafca5f0599a41753c5efa93fa6afe15ec869fbd8e9ab1e0414ac2d042","agent_id":"copilot"}
 
 name: "MCP Inspector Agent"
 "on":

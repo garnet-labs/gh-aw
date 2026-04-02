@@ -28,7 +28,7 @@
 #     - shared/reporting.md
 #     - shared/safe-output-app.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"d51b8d96d9850921797379025c171ffa822c629cf8ba79ce11a02b7f334b5706","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"d51b8d96d9850921797379025c171ffa822c629cf8ba79ce11a02b7f334b5706","compiled_hash":"a6df1d7eef978451c1cec09d8f034f84759983deaedb1da04bd3490cd66098dd","strict":true,"agent_id":"copilot"}
 
 name: "Daily MCP Tool Concurrency Analysis"
 "on":

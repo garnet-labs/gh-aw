@@ -29,7 +29,7 @@
 #     - shared/mcp/serena.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"af533ebfcee6ef0562c1a099c964f0b1cbe1df627ceccd31c0b1ec1e0273906a","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"af533ebfcee6ef0562c1a099c964f0b1cbe1df627ceccd31c0b1ec1e0273906a","compiled_hash":"8a5b1fac3351a6cc2b2b51e4391b99e0528286a67d312d0d20dfe322b71f1255","strict":true,"agent_id":"claude"}
 
 name: "Sergo - Serena Go Expert"
 "on":

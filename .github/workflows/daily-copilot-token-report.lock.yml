@@ -30,7 +30,7 @@
 #     - shared/repo-memory-standard.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"672d54e290b52292a8ef6f4aaa48d273d4e8b8f64d1605917e803d7a7f77eca0","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"672d54e290b52292a8ef6f4aaa48d273d4e8b8f64d1605917e803d7a7f77eca0","compiled_hash":"a0bd805763e1fc39faa08f3233dd0833700fdce82912a93678f6ad7cd63301fb","strict":true,"agent_id":"copilot"}
 
 name: "Daily Copilot Token Consumption Report"
 "on":

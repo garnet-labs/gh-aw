@@ -29,7 +29,7 @@
 #     - shared/reporting.md
 #     - shared/weekly-issues-data-fetch.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"06938b2b98eeca7914a0d456d79dde2c13be6ee4af46d9d73f87b37612d338c8","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"06938b2b98eeca7914a0d456d79dde2c13be6ee4af46d9d73f87b37612d338c8","compiled_hash":"ce8d9a5a706804f9e40d9e2c28de6a39b73ad20e9a2217555ec85c3aaa8f9f21","strict":true,"agent_id":"claude"}
 
 name: "DeepReport - Intelligence Gathering Agent"
 "on":

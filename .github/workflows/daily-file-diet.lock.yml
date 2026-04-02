@@ -31,7 +31,7 @@
 #     - shared/go-source-analysis.md
 #     - shared/safe-output-app.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4b1029f0d52420428bfbf594363bf7f5dfc74f064f37b716c6df07a88fe9d2a8","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4b1029f0d52420428bfbf594363bf7f5dfc74f064f37b716c6df07a88fe9d2a8","compiled_hash":"be69b0125b8c5a274909c80f62a0e07a5c5883cdbe3a195c71163596ddb8c1b6","strict":true,"agent_id":"copilot"}
 
 name: "Daily File Diet"
 "on":

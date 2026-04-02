@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"734b6d85297a01c4f98081febc8ebe6d367376d1aa3bb81fd77abe9992693e7c","agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"734b6d85297a01c4f98081febc8ebe6d367376d1aa3bb81fd77abe9992693e7c","compiled_hash":"b491420371d3f34664b223b26e3e7bd151e8eff5c95e8942a70dfeff57b6a6fa","agent_id":"claude"}
 
 name: "Daily Team Evolution Insights"
 "on":

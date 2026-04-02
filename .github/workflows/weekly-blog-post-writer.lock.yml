@@ -27,7 +27,7 @@
 #     - shared/github-guard-policy.md
 #     - shared/qmd.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"19dfc3b8453b786be720da3f1fedc8d3f16b90a95ab002b0c747923af68c037c","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"19dfc3b8453b786be720da3f1fedc8d3f16b90a95ab002b0c747923af68c037c","compiled_hash":"42da5e854c75f40d890146c87789f80a22b1e738707be7f62779abc4ddc1da3d","strict":true,"agent_id":"copilot"}
 
 name: "Weekly Blog Post Writer"
 "on":

@@ -22,7 +22,7 @@
 #
 # Smoke test validating cross-repo pull request updates in githubnext/gh-aw-side-repo by adding lines from Homer's Odyssey to the README
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1b83093f25431da3943130e4dc7707a88b79a2f8454e38a5773f5f5031b6b1d2","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1b83093f25431da3943130e4dc7707a88b79a2f8454e38a5773f5f5031b6b1d2","compiled_hash":"639e24b07292aa5622fad8eff177ccacf8ec5b9af2a62f027470827831adf453","strict":true,"agent_id":"copilot"}
 
 name: "Smoke Update Cross-Repo PR"
 "on":

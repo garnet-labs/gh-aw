@@ -31,7 +31,7 @@
 #     - shared/reporting.md
 #     - shared/copilot-pr-analysis-base.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"75f825fd2068d558449e2b05450d7a6410d7f0d74817065330e715e36e0fcbbc","agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"75f825fd2068d558449e2b05450d7a6410d7f0d74817065330e715e36e0fcbbc","compiled_hash":"753c785627b7a5ab41274748d063d09c5ea3308b1e933cd5ec63fab455275019","agent_id":"copilot"}
 
 name: "Daily Copilot PR Merged Report"
 "on":

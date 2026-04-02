@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"e24bfae6e6ba9dc7f6a26fe8161c93e8774e99aa4873bb6744f0c887c91a4483","strict":true,"agent_id":"copilot","agent_model":"gpt-5"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"e24bfae6e6ba9dc7f6a26fe8161c93e8774e99aa4873bb6744f0c887c91a4483","compiled_hash":"5c76c1263df78efb96efdf8ff07c1b07b2dc7885a8ec74d8aebe549744670bc2","strict":true,"agent_id":"copilot","agent_model":"gpt-5"}
 
 name: "Poem Bot - A Creative Agentic Workflow"
 "on":

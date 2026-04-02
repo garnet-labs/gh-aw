@@ -22,7 +22,7 @@
 #
 # Automatically updates GitHub Actions versions and creates a PR if changes are detected
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"26f8e046e4f296368ce5e51b93ce99a0de7757fa1aa378fe826430c2f1951ba9","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"26f8e046e4f296368ce5e51b93ce99a0de7757fa1aa378fe826430c2f1951ba9","compiled_hash":"c414fa19f3705537d104e8d0db0f77b85dba0c4bddf0a244b85938064b7a482d","strict":true,"agent_id":"copilot"}
 
 name: "Daily Workflow Updater"
 "on":

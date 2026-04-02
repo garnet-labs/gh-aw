@@ -30,7 +30,7 @@
 #     - shared/reporting.md
 #     - shared/go-source-analysis.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f1013f9cd39ab9898ff4026d0550b9c3ee5fb9c3135f7deeeb9b14a412579e8a","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f1013f9cd39ab9898ff4026d0550b9c3ee5fb9c3135f7deeeb9b14a412579e8a","compiled_hash":"75a81bf01ce58e4d122b1199488030fe13324c1bd13f81b11cc0f1d2e0bd5096","strict":true,"agent_id":"copilot"}
 
 name: "Daily Compiler Quality Check"
 "on":

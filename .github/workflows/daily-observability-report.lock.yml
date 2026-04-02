@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"ea41afa4b696c3c5cc10c82b34fc5f00eb694954b3a13f0c7d9faba77d06a8b9","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"ea41afa4b696c3c5cc10c82b34fc5f00eb694954b3a13f0c7d9faba77d06a8b9","compiled_hash":"7221e484bf9b152adc785f503e9e837c3a58b26b6309410d3adc97b190c96232","strict":true,"agent_id":"codex"}
 
 name: "Daily Observability Report for AWF Firewall and MCP Gateway"
 "on":

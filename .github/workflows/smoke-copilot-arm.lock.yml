@@ -30,7 +30,7 @@
 #     - shared/mcp/serena.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b922b54ad668c7e5d79e80973efae5108439b02e6d1ff89d534cf06bdf16d0ed","agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b922b54ad668c7e5d79e80973efae5108439b02e6d1ff89d534cf06bdf16d0ed","compiled_hash":"7cc5fa9c76bec14a75070e5cf0ccfac5ed1e6bf2affd4a02065b0977626a29b5","agent_id":"copilot"}
 
 name: "Smoke Copilot ARM64"
 "on":

@@ -25,7 +25,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"3385b9d23f6b393c771300b0c3cfd146abde6b5bf351064a62425da228008c44","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"3385b9d23f6b393c771300b0c3cfd146abde6b5bf351064a62425da228008c44","compiled_hash":"bc16af70b143cd8d288c8a076c012759ccdcd5e75e9ddf8cdbf892ca8ee6b824","strict":true,"agent_id":"copilot"}
 
 name: "Dependabot Burner"
 "on":

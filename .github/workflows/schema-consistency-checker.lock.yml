@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cea73f8de22ee6d0fc084dcadfd32158202533bd89cefeb391b56a0a130f01e1","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cea73f8de22ee6d0fc084dcadfd32158202533bd89cefeb391b56a0a130f01e1","compiled_hash":"ecfc9e00357c91e130398e7fc90a4f10accfac132e2b1b28508fb034b9aa24de","strict":true,"agent_id":"claude"}
 
 name: "Schema Consistency Checker"
 "on":

@@ -27,7 +27,7 @@
 #     - shared/activation-app.md
 #     - shared/github-guard-policy.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"e4adbd06bead73a338976eea281c282628c5fa9a3117665649bc3f81a85f155e","strict":true,"agent_id":"copilot","agent_model":"gpt-5.1-codex-mini"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"e4adbd06bead73a338976eea281c282628c5fa9a3117665649bc3f81a85f155e","compiled_hash":"488d7f8b324bcba1646bf72f29da4257f80577335d92d55088a1c8d3e0eaef13","strict":true,"agent_id":"copilot","agent_model":"gpt-5.1-codex-mini"}
 
 name: "Issue Monster"
 "on":

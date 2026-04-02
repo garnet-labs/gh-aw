@@ -24,7 +24,7 @@
 #
 # inlined-imports: true
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"3d4e62475092c82ef350ccf894064b12180a0e173ee1fa7bacb97edb5f269477","strict":true,"agent_id":"codex","agent_model":"gpt-5.1-codex-mini"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"3d4e62475092c82ef350ccf894064b12180a0e173ee1fa7bacb97edb5f269477","compiled_hash":"9a736732484875ac8c8c2e1c04414323a59935b86795d6e826d54de5c4f33587","strict":true,"agent_id":"codex","agent_model":"gpt-5.1-codex-mini"}
 
 name: "Daily Fact About gh-aw"
 "on":

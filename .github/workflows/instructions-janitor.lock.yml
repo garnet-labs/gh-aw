@@ -22,7 +22,7 @@
 #
 # Reviews and cleans up instruction files to ensure clarity, consistency, and adherence to best practices
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"294c9591637dd8ed73b97015a73573a11428987e6b5d9bbdf69fb46c9bb9f07b","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"294c9591637dd8ed73b97015a73573a11428987e6b5d9bbdf69fb46c9bb9f07b","compiled_hash":"ffd6f367a63de62800b096abbcd839ebec3dd71f2387497963bcf74630ab0607","strict":true,"agent_id":"claude"}
 
 name: "Instructions Janitor"
 "on":

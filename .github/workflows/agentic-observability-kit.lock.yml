@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b373a12ddb2d6478ce32c3aec14c02e01381f092cfd176469bd76e948695e52f","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b373a12ddb2d6478ce32c3aec14c02e01381f092cfd176469bd76e948695e52f","compiled_hash":"6c689a0238ba6767741323b43955e0e876798f12ad8e643894e8617a83242479","strict":true,"agent_id":"copilot"}
 
 name: "Agentic Observability Kit"
 "on":

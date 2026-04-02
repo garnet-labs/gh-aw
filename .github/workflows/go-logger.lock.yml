@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/go-make.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4701538e32cbe3a56742cfc4d67a420e9c704076476b5ad9b212c6e46b0b645a","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4701538e32cbe3a56742cfc4d67a420e9c704076476b5ad9b212c6e46b0b645a","compiled_hash":"946a983ce6f950d95fc0b742c2a1dbe24059931f229f78fe0845cfac73f7109e","strict":true,"agent_id":"claude"}
 
 name: "Go Logger Enhancement"
 "on":

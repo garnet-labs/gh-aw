@@ -31,7 +31,7 @@
 #     - shared/reporting.md
 #     - shared/copilot-pr-analysis-base.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1dca46511393aed425b6af49cdf2d52922d4a19e5994aa2e2d1eea8c6547b0dd","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1dca46511393aed425b6af49cdf2d52922d4a19e5994aa2e2d1eea8c6547b0dd","compiled_hash":"616244806b8434a26119830c9acbf91832557ff6a8aee284267a5bf49251238e","strict":true,"agent_id":"copilot"}
 
 name: "Copilot PR Prompt Pattern Analysis"
 "on":

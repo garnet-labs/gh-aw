@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"faae0c6b8934d1bddba33b3806bb7a6af5f34053fc5d210772b64dbf26c2baa0","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"faae0c6b8934d1bddba33b3806bb7a6af5f34053fc5d210772b64dbf26c2baa0","compiled_hash":"78b84c59ed9d497e60db86abeee0bc62df285388a4f474c34228255631fcf401","strict":true,"agent_id":"claude"}
 
 name: "Daily Security Red Team Agent"
 "on":

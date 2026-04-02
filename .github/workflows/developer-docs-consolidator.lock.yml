@@ -30,7 +30,7 @@
 #     - shared/qmd.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"d6349807505c81b3c35895880351968f2267a8e7e106d052a17a821b8fa4e1eb","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"d6349807505c81b3c35895880351968f2267a8e7e106d052a17a821b8fa4e1eb","compiled_hash":"a368201d16d94fa010a992e15ff8e794ae59d2efba2c87e8b0c53a19fe305cbf","strict":true,"agent_id":"claude"}
 
 name: "Developer Documentation Consolidator"
 "on":

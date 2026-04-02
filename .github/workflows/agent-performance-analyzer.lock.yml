@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"78287fe84a612788fa9e2681f317889ce12753d3ada6d1d39ea39bf0ae5fc47b","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"78287fe84a612788fa9e2681f317889ce12753d3ada6d1d39ea39bf0ae5fc47b","compiled_hash":"064a8fe3c1ca9095f6868ae812bbe2c23cfeac8cdf834d958f5277f355818d34","strict":true,"agent_id":"copilot"}
 
 name: "Agent Performance Analyzer - Meta-Orchestrator"
 "on":

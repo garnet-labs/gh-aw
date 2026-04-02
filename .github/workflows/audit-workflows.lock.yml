@@ -30,7 +30,7 @@
 #     - shared/reporting.md
 #     - shared/trending-charts-simple.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"184d8fc30bc7b23f8d98932c7f1d4d6469fe64f2ce1872c3dc67d37cce513bd2","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"184d8fc30bc7b23f8d98932c7f1d4d6469fe64f2ce1872c3dc67d37cce513bd2","compiled_hash":"1fb0a344b3530f32a6a256158a5b32d689c2dd45b4fe1a8a89c80395ef87198c","strict":true,"agent_id":"claude"}
 
 name: "Agentic Workflow Audit Agent"
 "on":

@@ -22,7 +22,7 @@
 #
 # Daily test workflow using Claude with custom safe-output job containing choice inputs
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"7107b3d0b634a0772bdf5228815dcfd34346bce34cc31c7e5076464c5e29070c","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"7107b3d0b634a0772bdf5228815dcfd34346bce34cc31c7e5076464c5e29070c","compiled_hash":"6f2d5ab3d755a06dc5df073b3cb23ccc297009d334553d8be785c16cbda3df3f","strict":true,"agent_id":"claude"}
 
 name: "Daily Choice Type Test"
 "on":

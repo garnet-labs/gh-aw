@@ -30,7 +30,7 @@
 #     - shared/mcp/serena.md
 #     - shared/qmd.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9389787b244a5634d091106cdc3dcc203892411ff6b388a97f85b0dea7c622bc","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9389787b244a5634d091106cdc3dcc203892411ff6b388a97f85b0dea7c622bc","compiled_hash":"1f8453fb62de34730e8cce63747368b63a7e65358420a37aee3839f08a6dbbb9","strict":true,"agent_id":"copilot"}
 
 name: "Glossary Maintainer"
 "on":

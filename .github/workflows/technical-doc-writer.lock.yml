@@ -28,7 +28,7 @@
 #     - ../skills/documentation/SKILL.md
 #     - shared/qmd.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b34da9436d339882200efe7fdeb011781db57b32e4f262420101b111bdfdbfe4","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b34da9436d339882200efe7fdeb011781db57b32e4f262420101b111bdfdbfe4","compiled_hash":"ebd43cb5241798833bc317ff30c5d0f3cd086714502ba8afdc2faf6082a21537","strict":true,"agent_id":"copilot"}
 
 name: "Rebuild the documentation after making changes"
 "on":

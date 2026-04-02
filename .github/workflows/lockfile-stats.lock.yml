@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"fdfe5ff3afe18bc175832a76b3fe5bc90dff82ee63a1eb7768c6bd8a9108cf15","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"fdfe5ff3afe18bc175832a76b3fe5bc90dff82ee63a1eb7768c6bd8a9108cf15","compiled_hash":"d221c0711ad020b2e29038949eb9b9f58909cf3cbb5ad7c958f5ab6b9976c750","strict":true,"agent_id":"claude"}
 
 name: "Lockfile Statistics Analysis Agent"
 "on":

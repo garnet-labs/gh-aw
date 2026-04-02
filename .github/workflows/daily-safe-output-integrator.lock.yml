@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"e660fcd7bf3e697c17a0b2bf6e56096e9a2f2d931146e9e0291031fba72bf841","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"e660fcd7bf3e697c17a0b2bf6e56096e9a2f2d931146e9e0291031fba72bf841","compiled_hash":"8d5d4dd614e3bc1bc13f02db32f7dda1eade3bc4a3e9d6f3a9763442ec5e5d79","strict":true,"agent_id":"copilot"}
 
 name: "Daily Safe Output Integrator"
 "on":

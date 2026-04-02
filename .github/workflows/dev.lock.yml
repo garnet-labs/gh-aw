@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/qmd.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"043db8a7615b37166f67297c69ee077636351bf493b0a01aa8196391b5ee4807","agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"043db8a7615b37166f67297c69ee077636351bf493b0a01aa8196391b5ee4807","compiled_hash":"d43929ec223451c9c0f5030ea4c377392d04b1dd981b8b778396a5ec72152ce0","agent_id":"copilot"}
 
 name: "Dev"
 "on":

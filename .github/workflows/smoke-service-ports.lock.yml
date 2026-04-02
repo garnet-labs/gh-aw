@@ -22,7 +22,7 @@
 #
 # Smoke test to validate --allow-host-service-ports with Redis service container
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f87ff09b47856fe5762f2eb7eddf0eee24e2dd583dd1b53a14f1ed9fef367457","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f87ff09b47856fe5762f2eb7eddf0eee24e2dd583dd1b53a14f1ed9fef367457","compiled_hash":"933a6d0d7de323f748349ce060eb241909aac57b04b979480c65ace8e0791aa0","strict":true,"agent_id":"copilot"}
 
 name: "Smoke Service Ports"
 "on":

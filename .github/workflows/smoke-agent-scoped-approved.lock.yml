@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/github-guard-policy.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"300632a0a433248c05338ed59f453141c36973dcf842fc749a7e76e3b5a8f839","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"300632a0a433248c05338ed59f453141c36973dcf842fc749a7e76e3b5a8f839","compiled_hash":"a95d9f009069084cdcd8d4993619277127e977921c62f3da7c44201d4d33ff02","strict":true,"agent_id":"codex"}
 
 name: "Smoke Agent: scoped/approved"
 "on":

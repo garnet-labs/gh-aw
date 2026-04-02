@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/github-guard-policy.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"192e43dac8430c63fcaef36dc9ecaf928511a154644626ed4650db14473292ed","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"192e43dac8430c63fcaef36dc9ecaf928511a154644626ed4650db14473292ed","compiled_hash":"c307b2001ade26ccaed043201a2a7e0251619dc286ed080cbcff5b19bce49158","strict":true,"agent_id":"copilot"}
 
 name: "PR Triage Agent"
 "on":

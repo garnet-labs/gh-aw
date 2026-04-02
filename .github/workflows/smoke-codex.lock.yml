@@ -30,7 +30,7 @@
 #     - shared/qmd.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"08622eff96fd523aed1828fcef487dcfa21db6e47e34f44f587a6ce0a027cbe3","agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"08622eff96fd523aed1828fcef487dcfa21db6e47e34f44f587a6ce0a027cbe3","compiled_hash":"52a91cb621827afdc735049d7c53a5d56c5233aba7257dc2e19285efad216b93","agent_id":"codex"}
 
 name: "Smoke Codex"
 "on":

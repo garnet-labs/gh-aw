@@ -27,7 +27,7 @@
 #     - shared/mcp/tavily.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"d0a1dc5317a1a485182e80d6b6942132e16b2af637d6e359401d4cb31928f55e","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"d0a1dc5317a1a485182e80d6b6942132e16b2af637d6e359401d4cb31928f55e","compiled_hash":"aab9813004f1793c0f2a9eb4a00a99060c735cee62628a97245f3ad20c294de1","strict":true,"agent_id":"copilot"}
 
 name: "Basic Research Agent"
 "on":

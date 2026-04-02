@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/ffmpeg.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"94cc0589aede07110b1d6cf1389de05ec934688bb94f1c2d067d22c1b6b31915","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"94cc0589aede07110b1d6cf1389de05ec934688bb94f1c2d067d22c1b6b31915","compiled_hash":"44a5778a9df6c9c38df459763839fa69441f92409c83517d7e404f5c63ba50a2","strict":true,"agent_id":"copilot"}
 
 name: "Video Analysis Agent"
 "on":

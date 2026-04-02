@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9df414db30809d112be19a218a775672182db5ae35c0279a4baa8509d8dc447f","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9df414db30809d112be19a218a775672182db5ae35c0279a4baa8509d8dc447f","compiled_hash":"859c3b1aa30474a4814024a54f688cd2de6db428a1cf888fc3c54a3f2d4f9957","strict":true,"agent_id":"claude"}
 
 name: "Weekly Workflow Analysis"
 "on":

@@ -22,7 +22,7 @@
 #
 # Maintains scratchpad/layout.md with patterns of file paths, folder names, and artifact names used in lock.yml files
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"32cec4338cb562bfaaf4c4d96115c5d041fc6a0c0d2cf1ba313a88caa11c7fa8","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"32cec4338cb562bfaaf4c4d96115c5d041fc6a0c0d2cf1ba313a88caa11c7fa8","compiled_hash":"51c6e94a1a6e36b701472891833b10d645ccb304c0c0e9675de65b1ae66ee89a","strict":true,"agent_id":"copilot"}
 
 name: "Layout Specification Maintainer"
 "on":

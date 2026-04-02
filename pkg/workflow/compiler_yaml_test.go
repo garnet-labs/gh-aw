@@ -1438,3 +1438,179 @@ Test prompt.
 		})
 	}
 }
+
+func TestComputeCompiledHash(t *testing.T) {
+	tests := []struct {
+		name       string
+		yamlInput  string
+		wantSame   string // if non-empty, input that should produce the same hash
+		wantChange string // if non-empty, input that should produce a different hash
+	}{
+		{
+			name: "produces 64-char hex hash",
+			yamlInput: `# comment
+name: "Test"
+permissions: {}`,
+		},
+		{
+			name: "excludes comment lines",
+			yamlInput: `# banner
+# gh-aw-metadata: {"frontmatter_hash":"abc","compiled_hash":"placeholder"}
+name: "Test"
+permissions: {}`,
+			wantSame: `# different banner
+# gh-aw-metadata: {"frontmatter_hash":"xyz"}
+name: "Test"
+permissions: {}`,
+		},
+		{
+			name: "detects non-comment changes",
+			yamlInput: `# comment
+name: "Test"
+permissions: {}`,
+			wantChange: `# comment
+name: "Test"
+permissions:
+  contents: write`,
+		},
+		{
+			name: "deterministic",
+			yamlInput: `# comment
+name: "Test"
+on:
+  push:`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hash := computeCompiledHash(tt.yamlInput)
+
+			// Should always produce a 64-char hex hash
+			if len(hash) != 64 {
+				t.Errorf("expected 64-char hash, got %d chars: %s", len(hash), hash)
+			}
+			for _, c := range hash {
+				if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+					t.Errorf("hash contains non-hex char %q: %s", c, hash)
+				}
+			}
+
+			// Should be deterministic
+			if hash2 := computeCompiledHash(tt.yamlInput); hash != hash2 {
+				t.Errorf("non-deterministic: got %s then %s", hash, hash2)
+			}
+
+			// Should match a content-equivalent input
+			if tt.wantSame != "" {
+				sameHash := computeCompiledHash(tt.wantSame)
+				if hash != sameHash {
+					t.Errorf("expected same hash for comment-only change: got %s and %s", hash, sameHash)
+				}
+			}
+
+			// Should differ from a content-different input
+			if tt.wantChange != "" {
+				diffHash := computeCompiledHash(tt.wantChange)
+				if hash == diffHash {
+					t.Errorf("expected different hash for content change, both produced %s", hash)
+				}
+			}
+		})
+	}
+}
+
+func TestInjectCompiledHashIntoMetadata(t *testing.T) {
+	t.Run("injects compiled_hash into JSON metadata", func(t *testing.T) {
+		input := `# banner
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"abc123"}
+name: "Test"
+`
+		result := injectCompiledHashIntoMetadata(input, "deadbeef")
+		if !strings.Contains(result, `"compiled_hash":"deadbeef"`) {
+			t.Errorf("expected compiled_hash in metadata, got:\n%s", result)
+		}
+		if !strings.Contains(result, `"frontmatter_hash":"abc123"`) {
+			t.Errorf("frontmatter_hash should be preserved, got:\n%s", result)
+		}
+	})
+
+	t.Run("returns unchanged YAML when no metadata line present", func(t *testing.T) {
+		input := `# no metadata comment
+name: "Test"
+`
+		result := injectCompiledHashIntoMetadata(input, "deadbeef")
+		if result != input {
+			t.Errorf("expected input unchanged, got:\n%s", result)
+		}
+	})
+
+	t.Run("returns unchanged YAML when metadata JSON is invalid", func(t *testing.T) {
+		input := `# gh-aw-metadata: {invalid json}
+name: "Test"
+`
+		result := injectCompiledHashIntoMetadata(input, "deadbeef")
+		if result != input {
+			t.Errorf("expected input unchanged on invalid JSON, got:\n%s", result)
+		}
+	})
+}
+
+func TestCompiledHashInLockFile(t *testing.T) {
+	tmpDir := testutil.TempDir(t, "compiled-hash-test")
+
+	workflowContent := `---
+engine: copilot
+on: issues
+permissions:
+  contents: read
+---
+
+# Test Workflow
+
+This workflow processes issues.
+`
+	workflowPath := filepath.Join(tmpDir, "test-workflow.md")
+	if err := os.WriteFile(workflowPath, []byte(workflowContent), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	compiler := NewCompiler()
+	compiler.SetQuiet(true)
+	if err := compiler.CompileWorkflow(workflowPath); err != nil {
+		t.Fatalf("CompileWorkflow() failed: %v", err)
+	}
+
+	lockFile := filepath.Join(tmpDir, "test-workflow.lock.yml")
+	content, err := os.ReadFile(lockFile)
+	if err != nil {
+		t.Fatalf("Failed to read lock file: %v", err)
+	}
+	yamlStr := string(content)
+
+	// The lock file should contain a compiled_hash in the metadata
+	if !strings.Contains(yamlStr, `"compiled_hash":`) {
+		t.Errorf("expected compiled_hash in lock file metadata, got:\n%s", yamlStr)
+	}
+
+	// Extract and verify the compiled_hash is a valid 64-char hex string
+	metadata, _, err := ExtractMetadataFromLockFile(yamlStr)
+	if err != nil {
+		t.Fatalf("ExtractMetadataFromLockFile() failed: %v", err)
+	}
+	if metadata == nil {
+		t.Fatal("expected metadata to be present")
+	}
+	if len(metadata.CompiledHash) != 64 {
+		t.Errorf("expected 64-char compiled_hash, got %d chars: %q", len(metadata.CompiledHash), metadata.CompiledHash)
+	}
+
+	// Verify the compiled_hash matches what we'd compute independently
+	recomputed := computeCompiledHash(yamlStr)
+	// The stored hash was computed from the YAML *before* injecting compiled_hash,
+	// which is identical to the YAML *after* injecting (since that's a comment line).
+	// So the recomputed hash from the final file should equal the stored hash.
+	if metadata.CompiledHash != recomputed {
+		t.Errorf("compiled_hash in metadata (%s) does not match recomputed hash (%s)", metadata.CompiledHash, recomputed)
+	}
+}

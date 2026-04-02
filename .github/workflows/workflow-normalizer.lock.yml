@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c4d3ae709d0b09bf46341c2e6f1f18e49a86247b10f23da62fe5336d26267505","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c4d3ae709d0b09bf46341c2e6f1f18e49a86247b10f23da62fe5336d26267505","compiled_hash":"ea3a8063d539e75836105c7540cea69a970a864713802e44e7ef666b86b00094","strict":true,"agent_id":"copilot"}
 
 name: "Workflow Normalizer"
 "on":

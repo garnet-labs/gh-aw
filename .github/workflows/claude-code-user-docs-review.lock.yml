@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9c3fb936860c8bb48701759f789c33c501d3cf114cc983841e270c80a60f190d","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9c3fb936860c8bb48701759f789c33c501d3cf114cc983841e270c80a60f190d","compiled_hash":"269cff73f0410b3ffed06389bb11a2990369c3f11e9af3037d3bf1096b054400","strict":true,"agent_id":"claude"}
 
 name: "Claude Code User Documentation Review"
 "on":

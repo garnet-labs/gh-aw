@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/pr-code-review-config.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"6ae73a1972b16e068d3bf5d532df795942fdfaa62d38c4b824caefa098c81b60","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"6ae73a1972b16e068d3bf5d532df795942fdfaa62d38c4b824caefa098c81b60","compiled_hash":"3913b2fbbe4af9cd7f8b98224231b4e74232ec6bfbeaf6ef4c3db70c5358ae1c","strict":true,"agent_id":"copilot"}
 
 name: "Security Review Agent 🔒"
 "on":

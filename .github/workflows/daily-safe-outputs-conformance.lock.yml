@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"21aed5a790b18a69e43b11e8b77c34a541af72fe195f21731240765cc3554c83","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"21aed5a790b18a69e43b11e8b77c34a541af72fe195f21731240765cc3554c83","compiled_hash":"98487eb7c4a3af0125e8efa9c9d2ee3e6244b4a2c64ca22eb2f2dea4eb05e60b","strict":true,"agent_id":"claude"}
 
 name: "Daily Safe Outputs Conformance Checker"
 "on":

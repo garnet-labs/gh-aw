@@ -29,7 +29,7 @@
 #     - shared/reporting.md
 #     - shared/trending-charts-simple.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9f1e7fa8b83dd91aefa585f492548276a6a14a828a71b90d6480f5d716a8858e","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"9f1e7fa8b83dd91aefa585f492548276a6a14a828a71b90d6480f5d716a8858e","compiled_hash":"786e203aefb51f4faff2c2db37b80a46d2125a62384660b0e420a67ee83dc0d8","strict":true,"agent_id":"copilot"}
 
 name: "Automated Portfolio Analyst"
 "on":

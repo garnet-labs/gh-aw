@@ -28,7 +28,7 @@
 #     - shared/github-queries-mcp-script.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"91ca236109ec8ec97462f8dfe7c174b40a308597b624242a73ba33dac2920336","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"91ca236109ec8ec97462f8dfe7c174b40a308597b624242a73ba33dac2920336","compiled_hash":"6300b705739ebafe120a43d51668520b848b174fb9638ce8dcdfb20f51986fbf","strict":true,"agent_id":"copilot"}
 
 name: "Daily Regulatory Report Generator"
 "on":

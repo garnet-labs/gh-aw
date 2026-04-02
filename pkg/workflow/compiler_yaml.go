@@ -1,10 +1,13 @@
 package workflow
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -15,6 +18,51 @@ import (
 )
 
 var compilerYamlLog = logger.New("workflow:compiler_yaml")
+
+// metadataLinePattern matches the gh-aw-metadata comment line in a lock file.
+var metadataLinePattern = regexp.MustCompile(`(?m)^(#\s*gh-aw-metadata:\s*)(\{.+\})$`)
+
+// computeCompiledHash computes a SHA-256 hash of all non-comment lines in the YAML content.
+// This covers the compiled YAML body (permissions, env vars, jobs, etc.) so that any
+// tampering with security-critical fields is detected at runtime.
+func computeCompiledHash(yamlContent string) string {
+	var nonCommentLines []string
+	for line := range strings.SplitSeq(yamlContent, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "#") {
+			nonCommentLines = append(nonCommentLines, line)
+		}
+	}
+	content := strings.Join(nonCommentLines, "\n")
+	sum := sha256.Sum256([]byte(content))
+	return hex.EncodeToString(sum[:])
+}
+
+// injectCompiledHashIntoMetadata replaces the gh-aw-metadata comment line in the YAML
+// with a version that includes the compiled_hash field.
+// Returns the modified YAML unchanged if the metadata line is not found or cannot be parsed.
+func injectCompiledHashIntoMetadata(yamlContent string, compiledHash string) string {
+	return metadataLinePattern.ReplaceAllStringFunc(yamlContent, func(match string) string {
+		submatches := metadataLinePattern.FindStringSubmatch(match)
+		if len(submatches) < 3 {
+			return match
+		}
+		prefix := submatches[1]
+		jsonStr := submatches[2]
+
+		var metadata LockMetadata
+		if err := json.Unmarshal([]byte(jsonStr), &metadata); err != nil {
+			return match
+		}
+		metadata.CompiledHash = compiledHash
+
+		newJSON, err := metadata.ToJSON()
+		if err != nil {
+			return match
+		}
+		return prefix + newJSON
+	})
+}
 
 // effectiveStrictMode computes the effective strict mode for a workflow.
 // Priority: CLI flag (c.strictMode) > frontmatter strict field > default (true).
@@ -276,6 +324,16 @@ func (c *Compiler) generateYAML(data *WorkflowData, markdownPath string) (string
 	if c.trialMode && c.hasIssueTrigger(data.On) {
 		compilerYamlLog.Print("Trial mode enabled, replacing issue number references")
 		yamlContent = c.replaceIssueNumberReferences(yamlContent)
+	}
+
+	// Compute compiled hash from non-comment YAML content and inject it into the
+	// metadata comment. This allows the runtime integrity check to detect tampering
+	// with security-critical fields (permissions, env vars, job steps, etc.) even
+	// when the frontmatter of the source .md file is unchanged.
+	if frontmatterHash != "" {
+		compiledHash := computeCompiledHash(yamlContent)
+		compilerYamlLog.Printf("Computed compiled hash: %s", compiledHash)
+		yamlContent = injectCompiledHashIntoMetadata(yamlContent, compiledHash)
 	}
 
 	compilerYamlLog.Printf("Successfully generated YAML for workflow: %s (%d bytes)", data.Name, len(yamlContent))

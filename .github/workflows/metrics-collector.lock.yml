@@ -22,7 +22,7 @@
 #
 # Collects daily performance metrics for the agent ecosystem and stores them in repo-memory
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b5f384f27d5b48e0c6e4600f71718bafab6244d85c1bf0e04afeadeef6c76147","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b5f384f27d5b48e0c6e4600f71718bafab6244d85c1bf0e04afeadeef6c76147","compiled_hash":"cfdb133bd4fbd2242bc77fff1c5c778130125b592173f667d5323afc2d65b441","strict":true,"agent_id":"copilot"}
 
 name: "Metrics Collector - Infrastructure Agent"
 "on":

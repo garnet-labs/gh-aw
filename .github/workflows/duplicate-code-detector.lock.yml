@@ -29,7 +29,7 @@
 #     - shared/reporting.md
 #     - shared/go-source-analysis.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4c03da6f43eb324285434eacdb515ebb471da4aa442266383eebc7ed682cd946","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4c03da6f43eb324285434eacdb515ebb471da4aa442266383eebc7ed682cd946","compiled_hash":"c056a3719b135eac91b5f3c47dc25b50a77b85141270a420ee822b67a6e6ce64","strict":true,"agent_id":"codex"}
 
 name: "Duplicate Code Detector"
 "on":

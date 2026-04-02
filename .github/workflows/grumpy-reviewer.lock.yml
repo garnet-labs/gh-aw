@@ -27,7 +27,7 @@
 #     - shared/github-guard-policy.md
 #     - shared/pr-code-review-config.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cdb51c70b04d0eba9bb1c102add031164396e35a4fd6c2aec6b44501a2035896","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cdb51c70b04d0eba9bb1c102add031164396e35a4fd6c2aec6b44501a2035896","compiled_hash":"400663594763c4f70d8f9fa86189473e6f302c61e666b543f54674b8fbb6315c","strict":true,"agent_id":"codex"}
 
 name: "Grumpy Code Reviewer 🔥"
 "on":

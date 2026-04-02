@@ -27,7 +27,7 @@
 #     - shared/pr-code-review-config.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1c5afbcc15ccde9b0714225f3bbbfb1579751480ac6e9b3e0c46a2e34cbfec5c","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1c5afbcc15ccde9b0714225f3bbbfb1579751480ac6e9b3e0c46a2e34cbfec5c","compiled_hash":"9691bd712dff597641d7843a67d54a93e06dd1a3cbdb7f78401873f92b5d8ead","strict":true,"agent_id":"copilot"}
 
 name: "PR Nitpick Reviewer 🔍"
 "on":

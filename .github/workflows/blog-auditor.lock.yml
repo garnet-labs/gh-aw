@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"27951079b449233790f02fda054a0e2b5f85e02ed9b005debc91a0c9529c788e","agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"27951079b449233790f02fda054a0e2b5f85e02ed9b005debc91a0c9529c788e","compiled_hash":"b423f22cd55c9a98a171d2ba7ab04280dfdb5e427a5dd07a3f9a51cd9d80b6bf","agent_id":"claude"}
 
 name: "Blog Auditor"
 "on":

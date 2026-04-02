@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"5b9cd290de19c2efeff8252adba4ccf92c1ed04fd02a082e0ec221ec5ef8de02","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"5b9cd290de19c2efeff8252adba4ccf92c1ed04fd02a082e0ec221ec5ef8de02","compiled_hash":"1ecd35b2d43d8e4639e971245060fb9a0f24cbc1833100db354b23982d456ba9","strict":true,"agent_id":"copilot"}
 
 name: "Super Linter Report"
 "on":

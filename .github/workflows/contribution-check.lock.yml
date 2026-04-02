@@ -21,7 +21,7 @@
 # For more information: https://github.github.com/gh-aw/introduction/overview/
 #
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c6a3f4c1233714c024d91fc9b1c524d86770132bae2044a11ce34b31aeaaa870","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c6a3f4c1233714c024d91fc9b1c524d86770132bae2044a11ce34b31aeaaa870","compiled_hash":"2be470debcd7efd3c0de1f02751b24de73d3f0b6d6f634ef9163a3c3569b6431","strict":true,"agent_id":"copilot"}
 
 name: "Contribution Check"
 "on":

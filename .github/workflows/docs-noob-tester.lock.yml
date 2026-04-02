@@ -29,7 +29,7 @@
 #     - shared/keep-it-short.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"099f1b955ddb5f6aa943db1153bec1b95c8b6a8d3088f71b21a1c94450fb690b","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"099f1b955ddb5f6aa943db1153bec1b95c8b6a8d3088f71b21a1c94450fb690b","compiled_hash":"07aaab8fddaaa1fa4c3b0c85fe5bc9cb34fbaae16ae1ec024756213b759c083e","strict":true,"agent_id":"copilot"}
 
 name: "Documentation Noob Tester"
 "on":

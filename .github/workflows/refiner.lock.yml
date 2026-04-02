@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/github-guard-policy.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"a24e20b4cb3c287f7e685d1fc703a775a706bc6183adee885c1ab8c440b22fa4","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"a24e20b4cb3c287f7e685d1fc703a775a706bc6183adee885c1ab8c440b22fa4","compiled_hash":"d27ed3a65b8b0731fbd275db4c889820319ee220397932e1cd4d907b4dc0b3dd","strict":true,"agent_id":"copilot"}
 
 name: "Code Refiner"
 "on":

@@ -29,7 +29,7 @@
 #     - shared/mcp/serena.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"8a97b8b917c11d921e962ff02d53e457aa84fd4e83b672aa42f05c820bc87599","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"8a97b8b917c11d921e962ff02d53e457aa84fd4e83b672aa42f05c820bc87599","compiled_hash":"d50d1fb7c712b01636626ba9596fb015f0a16a671215b7cab709e4ca6f91040e","strict":true,"agent_id":"copilot"}
 
 name: "Terminal Stylist"
 "on":

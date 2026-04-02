@@ -29,7 +29,7 @@
 #     - shared/python-dataviz.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"854516e8df913fa62f2b8288d45ac30f2b2711b98c3d9b8dc25e7e1ff91a977f","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"854516e8df913fa62f2b8288d45ac30f2b2711b98c3d9b8dc25e7e1ff91a977f","compiled_hash":"d4809ce74b78818c3cf170e75a5256d6363486861d9b13387c3b8f0aa466813d","strict":true,"agent_id":"copilot"}
 
 name: "Organization Health Report"
 "on":

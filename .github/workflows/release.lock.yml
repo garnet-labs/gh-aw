@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/community-attribution.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"128dc3cf2dcc46fc99c649a218664042fa068fc3aaf79bde247c915caa21d4dd","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"128dc3cf2dcc46fc99c649a218664042fa068fc3aaf79bde247c915caa21d4dd","compiled_hash":"034e538166f846585886f6d3d7fc2be0f05683d7d9f21f1909321b480be284be","strict":true,"agent_id":"copilot"}
 
 name: "Release"
 "on":

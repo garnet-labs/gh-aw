@@ -27,7 +27,7 @@
 #     - shared/daily-audit-discussion.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"27e4ecbd62023446ef3354213c3c778ca3839cc72f94b7e7c212cebf46c7f1f6","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"27e4ecbd62023446ef3354213c3c778ca3839cc72f94b7e7c212cebf46c7f1f6","compiled_hash":"7ea4f6dfdc22835f1b8c9a514cb5990ac7ff09280bd3cb119c4fd8f33d880e82","strict":true,"agent_id":"claude"}
 
 name: "GitHub MCP Remote Server Tools Report Generator"
 "on":

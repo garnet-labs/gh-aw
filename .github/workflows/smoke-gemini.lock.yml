@@ -27,7 +27,7 @@
 #     - shared/gh.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bc947fc0f68789a8c2116df1b0ed091773cc6c20103a7b93a9bd3b23e65e8f61","strict":true,"agent_id":"gemini"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bc947fc0f68789a8c2116df1b0ed091773cc6c20103a7b93a9bd3b23e65e8f61","compiled_hash":"b79b12bdba0d7f94abbd3a080e0b9be3b8399569bedd9f995371419b17644eb7","strict":true,"agent_id":"gemini"}
 
 name: "Smoke Gemini"
 "on":

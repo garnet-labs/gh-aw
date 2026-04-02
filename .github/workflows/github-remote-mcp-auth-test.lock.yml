@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/daily-audit-discussion.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"99a56d17334046f65691c5899578182fd48a441a38e0498586ad54f4c211f837","strict":true,"agent_id":"copilot","agent_model":"gpt-5.1-codex-mini"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"99a56d17334046f65691c5899578182fd48a441a38e0498586ad54f4c211f837","compiled_hash":"a7cebacfc81bbca6e82cc9165491eda8c2e751455b6916e3c1bb7331f987acec","strict":true,"agent_id":"copilot","agent_model":"gpt-5.1-codex-mini"}
 
 name: "GitHub Remote MCP Authentication Test"
 "on":

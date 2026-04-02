@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/mcp/markitdown.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"6d3174d6f6e18cf0e99b8c93c294401c6d7ddb699196eaa13776f0b49f5909ed","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"6d3174d6f6e18cf0e99b8c93c294401c6d7ddb699196eaa13776f0b49f5909ed","compiled_hash":"9d264433d2795144fa423860c0db8199e2641a097b4f46fae301b3e499fbc6d2","strict":true,"agent_id":"copilot"}
 
 name: "Resource Summarizer Agent"
 "on":

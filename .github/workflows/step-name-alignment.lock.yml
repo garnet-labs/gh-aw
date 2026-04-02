@@ -22,7 +22,7 @@
 #
 # Scans step names in .lock.yml files and aligns them with step intent and project glossary
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"013931389b5fee5fd1bfa5c8050369f2de9c3c778fe7d5a829c305f02300098c","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"013931389b5fee5fd1bfa5c8050369f2de9c3c778fe7d5a829c305f02300098c","compiled_hash":"be2c4b0ce42a0e622635e07d606b17964be49f29ce22891268e6b38ecec61d6e","strict":true,"agent_id":"claude"}
 
 name: "Step Name Alignment"
 "on":

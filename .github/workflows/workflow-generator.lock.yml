@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/github-guard-policy.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cfd7f6135eab81d11cbd703b3436241bc379da2ede370ecb3285f2186bde6d06","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cfd7f6135eab81d11cbd703b3436241bc379da2ede370ecb3285f2186bde6d06","compiled_hash":"64e7fed99824b98ebbfc4897527af08b801246cfd7d8d645ee40e1b5fb1b1446","strict":true,"agent_id":"copilot"}
 
 name: "Workflow Generator"
 "on":

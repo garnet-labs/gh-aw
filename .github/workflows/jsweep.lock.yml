@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/mcp/serena.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"dd86446c86ebaaeba36e9e964665af7108fbb2b5fad335f400c2378bbf43fc68","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"dd86446c86ebaaeba36e9e964665af7108fbb2b5fad335f400c2378bbf43fc68","compiled_hash":"f7b458b4ba95e04d290267a290bf4c0701c158bfcc659648a3dac0a5d99bebf9","strict":true,"agent_id":"copilot"}
 
 name: "jsweep - JavaScript Unbloater"
 "on":

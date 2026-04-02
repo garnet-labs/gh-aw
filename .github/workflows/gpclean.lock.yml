@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"75c8d2f1431e88d0a8ec9cb4e69c2c84a84749fe96a0c409bd63f28509e6a3bc","agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"75c8d2f1431e88d0a8ec9cb4e69c2c84a84749fe96a0c409bd63f28509e6a3bc","compiled_hash":"26f45817d9401afa16a826cf99783fa550b34f8f74ad2c96a95f97b809fdd8ad","agent_id":"copilot"}
 
 name: "GPL Dependency Cleaner (gpclean)"
 "on":

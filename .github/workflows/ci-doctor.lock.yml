@@ -24,7 +24,7 @@
 #
 # Source: githubnext/agentics/workflows/ci-doctor.md@ea350161ad5dcc9624cf510f134c6a9e39a6f94d
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c04ef6b8efbe17ec36dbc44234bb63a6414d6d81cee238faf15a2121a7c91d60","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c04ef6b8efbe17ec36dbc44234bb63a6414d6d81cee238faf15a2121a7c91d60","compiled_hash":"025f1443cec5399b94feb9ce13333080463b2b456a7f198fcd0723a6dad080dc","strict":true,"agent_id":"codex"}
 
 name: "CI Failure Doctor"
 "on":

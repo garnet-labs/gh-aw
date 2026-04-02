@@ -16,7 +16,7 @@
 const fs = require("fs");
 const path = require("path");
 const { getErrorMessage } = require("./error_helpers.cjs");
-const { extractHashFromLockFile, computeFrontmatterHash, createGitHubFileReader } = require("./frontmatter_hash_pure.cjs");
+const { extractHashFromLockFile, computeFrontmatterHash, createGitHubFileReader, extractCompiledHashFromLockFile, computeCompiledHashFromLockFile } = require("./frontmatter_hash_pure.cjs");
 const { getFileContent } = require("./github_api_helpers.cjs");
 const { ERR_CONFIG } = require("./error_codes.cjs");
 
@@ -141,7 +141,22 @@ async function main() {
       core.info(`  Recomputed hash:   ${recomputedHash}`);
       core.info(`  Status: ${match ? "✅ Hashes match" : "⚠️  Hashes differ"}`);
 
-      return { match, storedHash, recomputedHash };
+      // Verify compiled hash if present: recompute from non-comment lines and compare.
+      const storedCompiledHash = extractCompiledHashFromLockFile(localLockContent);
+      let compiledMatch = true;
+      let actualCompiledHash = "";
+      if (storedCompiledHash) {
+        actualCompiledHash = computeCompiledHashFromLockFile(localLockContent);
+        compiledMatch = storedCompiledHash === actualCompiledHash;
+        core.info(`Compiled hash comparison (local filesystem fallback):`);
+        core.info(`  Stored hash:      ${storedCompiledHash}`);
+        core.info(`  Recomputed hash:  ${actualCompiledHash}`);
+        core.info(`  Status: ${compiledMatch ? "✅ Hashes match" : "⚠️  Hashes differ"}`);
+      } else {
+        core.info("No compiled hash in lock file (pre-v4 lock file); skipping compiled hash check");
+      }
+
+      return { match, storedHash, recomputedHash, compiledMatch, storedCompiledHash, actualCompiledHash };
     } catch (error) {
       core.info(`Could not compute frontmatter hash from local files: ${getErrorMessage(error)}`);
       return null;
@@ -178,7 +193,25 @@ async function main() {
       core.info(`  Recomputed hash:   ${recomputedHash}`);
       core.info(`  Status: ${match ? "✅ Hashes match" : "⚠️  Hashes differ"}`);
 
-      return { match, storedHash, recomputedHash };
+      // Verify compiled hash if present: recompute from non-comment lines of the
+      // fetched lock file and compare to the stored compiled_hash. This detects
+      // tampering with security-critical YAML fields (permissions, env vars, steps)
+      // even when the .md frontmatter is unchanged.
+      const storedCompiledHash = extractCompiledHashFromLockFile(lockFileContent);
+      let compiledMatch = true;
+      let actualCompiledHash = "";
+      if (storedCompiledHash) {
+        actualCompiledHash = computeCompiledHashFromLockFile(lockFileContent);
+        compiledMatch = storedCompiledHash === actualCompiledHash;
+        core.info(`Compiled hash comparison:`);
+        core.info(`  Stored hash:      ${storedCompiledHash}`);
+        core.info(`  Recomputed hash:  ${actualCompiledHash}`);
+        core.info(`  Status: ${compiledMatch ? "✅ Hashes match" : "⚠️  Hashes differ"}`);
+      } else {
+        core.info("No compiled hash in lock file (pre-v4 lock file); skipping compiled hash check");
+      }
+
+      return { match, storedHash, recomputedHash, compiledMatch, storedCompiledHash, actualCompiledHash };
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       core.info(`Could not compute frontmatter hash via API: ${errorMessage}`);
@@ -202,6 +235,22 @@ async function main() {
       .addRaw(`- Source: \`${workflowMdPath}\`\n`)
       .addRaw(`- Lock: \`${lockFilePath}\`\n\n`)
       .addRaw("**Action Required:** Run `gh aw compile` to regenerate the lock file.\n\n");
+
+    await summary.write();
+
+    core.setFailed(`${ERR_CONFIG}: ${warningMessage}`);
+  } else if (!hashComparison.compiledMatch) {
+    // Compiled YAML body has been tampered with
+    const warningMessage = `Lock file '${lockFilePath}' integrity check failed! The compiled YAML body of '${lockFilePath}' has been modified. Run 'gh aw compile' to regenerate the lock file.`;
+
+    let summary = core.summary
+      .addRaw("### 🚨 Workflow Lock File Tamper Detected\n\n")
+      .addRaw("**SECURITY WARNING**: Compiled YAML body has been modified after compilation (compiled hash mismatch).\n\n")
+      .addRaw("**Files:**\n")
+      .addRaw(`- Lock: \`${lockFilePath}\`\n`)
+      .addRaw(`  - Stored compiled hash: \`${hashComparison.storedCompiledHash.substring(0, 12)}...\`\n`)
+      .addRaw(`  - Actual compiled hash: \`${hashComparison.actualCompiledHash.substring(0, 12)}...\`\n\n`)
+      .addRaw("**Action Required:** Review the lock file for unauthorized changes and run `gh aw compile` to regenerate it.\n\n");
 
     await summary.write();
 

@@ -27,7 +27,7 @@
 #     - shared/qmd.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"21c6c078f3b5b342ef074303f8c5cdd0b250607a1ca75c6205fc02087dd76f23","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"21c6c078f3b5b342ef074303f8c5cdd0b250607a1ca75c6205fc02087dd76f23","compiled_hash":"0a34e7b8ceb90a15e2886bbef26bcf9cc711bdabc10182c3f854479fc48851b5","strict":true,"agent_id":"copilot"}
 
 name: "Dictation Prompt Generator"
 "on":

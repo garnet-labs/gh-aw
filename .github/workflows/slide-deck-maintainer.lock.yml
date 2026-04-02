@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/activation-app.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"5fd4d0e409380c23608e3e688e4085262945b249421a29cb45ec8f93e01a6bfc","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"5fd4d0e409380c23608e3e688e4085262945b249421a29cb45ec8f93e01a6bfc","compiled_hash":"402bd16838af3cf589ace7fd88f57b5b3c7d0a128dbf5dd477ec6f0af15007f0","strict":true,"agent_id":"copilot"}
 
 name: "Slide Deck Maintainer"
 "on":

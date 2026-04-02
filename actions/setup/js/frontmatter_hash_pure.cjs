@@ -346,6 +346,44 @@ function extractHashFromLockFile(lockFileContent) {
 }
 
 /**
+ * Extract compiled hash from lock file content.
+ * The compiled_hash covers all non-comment YAML lines and protects against
+ * tampering with security-critical fields (permissions, env vars, job steps).
+ * @param {string} lockFileContent - Content of the .lock.yml file
+ * @returns {string} The extracted compiled_hash or empty string if not found
+ */
+function extractCompiledHashFromLockFile(lockFileContent) {
+  const lines = lockFileContent.split("\n");
+  for (const line of lines) {
+    const metadataMatch = line.match(/^#\s*gh-aw-metadata:\s*(\{.+\})/);
+    if (metadataMatch) {
+      try {
+        const metadata = JSON.parse(metadataMatch[1]);
+        if (metadata.compiled_hash) {
+          return metadata.compiled_hash;
+        }
+      } catch (err) {
+        // Invalid JSON
+      }
+    }
+  }
+  return "";
+}
+
+/**
+ * Compute the compiled hash of a lock file by hashing all non-comment lines.
+ * This matches the hash computed by the Go compiler in computeCompiledHash().
+ * @param {string} lockFileContent - Content of the .lock.yml file
+ * @returns {string} SHA-256 hex hash of all non-comment lines
+ */
+function computeCompiledHashFromLockFile(lockFileContent) {
+  const lines = lockFileContent.split("\n");
+  const nonCommentLines = lines.filter(line => !line.trimStart().startsWith("#"));
+  const content = nonCommentLines.join("\n");
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
+}
+
+/**
  * Creates a file reader that uses GitHub's getFileContent API
  * @param {Object} github - GitHub API client (@actions/github)
  * @param {string} owner - Repository owner
@@ -384,6 +422,8 @@ module.exports = {
   marshalCanonicalJSON,
   marshalSorted,
   extractHashFromLockFile,
+  extractCompiledHashFromLockFile,
+  computeCompiledHashFromLockFile,
   normalizeFrontmatterText,
   parseBoolFromFrontmatter,
   processImportsTextBased,

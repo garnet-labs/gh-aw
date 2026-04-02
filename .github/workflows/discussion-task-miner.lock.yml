@@ -29,7 +29,7 @@
 #     - shared/repo-memory-standard.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"da5ebd0fcc145d0547a61913f1a5c48c00279fc878bd841dee63a375cd54b95b","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"da5ebd0fcc145d0547a61913f1a5c48c00279fc878bd841dee63a375cd54b95b","compiled_hash":"9a9ecb54ed81a9b694a636ac811f58f795191b7a01eb525aa532da2665821c79","strict":true,"agent_id":"copilot"}
 
 name: "Discussion Task Miner - Code Quality Improvement Agent"
 "on":

@@ -27,7 +27,7 @@
 #     - shared/jqschema.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f1edaf6fb88a3f4f73256faa6a1c60181f239cbc5e01436d07f90b282d6bff79","agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f1edaf6fb88a3f4f73256faa6a1c60181f239cbc5e01436d07f90b282d6bff79","compiled_hash":"3a2d36dac042701eb595b578e79aec4a917b30b8bbfb2dbfb6aeb87bad29cdb6","agent_id":"claude"}
 
 name: "CLI Version Checker"
 "on":

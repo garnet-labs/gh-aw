@@ -22,7 +22,7 @@
 #
 # Monitors development workflow activities and provides real-time alerts and insights on pull requests and CI status
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"aa448b3fcead039b6003089c1039cb3d15ce90ec940704c2e34f745bc25cc03f","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"aa448b3fcead039b6003089c1039cb3d15ce90ec940704c2e34f745bc25cc03f","compiled_hash":"99c2d7317cad92b2c14ef4281ea7416e4663a5053fe5850b8a6353073b1fb9b6","strict":true,"agent_id":"copilot"}
 
 name: "Dev Hawk"
 "on":

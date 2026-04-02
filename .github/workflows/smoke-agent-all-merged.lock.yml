@@ -22,7 +22,7 @@
 #
 # Guard policy smoke test: repos=all, min-integrity=merged (most restrictive)
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bbd91d7cb3316403403189cfafb70b4578c3f66fcdd53247a3eeb1798d0f9da5","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bbd91d7cb3316403403189cfafb70b4578c3f66fcdd53247a3eeb1798d0f9da5","compiled_hash":"72e1dac7ce90d364670206b662b47d8476ff15f7828d5e83e26cb6e2d318f457","strict":true,"agent_id":"codex"}
 
 name: "Smoke Agent: all/merged"
 "on":

@@ -29,7 +29,7 @@
 #     - shared/jqschema.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f65ef56b469719c2d7f6f9a4107804e6b7a7dac6357fc3babf2bc73e52451d34","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"f65ef56b469719c2d7f6f9a4107804e6b7a7dac6357fc3babf2bc73e52451d34","compiled_hash":"d528f3d6758e5b8170f0b6b12c416ecb6ab7718a66db3f2f1824e2170fc3fb50","strict":true,"agent_id":"claude"}
 
 name: "Safe Output Health Monitor"
 "on":

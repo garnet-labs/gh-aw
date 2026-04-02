@@ -29,7 +29,7 @@
 #     - shared/repo-memory-standard.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bbbc63edf6c0be801dac5706aabf12206efa01b3f5cd87821b2218fd3389a683","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"bbbc63edf6c0be801dac5706aabf12206efa01b3f5cd87821b2218fd3389a683","compiled_hash":"e4cb380f12c5ecef77e23313458f598e89a5856d89eb188b2848caf4bf6efd63","strict":true,"agent_id":"copilot"}
 
 name: "Delight"
 "on":

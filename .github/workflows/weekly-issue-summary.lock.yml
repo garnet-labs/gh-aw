@@ -30,7 +30,7 @@
 #     - shared/reporting.md
 #     - shared/trends.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"864fb943fd3eb42fddcfbcdcf35799a93dd0938a7ec74d797bd422064ba97b6e","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"864fb943fd3eb42fddcfbcdcf35799a93dd0938a7ec74d797bd422064ba97b6e","compiled_hash":"9c318ba4700e117acdc081e49cb5a20b548384726fdfdc6a4b3e915596c66898","strict":true,"agent_id":"copilot"}
 
 name: "Weekly Issue Summary"
 "on":

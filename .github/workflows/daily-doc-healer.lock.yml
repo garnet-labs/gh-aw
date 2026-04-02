@@ -27,7 +27,7 @@
 #     - shared/qmd.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"21c1d84ca395bb35e23c479bfddfd547a485a544aeac3e0360a35f232fc0558c","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"21c1d84ca395bb35e23c479bfddfd547a485a544aeac3e0360a35f232fc0558c","compiled_hash":"e93e96952c6e93e5763d71a47166b1720b02d1fa6cc287e3aec767569c36cbe7","strict":true,"agent_id":"claude"}
 
 name: "Daily Documentation Healer"
 "on":

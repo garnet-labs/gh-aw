@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"56700867131a6ee6860f7cbb916c96782b4c656bfe5342b4be473da1c3eb0c82","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"56700867131a6ee6860f7cbb916c96782b4c656bfe5342b4be473da1c3eb0c82","compiled_hash":"f710b4f62ff6dd1d0cd42d1a1511ef2e6f103ee2b210b59a966c1a6529f659ca","strict":true,"agent_id":"copilot"}
 
 name: "Daily Malicious Code Scan Agent"
 "on":

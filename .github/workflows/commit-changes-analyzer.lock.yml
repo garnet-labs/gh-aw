@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4a29095b6ca7c901495d8242d934dc97c34547f19593886381bd2baa41502596","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4a29095b6ca7c901495d8242d934dc97c34547f19593886381bd2baa41502596","compiled_hash":"615131ce85eccd9548b6861bf33bb80022262056a95964cfa5e0c3466812305e","strict":true,"agent_id":"claude"}
 
 name: "Commit Changes Analyzer"
 "on":

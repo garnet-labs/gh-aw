@@ -22,7 +22,7 @@
 #
 # Daily workflow to update Astro and related npm packages in the docs folder, review migration guides, ensure the docs build, and create a pull request with changes
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"6b6e4fc6351d48419353b1289bbc19a82a2c8c0845cc3309d046a41f2187bf94","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"6b6e4fc6351d48419353b1289bbc19a82a2c8c0845cc3309d046a41f2187bf94","compiled_hash":"67c29ecd800232fe7a26310b64a465de8671017ec30a3f1949d29eee4f025e4c","strict":true,"agent_id":"copilot"}
 
 name: "Update Astro"
 "on":

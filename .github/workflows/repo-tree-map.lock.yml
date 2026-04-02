@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"3353c3598b8b70f6c9ad4b1b6d40b6ce12bc6a526a3d0323c46b8b7f71c9b16c","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"3353c3598b8b70f6c9ad4b1b6d40b6ce12bc6a526a3d0323c46b8b7f71c9b16c","compiled_hash":"49d3208c064c03e5048fb90dafd42b8b89c8631b8fb54bcbd853ebf0fc451500","strict":true,"agent_id":"copilot"}
 
 name: "Repository Tree Map Generator"
 "on":

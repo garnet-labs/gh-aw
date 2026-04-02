@@ -22,7 +22,7 @@
 #
 # Automatically merges the main branch into pull request branches when invoked with /mergefest command
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c981d37f11bc2c11773de35070124859129139ba95aff08624c563605165439f","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"c981d37f11bc2c11773de35070124859129139ba95aff08624c563605165439f","compiled_hash":"aed5e06af3c7b7a55d440a872426f4cfaba8e06ee08d42812fbe7e80557e4e6a","strict":true,"agent_id":"copilot"}
 
 name: "Mergefest"
 "on":

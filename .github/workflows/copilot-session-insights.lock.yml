@@ -33,7 +33,7 @@
 #     - shared/session-analysis-charts.md
 #     - shared/session-analysis-strategies.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"0666485352daa9af36a20e72735d662cc8c9ae8f7d0ede5ea33fc6df920980bd","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"0666485352daa9af36a20e72735d662cc8c9ae8f7d0ede5ea33fc6df920980bd","compiled_hash":"e68909f1e1d4cf3e30d048b721512de5b299c98d51b06155b7c1f8c9c91f1359","strict":true,"agent_id":"claude"}
 
 name: "Copilot Session Insights"
 "on":

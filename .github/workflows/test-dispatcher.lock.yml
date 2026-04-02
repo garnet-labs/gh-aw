@@ -21,7 +21,7 @@
 # For more information: https://github.github.com/gh-aw/introduction/overview/
 #
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4bd8c07c60ebeaf4e44c563129d014bb1e8565000ce66a6a74cea2bc733a6c70","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"4bd8c07c60ebeaf4e44c563129d014bb1e8565000ce66a6a74cea2bc733a6c70","compiled_hash":"08e08bc27d6f695442d0d40c6da6cfb93a1a4e16939d62ce8923461956f5f91f","strict":true,"agent_id":"copilot"}
 
 name: "Test Dispatcher Workflow"
 "on":

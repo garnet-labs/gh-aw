@@ -26,7 +26,7 @@
 #   Imports:
 #     - shared/mcp/brave.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b27bdb18dacbcbd2f7d40d0ca89db8dd0efb0f607bddc789f78e6394f596ca9f","strict":true,"agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"b27bdb18dacbcbd2f7d40d0ca89db8dd0efb0f607bddc789f78e6394f596ca9f","compiled_hash":"3e3e7271b87ae085bd2fff335831bac440236b42ece56b57dfc1a3ad77b4b3ed","strict":true,"agent_id":"copilot"}
 
 name: "Brave Web Search Agent"
 "on":

@@ -28,7 +28,7 @@
 #     - shared/jqschema.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cfd27d0b112875eb02b9e480c92921c5082580ec0c39cf08054dbf6fbe79d172","strict":true,"agent_id":"codex"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cfd27d0b112875eb02b9e480c92921c5082580ec0c39cf08054dbf6fbe79d172","compiled_hash":"25dafdc15be99ff8c4e1c26083de9b2573630ff47f6d412dfa16d8c1ae92ed8a","strict":true,"agent_id":"codex"}
 
 name: "Issue Arborist"
 "on":

@@ -22,7 +22,7 @@
 #
 # Example workflow demonstrating proper permission provisioning and security best practices
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cbc025e1319832edb0b85151db2c36cdde748e467faf1d0d20c646d33e8a0542","agent_id":"copilot"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"cbc025e1319832edb0b85151db2c36cdde748e467faf1d0d20c646d33e8a0542","compiled_hash":"92678a7b8f6705dd3483b2ff5fe85fad5932959b85127f844637be9621229513","agent_id":"copilot"}
 
 name: "Example: Properly Provisioned Permissions"
 "on":

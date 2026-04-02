@@ -29,7 +29,7 @@
 #     - shared/reporting.md
 #     - shared/go-source-analysis.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"61198277500b7cca0b2607a7663b884d3b5dcaedb767286e1449d0b4fe0fc785","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"61198277500b7cca0b2607a7663b884d3b5dcaedb767286e1449d0b4fe0fc785","compiled_hash":"98b78ddf7012091340cd830f6fc6df769478fb2f2257ba1769dd66b849c48d40","strict":true,"agent_id":"claude"}
 
 name: "Semantic Function Refactoring"
 "on":

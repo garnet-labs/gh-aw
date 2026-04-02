@@ -29,7 +29,7 @@
 #     - shared/mcp/serena.md
 #     - shared/reporting.md
 #
-# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1fe020449c197612d61cfc4de732359c56421e4e1d07d9798844bf6398acf1cb","strict":true,"agent_id":"claude"}
+# gh-aw-metadata: {"schema_version":"v3","frontmatter_hash":"1fe020449c197612d61cfc4de732359c56421e4e1d07d9798844bf6398acf1cb","compiled_hash":"8b81e437845b003c780bce58e2fd1fe00fc36d3707085d154ff59d52040f4bad","strict":true,"agent_id":"claude"}
 
 name: "Typist - Go Type Analysis"
 "on":

@@ -33,6 +33,7 @@ const (
 type LockMetadata struct {
 	SchemaVersion       LockSchemaVersion `json:"schema_version"`
 	FrontmatterHash     string            `json:"frontmatter_hash,omitempty"`
+	CompiledHash        string            `json:"compiled_hash,omitempty"`
 	StopTime            string            `json:"stop_time,omitempty"`
 	CompilerVersion     string            `json:"compiler_version,omitempty"`
 	Strict              bool              `json:"strict,omitempty"`
