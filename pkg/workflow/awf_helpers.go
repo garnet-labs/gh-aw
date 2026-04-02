@@ -110,16 +110,40 @@ func BuildAWFCommand(config AWFCommandConfig) string {
 	// Wrap engine command in shell (command already includes any internal setup like npm PATH)
 	shellWrappedCommand := WrapCommandInShell(config.EngineCommand)
 
-	// Build the complete command with proper formatting
+	// Build the complete command with proper formatting.
+	//
+	// Signal propagation: the original `cmd 2>&1 | tee -a logfile` pipeline
+	// breaks SIGTERM delivery when GitHub Actions enforces timeout-minutes.
+	// The runner sends SIGTERM to the shell, but tee does not forward it
+	// upstream to awf, and sudo may also intercept the signal before awf
+	// receives it. The fix uses two techniques together:
+	//
+	//   1. Process substitution (> >(tee -a)) instead of a pipe so that awf
+	//      is the foreground process and its PID can be captured.
+	//   2. An explicit SIGTERM/SIGINT trap that kills the captured AWF PID,
+	//      ensuring the signal reaches awf even when sudo intercepts it.
+	//
+	// Reference: github/gh-aw#23965
+	const awfSignalTrap = `# Signal forwarding: capture AWF PID to relay SIGTERM/SIGINT on timeout.
+# Without this, the pipe (| tee) and sudo intercept the signal before awf
+# receives it, so GitHub Actions timeout-minutes is not enforced.
+_awf_pid=""
+_awf_terminate() { [ -n "$_awf_pid" ] && kill -TERM "$_awf_pid" 2>/dev/null || true; }
+trap '_awf_terminate' TERM INT`
+
 	var command string
 	if config.PathSetup != "" {
 		// Include path setup before AWF command (runs on host before AWF)
 		command = fmt.Sprintf(`set -o pipefail
 %s
+%s
 # shellcheck disable=SC1003
 %s %s %s \
-  -- %s 2>&1 | tee -a %s`,
+  -- %s > >(tee -a %s) 2>&1 &
+_awf_pid=$!
+wait "$_awf_pid"`,
 			config.PathSetup,
+			awfSignalTrap,
 			awfCommand,
 			expandableArgs,
 			shellJoinArgs(awfArgs),
@@ -127,9 +151,13 @@ func BuildAWFCommand(config AWFCommandConfig) string {
 			shellEscapeArg(config.LogFile))
 	} else {
 		command = fmt.Sprintf(`set -o pipefail
+%s
 # shellcheck disable=SC1003
 %s %s %s \
-  -- %s 2>&1 | tee -a %s`,
+  -- %s > >(tee -a %s) 2>&1 &
+_awf_pid=$!
+wait "$_awf_pid"`,
+			awfSignalTrap,
 			awfCommand,
 			expandableArgs,
 			shellJoinArgs(awfArgs),
