@@ -23,7 +23,6 @@ func TestGeminiEngine(t *testing.T) {
 	t.Run("capabilities", func(t *testing.T) {
 		assert.True(t, engine.SupportsToolsAllowlist(), "Should support tools allowlist")
 		assert.False(t, engine.SupportsMaxTurns(), "Should not support max turns")
-		assert.False(t, engine.SupportsWebFetch(), "Should not support built-in web fetch")
 		assert.False(t, engine.SupportsWebSearch(), "Should not support built-in web search")
 	})
 
@@ -524,6 +523,30 @@ func TestGenerateGeminiSettingsStep(t *testing.T) {
 
 		// The JSON value must be single-quoted so YAML doesn't treat it as an object
 		assert.Contains(t, content, "GH_AW_GEMINI_BASE_CONFIG: '", "JSON env var value must be single-quoted for valid YAML")
+	})
+
+	t.Run("step includes web_fetch in tools.core when web-fetch tool is specified", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			Tools: map[string]any{
+				"web-fetch": nil,
+			},
+		}
+		step := engine.generateGeminiSettingsStep(workflowData)
+		content := strings.Join(step, "\n")
+
+		assert.Contains(t, content, "web_fetch", "Should include web_fetch in tools.core when web-fetch is specified")
+	})
+
+	t.Run("step does not include web_fetch in tools.core when web-fetch tool is not specified", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name:  "test-workflow",
+			Tools: map[string]any{},
+		}
+		step := engine.generateGeminiSettingsStep(workflowData)
+		content := strings.Join(step, "\n")
+
+		assert.NotContains(t, content, "web_fetch", "Should not include web_fetch in tools.core when web-fetch is not specified")
 	})
 }
 
