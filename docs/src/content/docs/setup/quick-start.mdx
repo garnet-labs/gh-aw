@@ -69,6 +69,25 @@ This will take you through an interactive process to:
 4. **Add the workflow** - Adds the workflow and lock file to `.github/workflows/`.
 5. **Optionally trigger an initial run** - Starts the workflow immediately.
 
+Here is an example of what the wizard looks like:
+
+```text wrap
+✔ Checking repository permissions... done
+✔ Select an AI engine › Copilot
+✔ Set up COPILOT_GITHUB_TOKEN secret?  › Yes
+ℹ To use Copilot as your AI engine you need to add a secret named COPILOT_GITHUB_TOKEN
+  with a GitHub Personal Access Token (PAT) that has the Copilot permission enabled.
+  See https://github.github.com/gh-aw/reference/auth/#copilot_github_token for details.
+✔ Enter your GitHub PAT › ********
+✔ Secret COPILOT_GITHUB_TOKEN added successfully
+✔ Adding workflow daily-repo-status... done
+✔ Trigger an initial run now? › Yes
+✔ Workflow dispatched — check progress at https://github.com/owner/repo/actions
+```
+
+> [!NOTE]
+> **About `COPILOT_GITHUB_TOKEN`**: This is a GitHub Personal Access Token (PAT) that you create, distinct from the automatic `GITHUB_TOKEN` that GitHub Actions provides. It authenticates the Copilot CLI agent running inside the workflow. See [Authentication](/gh-aw/reference/auth/#copilot_github_token) for setup instructions, including which PAT permissions to grant. A paid GitHub Copilot subscription (Individual, Business, or Enterprise) is required to use this engine.
+
 > [!TIP]
 > **Having trouble?** Check your [repository secrets](/gh-aw/reference/auth/), see the [FAQ](/gh-aw/reference/faq/) and [Common Issues](/gh-aw/troubleshooting/common-issues/).
 
@@ -100,7 +119,7 @@ To customize it now:
 
 2. Edit the section "What to include" to list things you are having trouble with regularly in your repository: your issue blacklog, your CI setup, your testing, the performance of your software, your roadmap. Any or all of these, or anything else you want to improve. You can also customize the style and process sections to guide the coding agent's behavior.
 
-3. If you have changed the frontmatter, regenerate the workflow YAML from the frontmatter of your workflow by running:
+3. If you have changed the [frontmatter](/gh-aw/reference/frontmatter/) (the YAML block between `---` delimiters at the top of the file), regenerate the workflow YAML by running:
 
    ```text
    gh aw compile
@@ -118,7 +137,7 @@ After waiting for the workflow to complete, check the new issue created with you
 
 ## What's next?
 
-There are hundreds of other ways to use GitHub Agentic Workflows! Explore some of these in [Peli's Agent Factory](https://github.github.com/gh-aw/blog/2026-01-12-welcome-to-pelis-agent-factory/).
+There are hundreds of other ways to use GitHub Agentic Workflows! Browse [Examples](/gh-aw/examples/) and explore the [Agent Factory](/gh-aw/agent-factory-status/) for community-built workflows.
 
 Continue learning with these resources:
 

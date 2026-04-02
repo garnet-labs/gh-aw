@@ -347,6 +347,18 @@ export default defineConfig({
 					label: 'Troubleshooting',
 					autogenerate: { directory: 'troubleshooting' },
 				},
+				{
+					label: 'Examples',
+					items: [
+						{ label: 'Overview', link: '/examples/' },
+						{ label: 'Issue & PR Events', link: '/examples/issue-pr-events/' },
+						{ label: 'Scheduled', link: '/examples/scheduled/' },
+						{ label: 'Comment-Triggered', link: '/examples/comment-triggered/' },
+						{ label: 'Manual', link: '/examples/manual/' },
+						{ label: 'Project Tracking', link: '/examples/project-tracking/' },
+						{ label: 'Multi-Repository', link: '/examples/multi-repo/' },
+					],
+				},
 				{ label: 'Agent Factory', link: '/agent-factory-status/' },
 				{ label: 'Editors', link: '/reference/editors/' },
 			],
