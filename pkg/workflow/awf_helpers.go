@@ -116,19 +116,28 @@ func BuildAWFCommand(config AWFCommandConfig) string {
 	// breaks SIGTERM delivery when GitHub Actions enforces timeout-minutes.
 	// The runner sends SIGTERM to the shell, but tee does not forward it
 	// upstream to awf, and sudo may also intercept the signal before awf
-	// receives it. The fix uses two techniques together:
+	// receives it. The fix uses three techniques together:
 	//
-	//   1. Process substitution (> >(tee -a)) instead of a pipe so that awf
-	//      is the foreground process and its PID can be captured.
-	//   2. An explicit SIGTERM/SIGINT trap that kills the captured AWF PID,
-	//      ensuring the signal reaches awf even when sudo intercepts it.
+	//   1. A named pipe (FIFO) replaces the shell pipe so that awf is not
+	//      bound into a pipeline — its PID is captured independently via $!.
+	//   2. An explicit SIGTERM/SIGINT trap sends the signal to the entire
+	//      process group (kill -TERM -- -$_awf_pid), ensuring it reaches awf
+	//      even when sudo intercepts the initial delivery.
+	//   3. Both awf and tee are waited on independently so that a tee failure
+	//      (e.g. disk full) is still detected and fails the step.
 	//
 	// Reference: github/gh-aw#23965
 	const awfSignalTrap = `# Signal forwarding: capture AWF PID to relay SIGTERM/SIGINT on timeout.
 # Without this, the pipe (| tee) and sudo intercept the signal before awf
 # receives it, so GitHub Actions timeout-minutes is not enforced.
-_awf_pid=""
-_awf_terminate() { [ -n "$_awf_pid" ] && kill -TERM "$_awf_pid" 2>/dev/null || true; }
+# kill -TERM -- -$pid sends to the whole process group, reaching awf even
+# when sudo does not forward the signal.
+_awf_log=$(mktemp -u)
+mkfifo "$_awf_log"
+_awf_pid="" _awf_tee_pid=""
+_awf_terminate() {
+  [ -n "$_awf_pid" ] && kill -TERM -- -"$_awf_pid" 2>/dev/null || true
+}
 trap '_awf_terminate' TERM INT`
 
 	var command string
@@ -137,32 +146,42 @@ trap '_awf_terminate' TERM INT`
 		command = fmt.Sprintf(`set -o pipefail
 %s
 %s
+tee -a %s < "$_awf_log" &
+_awf_tee_pid=$!
 # shellcheck disable=SC1003
 %s %s %s \
-  -- %s > >(tee -a %s) 2>&1 &
+  -- %s > "$_awf_log" 2>&1 &
 _awf_pid=$!
-wait "$_awf_pid"`,
+wait "$_awf_pid"; _awf_exit=$?
+wait "$_awf_tee_pid"
+rm -f "$_awf_log"
+exit "$_awf_exit"`,
 			config.PathSetup,
 			awfSignalTrap,
+			shellEscapeArg(config.LogFile),
 			awfCommand,
 			expandableArgs,
 			shellJoinArgs(awfArgs),
-			shellWrappedCommand,
-			shellEscapeArg(config.LogFile))
+			shellWrappedCommand)
 	} else {
 		command = fmt.Sprintf(`set -o pipefail
 %s
+tee -a %s < "$_awf_log" &
+_awf_tee_pid=$!
 # shellcheck disable=SC1003
 %s %s %s \
-  -- %s > >(tee -a %s) 2>&1 &
+  -- %s > "$_awf_log" 2>&1 &
 _awf_pid=$!
-wait "$_awf_pid"`,
+wait "$_awf_pid"; _awf_exit=$?
+wait "$_awf_tee_pid"
+rm -f "$_awf_log"
+exit "$_awf_exit"`,
 			awfSignalTrap,
+			shellEscapeArg(config.LogFile),
 			awfCommand,
 			expandableArgs,
 			shellJoinArgs(awfArgs),
-			shellWrappedCommand,
-			shellEscapeArg(config.LogFile))
+			shellWrappedCommand)
 	}
 
 	awfHelpersLog.Print("Successfully built AWF command")
