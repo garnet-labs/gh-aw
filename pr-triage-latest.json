@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-01T18:15:52Z",
-  "run_id": "23863767275",
+  "run_date": "2026-04-02T00:12:58Z",
+  "run_id": "23877125914",
   "fork_prs": 0,
-  "agent_prs_found": 8,
-  "agent_prs_excluded": 8,
-  "notes": "8 open Copilot PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. Notable: 7 new security-focused PRs created today (#23928-#23934). Previous batch (#23879, #23878, #23876, #23870, #23869, #23868, #23863) appear closed/merged since last run.",
+  "agent_prs_found": 6,
+  "agent_prs_excluded": 6,
+  "notes": "6 open Copilot PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. All are security-focused draft PRs (#23928-#23933) plus #23695 (Gemini fix with lgtm/awf labels).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,17 +17,6 @@
     "by_action": {}
   },
   "prs_examined": [
-    {
-      "number": 23934,
-      "title": "fix: address 4 security findings — env.* expression blocklist, protocol-relative",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-01T16:41:44Z",
-      "category_hint": "security/bug"
-    },
     {
       "number": 23933,
       "title": "Enforce MCP gateway tool allowlist at the gateway layer and restrict config file",
@@ -73,24 +62,13 @@
       "category_hint": "security/bug"
     },
     {
-      "number": 23929,
-      "title": "fix(security): clear .git/hooks/ and disable hooksPath in cache-memory git setup",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-01T16:30:36Z",
-      "category_hint": "security/bug"
-    },
-    {
       "number": 23928,
       "title": "security: scope safe-outputs write-sink to a distinct bearer token",
       "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
+      "labels": ["smoke"],
       "created_at": "2026-04-01T16:30:20Z",
       "category_hint": "security/feature"
     },
@@ -105,14 +83,5 @@
       "created_at": "2026-03-31T12:26:03Z",
       "category_hint": "bug"
     }
-  ],
-  "closed_since_last_run": [
-    {"number": 23879, "title": "bump: gh-aw-firewall v0.25.6, gh-aw-mcpg v0.2.11"},
-    {"number": 23878, "title": "Remove noisy negative-result messages from compile output"},
-    {"number": 23876, "title": "fix: update_cache_memory must not run if agent job failed"},
-    {"number": 23870, "title": "[WIP] Allow engine.version to accept GitHub Actions expressions"},
-    {"number": 23869, "title": "[WIP] Parameterize tools config fields to accept expressions"},
-    {"number": 23868, "title": "Improve test quality: pkg/parser/frontmatter_utils_test.go"},
-    {"number": 23863, "title": "feat: allow `timeout-minutes` to accept GitHub Actions expressions"}
   ]
 }
