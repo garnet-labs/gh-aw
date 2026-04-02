@@ -1,17 +1,14 @@
-# Agent Performance - 2026-04-01
-Run: §23832128816 | Q:76↓3 E:73→ H:73→
+# Agent Performance - 2026-04-02
+Run: §23883959022 | Q:75↓1 E:73→ H:74→
 
-Top: Issue Monster, AI Moderator, Agent Container Smoke Test, Smoke Copilot, Release
-Watch: Smoke Claude (persistent safe_outputs timeout at 412s; agent succeeds 16/18 tests but workflow fails; $1.14-1.61/run x2 today)
-Watch: Changeset Generator (agent job failure today, 0 turns — likely OpenAI API issue)
-P1 (ongoing): Smoke Codex (API restriction), Smoke Update/Create Cross-Repo PR (push_repo_memory bug)
-P2: Agent Persona Explorer (0 turns on Apr 1 schedule run, down from 55 turns)
+Top: Documentation Unbloat, CLI Version Checker, Issue Monster, Release, Auto-Triage
+Recovered: Agent Persona Explorer, PR Triage Agent (9 successes - close #23151)
 
-New finding: Smoke Claude failure mode = MCP connection timeout after 412s (agent runs 12min+). Agent completes successfully (PARTIAL 16/18) but safe_outputs fails. Root cause in session_analysis: HTTP connection closed after 412s. Existing issues: #23528, #23067.
+Watch NEW: Smoke Multi PR run #604 — 89 turns/12.3min (norm: 2–4t). resource_heavy+partially_reducible (96% data-gathering). Monitor next run; add turn budget.
+Watch: Schema Consistency Checker — model_downgrade_available (4/5 runs); run #206 resource_heavy (108t,$1.73). Try smaller model.
+Off Watch: CLI Version Checker (cost normalized $0.79→$0.59).
 
-Documentation Unbloat: Recovered ✅ (44 turns, $1.85, success Apr 1)
-CLI Version Checker: Succeeding but cost $0.79 today (21 turns vs 2 turns last week) — investigate if expected.
+P1: Smoke Claude — 5/5 fail, MCP 412s timeout, ~$10-15/week. #23528 #23067
+P1: Smoke Create/Update Cross-Repo PR — push_repo_memory bug. #23193 #23715
 
-Systemic: resource_heavy on 7/10 agentic runs. partially_reducible pattern on heavy runs = opportunity to shift data-gathering to deterministic steps.
-
-Stats: 178 wf, ~25 agentic runs analyzed past 7d
+Stats: 179 wf, 32 agentic runs (7d). Claude: 8 runs $5.64. Copilot: 24 runs $0.
