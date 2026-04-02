@@ -56,6 +56,80 @@
       "avg_body_words_closed": 828,
       "conventional_commit_success_rate": 89.0,
       "non_conventional_commit_success_rate": 78.0
+    },
+    {
+      "date": "2026-04-02",
+      "total_prs": 1000,
+      "merged": 823,
+      "closed": 174,
+      "open": 3,
+      "success_rate": 82.5,
+      "prompt_patterns": {
+        "feature": {
+          "total": 745,
+          "merged": 611,
+          "closed": 131,
+          "rate": 82.3
+        },
+        "tests": {
+          "total": 711,
+          "merged": 586,
+          "closed": 122,
+          "rate": 82.8
+        },
+        "bug_fix": {
+          "total": 771,
+          "merged": 637,
+          "closed": 132,
+          "rate": 82.8
+        },
+        "docs": {
+          "total": 649,
+          "merged": 540,
+          "closed": 109,
+          "rate": 83.2
+        },
+        "update": {
+          "total": 357,
+          "merged": 280,
+          "closed": 77,
+          "rate": 78.4
+        },
+        "refactor": {
+          "total": 234,
+          "merged": 198,
+          "closed": 36,
+          "rate": 84.6
+        }
+      },
+      "successful_keywords": [
+        "fix",
+        "perf",
+        "ci",
+        "docs",
+        "refactor",
+        "conventional_commit_style"
+      ],
+      "unsuccessful_keywords": [
+        "WIP",
+        "update"
+      ],
+      "avg_body_words_merged": 1429,
+      "avg_body_words_closed": 1368,
+      "wip_success_rate": 15.5,
+      "non_wip_success_rate": 86.7,
+      "conventional_commit_success_rate": 89.0,
+      "non_conventional_commit_success_rate": 75.7,
+      "prefix_stats": {
+        "perf": 100.0,
+        "ci": 100.0,
+        "docs": 93.8,
+        "fix": 89.6,
+        "refactor": 87.8,
+        "chore": 85.7,
+        "feat": 83.7,
+        "none": 75.7
+      }
     }
   ]
 }
