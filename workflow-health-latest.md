@@ -1,36 +1,44 @@
-# Workflow Health - 2026-04-01T12:07Z
+# Workflow Health - 2026-04-02T12:05Z
 
-Score: 74/100 (↑1 from 73). 179 workflows total. Run: §23847695461
+Score: 75/100 (↑1 from 74). 179 workflows total. Run: §23899445141
 
-## ✅ Recovered This Run
-- **PR Triage Agent** (#23151 still open, needs manual close): Runs #308-313 all SUCCESS. 9 consecutive successes. Fully recovered.
+## 🆕 New P1 This Run
+- **Smoke Multi PR**: 5/5 schedule runs failing (Mar 29 – Apr 2). Error: `add_comment` safe output with `target: triggering` fails on schedule runs (no issue/PR context). Issue created #aw_smkMulti01. Root: status-comment: true on schedule triggers.
 
-## P1 Issues (Ongoing)
-- **Smoke Update Cross-Repo PR** (#23193, open): Run #477 failed 2026-04-01T01:07Z. Runs #418-477 ALL failing. Root: push_repo_memory git branch bug.
-- **Smoke Create Cross-Repo PR** (#23715, open): Run #477 failed 2026-04-01T01:08Z. Same root cause. Issue #23715 (auto-created).
+## P1 Issues (Active)
+- **Smoke Multi PR** (NEW): safe_outputs fails on schedule. See issue created this run.
 
 ## P2 (Team decided "not_planned")
+- **Smoke Update Cross-Repo PR** (#23193 closed not_planned): Still failing schedule. Root: push_repo_memory git branch bug.
+- **Smoke Create Cross-Repo PR** (#23715 closed not_planned): Still failing schedule. Same root cause.
 - **Smoke Codex** (#23431 closed): API restriction. Still failing.
 - **Smoke Gemini** (#23399 closed): Exit code 41. Still failing.
 
 ## Watch
-- **Smoke Claude** (#23528, #23067 open): PR-triggered runs #2606-#2607 failed today. Schedule #2605 succeeded. MCP timeout at 412s. ~$15-22/week wasted.
+- **Smoke Claude** (#23528, #23067 open): Schedule run #2613 (Apr 2) SUCCESS. #2611 (Apr 1) failed. ~25-30% failure rate. MCP 412s timeout intermittent. ~$10-15/week cost.
+- **Schema Consistency Checker**: APR noted model_downgrade_available 4/5 runs.
 
-## Stale Lock Files (22)
-bot-detection, commit-changes-analyzer, copilot-pr-merged-report, daily-cli-performance, daily-compiler-quality, daily-file-diet, daily-malicious-code-scan, daily-observability-report, daily-security-red-team, dependabot-go-checker, discussion-task-miner, github-mcp-tools-report, go-pattern-detector, jsweep, mergefest, refiner, repository-quality-improver, scout, smoke-agent-all-none, smoke-multi-pr, weekly-issue-summary, workflow-skill-extractor
+## Stale Lock Files (10)
+commit-changes-analyzer, copilot-pr-nlp-analysis, daily-mcp-concurrency-analysis, daily-rendering-scripts-verifier, developer-docs-consolidator, github-mcp-tools-report, issue-monster, plan, security-compliance, weekly-issue-summary
+
+## Recovered This Run
+(No new recoveries)
+
+## Previously Recovered
+- PR Triage Agent: Close #23151 manually (9+ successes)
 
 ## Actions Taken This Run
-- Created WHM Dashboard issue (#aw_whmDash01) for 2026-04-01
-- Commented on #23193 (Smoke Update run #477 still failing)
-- Commented on #23715 (Smoke Create run #477 still failing)
-- Commented on #23151 (PR Triage fully recovered, 9 successes, please close)
+- Created WHM Dashboard issue for 2026-04-02 (#aw_whmDash02)
+- Created Smoke Multi PR P1 issue (#aw_smkMulti01)
+- Commented on #23881 (previous dashboard) with update summary
 
-## Systemic Bugs
-1. **push_repo_memory → Post Setup Scripts**: Affects Smoke Update + Smoke Create cross-repo PR. Issues: #23193, #23715. 2+ weeks unresolved.
-2. **Smoke Claude MCP timeout**: HTTP connection closes at 412s. ~$15-22/week wasted.
-3. **Codex/Gemini API access**: External APIs restricted. Team closed as not_planned.
+## Systemic Issues
+1. **status-comment on schedule**: Smoke Multi PR fails because add_comment target:triggering fails hard on schedule runs. May affect other workflows.
+2. **push_repo_memory → Post Setup Scripts**: Smoke Update + Create cross-repo PR. Team decided not_planned.
+3. **Smoke Claude MCP timeout**: HTTP closes at 412s. ~$10-15/week. #23528 #23067.
+4. **Codex/Gemini API access**: External APIs restricted. Team closed as not_planned.
 
 ## Run Info
-- Timestamp: 2026-04-01T12:07Z
-- Run: §23847695461
-- Score: 73→74 (↑1)
+- Timestamp: 2026-04-02T12:05Z
+- Run: §23899445141
+- Score: 74→75 (↑1)
