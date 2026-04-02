@@ -3,6 +3,7 @@
 package workflow
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -125,8 +126,61 @@ func TestParseFrontmatterConfig(t *testing.T) {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		if config.TimeoutMinutes != 60 {
-			t.Errorf("TimeoutMinutes = %d, want 60", config.TimeoutMinutes)
+		if config.TimeoutMinutes == nil {
+			t.Fatal("TimeoutMinutes should not be nil")
+		}
+		if config.TimeoutMinutes.IntValue() != 60 {
+			t.Errorf("TimeoutMinutes.IntValue() = %d, want 60", config.TimeoutMinutes.IntValue())
+		}
+		if config.TimeoutMinutes.IsExpression() {
+			t.Error("TimeoutMinutes.IsExpression() should be false for an integer literal")
+		}
+	})
+
+	t.Run("handles timeout-minutes as expression string", func(t *testing.T) {
+		frontmatter := map[string]any{
+			"timeout-minutes": "${{ inputs.timeout }}",
+		}
+
+		config, err := ParseFrontmatterConfig(frontmatter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if config.TimeoutMinutes == nil {
+			t.Fatal("TimeoutMinutes should not be nil")
+		}
+		if config.TimeoutMinutes.String() != "${{ inputs.timeout }}" {
+			t.Errorf("TimeoutMinutes.String() = %q, want %q", config.TimeoutMinutes.String(), "${{ inputs.timeout }}")
+		}
+		if !config.TimeoutMinutes.IsExpression() {
+			t.Error("TimeoutMinutes.IsExpression() should be true for an expression")
+		}
+	})
+
+	t.Run("rejects timeout-minutes as float", func(t *testing.T) {
+		frontmatter := map[string]any{
+			"timeout-minutes": 5.5,
+		}
+
+		_, err := ParseFrontmatterConfig(frontmatter)
+		if err == nil {
+			t.Error("expected error for float timeout-minutes, got nil")
+		}
+	})
+
+	t.Run("rejects timeout-minutes as free-form string", func(t *testing.T) {
+		frontmatter := map[string]any{
+			"timeout-minutes": "not-an-expression",
+		}
+
+		_, err := ParseFrontmatterConfig(frontmatter)
+		if err == nil {
+			t.Error("expected error for non-expression string timeout-minutes, got nil")
+			return
+		}
+		if !strings.Contains(err.Error(), "timeout-minutes") {
+			t.Errorf("error message should mention 'timeout-minutes', got: %v", err)
 		}
 	})
 
@@ -448,6 +502,25 @@ func TestFrontmatterConfigBackwardCompatibility(t *testing.T) {
 		}
 		if reconstructed["env"] == nil {
 			t.Error("env should not be nil")
+		}
+	})
+
+	t.Run("round-trip preserves timeout-minutes expression", func(t *testing.T) {
+		frontmatter := map[string]any{
+			"name":            "test-workflow",
+			"engine":          "copilot",
+			"timeout-minutes": "${{ inputs.timeout }}",
+		}
+
+		config, err := ParseFrontmatterConfig(frontmatter)
+		if err != nil {
+			t.Fatalf("parse error: %v", err)
+		}
+
+		reconstructed := config.ToMap()
+
+		if reconstructed["timeout-minutes"] != "${{ inputs.timeout }}" {
+			t.Errorf("timeout-minutes expression mismatch: got %v (%T)", reconstructed["timeout-minutes"], reconstructed["timeout-minutes"])
 		}
 	})
 

@@ -14,6 +14,7 @@ import (
 	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/fileutil"
+	"github.com/github/gh-aw/pkg/gitutil"
 	"github.com/github/gh-aw/pkg/logger"
 	"github.com/github/gh-aw/pkg/parser"
 	"github.com/github/gh-aw/pkg/workflow"
@@ -27,7 +28,7 @@ var auditLog = logger.New("cli:audit")
 func NewAuditCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "audit <run-id-or-url>",
-		Short: "Audit a workflow run given a run ID or URL and generate a detailed report",
+		Short: "Audit a workflow run and generate a detailed report",
 		Long: `Audit a single workflow run by downloading artifacts and logs, detecting errors,
 analyzing MCP tool usage, and generating a concise Markdown report suitable for AI agents.
 
@@ -326,6 +327,17 @@ func AuditWorkflowRun(ctx context.Context, runID int64, owner, repo, hostname st
 		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Failed to analyze firewall logs: %v", err)))
 	}
 
+	// Supplement firewall analysis with blocked domains extracted directly from
+	// agent-stdio.log (e.g., Codex CLI emits "--allow-domains <domain>" warnings
+	// when the sandbox firewall denies a network request).
+	if agentLogFirewall := extractFirewallFromAgentLog(runOutputDir, verbose); agentLogFirewall != nil {
+		if firewallAnalysis == nil {
+			firewallAnalysis = agentLogFirewall
+		} else {
+			firewallAnalysis.AddMetrics(agentLogFirewall)
+		}
+	}
+
 	// Analyze firewall policy artifacts if available (policy-manifest.json + audit.jsonl)
 	policyAnalysis, err := analyzeFirewallPolicy(runOutputDir, verbose)
 	if err != nil && verbose {
@@ -342,6 +354,12 @@ func AuditWorkflowRun(ctx context.Context, runID int64, owner, repo, hostname st
 	mcpToolUsage, err := extractMCPToolUsageData(runOutputDir, verbose)
 	if err != nil && verbose {
 		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Failed to extract MCP tool usage: %v", err)))
+	}
+
+	// Analyze token usage from firewall proxy logs
+	tokenUsageSummary, err := analyzeTokenUsage(runOutputDir, verbose)
+	if err != nil && verbose {
+		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Failed to analyze token usage: %v", err)))
 	}
 
 	// List all artifacts
@@ -363,6 +381,7 @@ func AuditWorkflowRun(ctx context.Context, runID int64, owner, repo, hostname st
 		MissingData:             missingData,
 		Noops:                   noops,
 		MCPFailures:             mcpFailures,
+		TokenUsage:              tokenUsageSummary,
 		JobDetails:              jobDetails,
 	}
 	awContext, _, _, taskDomain, behaviorFingerprint, agenticAssessments := deriveRunAgenticAnalysis(processedRun, metrics)
@@ -449,6 +468,7 @@ func AuditWorkflowRun(ctx context.Context, runID int64, owner, repo, hostname st
 		Noops:                   noops,
 		MCPFailures:             mcpFailures,
 		MCPToolUsage:            mcpToolUsage,
+		TokenUsage:              tokenUsageSummary,
 		ArtifactsList:           artifacts,
 		JobDetails:              jobDetails,
 	}
@@ -727,7 +747,7 @@ func resolveWorkflowDisplayName(workflowPath, owner, repo, hostname string) stri
 	// Try local file first.  workflowPath is a repo-relative path like
 	// ".github/workflows/foo.lock.yml", so we resolve it against the git root to
 	// produce a correct absolute path regardless of the current working directory.
-	if gitRoot, err := findGitRoot(); err == nil {
+	if gitRoot, err := gitutil.FindGitRoot(); err == nil {
 		absPath := filepath.Join(gitRoot, workflowPath)
 		if content, err := os.ReadFile(absPath); err == nil {
 			if name := extractWorkflowNameFromYAML(content); name != "" {

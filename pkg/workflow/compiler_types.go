@@ -416,8 +416,8 @@ type WorkflowData struct {
 	RepoMemoryConfig            *RepoMemoryConfig         // parsed repo-memory configuration
 	QmdConfig                   *QmdToolConfig            // parsed qmd tool configuration (docs globs)
 	Runtimes                    map[string]any            // runtime version overrides from frontmatter
-	ToolsTimeout                int                       // timeout in seconds for tool/MCP operations (0 = use engine default)
-	ToolsStartupTimeout         int                       // timeout in seconds for MCP server startup (0 = use engine default)
+	ToolsTimeout                string                    // timeout for tool/MCP operations: numeric string (seconds) or GitHub Actions expression (empty = use engine default)
+	ToolsStartupTimeout         string                    // timeout for MCP server startup: numeric string (seconds) or GitHub Actions expression (empty = use engine default)
 	Features                    map[string]any            // feature flags and configuration options from frontmatter (supports bool and string values)
 	ActionCache                 *ActionCache              // cache for action pin resolutions
 	ActionResolver              *ActionResolver           // resolver for action pins
@@ -435,7 +435,9 @@ type WorkflowData struct {
 	ConcurrencyJobDiscriminator string                    // optional discriminator expression appended to job-level concurrency groups (from concurrency.job-discriminator)
 	IsDetectionRun              bool                      // true when this WorkflowData is used for inline threat detection (not the main agent run)
 	UpdateCheckDisabled         bool                      // true when check-for-updates: false is set in frontmatter (disables version check step in activation job)
+	StaleCheckDisabled          bool                      // true when on.stale-check: false is set in frontmatter (disables frontmatter hash check step in activation job)
 	EngineConfigSteps           []map[string]any          // steps returned by engine.RenderConfig — prepended before execution steps
+	ServicePortExpressions      string                    // comma-separated ${{ job.services['<id>'].ports['<port>'] }} expressions for AWF --allow-host-service-ports
 }
 
 // BaseSafeOutputConfig holds common configuration fields for all safe output types

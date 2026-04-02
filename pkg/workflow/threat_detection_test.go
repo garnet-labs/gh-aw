@@ -153,96 +153,6 @@ func TestParseThreatDetectionConfig(t *testing.T) {
 	}
 }
 
-func TestBuildInlineDetectionSteps(t *testing.T) {
-	compiler := NewCompiler()
-
-	tests := []struct {
-		name        string
-		data        *WorkflowData
-		expectNil   bool
-		expectSteps bool
-	}{
-		{
-			name: "threat detection disabled (nil) should return nil",
-			data: &WorkflowData{
-				SafeOutputs: &SafeOutputsConfig{
-					ThreatDetection: nil,
-				},
-			},
-			expectNil:   true,
-			expectSteps: false,
-		},
-		{
-			name: "threat detection enabled should create inline steps",
-			data: &WorkflowData{
-				RunsOn: "runs-on: ubuntu-latest",
-				SafeOutputs: &SafeOutputsConfig{
-					ThreatDetection: &ThreatDetectionConfig{},
-				},
-			},
-			expectNil:   false,
-			expectSteps: true,
-		},
-		{
-			name: "threat detection with custom steps should create inline steps",
-			data: &WorkflowData{
-				RunsOn: "runs-on: ubuntu-latest",
-				SafeOutputs: &SafeOutputsConfig{
-					ThreatDetection: &ThreatDetectionConfig{
-						Steps: []any{
-							map[string]any{
-								"name": "Custom step",
-								"run":  "echo 'custom validation'",
-							},
-						},
-					},
-				},
-			},
-			expectNil:   false,
-			expectSteps: true,
-		},
-		{
-			name: "nil safe outputs should return nil",
-			data: &WorkflowData{
-				SafeOutputs: nil,
-			},
-			expectNil:   true,
-			expectSteps: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			steps := compiler.buildInlineDetectionSteps(tt.data)
-
-			if tt.expectNil && steps != nil {
-				t.Errorf("Expected nil steps, got %d lines", len(steps))
-			}
-			if !tt.expectNil && steps == nil {
-				t.Errorf("Expected non-nil steps, got nil")
-			}
-
-			if tt.expectSteps {
-				joined := strings.Join(steps, "")
-				// Verify key detection step components
-				if !strings.Contains(joined, "detection_guard") {
-					t.Error("Expected inline steps to contain detection_guard step")
-				}
-				if !strings.Contains(joined, "detection_conclusion") {
-					t.Error("Expected inline steps to contain detection_conclusion step")
-				}
-				// The combined conclusion step should call parse_threat_detection_results.cjs
-				if !strings.Contains(joined, "parse_threat_detection_results.cjs") {
-					t.Error("Expected inline steps to reference parse_threat_detection_results.cjs")
-				}
-				if !strings.Contains(joined, "Threat Detection") {
-					t.Error("Expected inline steps to contain threat detection comment separator")
-				}
-			}
-		})
-	}
-}
-
 func TestThreatDetectionDefaultBehavior(t *testing.T) {
 	compiler := NewCompiler()
 
@@ -296,7 +206,7 @@ func TestThreatDetectionInlineStepsDependencies(t *testing.T) {
 	}
 
 	// Build inline detection steps
-	steps := compiler.buildInlineDetectionSteps(data)
+	steps := compiler.buildDetectionJobSteps(data)
 	if steps == nil {
 		t.Fatal("Expected inline detection steps to be created")
 	}
@@ -334,7 +244,7 @@ func TestThreatDetectionCustomPrompt(t *testing.T) {
 		},
 	}
 
-	steps := compiler.buildInlineDetectionSteps(data)
+	steps := compiler.buildDetectionJobSteps(data)
 	if steps == nil {
 		t.Fatal("Expected inline detection steps to be created")
 	}
@@ -437,7 +347,7 @@ func TestThreatDetectionStepsOrdering(t *testing.T) {
 		},
 	}
 
-	steps := compiler.buildInlineDetectionSteps(data)
+	steps := compiler.buildDetectionJobSteps(data)
 
 	if len(steps) == 0 {
 		t.Fatal("Expected non-empty steps")
@@ -591,7 +501,7 @@ func TestThreatDetectionStepsIncludeUpload(t *testing.T) {
 		},
 	}
 
-	steps := compiler.buildInlineDetectionSteps(data)
+	steps := compiler.buildDetectionJobSteps(data)
 
 	if len(steps) == 0 {
 		t.Fatal("Expected non-empty steps")
@@ -1159,5 +1069,161 @@ func TestDetectionJobPermissionsIndentation(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestWorkspaceCheckoutForDetectionStep verifies that a conditional checkout step
+// is added to the detection job when threat detection is enabled, allowing the
+// engine to see patches in the context of the full repository.
+func TestWorkspaceCheckoutForDetectionStep(t *testing.T) {
+	compiler := NewCompiler()
+
+	data := &WorkflowData{
+		Name: "test-workflow",
+		AI:   "copilot",
+		SafeOutputs: &SafeOutputsConfig{
+			ThreatDetection: &ThreatDetectionConfig{},
+		},
+	}
+
+	job, err := compiler.buildDetectionJob(data)
+	if err != nil {
+		t.Fatalf("buildDetectionJob() error: %v", err)
+	}
+	if job == nil {
+		t.Fatal("buildDetectionJob() returned nil job")
+	}
+
+	stepsString := strings.Join(job.Steps, "")
+
+	// Workspace checkout step should be present
+	if !strings.Contains(stepsString, "Checkout repository for patch context") {
+		t.Error("Detection job should include workspace checkout step")
+	}
+
+	// Step should be conditional on has_patch
+	expectedCondition := "if: needs." + string(constants.AgentJobName) + ".outputs.has_patch == 'true'"
+	if !strings.Contains(stepsString, expectedCondition) {
+		t.Errorf("Workspace checkout step should have has_patch condition, expected %q in steps", expectedCondition)
+	}
+
+	// Step should disable credential persistence
+	if !strings.Contains(stepsString, "persist-credentials: false") {
+		t.Error("Workspace checkout step should set persist-credentials: false")
+	}
+
+	// Step should use pinned actions/checkout
+	checkoutPin := GetActionPin("actions/checkout")
+	if checkoutPin == "" {
+		t.Fatal("Expected actions/checkout to have a pin")
+	}
+	if !strings.Contains(stepsString, checkoutPin) {
+		t.Errorf("Workspace checkout step should use pinned action %q", checkoutPin)
+	}
+}
+
+// TestDetectionJobAlwaysHasContentsRead verifies that the detection job always
+// receives contents: read permission (required for the workspace checkout step),
+// even in production mode.
+func TestDetectionJobAlwaysHasContentsRead(t *testing.T) {
+	compiler := NewCompiler()
+
+	data := &WorkflowData{
+		Name: "test-workflow",
+		AI:   "copilot",
+		SafeOutputs: &SafeOutputsConfig{
+			ThreatDetection: &ThreatDetectionConfig{},
+		},
+	}
+
+	job, err := compiler.buildDetectionJob(data)
+	if err != nil {
+		t.Fatalf("buildDetectionJob() error: %v", err)
+	}
+	if job == nil {
+		t.Fatal("buildDetectionJob() returned nil job")
+	}
+
+	// contents: read should be present in all modes
+	if !strings.Contains(job.Permissions, "contents: read") {
+		t.Errorf("Detection job should always have contents: read permission, got permissions:\n%s", job.Permissions)
+	}
+}
+
+// TestWorkspaceCheckoutPresentWithCustomSteps verifies that when the
+// detection engine is disabled but custom steps exist, the detection job
+// still includes the workspace checkout step (custom steps may also need context).
+func TestWorkspaceCheckoutPresentWithCustomSteps(t *testing.T) {
+	compiler := NewCompiler()
+
+	data := &WorkflowData{
+		Name: "test-workflow",
+		AI:   "copilot",
+		SafeOutputs: &SafeOutputsConfig{
+			ThreatDetection: &ThreatDetectionConfig{
+				EngineDisabled: true,
+				Steps: []any{
+					map[string]any{"name": "Custom check", "run": "echo custom"},
+				},
+			},
+		},
+	}
+
+	job, err := compiler.buildDetectionJob(data)
+	if err != nil {
+		t.Fatalf("buildDetectionJob() error: %v", err)
+	}
+	if job == nil {
+		t.Fatal("buildDetectionJob() returned nil job, but custom steps are configured")
+	}
+
+	stepsString := strings.Join(job.Steps, "")
+	if !strings.Contains(stepsString, "Checkout repository for patch context") {
+		t.Error("Detection job with custom steps should still include workspace checkout step")
+	}
+}
+
+// TestWorkspaceCheckoutStepOrdering verifies that the workspace checkout step
+// appears after the artifact download and before the detection steps.
+func TestWorkspaceCheckoutStepOrdering(t *testing.T) {
+	compiler := NewCompiler()
+
+	data := &WorkflowData{
+		Name: "test-workflow",
+		AI:   "copilot",
+		SafeOutputs: &SafeOutputsConfig{
+			ThreatDetection: &ThreatDetectionConfig{},
+		},
+	}
+
+	job, err := compiler.buildDetectionJob(data)
+	if err != nil {
+		t.Fatalf("buildDetectionJob() error: %v", err)
+	}
+	if job == nil {
+		t.Fatal("buildDetectionJob() returned nil job")
+	}
+
+	stepsString := strings.Join(job.Steps, "")
+
+	downloadIdx := strings.Index(stepsString, "Download agent output artifact")
+	checkoutIdx := strings.Index(stepsString, "Checkout repository for patch context")
+	guardIdx := strings.Index(stepsString, "Check if detection needed")
+
+	if downloadIdx < 0 {
+		t.Fatal("Expected 'Download agent output artifact' step in detection job")
+	}
+	if checkoutIdx < 0 {
+		t.Fatal("Expected 'Checkout repository for patch context' step in detection job")
+	}
+	if guardIdx < 0 {
+		t.Fatal("Expected 'Check if detection needed' step in detection job")
+	}
+
+	if checkoutIdx < downloadIdx {
+		t.Error("Workspace checkout step should appear after artifact download step")
+	}
+	if checkoutIdx > guardIdx {
+		t.Error("Workspace checkout step should appear before detection guard step")
 	}
 }

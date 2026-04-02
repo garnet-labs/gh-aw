@@ -126,16 +126,16 @@ type ObservabilityConfig struct {
 // This provides compile-time type safety and clearer error messages compared to map[string]any
 type FrontmatterConfig struct {
 	// Core workflow fields
-	Name           string   `json:"name,omitempty"`
-	Description    string   `json:"description,omitempty"`
-	Engine         string   `json:"engine,omitempty"`
-	Source         string   `json:"source,omitempty"`
-	TrackerID      string   `json:"tracker-id,omitempty"`
-	Version        string   `json:"version,omitempty"`
-	TimeoutMinutes int      `json:"timeout-minutes,omitempty"`
-	Strict         *bool    `json:"strict,omitempty"`  // Pointer to distinguish unset from false
-	Private        *bool    `json:"private,omitempty"` // If true, workflow cannot be added to other repositories
-	Labels         []string `json:"labels,omitempty"`
+	Name           string            `json:"name,omitempty"`
+	Description    string            `json:"description,omitempty"`
+	Engine         string            `json:"engine,omitempty"`
+	Source         string            `json:"source,omitempty"`
+	TrackerID      string            `json:"tracker-id,omitempty"`
+	Version        string            `json:"version,omitempty"`
+	TimeoutMinutes *TemplatableInt32 `json:"timeout-minutes,omitempty"`
+	Strict         *bool             `json:"strict,omitempty"`  // Pointer to distinguish unset from false
+	Private        *bool             `json:"private,omitempty"` // If true, workflow cannot be added to other repositories
+	Labels         []string          `json:"labels,omitempty"`
 
 	// Configuration sections - using strongly-typed structs
 	Tools            *ToolsConfig       `json:"tools,omitempty"`
@@ -209,8 +209,10 @@ func ParseFrontmatterConfig(frontmatter map[string]any) (*FrontmatterConfig, err
 	frontmatterTypesLog.Printf("Parsing frontmatter config with %d fields", len(frontmatter))
 	var config FrontmatterConfig
 
-	// Use JSON marshaling for the entire frontmatter conversion
-	// This automatically handles all field mappings
+	// Use JSON marshaling for the entire frontmatter conversion.
+	// TemplatableInt32.UnmarshalJSON transparently handles both integer literals
+	// (e.g. timeout-minutes: 30) and GitHub Actions expressions
+	// (e.g. timeout-minutes: ${{ inputs.timeout }}) during unmarshaling.
 	jsonBytes, err := json.Marshal(frontmatter)
 	if err != nil {
 		frontmatterTypesLog.Printf("Failed to marshal frontmatter: %v", err)
@@ -535,8 +537,8 @@ func (fc *FrontmatterConfig) ToMap() map[string]any {
 	if fc.Version != "" {
 		result["version"] = fc.Version
 	}
-	if fc.TimeoutMinutes != 0 {
-		result["timeout-minutes"] = fc.TimeoutMinutes
+	if fc.TimeoutMinutes != nil {
+		result["timeout-minutes"] = fc.TimeoutMinutes.ToValue()
 	}
 	if fc.Strict != nil {
 		result["strict"] = *fc.Strict

@@ -1,10 +1,6 @@
 {
   "$schema": "./releases.schema.json",
   "blockedVersions": [],
-  "minimumVersion": "v0.64.4",
-  "minRecommendedVersion": "v0.64.4",
-  "aliases": {
-    "latest": "latest",
-    "stable": "v0.64.5"
-  }
+  "minimumVersion": "v0.65.3",
+  "minRecommendedVersion": "v0.65.3"
 }

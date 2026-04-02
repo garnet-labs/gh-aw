@@ -2074,6 +2074,10 @@
                   "pull-requests": "read"
                 }
               ]
+            },
+            "stale-check": {
+              "type": "boolean",
+              "description": "When set to false, disables the frontmatter hash check step in the activation job. Default is true (check is enabled). Useful when the workflow source files are managed outside the default GitHub repo context (e.g. cross-repo org rulesets) and the stale check is not needed."
             }
           },
           "additionalProperties": false,
@@ -2538,10 +2542,19 @@
       "examples": ["self-hosted", "ubuntu-latest", "ubuntu-22.04"]
     },
     "timeout-minutes": {
-      "type": "integer",
-      "minimum": 1,
-      "description": "Workflow timeout in minutes (GitHub Actions standard field). Defaults to 20 minutes for agentic workflows. Has sensible defaults and can typically be omitted.",
-      "examples": [5, 10, 30]
+      "description": "Workflow timeout in minutes (GitHub Actions standard field). Defaults to 20 minutes for agentic workflows. Has sensible defaults and can typically be omitted. Supports GitHub Actions expressions (e.g. '${{ inputs.timeout }}') for reusable workflow_call workflows.",
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "examples": [5, 10, 30]
+        },
+        {
+          "type": "string",
+          "pattern": "^\\$\\{\\{.*\\}\\}$",
+          "description": "GitHub Actions expression that resolves to an integer (e.g. '${{ inputs.timeout }}')"
+        }
+      ]
     },
     "concurrency": {
       "description": "Concurrency control to limit concurrent workflow runs (GitHub Actions standard field). Supports two forms: simple string for basic group isolation, or object with cancel-in-progress option for advanced control. Agentic workflows enhance this with automatic per-engine concurrency policies (defaults to single job per engine across all workflows) and token-based rate limiting. Default behavior: workflows in the same group queue sequentially unless cancel-in-progress is true. See https://docs.github.com/en/actions/using-jobs/using-concurrency",
@@ -4016,15 +4029,34 @@
           ]
         },
         "timeout": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Timeout in seconds for tool/MCP server operations. Applies to all tools and MCP servers if supported by the engine. Default varies by engine (Claude: 60s, Codex: 120s).",
-          "examples": [60, 120, 300]
+          "description": "Timeout in seconds for tool/MCP server operations. Applies to all tools and MCP servers if supported by the engine. Default: 60 seconds (for both Claude and Codex). Supports GitHub Actions expressions for reusable workflow_call workflows.",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "examples": [60, 120, 300]
+            },
+            {
+              "type": "string",
+              "description": "GitHub Actions expression (e.g. '${{ inputs.tool-timeout }}')",
+              "pattern": "^\\$\\{\\{.*\\}\\}$"
+            }
+          ]
         },
         "startup-timeout": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "Timeout in seconds for MCP server startup. Applies to MCP server initialization if supported by the engine. Default: 120 seconds."
+          "description": "Timeout in seconds for MCP server startup. Applies to MCP server initialization if supported by the engine. Default: 120 seconds. Supports GitHub Actions expressions for reusable workflow_call workflows.",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "examples": [30, 60, 120]
+            },
+            {
+              "type": "string",
+              "description": "GitHub Actions expression (e.g. '${{ inputs.startup-timeout }}')",
+              "pattern": "^\\$\\{\\{.*\\}\\}$"
+            }
+          ]
         },
         "serena": {
           "description": "REMOVED: Built-in support for Serena has been removed. Use the shared/mcp/serena.md workflow instead.",
@@ -5828,6 +5860,15 @@
                 "fallback-as-issue": {
                   "type": "boolean",
                   "description": "Controls the fallback behavior when pull request creation fails. When true (default), an issue is created as a fallback with the patch content. When false, no issue is created and the workflow fails with an error. Setting to false also removes the issues:write permission requirement.",
+                  "default": true
+                },
+                "auto-close-issue": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/templatable_boolean"
+                    }
+                  ],
+                  "description": "When true (default), automatically appends a closing keyword (\"Fixes #N\") to the PR description when the workflow is triggered from an issue and no closing keyword is already present. This causes GitHub to auto-close the triggering issue when the PR is merged. Set to false to prevent this behavior, e.g., for partial-work PRs or multi-PR workflows. Accepts a boolean or a GitHub Actions expression.",
                   "default": true
                 },
                 "github-token-for-extra-empty-commit": {
@@ -9013,8 +9054,8 @@
             },
             "version": {
               "type": ["string", "number"],
-              "description": "Optional version of the AI engine action (e.g., 'beta', 'stable', 20). Has sensible defaults and can typically be omitted. Numeric values are automatically converted to strings at runtime.",
-              "examples": ["beta", "stable", 20, 3.11]
+              "description": "Optional version of the AI engine action (e.g., 'beta', 'stable', 20). Has sensible defaults and can typically be omitted. Numeric values are automatically converted to strings at runtime. GitHub Actions expressions (e.g., '${{ inputs.engine-version }}') are accepted and compiled with injection-safe env var handling.",
+              "examples": ["beta", "stable", 20, 3.11, "${{ inputs.engine-version }}"]
             },
             "model": {
               "type": "string",

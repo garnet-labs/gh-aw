@@ -10,6 +10,7 @@ import (
 
 	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/constants"
+	"github.com/github/gh-aw/pkg/gitutil"
 	"github.com/github/gh-aw/pkg/logger"
 	"github.com/github/gh-aw/pkg/workflow"
 	"github.com/spf13/cobra"
@@ -128,8 +129,12 @@ Note: For guided interactive setup, use the 'add-wizard' command instead.`,
 	// Add AI flag to add command
 	addEngineFlag(cmd)
 
-	// Add repository flag to add command
+	// Add repository flag to add command.
+	// Note: the repo is specified directly in the workflow path argument (e.g., "owner/repo/workflow-name"),
+	// so this flag is not read by the command. It is kept hidden to avoid breaking existing scripts
+	// that may pass --repo but should not be advertised in help text.
 	cmd.Flags().StringP("repo", "r", "", "Source repository containing workflows (owner/repo format)")
+	_ = cmd.Flags().MarkHidden("repo") // Hidden: repo is already embedded in the workflow path spec
 
 	// Add PR flag to add command (--create-pull-request with --pr as alias)
 	cmd.Flags().Bool("create-pull-request", false, "Create a pull request with the workflow changes")
@@ -293,9 +298,6 @@ func addWorkflowWithTracking(resolved *ResolvedWorkflow, tracker *FileTracker, o
 		if opts.Force {
 			fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Force flag enabled: will overwrite existing files"))
 		}
-	}
-
-	if opts.Verbose {
 		fmt.Fprintln(os.Stderr, console.FormatSuccessMessage(fmt.Sprintf("Using pre-fetched workflow content (%d bytes)", len(sourceContent))))
 	}
 
@@ -314,7 +316,7 @@ func addWorkflowWithTracking(resolved *ResolvedWorkflow, tracker *FileTracker, o
 	}
 
 	// Find git root to ensure consistent placement
-	gitRoot, err := findGitRoot()
+	gitRoot, err := gitutil.FindGitRoot()
 	if err != nil {
 		return fmt.Errorf("add workflow requires being in a git repository: %w", err)
 	}
@@ -411,13 +413,16 @@ func addWorkflowWithTracking(resolved *ResolvedWorkflow, tracker *FileTracker, o
 		// fetchAndSaveRemoteFrontmatterImports already downloaded those files locally, so
 		// the compiler can resolve them from disk without any GitHub API calls.
 
-		// Process @include directives and replace with workflowspec
-		// For local workflows, use the workflow's directory as the base path
+		// Process @include directives and replace with workflowspec.
+		// For local workflows, use the workflow's directory as the package source path.
+		// Pass githubWorkflowsDir as localWorkflowDir so that any body-level import
+		// whose target already exists locally is preserved as a local reference rather
+		// than being rewritten to a cross-repo workflowspec.
 		includeSourceDir := ""
 		if sourceInfo != nil && sourceInfo.IsLocal {
 			includeSourceDir = filepath.Dir(workflowSpec.WorkflowPath)
 		}
-		processedContent, err := processIncludesWithWorkflowSpec(content, workflowSpec, commitSHA, includeSourceDir, opts.Verbose)
+		processedContent, err := processIncludesWithWorkflowSpec(content, workflowSpec, commitSHA, includeSourceDir, githubWorkflowsDir, opts.Verbose)
 		if err != nil {
 			if opts.Verbose {
 				fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Failed to process includes: %v", err)))

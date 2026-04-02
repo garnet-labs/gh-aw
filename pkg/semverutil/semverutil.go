@@ -98,24 +98,6 @@ func ParseVersion(v string) *SemanticVersion {
 	return ver
 }
 
-// IsPrecise returns true if the version has explicit minor and patch components.
-// For example, "v6.0.0" is precise, but "v6" is not.
-func (v *SemanticVersion) IsPrecise() bool {
-	versionPart := strings.TrimPrefix(v.Raw, "v")
-	dotCount := strings.Count(versionPart, ".")
-	return dotCount >= 2 // Require at least major.minor.patch
-}
-
-// IsNewer returns true if v is strictly newer than other.
-// Uses golang.org/x/mod/semver.Compare for proper semantic version comparison.
-func (v *SemanticVersion) IsNewer(other *SemanticVersion) bool {
-	v1 := EnsureVPrefix(v.Raw)
-	v2 := EnsureVPrefix(other.Raw)
-	isNewer := semver.Compare(v1, v2) > 0
-	log.Printf("Version comparison: %s vs %s, isNewer=%v", v.Raw, other.Raw, isNewer)
-	return isNewer
-}
-
 // Compare compares two semantic versions and returns 1 if v1 > v2, -1 if v1 < v2,
 // or 0 if they are equal. A bare version without a leading "v" is accepted.
 func Compare(v1, v2 string) int {
@@ -133,6 +115,20 @@ func Compare(v1, v2 string) int {
 	}
 
 	return result
+}
+
+// IsPreciseVersion returns true if the version has explicit minor and patch components
+// (i.e., at least two dots in the version string, e.g. "v6.0.0" is precise, "v6" is not).
+func (v *SemanticVersion) IsPreciseVersion() bool {
+	versionPart := strings.TrimPrefix(v.Raw, "v")
+	dotCount := strings.Count(versionPart, ".")
+	return dotCount >= 2
+}
+
+// IsNewer returns true if this version is newer than other.
+// Uses Compare for proper semantic version comparison.
+func (v *SemanticVersion) IsNewer(other *SemanticVersion) bool {
+	return Compare(v.Raw, other.Raw) > 0
 }
 
 // IsCompatible reports whether pinVersion is semver-compatible with requestedVersion.

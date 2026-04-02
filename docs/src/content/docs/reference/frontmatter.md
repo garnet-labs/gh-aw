@@ -125,29 +125,24 @@ metadata:
 
 Metadata provides a flexible way to add descriptive information to workflows without affecting execution.
 
-### APM Dependencies (`dependencies:`)
+### APM Dependencies (`shared/apm.md` import)
 
-Specifies [APM (Agent Package Manager)](https://microsoft.github.io/apm/) packages to install before workflow execution. APM manages AI agent primitives such as skills, prompts, instructions, agents, hooks, and plugins (including the Claude `plugin.json` format). When present, the compiler runs `apm pack` in the activation job and `apm unpack` in the agent job for faster, deterministic startup.
+Import `shared/apm.md` to install [APM (Agent Package Manager)](https://microsoft.github.io/apm/) packages before workflow execution. APM manages AI agent primitives such as skills, prompts, instructions, agents, hooks, and plugins (including the Claude `plugin.json` format).
 
-```yaml wrap
-# Simple array format (public or same-org packages)
-dependencies:
-  - microsoft/apm-sample-package
-  - github/awesome-copilot/skills/review-and-refactor
-  - microsoft/apm-sample-package#v2.0   # version-pinned
+```aw wrap
+imports:
+  - uses: shared/apm.md
+    with:
+      packages:
+        - microsoft/apm-sample-package
+        - github/awesome-copilot/skills/review-and-refactor
+        - microsoft/apm-sample-package#v2.0   # version-pinned
 ```
 
-```yaml wrap
-# Object format with GitHub App auth for cross-org private packages
-dependencies:
-  github-app:
-    app-id: ${{ vars.APP_ID }}
-    private-key: ${{ secrets.APP_PRIVATE_KEY }}
-  packages:
-    - acme-platform-org/acme-skills/plugins/dev-tools
-```
+> [!NOTE]
+> The `dependencies:` frontmatter field is deprecated and no longer supported. Migrate to the `imports: - uses: shared/apm.md` approach shown above.
 
-See **[APM Dependencies Reference](/gh-aw/reference/dependencies/)** for the full format specification, version pinning syntax, GitHub App authentication, plugin support, reproducibility and governance details, and local debugging instructions.
+See **[APM Dependencies Reference](/gh-aw/reference/dependencies/)** for the full format specification, version pinning syntax, package reference formats, reproducibility and governance details, and local debugging instructions.
 
 ### Runtimes (`runtimes:`)
 
@@ -480,6 +475,16 @@ timeout-minutes: 30                  # Defaults to 20 minutes
 
 `runs-on` applies to the main agent job only. `runs-on-slim` applies to all framework/generated jobs (activation, safe-outputs, unlock, etc.) and defaults to `ubuntu-slim`. `safe-outputs.runs-on` takes precedence over `runs-on-slim` for safe-output jobs specifically.
 
+`timeout-minutes` accepts either an integer or a GitHub Actions expression string. This allows `workflow_call` reusable workflows to parameterize the timeout via caller inputs:
+
+```yaml wrap
+# Literal integer
+timeout-minutes: 30
+
+# Expression — useful in reusable (workflow_call) workflows
+timeout-minutes: ${{ inputs.timeout }}
+```
+
 **Supported runners for `runs-on:`**
 
 | Runner | Status |
@@ -574,6 +579,9 @@ services:
     ports:
       - 5432:5432
 ```
+
+> [!NOTE]
+> The AWF agent runs inside an isolated Docker container. Service containers expose ports on the runner host, not within the agent's network namespace. To connect to a service from the agent, use `host.docker.internal` as the hostname instead of `localhost`. For example, a Postgres service configured with port `5432:5432` is accessible at `host.docker.internal:5432`.
 
 See [GitHub Actions service docs](https://docs.github.com/en/actions/using-containerized-services).
 

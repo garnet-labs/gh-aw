@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"encoding/json"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -40,6 +41,7 @@ type AuditData struct {
 	MissingData             []MissingDataReport      `json:"missing_data,omitempty"`
 	Noops                   []NoopReport             `json:"noops,omitempty"`
 	MCPFailures             []MCPFailureReport       `json:"mcp_failures,omitempty"`
+	FirewallTokenUsage      *TokenUsageSummary       `json:"firewall_token_usage,omitempty"`
 	FirewallAnalysis        *FirewallAnalysis        `json:"firewall_analysis,omitempty"`
 	PolicyAnalysis          *PolicyAnalysis          `json:"policy_analysis,omitempty"`
 	RedactedDomainsAnalysis *RedactedDomainsAnalysis `json:"redacted_domains_analysis,omitempty"`
@@ -274,6 +276,15 @@ func buildAuditData(processedRun ProcessedRun, metrics LogMetrics, mcpToolUsage 
 		WarningCount:  run.WarningCount,
 	}
 
+	// Populate ActionMinutes from run duration so it is always visible even
+	// when token/turn metrics are zero (e.g. Codex runs that exit early).
+	// Use math.Ceil to match the billable-minute rounding used elsewhere.
+	if run.ActionMinutes > 0 {
+		metricsData.ActionMinutes = run.ActionMinutes
+	} else if run.Duration > 0 {
+		metricsData.ActionMinutes = math.Ceil(run.Duration.Minutes())
+	}
+
 	// Build job data
 	jobs := sliceutil.Map(processedRun.JobDetails, func(jobDetail JobInfoWithDuration) JobData {
 		job := JobData{
@@ -355,6 +366,7 @@ func buildAuditData(processedRun ProcessedRun, metrics LogMetrics, mcpToolUsage 
 		MissingData:             processedRun.MissingData,
 		Noops:                   processedRun.Noops,
 		MCPFailures:             processedRun.MCPFailures,
+		FirewallTokenUsage:      processedRun.TokenUsage,
 		FirewallAnalysis:        processedRun.FirewallAnalysis,
 		PolicyAnalysis:          processedRun.PolicyAnalysis,
 		RedactedDomainsAnalysis: processedRun.RedactedDomainsAnalysis,

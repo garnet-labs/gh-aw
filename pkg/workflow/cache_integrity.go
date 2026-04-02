@@ -12,10 +12,6 @@ import (
 
 var cacheIntegrityLog = logger.New("workflow:cache_integrity")
 
-// integrityLevelOrder defines integrity levels from highest to lowest.
-// Used to determine which branches to merge down from when setting up cache.
-var integrityLevelOrder = []string{"merged", "approved", "unapproved", "none"}
-
 // defaultCacheIntegrityLevel is the integrity level used when no guard policy is configured.
 const defaultCacheIntegrityLevel = "none"
 
@@ -217,19 +213,4 @@ func generateIntegrityAwareCacheKey(cacheID, integrityLevel, policyHash string) 
 	}
 	cacheIntegrityLog.Printf("Generated integrity-aware cache key: cacheID=%s, integrityLevel=%s, policyHash=%s", cacheID, integrityLevel, policyHash)
 	return key
-}
-
-// higherIntegrityLevels returns the integrity levels that are higher than the given level,
-// ordered from highest to lowest (merged → approved → unapproved → none).
-// Used to determine which branches to merge down from.
-func higherIntegrityLevels(level string) []string {
-	var result []string
-	for _, l := range integrityLevelOrder {
-		if l == level {
-			break
-		}
-		result = append(result, l)
-	}
-	cacheIntegrityLog.Printf("Higher integrity levels than %q: %v", level, result)
-	return result
 }
