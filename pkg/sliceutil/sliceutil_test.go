@@ -113,19 +113,19 @@ func TestFilter(t *testing.T) {
 			name:      "nil slice returns empty slice",
 			slice:     nil,
 			predicate: func(s string) bool { return len(s) > 3 },
-			expected:  []string{},
+			expected:  nil,
 		},
 		{
 			name:      "empty slice returns empty slice",
 			slice:     []string{},
 			predicate: func(s string) bool { return len(s) > 3 },
-			expected:  []string{},
+			expected:  nil,
 		},
 		{
 			name:      "no elements match predicate",
 			slice:     []string{"a", "b", "c"},
 			predicate: func(s string) bool { return len(s) > 3 },
-			expected:  []string{},
+			expected:  nil,
 		},
 		{
 			name:      "some elements match predicate",
@@ -161,13 +161,13 @@ func TestMap(t *testing.T) {
 			name:      "nil slice returns empty slice",
 			slice:     nil,
 			transform: func(s string) int { return len(s) },
-			expected:  []int{},
+			expected:  nil,
 		},
 		{
 			name:      "empty slice returns empty slice",
 			slice:     []string{},
 			transform: func(s string) int { return len(s) },
-			expected:  []int{},
+			expected:  nil,
 		},
 		{
 			name:      "transforms each element",
@@ -201,12 +201,12 @@ func TestDeduplicate(t *testing.T) {
 		{
 			name:     "nil slice returns empty slice",
 			slice:    nil,
-			expected: []string{},
+			expected: nil,
 		},
 		{
 			name:     "empty slice returns empty slice",
 			slice:    []string{},
-			expected: []string{},
+			expected: nil,
 		},
 		{
 			name:     "no duplicates returns same elements in order",

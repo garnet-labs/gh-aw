@@ -13,7 +13,7 @@ func Contains(slice []string, item string) bool {
 // Filter returns a new slice containing only elements that match the predicate.
 // This is a pure function that does not modify the input slice.
 func Filter[T any](slice []T, predicate func(T) bool) []T {
-	result := make([]T, 0, len(slice))
+	var result []T
 	for _, item := range slice {
 		if predicate(item) {
 			result = append(result, item)
@@ -25,9 +25,9 @@ func Filter[T any](slice []T, predicate func(T) bool) []T {
 // Map transforms each element in a slice using the provided function.
 // This is a pure function that does not modify the input slice.
 func Map[T, U any](slice []T, transform func(T) U) []U {
-	result := make([]U, len(slice))
-	for i, item := range slice {
-		result[i] = transform(item)
+	var result []U
+	for _, item := range slice {
+		result = append(result, transform(item))
 	}
 	return result
 }
@@ -36,7 +36,7 @@ func Map[T, U any](slice []T, transform func(T) U) []U {
 // The order of elements is not guaranteed as map iteration order is undefined.
 // This is a pure function that does not modify the input map.
 func MapToSlice[K comparable, V any](m map[K]V) []K {
-	result := make([]K, 0, len(m))
+	var result []K
 	for key := range m {
 		result = append(result, key)
 	}
@@ -47,7 +47,7 @@ func MapToSlice[K comparable, V any](m map[K]V) []K {
 // The order of elements is not guaranteed as map iteration order is undefined.
 // This is a pure function that does not modify the input map.
 func FilterMapKeys[K comparable, V any](m map[K]V, predicate func(K, V) bool) []K {
-	result := make([]K, 0, len(m))
+	var result []K
 	for key, value := range m {
 		if predicate(key, value) {
 			result = append(result, key)
@@ -68,7 +68,7 @@ func Any[T any](slice []T, predicate func(T) bool) bool {
 // This is a pure function that does not modify the input slice.
 func Deduplicate[T comparable](slice []T) []T {
 	seen := make(map[T]bool, len(slice))
-	result := make([]T, 0, len(slice))
+	var result []T
 	for _, item := range slice {
 		if !seen[item] {
 			seen[item] = true
