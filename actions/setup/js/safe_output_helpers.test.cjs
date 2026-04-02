@@ -478,6 +478,174 @@ describe("safe_output_helpers", () => {
         expect(result.error).toContain("no item_number/issue_number specified");
       });
     });
+
+    describe("with awContext fallback (workflow_dispatch via dispatch_workflow)", () => {
+      const workflowDispatchContext = {
+        eventName: "workflow_dispatch",
+        payload: { inputs: { aw_context: "{}" } },
+      };
+
+      it("should resolve triggering issue from aw_context when event is workflow_dispatch (supportsPR=true)", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: { item_type: "issue", item_number: "42", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(true);
+        expect(result.number).toBe(42);
+        expect(result.contextType).toBe("issue");
+      });
+
+      it("should resolve triggering PR from aw_context when event is workflow_dispatch (supportsPR=true)", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: { item_type: "pull_request", item_number: "99", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(true);
+        expect(result.number).toBe(99);
+        expect(result.contextType).toBe("pull request");
+      });
+
+      it("should resolve triggering issue from aw_context when event is workflow_dispatch (supportsIssue=true)", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "update_issue",
+          supportsIssue: true,
+          awContext: { item_type: "issue", item_number: "7", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(true);
+        expect(result.number).toBe(7);
+        expect(result.contextType).toBe("issue");
+      });
+
+      it("should skip when supportsIssue=true but aw_context has pull_request item", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "update_issue",
+          supportsIssue: true,
+          awContext: { item_type: "pull_request", item_number: "99", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Target is "triggering"');
+        expect(result.error).toContain("not running in issue context");
+        expect(result.shouldFail).toBe(false);
+      });
+
+      it("should resolve triggering PR from aw_context when event is workflow_dispatch (PR only handler)", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "PR review",
+          supportsPR: false,
+          supportsIssue: false,
+          awContext: { item_type: "pull_request", item_number: "55", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(true);
+        expect(result.number).toBe(55);
+        expect(result.contextType).toBe("pull request");
+      });
+
+      it("should skip when PR-only handler but aw_context has issue item", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "PR review",
+          supportsPR: false,
+          supportsIssue: false,
+          awContext: { item_type: "issue", item_number: "42", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Target is "triggering"');
+        expect(result.error).toContain("not running in pull request context");
+        expect(result.shouldFail).toBe(false);
+      });
+
+      it("should skip when workflow_dispatch and aw_context is null", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: null,
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Target is "triggering"');
+        expect(result.shouldFail).toBe(false);
+      });
+
+      it("should skip when aw_context has unknown item_type", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: { item_type: "discussion", item_number: "5", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Target is "triggering"');
+        expect(result.shouldFail).toBe(false);
+      });
+
+      it("should skip when aw_context item_number is empty", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: { item_type: "issue", item_number: "", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Target is "triggering"');
+        expect(result.shouldFail).toBe(false);
+      });
+
+      it("should fail when aw_context item_number is invalid (non-numeric)", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: workflowDispatchContext,
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: { item_type: "issue", item_number: "not-a-number", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(false);
+        expect(result.error).toContain("Invalid item_number in aw_context");
+        expect(result.shouldFail).toBe(true);
+      });
+
+      it("should prefer native event context over aw_context when both are available", () => {
+        const result = helpers.resolveTarget({
+          targetConfig: "triggering",
+          item: {},
+          context: {
+            eventName: "issues",
+            payload: { issue: { number: 100 } },
+          },
+          itemType: "add_comment",
+          supportsPR: true,
+          awContext: { item_type: "issue", item_number: "200", repo: "owner/repo", run_id: "1", workflow_id: "w" },
+        });
+        expect(result.success).toBe(true);
+        expect(result.number).toBe(100); // native context wins
+        expect(result.contextType).toBe("issue");
+      });
+    });
   });
 
   describe("loadCustomSafeOutputJobTypes", () => {

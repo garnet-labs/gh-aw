@@ -14,6 +14,7 @@ const { getErrorMessage } = require("./error_helpers.cjs");
 const { parseBoolTemplatable } = require("./templatable.cjs");
 const { resolveTarget, isStagedMode } = require("./safe_output_helpers.cjs");
 const { resolveTargetRepoConfig, resolveAndValidateRepo } = require("./repo_helpers.cjs");
+const { loadAwContext } = require("./aw_info_helpers.cjs");
 const { createAuthenticatedGitHubClient } = require("./handler_auth.cjs");
 const { getMissingInfoSections } = require("./missing_messages_helper.cjs");
 const { getMessages } = require("./messages_core.cjs");
@@ -411,6 +412,7 @@ async function main(config = {}) {
           itemType: "add_comment",
           supportsPR: true, // add_comment supports both issues and PRs
           supportsIssue: false,
+          awContext: loadAwContext(),
         });
 
         if (!targetResult.success) {

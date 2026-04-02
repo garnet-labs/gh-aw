@@ -6,6 +6,7 @@ const { generateStagedPreview } = require("./staged_preview.cjs");
 const { AGENT_LOGIN_NAMES, getAvailableAgentLogins, findAgent, getIssueDetails, getPullRequestDetails, assignAgentToIssue, generatePermissionErrorSummary } = require("./assign_agent_helpers.cjs");
 const { getErrorMessage } = require("./error_helpers.cjs");
 const { resolveTarget } = require("./safe_output_helpers.cjs");
+const { loadAwContext } = require("./aw_info_helpers.cjs");
 const { loadTemporaryIdMap, resolveRepoIssueTarget } = require("./temporary_id.cjs");
 const { sleep } = require("./error_recovery.cjs");
 const { parseAllowedRepos, validateRepo, resolveTargetRepoConfig, resolveAndValidateRepo } = require("./repo_helpers.cjs");
@@ -338,6 +339,7 @@ async function main() {
       itemType: "assign_to_agent",
       supportsPR: true, // Supports both issues and PRs
       supportsIssue: false, // Use supportsPR=true to indicate both are supported
+      awContext: loadAwContext(),
     });
 
     if (!targetResult.success) {

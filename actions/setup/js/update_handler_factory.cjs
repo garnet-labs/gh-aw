@@ -7,6 +7,7 @@
 
 const { getErrorMessage } = require("./error_helpers.cjs");
 const { resolveTarget, isStagedMode } = require("./safe_output_helpers.cjs");
+const { loadAwContext } = require("./aw_info_helpers.cjs");
 const { logStagedPreviewInfo } = require("./staged_preview.cjs");
 const { createAuthenticatedGitHubClient } = require("./handler_auth.cjs");
 const { resolveTargetRepoConfig, resolveAndValidateRepo } = require("./repo_helpers.cjs");
@@ -47,6 +48,7 @@ function createStandardResolveNumber(config) {
       itemType: itemType,
       supportsPR: supportsPR,
       supportsIssue: supportsIssue,
+      awContext: loadAwContext(),
     });
 
     if (!targetResult.success) {

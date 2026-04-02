@@ -7,6 +7,7 @@
 
 const { resolveTarget, isStagedMode, logStagedPreviewInfo } = require("./safe_output_helpers.cjs");
 const { resolveTargetRepoConfig, resolveAndValidateRepo } = require("./repo_helpers.cjs");
+const { loadAwContext } = require("./aw_info_helpers.cjs");
 const { createAuthenticatedGitHubClient } = require("./handler_auth.cjs");
 const { getErrorMessage } = require("./error_helpers.cjs");
 
@@ -111,6 +112,7 @@ async function main(config = {}) {
         itemType: "PR review",
         supportsPR: false,
         supportsIssue: false,
+        awContext: loadAwContext(),
       });
 
       if (!targetResult.success) {

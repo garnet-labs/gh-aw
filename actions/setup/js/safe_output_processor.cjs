@@ -11,6 +11,7 @@ const { generateStagedPreview } = require("./staged_preview.cjs");
 const { parseAllowedItems, resolveTarget } = require("./safe_output_helpers.cjs");
 const { getSafeOutputConfig, validateMaxCount } = require("./safe_output_validator.cjs");
 const { ERR_VALIDATION } = require("./error_codes.cjs");
+const { loadAwContext } = require("./aw_info_helpers.cjs");
 
 /**
  * @typedef {Object} ProcessorConfig
@@ -179,6 +180,7 @@ async function processSafeOutput(config, stagedPreviewOptions, handlerConfig = n
     // If supportsIssue is true, we pass supportsPR=true to enable both contexts
     supportsPR: supportsPR || supportsIssue,
     supportsIssue: false,
+    awContext: loadAwContext(),
   });
 
   if (!targetResult.success) {

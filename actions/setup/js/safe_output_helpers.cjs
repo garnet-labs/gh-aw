@@ -56,6 +56,7 @@ function parseMaxCount(envValue, defaultValue = 3) {
  * - The target configuration ("triggering", "*", or explicit number)
  * - The workflow context (issue event, PR event, etc.)
  * - Fields in the safe output item (issue_number, pull_request_number, item_number)
+ * - The aw_context from aw_info.json (fallback when workflow was dispatched by another agentic workflow)
  *
  * @param {Object} params - Resolution parameters
  * @param {string} params.targetConfig - Target configuration ("triggering", "*", or explicit number)
@@ -66,10 +67,13 @@ function parseMaxCount(envValue, defaultValue = 3) {
  *                                       When false, handler supports PRs ONLY (e.g., add_reviewers)
  * @param {boolean} params.supportsIssue - When true, handler supports issues ONLY (e.g., update_issue)
  *                                          Mutually exclusive with supportsPR=false
+ * @param {{ item_type: string, item_number: string, [key: string]: unknown } | null} [params.awContext] - Optional
+ *   aw_context from aw_info.json. When present and the current event is not a native issue/PR event,
+ *   the item_type and item_number from this context are used as the triggering item.
  * @returns {{success: true, number: number, contextType: string} | {success: false, error: string, shouldFail: boolean}} Resolution result
  */
 function resolveTarget(params) {
-  const { targetConfig, item, context, itemType, supportsPR = false, supportsIssue = false } = params;
+  const { targetConfig, item, context, itemType, supportsPR = false, supportsIssue = false, awContext = null } = params;
 
   // Check context type
   const isIssueContext = context.eventName === "issues" || context.eventName === "issue_comment";
@@ -78,11 +82,20 @@ function resolveTarget(params) {
   // Default target is "triggering"
   const target = targetConfig || "triggering";
 
+  // Check if aw_context provides a valid item that can serve as the triggering context.
+  // This is used when the workflow was dispatched by another agentic workflow and the
+  // current event is workflow_dispatch rather than a native issue/PR event.
+  const awContextItemType = typeof awContext?.item_type === "string" ? awContext.item_type : "";
+  const awContextIsIssue = awContextItemType === "issue";
+  const awContextIsPR = awContextItemType === "pull_request";
+  const awContextItemNumber = awContext?.item_number ? String(awContext.item_number) : "";
+  const hasValidAwContext = (awContextIsIssue || awContextIsPR) && awContextItemNumber !== "";
+
   // Validate context for triggering mode
   if (target === "triggering") {
     if (supportsPR) {
       // Supports both issues and PRs
-      if (!isIssueContext && !isPRContext) {
+      if (!isIssueContext && !isPRContext && !hasValidAwContext) {
         return {
           success: false,
           error: `Target is "triggering" but not running in issue or pull request context, skipping ${itemType}`,
@@ -91,7 +104,7 @@ function resolveTarget(params) {
       }
     } else if (supportsIssue) {
       // Supports issues only
-      if (!isIssueContext) {
+      if (!isIssueContext && !(hasValidAwContext && awContextIsIssue)) {
         return {
           success: false,
           error: `Target is "triggering" but not running in issue context, skipping ${itemType}`,
@@ -100,7 +113,7 @@ function resolveTarget(params) {
       }
     } else {
       // Supports PRs only
-      if (!isPRContext) {
+      if (!isPRContext && !(hasValidAwContext && awContextIsPR)) {
         return {
           success: false,
           error: `Target is "triggering" but not running in pull request context, skipping ${itemType}`,
@@ -210,6 +223,20 @@ function resolveTarget(params) {
         return {
           success: false,
           error: "Pull request context detected but no pull request found in payload",
+          shouldFail: true,
+        };
+      }
+    } else if (hasValidAwContext) {
+      // Fall back to aw_context when the workflow was dispatched by another agentic workflow.
+      // The aw_context carries the item_type and item_number of the original triggering event.
+      const parsedNumber = parseInt(awContextItemNumber, 10);
+      if (!isNaN(parsedNumber) && parsedNumber > 0) {
+        itemNumber = parsedNumber;
+        contextType = awContextIsPR ? "pull request" : "issue";
+      } else {
+        return {
+          success: false,
+          error: `Invalid item_number in aw_context: ${awContextItemNumber}`,
           shouldFail: true,
         };
       }
