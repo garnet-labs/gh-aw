@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-02T12:14:46Z",
-  "run_id": "23899807162",
+  "run_date": "2026-04-02T18:31:48Z",
+  "run_id": "23915773654",
   "fork_prs": 0,
-  "agent_prs_found": 5,
-  "agent_prs_excluded": 5,
-  "notes": "5 open Copilot PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run: #24098, #24084, #24065. Previously noted #24030, #24031, #24032 appear closed/merged.",
+  "agent_prs_found": 2,
+  "agent_prs_excluded": 2,
+  "notes": "2 open Copilot-assigned PRs found (#24150, #24013), all same-repo branches (not forks). Excluded per fork-only triage policy. PR #24065, #24084, #24098 from previous run now closed/merged.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,60 +18,41 @@
   },
   "prs_examined": [
     {
-      "number": 24098,
-      "title": "[WIP] Fix safe_outputs failure on scheduled runs",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-02T12:20:19Z",
-      "category_hint": "bug"
-    },
-    {
-      "number": 24084,
-      "title": "[WIP] Refactor Go source code analysis tools into shared component",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-02T11:59:48Z",
-      "category_hint": "refactor"
-    },
-    {
-      "number": 24065,
-      "title": "refactor: migrate features.difc-proxy to tools.github.integrity-proxy",
-      "author": "Copilot",
+      "number": 24150,
+      "title": "feat: add {effective_tokens} and {effective_tokens_formatted} template expressions to all footer templates",
+      "assignees": ["pelikhan", "Copilot"],
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": ["smoke-copilot"],
-      "created_at": "2026-04-02T10:00:00Z",
-      "category_hint": "refactor"
+      "created_at": "2026-04-02T17:33:51Z",
+      "updated_at": "2026-04-02T18:21:10Z",
+      "category_hint": "feature"
     },
     {
       "number": 24013,
       "title": "Fix SIGTERM propagation to AWF process for timeout-minutes enforcement",
-      "author": "Copilot",
+      "assignees": ["pelikhan", "Copilot"],
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": ["lgtm"],
       "created_at": "2026-04-02T04:25:33Z",
+      "updated_at": "2026-04-02T13:22:48Z",
       "category_hint": "bug"
     },
     {
       "number": 23695,
       "title": "fix: Gemini CLI exits 41 in AWF sandbox — missing API key and ~/.gemini dir",
-      "author": "Copilot",
+      "assignees": ["lpcox"],
       "draft": true,
       "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
+      "excluded_reason": "non-Copilot PR, same-repo branch",
       "labels": ["lgtm", "water", "smoke-copilot-arm", "awf"],
       "created_at": "2026-03-31T12:26:03Z",
+      "updated_at": "2026-04-02T13:22:08Z",
       "category_hint": "bug"
     }
   ],
-  "previous_run_prs_now_closed": [24030, 24031, 24032]
+  "previous_run_prs_now_closed": [24065, 24084, 24098]
 }
