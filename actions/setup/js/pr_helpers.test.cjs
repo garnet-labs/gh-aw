@@ -72,6 +72,20 @@ describe("pr_helpers.cjs", () => {
       expect(result.reason).toBe("head repository deleted (was likely a fork)");
     });
 
+    it("should not detect fork when head information is entirely missing (issue_comment events)", () => {
+      // Simulates issue_comment events where pullRequest is constructed
+      // with only number and state (no head/base data)
+      const pullRequest = {
+        number: 302,
+        state: "open",
+      };
+
+      const result = detectForkPR(pullRequest);
+
+      expect(result.isFork).toBe(false);
+      expect(result.reason).toBe("head information not available");
+    });
+
     it("should detect non-fork when repos match and fork flag is false", () => {
       const pullRequest = {
         head: {

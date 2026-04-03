@@ -15,8 +15,13 @@ function detectForkPR(pullRequest) {
   let isFork = false;
   let reason = "same repository";
 
-  if (!pullRequest.head?.repo) {
-    // Head repo is null - likely a deleted fork
+  if (!pullRequest.head) {
+    // No head information at all - cannot determine fork status.
+    // This happens for issue_comment events where only number and state are available.
+    isFork = false;
+    reason = "head information not available";
+  } else if (!pullRequest.head.repo) {
+    // Head exists but repo is null - likely a deleted fork
     isFork = true;
     reason = "head repository deleted (was likely a fork)";
   } else if (pullRequest.head.repo.fork === true) {

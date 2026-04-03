@@ -31,6 +31,37 @@ const { detectForkPR } = require("./pr_helpers.cjs");
 const { ERR_API } = require("./error_codes.cjs");
 
 /**
+ * Build an environment for gh CLI commands that ensures GH_HOST matches the
+ * actual GITHUB_SERVER_URL, preventing "none of the git remotes correspond to
+ * GH_HOST" errors when GH_HOST is set to a different host in the environment.
+ *
+ * @returns {object} Environment object for exec options
+ */
+function buildGHExecEnv() {
+  const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+  let serverHost = "github.com";
+  try {
+    serverHost = new URL(serverUrl).hostname;
+  } catch {
+    // GITHUB_SERVER_URL is malformed; fall back to github.com so gh can still run
+  }
+
+  const env = { ...process.env };
+  if (serverHost === "github.com") {
+    // Unset GH_HOST so gh uses github.com (the default).
+    // If GH_HOST is set to a different host, gh will error with:
+    // "none of the git remotes configured for this repository correspond
+    //  to the GH_HOST environment variable"
+    delete env.GH_HOST;
+  } else {
+    // Set GH_HOST to match the actual GitHub Enterprise server
+    env.GH_HOST = serverHost;
+  }
+
+  return env;
+}
+
+/**
  * Log detailed PR context information for debugging
  */
 function logPRContext(eventName, pullRequest) {
@@ -176,7 +207,7 @@ async function main() {
       }
 
       core.info(`Checking out PR #${prNumber} using gh CLI`);
-      await exec.exec("gh", ["pr", "checkout", prNumber.toString()]);
+      await exec.exec("gh", ["pr", "checkout", prNumber.toString()], { env: buildGHExecEnv() });
 
       // Log the resulting branch after checkout
       let currentBranch = "";
@@ -285,4 +316,4 @@ Pull request #${pullRequest.number} is closed. The checkout failed because the b
   }
 }
 
-module.exports = { main };
+module.exports = { main, buildGHExecEnv };
