@@ -25,7 +25,7 @@ tools:
   github:
     toolsets:
       - issues
-    min-integrity: approved
+    min-integrity: none
   bash:
     - "jq *"
 safe-outputs:
