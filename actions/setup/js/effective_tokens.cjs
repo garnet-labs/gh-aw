@@ -192,7 +192,7 @@ function computeEffectiveTokens(model, inputTokens, outputTokens, cacheReadToken
  *   < 10           → exact integer (e.g. "7")
  *   10–999         → rounded to nearest 10 (e.g. "40", "120", "900")
  *   1,000–999,999  → Xk with one decimal when non-zero (e.g. "1.2K", "450K")
- *   >= 1,000,000   → Xm with one decimal when non-zero (e.g. "1.2M", "3M")
+ *   >= 1,000,000   → rounded to nearest whole M (e.g. "1M", "12M")
  *
  * @param {number} n - Non-negative ET value (should be rounded before passing)
  * @returns {string} Compact string representation
@@ -204,7 +204,8 @@ function formatET(n) {
   }
   if (n < 1000) return String(n);
   if (n < 1_000_000) return `${(n / 1000).toFixed(1).replace(/\.0$/, "")}K`;
-  return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+  // Round to nearest whole M — effective tokens are estimates
+  return `${Math.round(n / 1_000_000)}M`;
 }
 
 /**

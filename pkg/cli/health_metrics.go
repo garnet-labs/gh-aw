@@ -255,7 +255,8 @@ func formatTokens(tokens int) string {
 	if tokens < 1000000 {
 		return fmt.Sprintf("%.1fK", float64(tokens)/1000)
 	}
-	return fmt.Sprintf("%.1fM", float64(tokens)/1000000)
+	// Round to nearest whole M — token counts are estimates
+	return fmt.Sprintf("%dM", (tokens+500000)/1000000)
 }
 
 // formatCost formats cost in a human-readable format

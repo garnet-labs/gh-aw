@@ -265,7 +265,12 @@ func TestFormatTokens(t *testing.T) {
 		{
 			name:     "millions",
 			tokens:   2500000,
-			expected: "2.5M",
+			expected: "3M",
+		},
+		{
+			name:     "millions rounded down",
+			tokens:   2400000,
+			expected: "2M",
 		},
 	}
 

@@ -330,13 +330,14 @@ describe("effective_tokens", () => {
       expect(formatET(999999)).toBe("1000K");
     });
 
-    test("formats values in the millions as M", () => {
+    test("formats values in the millions as M (rounded to nearest whole M)", () => {
       expect(formatET(1_000_000)).toBe("1M");
-      expect(formatET(1_200_000)).toBe("1.2M");
-      expect(formatET(12_345_678)).toBe("12.3M");
+      expect(formatET(1_200_000)).toBe("1M");
+      expect(formatET(1_500_000)).toBe("2M");
+      expect(formatET(12_345_678)).toBe("12M");
     });
 
-    test("omits trailing .0 in K/M format", () => {
+    test("omits trailing .0 in K format", () => {
       expect(formatET(2000)).toBe("2K");
       expect(formatET(5_000_000)).toBe("5M");
     });
