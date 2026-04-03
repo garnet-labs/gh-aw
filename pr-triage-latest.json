@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-03T12:28:42Z",
-  "run_id": "23946149755",
+  "run_date": "2026-04-03T18:24:39Z",
+  "run_id": "23957165511",
   "fork_prs": 0,
-  "agent_prs_found": 6,
-  "agent_prs_excluded": 6,
-  "notes": "6 open Copilot PRs found (#24283, #24277, #24256, #24251, #24250, #23695), all same-repo branches (not forks). Excluded per fork-only triage policy. #24164 closed/merged since last run. New since last run: #24283, #24277.",
+  "agent_prs_found": 5,
+  "agent_prs_excluded": 5,
+  "notes": "5 open Copilot PRs found (#24322, #24341, #24349, #24345, #23695), all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run: #24322 (fix: SARIF upload), #24341 (create-labels + compile --json), #24349 ([WIP] Daily Issues fix), #24345 (Install Autoloop). Closed/merged since last run: #24283, #24277, #24256, #24251, #24250.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,8 +18,18 @@
   },
   "prs_examined": [
     {
-      "number": 24283,
-      "title": "refactor: eliminate duplicated AWF injection, secret validation, and MCP compilation logic",
+      "number": 24322,
+      "title": "fix: dedicated upload_code_scanning_sarif job with SARIF artifact transfer and checkout token from safe_outputs outputs",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": ["smoke-claude", "smoke-copilot"],
+      "created_at": "2026-04-03",
+      "new_since_last_run": true
+    },
+    {
+      "number": 24341,
+      "title": "Add create-labels maintenance operation and compile --json label reporting",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
@@ -28,9 +38,9 @@
       "new_since_last_run": true
     },
     {
-      "number": 24277,
-      "title": "Rename `isEmptyDiff` → `isEmptyFirewallDiff` for consistency",
-      "draft": false,
+      "number": 24349,
+      "title": "[WIP] Investigate and fix Daily Issues Report Generator failures",
+      "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
@@ -38,31 +48,14 @@
       "new_since_last_run": true
     },
     {
-      "number": 24256,
-      "title": "perf: eliminate repeated O(n) action pin scans and redundant permissions parsing in MCP workflow compilation",
+      "number": 24345,
+      "title": "Install Autoloop",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
-      "created_at": "2026-04-03"
-    },
-    {
-      "number": 24251,
-      "title": "Move all github-app token minting to activation job",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-03"
-    },
-    {
-      "number": 24250,
-      "title": "feat: add pre-steps and post-steps to threat detection job",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-03"
+      "created_at": "2026-04-03",
+      "new_since_last_run": true
     },
     {
       "number": 23695,
@@ -71,8 +64,9 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": ["lgtm", "water", "smoke-copilot-arm", "awf"],
-      "created_at": "2026-03-31"
+      "created_at": "2026-03-31",
+      "new_since_last_run": false
     }
   ],
-  "previous_run_prs_now_closed": [24164]
+  "previous_run_prs_now_closed": [24283, 24277, 24256, 24251, 24250]
 }
