@@ -1,44 +1,43 @@
-# Workflow Health - 2026-04-02T12:05Z
+# Workflow Health - 2026-04-03T12:03Z
 
-Score: 75/100 (↑1 from 74). 179 workflows total. Run: §23899445141
+Score: 72/100 (↓3 from 75). 183 workflows total. Run: §23945470700
 
 ## 🆕 New P1 This Run
-- **Smoke Multi PR**: 5/5 schedule runs failing (Mar 29 – Apr 2). Error: `add_comment` safe output with `target: triggering` fails on schedule runs (no issue/PR context). Issue created #aw_smkMulti01. Root: status-comment: true on schedule triggers.
+- **Daily Fact About gh-aw** (NEW): Old lock file format — uses `github/gh-aw-actions/setup@v0` which doesn't exist on `gh-aw-actions` repo (latest: `v0.65.7`). Fails in activation job. 9 consecutive failures (Mar 25–Apr 3). Issue created: #aw_dailyFact1. Fix: recompile `daily-fact.md`.
 
 ## P1 Issues (Active)
-- **Smoke Multi PR** (NEW): safe_outputs fails on schedule. See issue created this run.
+- **Daily Fact About gh-aw** (NEW): Old format lock file, `@v0` tag missing. Issue #aw_dailyFact1. Fix: `gh aw compile daily-fact.md`
+- **Duplicate Code Detector**: Codex API safety restriction (cybersecurity). 7 failures. Auto-issue #24284. Externally blocked.
+- **Daily Issues Report Generator**: Agent job fails at `Fetch issues data`. 11 failures since Mar 24. Auto-issue #24266. Needs investigation.
 
-## P2 (Team decided "not_planned")
-- **Smoke Update Cross-Repo PR** (#23193 closed not_planned): Still failing schedule. Root: push_repo_memory git branch bug.
-- **Smoke Create Cross-Repo PR** (#23715 closed not_planned): Still failing schedule. Same root cause.
-- **Smoke Codex** (#23431 closed): API restriction. Still failing.
-- **Smoke Gemini** (#23399 closed): Exit code 41. Still failing.
+## Resolved This Run
+- **Smoke Multi PR**: Schedule run #622 (Apr 3) SUCCESS. Issue #24096 closed. Root: status-comment on schedule fixed.
 
 ## Watch
-- **Smoke Claude** (#23528, #23067 open): Schedule run #2613 (Apr 2) SUCCESS. #2611 (Apr 1) failed. ~25-30% failure rate. MCP 412s timeout intermittent. ~$10-15/week cost.
-- **Schema Consistency Checker**: APR noted model_downgrade_available 4/5 runs.
+- **Smoke Claude** (#23528, #23067 open): Schedule Apr 3 SUCCESS. Intermittent ~25-30% failure, MCP 412s timeout. Also #23919 (safe-outputs filename mismatch, assigned to Copilot).
+- **Schema Consistency Checker**: model_downgrade_available pattern. Watching.
 
-## Stale Lock Files (10)
-commit-changes-analyzer, copilot-pr-nlp-analysis, daily-mcp-concurrency-analysis, daily-rendering-scripts-verifier, developer-docs-consolidator, github-mcp-tools-report, issue-monster, plan, security-compliance, weekly-issue-summary
+## Stale Lock Files (19) — ↑9 from last run (was 10, all previous 10 were recompiled)
+claude-token-usage-analyzer, code-simplifier, copilot-token-usage-analyzer, daily-cli-performance, daily-file-diet, daily-news, daily-testify-uber-super-expert, dependabot-go-checker, discussion-task-miner, example-workflow-analyzer, go-logger, hourly-ci-cleaner, poem-bot, prompt-clustering-analysis, schema-consistency-checker, semantic-function-refactor, smoke-copilot, terminal-stylist, workflow-normalizer
 
-## Recovered This Run
-(No new recoveries)
-
-## Previously Recovered
-- PR Triage Agent: Close #23151 manually (9+ successes)
+## P2 (Team decided "not_planned")
+- **Smoke Update Cross-Repo PR**: Still failing. Root: push_repo_memory git branch bug.
+- **Smoke Create Cross-Repo PR**: Still failing. Same root cause.
+- **Smoke Codex**: API restriction. Team: not_planned.
+- **Smoke Gemini**: Exit code 41. Team: not_planned.
 
 ## Actions Taken This Run
-- Created WHM Dashboard issue for 2026-04-02 (#aw_whmDash02)
-- Created Smoke Multi PR P1 issue (#aw_smkMulti01)
-- Commented on #23881 (previous dashboard) with update summary
+- Created WHM Dashboard #aw_whmDash03 (2026-04-03)
+- Created Daily Fact P1 issue #aw_dailyFact1
+- Confirmed Duplicate Code Detector auto-issue #24284
+- Confirmed Daily Issues Report auto-issue #24266
 
 ## Systemic Issues
-1. **status-comment on schedule**: Smoke Multi PR fails because add_comment target:triggering fails hard on schedule runs. May affect other workflows.
-2. **push_repo_memory → Post Setup Scripts**: Smoke Update + Create cross-repo PR. Team decided not_planned.
-3. **Smoke Claude MCP timeout**: HTTP closes at 412s. ~$10-15/week. #23528 #23067.
-4. **Codex/Gemini API access**: External APIs restricted. Team closed as not_planned.
+1. **Codex API safety restrictions**: Duplicate Code Detector blocked by OpenAI safety check. May affect other Codex workflows doing cybersecurity/code analysis.
+2. **Stale lock files spike (19)**: Active .md file changes without recompile. Run `make recompile`.
+3. **Old lock file format**: `daily-fact.lock.yml` uses legacy remote action refs. Recompile to fix.
 
 ## Run Info
-- Timestamp: 2026-04-02T12:05Z
-- Run: §23899445141
-- Score: 74→75 (↑1)
+- Timestamp: 2026-04-03T12:03Z
+- Run: §23945470700
+- Score: 75→72 (↓3)

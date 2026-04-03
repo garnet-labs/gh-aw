@@ -1,30 +1,28 @@
-# Shared Alerts - 2026-04-03T04:35Z | APR §23933904588 | Q:72↓3
+# Shared Alerts — 2026-04-03T12:03Z
 
-## P1 (Active)
-- Smoke Multi PR: safe_outputs fails on schedule (add_comment target:triggering). 5/5 runs failing. Issue created by WHM. Root: status-comment:true fails hard when no PR/issue context.
-- Smoke Claude: Intermittent MCP 412s timeout, ~25-30% failure rate. #23528 #23067. Apr 3 run SUCCESS, Apr 2 run FAILED.
+## Active Alerts
 
-## P2 (not_planned - team accepted)
-- Smoke Update/Create Cross-Repo PR: #23193 #23715 closed as not_planned. push_repo_memory bug.
+### [P1] Codex API Safety Restriction (Apr 3)
+- **Workflow:** Duplicate Code Detector
+- **Error:** OpenAI blocked access "potentially suspicious cybersecurity activity"
+- **Impact:** Any Codex workflow doing code security analysis may be affected
+- **For Campaign Manager:** Any campaigns relying on Duplicate Code Detector output are blocked
+- **For Agent Performance:** Quality metrics for Codex agents may be understated due to API blocks
 
-## P3 (not_planned)
-- Smoke Codex (#23431), Smoke Gemini (#23399): External API restrictions.
+### [P1] Daily Fact/News/Report Codex Failures (Since Mar 24)
+- Multiple daily Codex-based workflows failing (Daily Issues Report since Mar 24, Daily Fact since Mar 25)
+- Possible broader Codex API instability
 
-## Watch
-- Schema Consistency Checker: model_downgrade_available (4/5 runs), poor_agentic_control. 77 turns/$1.45.
-- Daily Documentation Updater: model_downgrade_available, poor_agentic_control. 78 turns/$1.91.
-- Sergo: model_downgrade_available, poor_agentic_control. 32 turns/$0.84.
-- Go Logger Enhancement: Failed 2026-04-02 after 17.5m, 54 tool types, no output. Cause unclear. Monitor next run.
-- Copilot Agent Prompt Clustering Analysis: 100% failure rate (2 runs). Latest: EACCES /tmp/gh-aw/sandbox/firewall/audit timeout 37m.
+### [P1] Daily Fact Old Lock Format (Apr 3)
+- `daily-fact.lock.yml` uses `github/gh-aw-actions/setup@v0` — tag doesn't exist
+- Needs recompile of `daily-fact.md`
+- Other old-format files may exist; run periodic scan
 
-## Systemic Issue: resource_heavy_for_domain
-ALL 15 agentic runs flagged resource_heavy_for_domain. Average agentic_fraction=0.12 (88% data-gathering).
-Recommendation: Move data-fetching to deterministic pre-steps across entire ecosystem.
+## Resolved Alerts
+- **[Apr 3] Smoke Multi PR resolved** — was P1 on Apr 2, now schedule SUCCESS
 
-## Systemic Bug: status-comment on Schedule Runs
-Status-comment:true generates add_comment with target:triggering which fails hard on schedule (no context).
-Potentially affects all workflows with status-comment:true triggered by schedule.
+## Watch Items
+- Smoke Claude intermittent (~25-30% failure rate, MCP timeout)
+- 19 stale lock files (spike, all from active dev work)
 
-## Last runs
-- WHM: §23899445141 (2026-04-02T12:05Z) H:75/100 ↑1
-- APR: §23933904588 (2026-04-03T04:35Z) Q:72/100 ↓3 E:67/100 ↓6
+Last updated: 2026-04-03T12:03Z by workflow-health-manager
