@@ -1,5 +1,5 @@
 ---
-description: Creates issue summaries and syncs them to Notion for project management and tracking
+description: Fetches issue details and searches Notion for related pages to provide context for project management
 timeout-minutes: 5
 on:
   workflow_dispatch:
@@ -19,12 +19,13 @@ imports:
 strict: true
 ---
 
-# Issue Summary to Notion
+# Issue Analysis with Notion Context
 
-Analyze the issue #${{ github.event.inputs.issue-number }} and create a brief summary, then add it as a comment to the Notion page.
+Analyze issue #${{ github.event.inputs.issue-number }} and search Notion for related pages to provide project context.
 
 ## Instructions
 
-1. Read and analyze the issue content
-2. Create a concise summary (2-3 sentences) of the issue
-3. Use the `notion_add_comment` safe-job to add your summary as a comment to the Notion page
+1. Read and analyze the issue content using the GitHub tools
+2. Use `notion-search` to find related Notion pages that may provide relevant project context
+3. If relevant pages are found, use `notion-get-block-children` to read their content
+4. Summarize the issue and any related Notion context in your response
