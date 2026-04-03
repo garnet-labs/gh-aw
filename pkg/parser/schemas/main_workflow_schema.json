@@ -3230,6 +3230,12 @@
                   "type": "string",
                   "enum": ["localhost", "host.docker.internal"],
                   "description": "Gateway domain for URL generation (default: 'host.docker.internal' when agent is enabled, 'localhost' when disabled)"
+                },
+                "keepalive-interval": {
+                  "type": "integer",
+                  "description": "Keepalive ping interval in seconds for HTTP MCP backends. Sends periodic pings to prevent session expiry during long-running agent tasks. Set to -1 to disable keepalive pings. Unset or 0 uses the gateway default (1500 seconds = 25 minutes).",
+                  "minimum": -1,
+                  "examples": [-1, 300, 600, 1500]
                 }
               },
               "additionalProperties": false
@@ -9651,9 +9657,9 @@
     },
     "github_token": {
       "type": "string",
-      "pattern": "^\\$\\{\\{\\s*secrets\\.[A-Za-z_][A-Za-z0-9_]*(\\s*\\|\\|\\s*secrets\\.[A-Za-z_][A-Za-z0-9_]*)*\\s*\\}\\}$",
-      "description": "GitHub token expression using secrets. Pattern details: `[A-Za-z_][A-Za-z0-9_]*` matches a valid secret name (starts with a letter or underscore, followed by letters, digits, or underscores). The full pattern matches expressions like `${{ secrets.NAME }}` or `${{ secrets.NAME1 || secrets.NAME2 }}`.",
-      "examples": ["${{ secrets.GITHUB_TOKEN }}", "${{ secrets.CUSTOM_PAT }}", "${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}"]
+      "pattern": "^\\$\\{\\{\\s*(secrets\\.[A-Za-z_][A-Za-z0-9_]*(\\s*\\|\\|\\s*secrets\\.[A-Za-z_][A-Za-z0-9_]*)*|needs\\.[A-Za-z_][A-Za-z0-9_]*\\.outputs\\.[A-Za-z_][A-Za-z0-9_]*)\\s*\\}\\}$",
+      "description": "GitHub token expression. Accepts a secrets expression (e.g., `${{ secrets.NAME }}` or `${{ secrets.NAME1 || secrets.NAME2 }}`) or a job output expression (e.g., `${{ needs.auth.outputs.token }}`). Pattern details: secret names match `[A-Za-z_][A-Za-z0-9_]*`; job IDs and output names in dot notation match `[A-Za-z_][A-Za-z0-9_]*` (identifiers without hyphens).",
+      "examples": ["${{ secrets.GITHUB_TOKEN }}", "${{ secrets.CUSTOM_PAT }}", "${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}", "${{ needs.auth.outputs.token }}"]
     },
     "github_app": {
       "type": "object",
