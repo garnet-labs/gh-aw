@@ -1,14 +1,16 @@
-# Agent Performance - 2026-04-02
-Run: §23883959022 | Q:75↓1 E:73→ H:74→
+# Agent Performance - 2026-04-03
+Run: §23933904588 | Q:72↓3 E:67↓6 H:75→
 
-Top: Documentation Unbloat, CLI Version Checker, Issue Monster, Release, Auto-Triage
-Recovered: Agent Persona Explorer, PR Triage Agent (9 successes - close #23151)
+Top: Daily Safe Outputs Conformance Checker, Lockfile Statistics Analysis, Smoke Claude (Apr3)
+Watch: Schema Consistency Checker (model_downgrade 4/5), Daily Documentation Updater (model_downgrade, poor_ctrl)
+Systemic: ALL 15 runs resource_heavy_for_domain; avg 92% data-gathering (agentic_fraction avg 0.12)
 
-Watch NEW: Smoke Multi PR run #604 — 89 turns/12.3min (norm: 2–4t). resource_heavy+partially_reducible (96% data-gathering). Monitor next run; add turn budget.
-Watch: Schema Consistency Checker — model_downgrade_available (4/5 runs); run #206 resource_heavy (108t,$1.73). Try smaller model.
-Off Watch: CLI Version Checker (cost normalized $0.79→$0.59).
+Failed: Go Logger Enhancement (agent crash 17.5m), Copilot Agent Prompt Clustering Analysis (timeout 37m, EACCES firewall/audit perm), Smoke Claude (safe_outputs fail, 100% network block rate)
 
-P1: Smoke Claude — 5/5 fail, MCP 412s timeout, ~$10-15/week. #23528 #23067
-P1: Smoke Create/Update Cross-Repo PR — push_repo_memory bug. #23193 #23715
+P1 tracked: Smoke Claude MCP timeout #23528 #23067 (2/3 runs fail this week)
+P1 tracked: Smoke Multi PR safe_outputs schedule (WHM created issue)
+Watch NEW: Go Logger Enhancement — failure cause unclear; agent ran 54 tool types in 17.5m then crashed. Needs investigation.
+Watch NEW: Copilot Agent Prompt Clustering Analysis — /tmp/gh-aw/sandbox/firewall/audit permission denied causing 37min timeout. 
 
-Stats: 179 wf, 32 agentic runs (7d). Claude: 8 runs $5.64. Copilot: 24 runs $0.
+Stats: 15 claude runs (2d). $14.44 total. Avg 43.4 turns. 11 success / 3 fail / 1 cancelled.
+Model downgrade candidates: Schema Consistency Checker, Sergo, Daily Documentation Updater
