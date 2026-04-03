@@ -235,13 +235,22 @@ func GroupRunsByWorkflow(runs []WorkflowRun) map[string][]WorkflowRun {
 	return grouped
 }
 
-// formatTokens formats token count in a human-readable format
+// formatTokens formats token count in a human-readable format.
+// Values in [10, 1000) are rounded to the nearest 10 — token counts are estimates.
 func formatTokens(tokens int) string {
 	if tokens == 0 {
 		return "-"
 	}
-	if tokens < 1000 {
+	if tokens < 10 {
 		return strconv.Itoa(tokens)
+	}
+	if tokens < 1000 {
+		// Round to nearest 10 — token counts are estimates
+		rounded := (tokens + 5) / 10 * 10
+		if rounded >= 1000 {
+			return "1K"
+		}
+		return strconv.Itoa(rounded)
 	}
 	if tokens < 1000000 {
 		return fmt.Sprintf("%.1fK", float64(tokens)/1000)

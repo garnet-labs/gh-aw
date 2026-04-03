@@ -233,9 +233,29 @@ func TestFormatTokens(t *testing.T) {
 			expected: "-",
 		},
 		{
-			name:     "small tokens",
+			name:     "single digit kept exact",
+			tokens:   7,
+			expected: "7",
+		},
+		{
+			name:     "rounds to nearest 10",
+			tokens:   42,
+			expected: "40",
+		},
+		{
+			name:     "rounds up to nearest 10",
+			tokens:   45,
+			expected: "50",
+		},
+		{
+			name:     "multiple of 10 unchanged",
 			tokens:   500,
 			expected: "500",
+		},
+		{
+			name:     "rounds near 1000 to 1K",
+			tokens:   999,
+			expected: "1K",
 		},
 		{
 			name:     "thousands",

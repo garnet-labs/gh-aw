@@ -302,11 +302,24 @@ describe("effective_tokens", () => {
   });
 
   describe("formatET", () => {
-    test("returns exact string for values under 1000", () => {
+    test("returns exact string for values under 10", () => {
       expect(formatET(0)).toBe("0");
       expect(formatET(1)).toBe("1");
+      expect(formatET(9)).toBe("9");
+    });
+
+    test("rounds values in [10, 1000) to nearest 10", () => {
+      expect(formatET(10)).toBe("10");
+      expect(formatET(14)).toBe("10");
+      expect(formatET(15)).toBe("20");
+      expect(formatET(42)).toBe("40");
+      expect(formatET(123)).toBe("120");
       expect(formatET(900)).toBe("900");
-      expect(formatET(999)).toBe("999");
+    });
+
+    test("rounds values near 1000 up to 1K", () => {
+      expect(formatET(995)).toBe("1K");
+      expect(formatET(999)).toBe("1K");
     });
 
     test("formats values in the thousands as K", () => {
