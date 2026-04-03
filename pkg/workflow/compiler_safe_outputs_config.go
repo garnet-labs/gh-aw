@@ -503,6 +503,10 @@ var handlerRegistry = map[string]handlerBuilder{
 		if cfg.MaximumPatchSize > 0 {
 			maxPatchSize = cfg.MaximumPatchSize
 		}
+		patchFormat := c.PatchFormat
+		if patchFormat == "" {
+			patchFormat = "bundle" // default patch format
+		}
 		builder := newHandlerConfigBuilder().
 			AddTemplatableInt("max", c.Max).
 			AddIfNotEmpty("title_prefix", c.TitlePrefix).
@@ -527,7 +531,7 @@ var handlerRegistry = map[string]handlerBuilder{
 			AddStringSlice("allowed_files", c.AllowedFiles).
 			AddStringSlice("excluded_files", c.ExcludedFiles).
 			AddIfTrue("preserve_branch_name", c.PreserveBranchName).
-			AddIfNotEmpty("patch_format", c.PatchFormat).
+			AddDefault("patch_format", patchFormat).
 			AddIfTrue("staged", c.Staged)
 		return builder.Build()
 	},
@@ -539,6 +543,10 @@ var handlerRegistry = map[string]handlerBuilder{
 		maxPatchSize := 1024 // default 1024 KB
 		if cfg.MaximumPatchSize > 0 {
 			maxPatchSize = cfg.MaximumPatchSize
+		}
+		patchFormat := c.PatchFormat
+		if patchFormat == "" {
+			patchFormat = "bundle" // default patch format
 		}
 		return newHandlerConfigBuilder().
 			AddTemplatableInt("max", c.Max).
@@ -557,7 +565,7 @@ var handlerRegistry = map[string]handlerBuilder{
 			AddStringSlice("protected_path_prefixes", getProtectedPathPrefixes()).
 			AddStringSlice("allowed_files", c.AllowedFiles).
 			AddStringSlice("excluded_files", c.ExcludedFiles).
-			AddIfNotEmpty("patch_format", c.PatchFormat).
+			AddDefault("patch_format", patchFormat).
 			Build()
 	},
 	"update_pull_request": func(cfg *SafeOutputsConfig) map[string]any {

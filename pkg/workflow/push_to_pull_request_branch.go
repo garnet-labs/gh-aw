@@ -23,7 +23,7 @@ type PushToPullRequestBranchConfig struct {
 	ManifestFilesPolicy            *string  `yaml:"protected-files,omitempty"`                     // Controls protected-file protection: "blocked" (default) hard-blocks, "allowed" permits all changes, "fallback-to-issue" creates a review issue instead of pushing.
 	AllowedFiles                   []string `yaml:"allowed-files,omitempty"`                       // Strict allowlist of glob patterns for files eligible for push. Checked independently of protected-files; both checks must pass.
 	ExcludedFiles                  []string `yaml:"excluded-files,omitempty"`                      // List of glob patterns for files to exclude from the patch using git :(exclude) pathspecs. Matching files are stripped by git at generation time and will not appear in the commit or be subject to allowed-files or protected-files checks.
-	PatchFormat                    string   `yaml:"patch-format,omitempty"`                        // Transport format for packaging changes: "am" (default, uses git format-patch) or "bundle" (uses git bundle, preserves merge topology and per-commit metadata).
+	PatchFormat                    string   `yaml:"patch-format,omitempty"`                        // Transport format for packaging changes: "bundle" (default, uses git bundle, preserves merge topology and per-commit metadata) or "am" (uses git format-patch).
 }
 
 // buildCheckoutRepository generates a checkout step with optional target repository and custom token
@@ -151,7 +151,7 @@ func (c *Compiler) parsePushToPullRequestBranchConfig(outputMap map[string]any) 
 			// Parse excluded-files: list of glob patterns for files to exclude via git :(exclude) pathspecs
 			pushToBranchConfig.ExcludedFiles = ParseStringArrayFromConfig(configMap, "excluded-files", pushToPullRequestBranchLog)
 
-			// Parse patch-format: valid values are "am" (default) and "bundle"
+			// Parse patch-format: valid values are "bundle" (default) and "am"
 			patchFormatEnums := []string{"am", "bundle"}
 			validateStringEnumField(configMap, "patch-format", patchFormatEnums, pushToPullRequestBranchLog)
 			if patchFormat, exists := configMap["patch-format"]; exists {

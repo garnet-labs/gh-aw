@@ -5908,8 +5908,8 @@
                 "patch-format": {
                   "type": "string",
                   "enum": ["am", "bundle"],
-                  "default": "am",
-                  "description": "Transport format for packaging changes. \"am\" (default) uses git format-patch/git am. \"bundle\" uses git bundle, which preserves merge commit topology, per-commit authorship, and merge-resolution-only content."
+                  "default": "bundle",
+                  "description": "Transport format for packaging changes. \"bundle\" (default) uses git bundle, which preserves merge commit topology, per-commit authorship, and merge-resolution-only content. \"am\" uses git format-patch/git am."
                 },
                 "staged": {
                   "type": "boolean",
@@ -7058,8 +7058,8 @@
                 "patch-format": {
                   "type": "string",
                   "enum": ["am", "bundle"],
-                  "default": "am",
-                  "description": "Transport format for packaging changes. \"am\" (default) uses git format-patch/git am. \"bundle\" uses git bundle, which preserves merge commit topology, per-commit authorship, and merge-resolution-only content."
+                  "default": "bundle",
+                  "description": "Transport format for packaging changes. \"bundle\" (default) uses git bundle, which preserves merge commit topology, per-commit authorship, and merge-resolution-only content. \"am\" uses git format-patch/git am."
                 }
               },
               "additionalProperties": false
