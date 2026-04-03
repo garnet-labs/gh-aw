@@ -1,6 +1,9 @@
-## Flagged Items (2026-04-01)
-- Smoke Claude: safe-output filename mismatch → fix config or use static path.
-- Security findings: triage #23740,#23739,#23737,#23079,#22914,#22908 (all from szabta89, unowned).
-- Auto-Triage: 0% due to DIFC integrity filter on community issues.
-- add_labels.cjs pagination (#23914): unfixed, affects repos with >30 labels.
-- Copilot PR success: 90%→70% on 4/1, monitor next 3 days.
+## Flagged Items (2026-04-03)
+- Daily Issues Report Generator: 11d failure at Fetch issues data step — investigate.
+- Stale lock files: 19 (+9 surge) — batch recompile needed.
+- Missing labels: constraint-solving, problem-of-the-day — blocking POTD label application.
+- MCP get_me 403: 5 consecutive days — GitHub MCP auth broken.
+- Duplicate Code Detector: Codex cybersecurity restriction — pause or reprompt.
+- Daily Fact: Old lock format → #24290 filed.
+- 8 DIFC-filtered unlabeled issues — manual review required.
+- Dependabot: proxy.golang.org blocked → #24311 filed.

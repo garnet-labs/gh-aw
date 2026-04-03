@@ -1,7 +1,7 @@
-## Trend Data (2026-04-01)
-- Discussions 7d: 39 (29 audits, 8 announcements, 2 general).
-- Issues: 500 total; open 41 (was 79, -48%); closed 459 (was 421).
-- Tokens/day: 94.7M (Copilot), -60% from Feb peak of 237.8M.
-- Safe-output failure: 16.7% (Smoke Claude config issue).
-- PR merge success: 70% on 4/1, down from 90% on 3/31.
-- Security findings open: 6.
+## Trend Data (2026-04-03)
+- Tokens/day: 99.5M raw (+10.1% vs Apr 2 90.4M). 123 runs, 1,369 turns.
+- PR merge: 78.4% (Apr 3), 78.3% (Apr 2), 78.7% (Apr 1), 76.0% (Mar 31). Stable.
+- Safe-output: 100% (was 80.8% Apr 2). WHM score: 72/100 (was 75).
+- Issues: 56 open, 444 closed (500 7d window).
+- Stale lock files: 19 (was 10). Workflows: 241 (+5 since Apr 1).
+- Discussions: 4,486 total (+59/day accelerating).
