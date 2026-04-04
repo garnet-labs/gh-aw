@@ -1064,5 +1064,18 @@ engine: copilot
       // Falls back to GH_AW_CONTEXT_WORKFLOW_REF
       expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
     });
+
+    it("should fall back gracefully when API response omits referenced_workflows field", async () => {
+      // Some API versions or configurations may return a run without the referenced_workflows field
+      mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({ data: {} });
+      process.env.GH_AW_CONTEXT_WORKFLOW_REF = "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml@refs/heads/main";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      // Falls back to GH_AW_CONTEXT_WORKFLOW_REF when referenced_workflows is missing
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
+    });
   });
 });

@@ -13,6 +13,10 @@ import (
 
 var frontmatterLog = logger.New("workflow:frontmatter_extraction")
 
+// onStaleCheckKey is the internal frontmatter key that controls the stale lock file check.
+// It is stripped from the compiled "on:" YAML block and must never appear in the output.
+const onStaleCheckKey = "stale-check"
+
 // indentYAMLLines adds indentation to all lines of a multi-line YAML string except the first
 func (c *Compiler) indentYAMLLines(yamlContent, indent string) string {
 	if yamlContent == "" {
@@ -58,7 +62,7 @@ func (c *Compiler) extractTopLevelYAMLSection(frontmatter map[string]any, key st
 		if key == "on" {
 			stripped := make(map[string]any, len(valueMap))
 			for k, v := range valueMap {
-				if k != "stale-check" {
+				if k != onStaleCheckKey {
 					stripped[k] = v
 				}
 			}
