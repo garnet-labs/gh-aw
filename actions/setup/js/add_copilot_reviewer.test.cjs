@@ -212,4 +212,23 @@ describe("add_copilot_reviewer", () => {
     expect(mockCore.summary.addRaw).toHaveBeenCalledWith(expect.stringContaining("42"));
     expect(mockCore.summary.write).toHaveBeenCalled();
   });
+
+  it("should include ERR_NOT_FOUND in setFailed message on API error", async () => {
+    const { ERR_NOT_FOUND } = require("./error_codes.cjs");
+    process.env.PR_NUMBER = "999";
+    mockGithub.rest.pulls.requestReviewers.mockRejectedValueOnce(new Error("Not found"));
+
+    await runScript();
+
+    expect(mockCore.setFailed).toHaveBeenCalledWith(expect.stringContaining(ERR_NOT_FOUND));
+  });
+
+  it("should not write summary on API error", async () => {
+    process.env.PR_NUMBER = "111";
+    mockGithub.rest.pulls.requestReviewers.mockRejectedValueOnce(new Error("Unexpected error"));
+
+    await runScript();
+
+    expect(mockCore.summary.write).not.toHaveBeenCalled();
+  });
 });

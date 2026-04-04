@@ -9,6 +9,7 @@ const { COPILOT_REVIEWER_BOT } = require("./constants.cjs");
  * Add Copilot as a reviewer to a pull request.
  *
  * Runs in github-script context. Requires `PR_NUMBER` environment variable.
+ * @returns {Promise<void>}
  */
 async function main() {
   const prNumberStr = process.env.PR_NUMBER?.trim();
