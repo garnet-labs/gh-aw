@@ -1742,9 +1742,9 @@ describe("log_parser_shared.cjs", () => {
       const result = generatePlainTextSummary(logEntries, { parserName: "Agent" });
 
       expect(result).toContain("Conversation:");
-      expect(result).toContain("Agent: I'll help you with that task.");
+      expect(result).toContain("◆ I'll help you with that task.");
       expect(result).toContain("✓ $ echo hello");
-      expect(result).toContain("Agent: The command executed successfully!");
+      expect(result).toContain("◆ The command executed successfully!");
     });
 
     it("should truncate long agent responses", async () => {
@@ -1764,7 +1764,7 @@ describe("log_parser_shared.cjs", () => {
 
       const result = generatePlainTextSummary(logEntries, { parserName: "Agent" });
 
-      expect(result).toContain("Agent: " + "a".repeat(2000) + "... [truncated: showing first 2000 of 2100 chars]");
+      expect(result).toContain("◆ " + "a".repeat(2000) + "... [truncated: showing first 2000 of 2100 chars]");
       expect(result).not.toContain("a".repeat(2001));
     });
 
@@ -1784,9 +1784,9 @@ describe("log_parser_shared.cjs", () => {
 
       const result = generatePlainTextSummary(logEntries, { parserName: "Agent" });
 
-      expect(result).toContain("Agent: Line 1");
-      expect(result).toContain("Agent: Line 2");
-      expect(result).toContain("Agent: Line 3");
+      expect(result).toContain("◆ Line 1");
+      expect(result).toContain("  Line 2");
+      expect(result).toContain("  Line 3");
     });
   });
 
@@ -1827,11 +1827,12 @@ describe("log_parser_shared.cjs", () => {
       expect(result).toContain("Conversation:");
 
       // Check for Agent message
-      expect(result).toContain("Agent: I'll help you explore the repository structure first.");
+      expect(result).toContain("◆ I'll help you explore the repository structure first.");
 
-      // Check for tool execution with success icon
+      // Check for tool execution with success icon and first 2 lines of output
       expect(result).toContain("✓ $ ls -la");
-      expect(result).toContain("   └ 3 lines...");
+      expect(result).toContain("   ├ file1.txt");
+      expect(result).toContain("   └ file2.txt (+ 1 more)");
 
       // Check for Statistics section
       expect(result).toContain("Statistics:");
@@ -1884,7 +1885,7 @@ describe("log_parser_shared.cjs", () => {
 
       const result = generateCopilotCliStyleSummary(logEntries, { parserName: "Agent" });
 
-      expect(result).toContain("Agent: " + "a".repeat(2000) + "... [truncated: showing first 2000 of 2100 chars]");
+      expect(result).toContain("◆ " + "a".repeat(2000) + "... [truncated: showing first 2000 of 2100 chars]");
     });
 
     it("should skip internal file operation tools", async () => {
@@ -1940,9 +1941,9 @@ describe("log_parser_shared.cjs", () => {
 
       const result = generateCopilotCliStyleSummary(logEntries, { parserName: "Agent" });
 
-      expect(result).toContain("Agent: Line 1");
-      expect(result).toContain("Agent: Line 2");
-      expect(result).toContain("Agent: Line 3");
+      expect(result).toContain("◆ Line 1");
+      expect(result).toContain("  Line 2");
+      expect(result).toContain("  Line 3");
     });
 
     it("should truncate conversation when it exceeds max lines", async () => {
@@ -1967,6 +1968,68 @@ describe("log_parser_shared.cjs", () => {
       const result = generateCopilotCliStyleSummary(logEntries, { parserName: "Agent" });
 
       expect(result).toContain("... (conversation truncated)");
+    });
+  });
+
+  describe("formatResultPreview", () => {
+    it("should return empty string for empty or falsy input", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      expect(formatResultPreview("")).toBe("");
+      expect(formatResultPreview(null)).toBe("");
+      expect(formatResultPreview(undefined)).toBe("");
+      expect(formatResultPreview("   \n   \n   ")).toBe("");
+    });
+
+    it("should format single non-empty line with └", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      expect(formatResultPreview("hello")).toBe("   └ hello");
+      expect(formatResultPreview("\nhello\n")).toBe("   └ hello");
+    });
+
+    it("should format exactly two non-empty lines with ├ and └", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      expect(formatResultPreview("line1\nline2")).toBe("   ├ line1\n   └ line2");
+    });
+
+    it("should show (+ N more) for three or more non-empty lines", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      expect(formatResultPreview("line1\nline2\nline3")).toBe("   ├ line1\n   └ line2 (+ 1 more)");
+      expect(formatResultPreview("line1\nline2\nline3\nline4\nline5")).toBe("   ├ line1\n   └ line2 (+ 3 more)");
+    });
+
+    it("should truncate lines exceeding maxLineLength and append ellipsis", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      const longLine = "a".repeat(100);
+      const result = formatResultPreview(longLine, 80);
+      expect(result).toBe(`   └ ${"a".repeat(80)}...`);
+    });
+
+    it("should not add ellipsis when line exactly fits maxLineLength", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      const exactLine = "a".repeat(80);
+      const result = formatResultPreview(exactLine, 80);
+      expect(result).toBe(`   └ ${"a".repeat(80)}`);
+      expect(result).not.toContain("...");
+    });
+
+    it("should handle Windows CRLF line endings without trailing \\r", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      expect(formatResultPreview("line1\r\nline2\r\n")).toBe("   ├ line1\n   └ line2");
+      expect(formatResultPreview("only\r\n")).toBe("   └ only");
+    });
+
+    it("should skip blank lines when counting", async () => {
+      const { formatResultPreview } = await import("./log_parser_shared.cjs");
+
+      expect(formatResultPreview("\n\nfirst\n\nsecond\n\n")).toBe("   ├ first\n   └ second");
+      expect(formatResultPreview("\n\nonly\n\n")).toBe("   └ only");
     });
   });
 
