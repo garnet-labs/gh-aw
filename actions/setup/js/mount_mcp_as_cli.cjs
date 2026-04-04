@@ -6,10 +6,13 @@
  *
  * Mounts MCP servers as local CLI tools by reading the manifest written by
  * start_mcp_gateway.sh, querying each server for its tool list, and generating
- * a standalone bash wrapper script per server in /tmp/gh-aw/mcp-cli/bin/.
+ * a standalone bash wrapper script per server in ${RUNNER_TEMP}/gh-aw/mcp-cli/bin/.
  *
  * The bin directory is locked (chmod 555) so the agent cannot modify or inject
  * scripts. The directory is added to PATH via core.addPath().
+ *
+ * Scripts are placed under ${RUNNER_TEMP}/gh-aw/ (not /tmp/gh-aw/) so they are
+ * accessible inside the AWF sandbox, which mounts ${RUNNER_TEMP}/gh-aw read-only.
  *
  * Generated CLI wrapper usage:
  *   <server> --help                         Show all available commands
@@ -22,8 +25,11 @@ const http = require("http");
 const path = require("path");
 
 const MANIFEST_FILE = "/tmp/gh-aw/mcp-cli/manifest.json";
-const CLI_BIN_DIR = "/tmp/gh-aw/mcp-cli/bin";
-const TOOLS_DIR = "/tmp/gh-aw/mcp-cli/tools";
+// Use RUNNER_TEMP so the bin and tools directories are inside the AWF sandbox mount
+// (AWF mounts ${RUNNER_TEMP}/gh-aw read-only; /tmp/gh-aw is not accessible inside AWF)
+const RUNNER_TEMP = process.env.RUNNER_TEMP || "/home/runner/work/_temp";
+const CLI_BIN_DIR = `${RUNNER_TEMP}/gh-aw/mcp-cli/bin`;
+const TOOLS_DIR = `${RUNNER_TEMP}/gh-aw/mcp-cli/tools`;
 
 /** MCP servers that are internal infrastructure and should not be user-facing CLIs */
 const INTERNAL_SERVERS = new Set(["safeoutputs", "mcp-scripts"]);
