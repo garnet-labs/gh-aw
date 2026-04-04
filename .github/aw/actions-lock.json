@@ -148,10 +148,10 @@
       "version": "v4.35.1",
       "sha": "0e9f55954318745b37b7933c693bc093f7336125"
     },
-    "github/gh-aw-actions/setup@v0.65.7": {
+    "github/gh-aw-actions/setup@v0.66.1": {
       "repo": "github/gh-aw-actions/setup",
-      "version": "v0.65.7",
-      "sha": "c34825b76ae62838859b3654941fae193f7abb96"
+      "version": "v0.66.1",
+      "sha": "73ae9ce231580f337133352d321d42b6bf54b6a9"
     },
     "github/stale-repos@v9.0.7": {
       "repo": "github/stale-repos",
