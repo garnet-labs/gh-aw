@@ -52,26 +52,42 @@ steps:
       if [ "$USED_CACHE" != "true" ]; then
         echo "📥 Downloading Copilot and Claude workflow runs from last 24 hours..."
 
-        # Ensure gh-aw CLI is installed — this shared step runs before user-defined steps
-        if ! gh extension list 2>/dev/null | grep -q "github/gh-aw"; then
+        # Ensure gh-aw CLI is installed — this shared step runs before user-defined steps.
+        # Install failure is non-fatal to match the fallback-safe behavior of gh aw logs below.
+        GH_AW_AVAILABLE=false
+        if gh extension list 2>/dev/null | grep -q "github/gh-aw"; then
+          GH_AW_AVAILABLE=true
+        else
           echo "📦 Installing gh-aw CLI extension..."
-          gh extension install github/gh-aw
+          if gh extension install github/gh-aw 2>/dev/null; then
+            GH_AW_AVAILABLE=true
+          else
+            echo "⚠️ Failed to install gh-aw CLI extension; continuing with empty token logs."
+          fi
         fi
 
-        gh aw logs \
-          --engine copilot \
-          --start-date -1d \
-          --json \
-          -c 300 \
-          > /tmp/token-logs-copilot-raw.json 2>/dev/null || echo '{"runs":[]}' > /tmp/token-logs-copilot-raw.json
+        if [ "$GH_AW_AVAILABLE" = "true" ]; then
+          gh aw logs \
+            --engine copilot \
+            --start-date -1d \
+            --json \
+            -c 300 \
+            > /tmp/token-logs-copilot-raw.json 2>/dev/null || echo '{"runs":[]}' > /tmp/token-logs-copilot-raw.json
+        else
+          echo '{"runs":[]}' > /tmp/token-logs-copilot-raw.json
+        fi
         jq '.runs // []' /tmp/token-logs-copilot-raw.json > "$TOKEN_LOGS_DIR/copilot-runs.json" 2>/dev/null || echo "[]" > "$TOKEN_LOGS_DIR/copilot-runs.json"
 
-        gh aw logs \
-          --engine claude \
-          --start-date -1d \
-          --json \
-          -c 300 \
-          > /tmp/token-logs-claude-raw.json 2>/dev/null || echo '{"runs":[]}' > /tmp/token-logs-claude-raw.json
+        if [ "$GH_AW_AVAILABLE" = "true" ]; then
+          gh aw logs \
+            --engine claude \
+            --start-date -1d \
+            --json \
+            -c 300 \
+            > /tmp/token-logs-claude-raw.json 2>/dev/null || echo '{"runs":[]}' > /tmp/token-logs-claude-raw.json
+        else
+          echo '{"runs":[]}' > /tmp/token-logs-claude-raw.json
+        fi
         jq '.runs // []' /tmp/token-logs-claude-raw.json > "$TOKEN_LOGS_DIR/claude-runs.json" 2>/dev/null || echo "[]" > "$TOKEN_LOGS_DIR/claude-runs.json"
       fi
 
