@@ -28,8 +28,15 @@ var internalMCPServerNames = map[string]bool{
 // getMCPCLIServerNames returns the sorted list of MCP server names that will be
 // mounted as CLI tools. It includes standard MCP tools (github, playwright, etc.)
 // and custom MCP servers, but excludes internal infrastructure servers.
+// Returns nil if tools.mount-as-clis is not set to true.
 func getMCPCLIServerNames(data *WorkflowData) []string {
 	if data == nil {
+		return nil
+	}
+
+	// Only mount if tools.mount-as-clis: true is set.
+	// Also returns nil when tools configuration is missing entirely.
+	if data.ParsedTools == nil || !data.ParsedTools.MountAsCLIs {
 		return nil
 	}
 
@@ -40,9 +47,9 @@ func getMCPCLIServerNames(data *WorkflowData) []string {
 		if toolValue == false {
 			continue
 		}
-		// Only include tools that have MCP servers (skip bash, web-fetch, web-search, edit, etc.)
+		// Only include tools that have MCP servers (skip bash, web-fetch, web-search, edit, cache-memory, etc.)
 		switch toolName {
-		case "github", "playwright", "qmd", "cache-memory", "agentic-workflows":
+		case "github", "playwright", "qmd", "agentic-workflows":
 			servers = append(servers, toolName)
 		default:
 			// Include custom MCP servers (not in the internal list)

@@ -83,6 +83,13 @@ type ToolsConfig struct {
 	// Custom MCP tools (anything not in the above list)
 	Custom map[string]MCPServerConfig `yaml:",inline"`
 
+	// MountAsCLIs enables mounting MCP servers as standalone CLI tools on PATH.
+	// When true, each user-facing MCP server gets a bash wrapper script placed in
+	// a read-only directory added to PATH, and those servers are removed from the
+	// MCP gateway config (so the agent uses the CLI instead of the MCP protocol).
+	// Default is false.
+	MountAsCLIs bool `yaml:"mount-as-clis,omitempty"`
+
 	// Raw map for backwards compatibility
 	raw map[string]any
 }

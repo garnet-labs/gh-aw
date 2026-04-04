@@ -104,12 +104,41 @@ func renderStandardJSONMCPConfig(
 ) error {
 	mcpRenderingLog.Printf("Rendering standard JSON MCP config: config_path=%s tools=%d mcp_tools=%d", configPath, len(tools), len(mcpTools))
 	createRenderer := buildMCPRendererFactory(workflowData, "json", includeCopilotFields, inlineArgs)
+
+	// Compose the engine-specific filter with the CLI-mounted servers filter.
+	// Servers that are mounted as CLIs should not appear in the MCP gateway config.
+	composedFilter := composeCLIMountFilter(filterTool, workflowData)
+
 	return RenderJSONMCPConfig(yaml, tools, mcpTools, workflowData, JSONMCPConfigOptions{
 		ConfigPath:    configPath,
 		GatewayConfig: buildMCPGatewayConfig(workflowData),
 		Renderers:     buildStandardJSONMCPRenderers(workflowData, createRenderer, renderCustom),
-		FilterTool:    filterTool,
+		FilterTool:    composedFilter,
 	})
+}
+
+// composeCLIMountFilter returns a new filter function that additionally excludes
+// any MCP servers that have been mounted as CLI tools (tools.mount-as-clis: true).
+// It composes with the existing filter if one is provided.
+func composeCLIMountFilter(existing func(string) bool, workflowData *WorkflowData) func(string) bool {
+	cliServers := getMCPCLIServerNames(workflowData)
+	if len(cliServers) == 0 {
+		// Nothing mounted as CLI — return the original filter unchanged
+		return existing
+	}
+
+	cliSet := make(map[string]bool, len(cliServers))
+	for _, name := range cliServers {
+		cliSet[name] = true
+	}
+	mcpRenderingLog.Printf("Excluding %d CLI-mounted servers from MCP gateway config: %v", len(cliServers), cliServers)
+
+	return func(toolName string) bool {
+		if cliSet[toolName] {
+			return false // exclude: mounted as CLI
+		}
+		return existing == nil || existing(toolName)
+	}
 }
 
 // buildMCPRendererFactory creates a factory function for MCPConfigRendererUnified instances.

@@ -43,6 +43,7 @@ tools:
       - pelikhan
   playwright:
   web-fetch:
+  mount-as-clis: true
 runtimes:
   go:
     version: "1.25"
