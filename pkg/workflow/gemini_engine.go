@@ -194,9 +194,14 @@ func (e *GeminiEngine) GetExecutionSteps(workflowData *WorkflowData, logFile str
 			// inside the sandbox. The agent writes its step summary content here, and the
 			// file is appended to $GITHUB_STEP_SUMMARY after secret redaction.
 			PathSetup: "touch " + AgentStepSummaryPath,
-			// Exclude every env var whose step-env value is a secret so the agent
-			// cannot read raw token values via bash tools (env / printenv).
-			ExcludeEnvVarNames: ComputeAWFExcludeEnvVarNames(workflowData, []string{"GEMINI_API_KEY"}),
+			// The AWF API proxy does not support Gemini API key injection (it only
+			// supports OpenAI, Anthropic, and Copilot). Unlike those engines, the
+			// Gemini CLI validates that an auth method is present at startup and exits
+			// with code 41 if none is found. GEMINI_API_KEY must remain visible inside
+			// the container so the Gemini CLI can authenticate. All network traffic is
+			// still restricted by the AWF Squid firewall, which limits which external
+			// domains the key can be sent to.
+			ExcludeEnvVarNames: ComputeAWFExcludeEnvVarNames(workflowData, []string{}),
 		})
 	} else {
 		command = fmt.Sprintf(`set -o pipefail
@@ -240,14 +245,10 @@ touch %s
 		env["GH_AW_MCP_CONFIG"] = "${{ github.workspace }}/.gemini/settings.json"
 	}
 
-	// When the firewall (AWF) is enabled with --enable-api-proxy, point Gemini CLI at the
-	// LLM gateway sidecar instead of the real googleapis.com endpoint.
+	// Set git identity environment variables so the first git commit succeeds inside the
+	// container when the firewall (AWF) is enabled. AWF's --env-all forwards these to the
+	// container, ensuring git does not rely on the host-side ~/.gitconfig.
 	if firewallEnabled {
-		env["GEMINI_API_BASE_URL"] = fmt.Sprintf("http://host.docker.internal:%d", constants.GeminiLLMGatewayPort)
-
-		// Set git identity environment variables so the first git commit succeeds inside the
-		// container. AWF's --env-all forwards these to the container, ensuring git does not
-		// rely on the host-side ~/.gitconfig which is not visible in the sandbox.
 		maps.Copy(env, getGitIdentityEnvVars())
 	}
 

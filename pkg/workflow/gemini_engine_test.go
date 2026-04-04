@@ -340,7 +340,14 @@ func TestGeminiEngineFirewallIntegration(t *testing.T) {
 		assert.Contains(t, stepContent, "awf", "Should use AWF when firewall is enabled")
 		assert.Contains(t, stepContent, "--allow-domains", "Should include allow-domains flag")
 		assert.Contains(t, stepContent, "--enable-api-proxy", "Should include --enable-api-proxy flag")
-		assert.Contains(t, stepContent, "GEMINI_API_BASE_URL: http://host.docker.internal:10003", "Should set GEMINI_API_BASE_URL to LLM gateway URL")
+		// GEMINI_API_BASE_URL must NOT be set: the AWF API proxy does not support Gemini key
+		// injection, so pointing Gemini at the proxy would break API calls. Gemini CLI calls
+		// the real generativelanguage.googleapis.com directly through the AWF Squid firewall.
+		assert.NotContains(t, stepContent, "GEMINI_API_BASE_URL", "Should not set GEMINI_API_BASE_URL - AWF proxy does not support Gemini auth injection")
+		// GEMINI_API_KEY must NOT be excluded: unlike OpenAI/Anthropic/Copilot, the AWF proxy
+		// cannot inject the Gemini key, so the container needs it to pass the CLI's startup
+		// auth check (exit code 41 when no auth method is found).
+		assert.NotContains(t, stepContent, "--exclude-env GEMINI_API_KEY", "Should not exclude GEMINI_API_KEY - Gemini CLI requires it at startup")
 	})
 
 	t.Run("firewall disabled", func(t *testing.T) {
