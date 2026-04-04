@@ -1,8 +1,9 @@
+<mcp-clis>
 ## MCP Tools Available as CLI Commands
 
 The following MCP servers have been mounted as local CLI commands and are available directly from the shell:
 
-{MCP_CLI_SERVERS_LIST}
+__GH_AW_MCP_CLI_SERVERS_LIST__
 
 ### How to Use
 
@@ -24,3 +25,4 @@ Each server is a standalone command in your PATH. Use them like any other shell 
 - Parameters are passed as `--name value` pairs (all values are treated as strings unless the tool accepts booleans, in which case `--flag` with no value sets it to `true`)
 - Results are printed to stdout; errors are printed to stderr
 - The CLI scripts are read-only — use MCP tools via the CLI wrappers rather than calling the gateway directly
+</mcp-clis>
