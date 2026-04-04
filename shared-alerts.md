@@ -1,36 +1,42 @@
-# Shared Alerts — 2026-04-04T04:30Z
+# Shared Alerts — 2026-04-04T12:00Z
 
 ## Active Alerts
 
 ### [P1] Daily Issues Report Generator (Since Mar 24)
 - **Workflow:** daily-issues-report
-- **Error:** Agent job fails at `Fetch issues data` step
-- **11 consecutive failures**
+- **Error:** Agent job fails (Fetch issues data step)
+- **13+ consecutive failures** (previous issue #24266 closed not_planned, new #24461 open)
 - **For Campaign Manager:** Any campaigns relying on daily issues data are blocked
-- **For Agent Performance:** Codex workflow, but failure predates Codex API restriction
-- Issue: #24266 (open)
+- **For Agent Performance:** May indicate data fetch / GitHub MCP connectivity issue
+- Issue: #24461 (open)
 
 ### [P1] Codex API Safety Restriction
-- **Workflows:** Duplicate Code Detector (7 failures, Mar 28–Apr 3)
+- **Workflows:** Duplicate Code Detector (8+ failures since Mar 28)
 - **Error:** OpenAI blocked "potentially suspicious cybersecurity activity"
 - **For Campaign Manager:** Campaigns using code analysis output are blocked
 - **For Agent Performance:** Quality metrics for Codex agents understated
-- Issue: #24284 (open, externally blocked)
+- Issue: #24471 (open, externally blocked; previous #24284 closed not_planned)
 
-### [P1] Stale Lock Files Spike (19)
-- **Spike:** 10→19 in one cycle (+9 new)
-- **Action needed:** Batch recompile via `make recompile` or compile MCP tool
-- Issue: #24325 (open, quick-win)
+### [NEW SYSTEMIC] API Rate Limiting at 05:00-05:40 UTC
+- **Pattern:** Multiple workflows failing pre_activation with "API rate limit exceeded for installation"
+- **Affected:** Issue Monster (6/40 failures), Daily CLI Performance Agent, Agentic Maintenance (zizmor-scan), others
+- **Root cause:** Concurrent schedules 05:00-05:40 UTC saturating GitHub installation API
+- **For Campaign Manager:** Campaign-critical workflows may fail silently at pre_activation
+- **For Agent Performance:** Run count underreported for affected time window
+- Recommendation: Stagger schedule times; add retry logic in pre_activation
 
-## Resolved Alerts
-- **[Apr 3] Smoke Multi PR** — schedule SUCCESS, issue #24096 closed
-- **[Apr 3] Daily Fact Old Lock Format** — issue #24290 closed (recompile fix applied)
+### [P2, not_planned] Stale Lock Files (13)
+- **Action needed:** Batch recompile via `make recompile`
+- Down from 19 (Apr 3). Previous issue #24325 closed not_planned.
 
 ## Watch Items
-- **Smoke Claude**: Intermittent ~25-30% failure rate, MCP 412s timeout (#23528, #23067, #23919)
-- **Go Logger Enhancement**: Agent crashed at 17.5m after 54+ tool calls — root cause unknown
-- **Schema Consistency Checker**: Repeated model_downgrade pattern
-- **Claude resource-heavy**: ALL Claude runs at 92% data-gathering; needs prompt optimization
-- **Codex workflows broadly**: Any Codex workflow doing security/code analysis may hit API restriction
+- **Smoke Claude**: Intermittent ~25-30% failure rate (#23528, #23067, #23919)
+- **Workflow Normalizer + Auto-Triage**: safe_outputs job failures despite artifact upload success — may be processing errors
+- **Super Linter Report**: EACCES on artifact upload — permission issue with docker-generated file
+- **Codex workflows broadly**: API safety restriction may affect others doing code analysis
 
-Last updated: 2026-04-04T04:30Z by agent-performance-analyzer
+## Resolved Alerts (since last)
+- **[Apr 3] Daily Fact About gh-aw** — issue #24290 closed (recompile fix applied)
+- **[Apr 4] Stale lock files (19→13)** — 6 recompiled
+
+Last updated: 2026-04-04T12:00Z by workflow-health-manager
