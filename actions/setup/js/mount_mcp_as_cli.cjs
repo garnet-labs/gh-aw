@@ -90,7 +90,7 @@ function httpPostJSON(urlStr, headers, body, timeoutMs = 15000) {
 
 /**
  * Query the tools list from an MCP server via JSON-RPC.
- * Follows the standard MCP handshake: initialize → tools/list.
+ * Follows the standard MCP handshake: initialize → notifications/initialized → tools/list.
  *
  * @param {string} serverUrl - HTTP URL of the MCP server endpoint
  * @param {string} apiKey - Bearer token for gateway authentication
@@ -127,7 +127,15 @@ async function fetchMCPTools(serverUrl, apiKey, core) {
     return [];
   }
 
-  // Step 2: tools/list – get the available tool definitions
+  // Step 2: notifications/initialized – required by MCP spec to complete the handshake.
+  // The server responds with 204 No Content; errors here are non-fatal.
+  try {
+    await httpPostJSON(serverUrl, { ...authHeaders, ...sessionHeader }, { jsonrpc: "2.0", method: "notifications/initialized", params: {} }, 10000);
+  } catch (err) {
+    core.warning(`  notifications/initialized failed for ${serverUrl}: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  // Step 3: tools/list – get the available tool definitions
   try {
     const listResp = await httpPostJSON(serverUrl, { ...authHeaders, ...sessionHeader }, { jsonrpc: "2.0", id: 2, method: "tools/list" }, 15000);
     const respBody = /** @type {Record<string, unknown>} */ listResp.body;
@@ -147,7 +155,8 @@ async function fetchMCPTools(serverUrl, apiKey, core) {
 /**
  * Generate the bash wrapper script content for a given MCP server.
  * The generated script is a self-contained CLI that delegates all calls
- * to the MCP gateway via curl.
+ * to the MCP gateway via curl, following the proper MCP session protocol:
+ * initialize → notifications/initialized → tools/call.
  *
  * @param {string} serverName - Name of the MCP server
  * @param {string} serverUrl - HTTP URL of the MCP server endpoint
@@ -254,20 +263,38 @@ call_tool() {
     fi
   done
 
-  local init_resp session_id session_header_args
-  init_resp=\$(curl -s -i --max-time 30 -X POST "\$SERVER_URL" \\
+  # MCP session protocol: initialize → notifications/initialized → tools/call
+  # A separate headers file is used to capture the Mcp-Session-Id without mixing
+  # headers and body (curl -i mixes them, making parsing fragile).
+  local headers_file
+  headers_file=\$(mktemp)
+
+  # Step 1: initialize – establish the session
+  curl -s -D "\$headers_file" --max-time 30 -X POST "\$SERVER_URL" \\
     -H "Authorization: \$API_KEY" \\
     -H "Content-Type: application/json" \\
     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{},"clientInfo":{"name":"mcp-cli","version":"1.0.0"},"protocolVersion":"2024-11-05"}}' \\
-    2>/dev/null || echo "")
+    >/dev/null 2>/dev/null || true
 
-  session_id=\$(echo "\$init_resp" | grep -i "^mcp-session-id:" | awk "{print \$2}" | tr -d "\\r" 2>/dev/null || echo "")
+  local session_id
+  session_id=\$(grep -i "^mcp-session-id:" "\$headers_file" 2>/dev/null | awk "{print \$2}" | tr -d "\\r" || echo "")
+  rm -f "\$headers_file"
 
-  session_header_args=()
+  local session_header_args=()
   if [ -n "\$session_id" ]; then
     session_header_args=(-H "Mcp-Session-Id: \$session_id")
   fi
 
+  # Step 2: notifications/initialized – required by MCP spec to complete the handshake.
+  # The server responds with 204 No Content; failures here are non-fatal.
+  curl -s --max-time 10 -X POST "\$SERVER_URL" \\
+    -H "Authorization: \$API_KEY" \\
+    -H "Content-Type: application/json" \\
+    "\${session_header_args[@]}" \\
+    -d '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}' \\
+    >/dev/null 2>/dev/null || true
+
+  # Step 3: tools/call – execute the tool within the established session
   local request
   request=\$(jq -n --arg name "\$tool_name" --argjson args "\$args" \\
     "{\\"jsonrpc\\":\\"2.0\\",\\"id\\":2,\\"method\\":\\"tools/call\\",\\"params\\":{\\"name\\":\$name,\\"arguments\\":\$args}}")
