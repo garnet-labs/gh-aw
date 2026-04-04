@@ -438,6 +438,22 @@ else
 fi
 echo ""
 
+# Save CLI manifest for mount_mcp_as_cli.sh before gateway config is deleted
+# The manifest contains server names and their local localhost URLs
+echo "Saving MCP CLI manifest..."
+mkdir -p /tmp/gh-aw/mcp-cli
+if [ -f /tmp/gh-aw/mcp-config/gateway-output.json ] && \
+   jq -e '.mcpServers' /tmp/gh-aw/mcp-config/gateway-output.json >/dev/null 2>&1; then
+  jq '{servers: [.mcpServers | to_entries[] | select(.value.url != null) | {name: .key, url: .value.url}]}' \
+    /tmp/gh-aw/mcp-config/gateway-output.json > /tmp/gh-aw/mcp-cli/manifest.json
+  chmod 600 /tmp/gh-aw/mcp-cli/manifest.json
+  SERVER_COUNT=$(jq '.servers | length' /tmp/gh-aw/mcp-cli/manifest.json)
+  echo "CLI manifest saved with ${SERVER_COUNT} server(s)"
+else
+  echo "WARNING: No mcpServers in gateway output, CLI manifest not created"
+fi
+echo ""
+
 # Delete gateway configuration file after conversion and checks are complete
 echo "Cleaning up gateway configuration file..."
 if [ -f /tmp/gh-aw/mcp-config/gateway-output.json ]; then

@@ -27,6 +27,7 @@ const (
 	agenticWorkflowsGuideFile               = "agentic_workflows_guide.md"
 	githubMCPToolsPromptFile                = "github_mcp_tools_prompt.md"
 	githubMCPToolsWithSafeOutputsPromptFile = "github_mcp_tools_with_safeoutputs_prompt.md"
+	mcpCLIToolsPromptFile                   = "mcp_cli_tools_prompt.md"
 )
 
 // GitHub context prompt is kept embedded because it contains GitHub Actions expressions

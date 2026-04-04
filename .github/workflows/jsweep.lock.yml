@@ -168,6 +168,35 @@ jobs:
           cat "${RUNNER_TEMP}/gh-aw/prompts/safe_outputs_create_pull_request.md"
           cat << 'GH_AW_PROMPT_eac1fdf49c0156e5_EOF'
           </safe-output-tools>
+          ## MCP Tools Available as CLI Commands
+          
+          The following MCP servers have been mounted as local CLI commands and are available directly from the shell:
+          
+          - `cache-memory` — run `cache-memory --help` to see available tools
+          - `github` — run `github --help` to see available tools
+          - `serena` — run `serena --help` to see available tools
+          
+          ### How to Use
+          
+          Each server is a standalone command in your PATH. Use them like any other shell command:
+          
+          ```bash
+          # Show all available tools for a server
+          <server-name> --help
+          
+          # Show help for a specific tool
+          <server-name> <tool-name> --help
+          
+          # Call a tool with parameters
+          <server-name> <tool-name> --param1 value1 --param2 value2
+          ```
+          
+          ### Notes
+          
+          - Parameters are passed as `--name value` pairs (all values are treated as strings unless the tool accepts booleans, in which case `--flag` with no value sets it to `true`)
+          - Results are printed to stdout; errors are printed to stderr
+          - The CLI scripts are read-only — use MCP tools via the CLI wrappers rather than calling the gateway directly
+          
           <github-context>
           The following GitHub context information is available for this workflow:
           {{#if __GH_AW_GITHUB_ACTOR__ }}
@@ -683,6 +712,12 @@ jobs:
             }
           }
           GH_AW_MCP_CONFIG_5bef3d8af077c803_EOF
+      - name: Mount MCP servers as CLIs
+        id: mount-mcp-clis
+        continue-on-error: true
+        env:
+          MCP_GATEWAY_API_KEY: ${{ steps.start-mcp-gateway.outputs.gateway-api-key }}
+        run: bash ${RUNNER_TEMP}/gh-aw/actions/mount_mcp_as_cli.sh
       - name: Download activation artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
