@@ -52,6 +52,12 @@ steps:
       if [ "$USED_CACHE" != "true" ]; then
         echo "📥 Downloading Copilot and Claude workflow runs from last 24 hours..."
 
+        # Ensure gh-aw CLI is installed — this shared step runs before user-defined steps
+        if ! gh extension list 2>/dev/null | grep -q "github/gh-aw"; then
+          echo "📦 Installing gh-aw CLI extension..."
+          gh extension install github/gh-aw
+        fi
+
         gh aw logs \
           --engine copilot \
           --start-date -1d \
