@@ -14,15 +14,17 @@ import (
 // actions/github-script which:
 //   - Reads the CLI manifest saved by start_mcp_gateway.sh
 //   - Queries each server for its tools/list via JSON-RPC
-//   - Writes a standalone CLI wrapper script for each server to /tmp/gh-aw/mcp-cli/bin/
+//   - Writes a standalone CLI wrapper script for each server to ${RUNNER_TEMP}/gh-aw/mcp-cli/bin/
 //   - Locks the bin directory (chmod 555) so the agent cannot modify the scripts
 //   - Adds the directory to PATH via core.addPath()
 
 // internalMCPServerNames lists the MCP servers that are internal infrastructure and
 // should not be exposed as user-facing CLI tools.
+// Include both config-key and rendered server-ID variants where they differ.
 var internalMCPServerNames = map[string]bool{
 	"safeoutputs": true,
 	"mcp-scripts": true,
+	"mcpscripts":  true,
 }
 
 // getMCPCLIServerNames returns the sorted list of MCP server names that will be

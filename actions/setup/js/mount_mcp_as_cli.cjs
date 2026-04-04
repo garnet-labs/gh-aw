@@ -32,7 +32,7 @@ const CLI_BIN_DIR = `${RUNNER_TEMP}/gh-aw/mcp-cli/bin`;
 const TOOLS_DIR = `${RUNNER_TEMP}/gh-aw/mcp-cli/tools`;
 
 /** MCP servers that are internal infrastructure and should not be user-facing CLIs */
-const INTERNAL_SERVERS = new Set(["safeoutputs", "mcp-scripts"]);
+const INTERNAL_SERVERS = new Set(["safeoutputs", "mcp-scripts", "mcpscripts"]);
 
 /**
  * Make an HTTP POST request with a JSON body and return the parsed response.
