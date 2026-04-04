@@ -80,7 +80,7 @@ async function main() {
             const refOwner = pathMatch[1];
             const refRepo = pathMatch[2];
             const refRef = refWorkflow.ref || refWorkflow.sha;
-            core.info(`Resolved source from referenced_workflows: ${refOwner}/${refRepo} @ ${refRef || "(sha)"}`);
+            core.info(`Resolved source from referenced_workflows: ${refOwner}/${refRepo} @ ${refRef || "(default)"}`);
             return { owner: refOwner, repo: refRepo, ref: refRef };
           }
         }

@@ -966,6 +966,8 @@ engine: copilot
 
       await main();
 
+      // Must call getWorkflowRun with the correct run_id from context
+      expect(mockGithub.rest.actions.getWorkflowRun).toHaveBeenCalledWith(expect.objectContaining({ owner: "test-owner", repo: "test-repo", run_id: 42 }));
       // Must use platform-org/platform-repo (from referenced_workflows), not the caller repo
       expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
       expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ owner: "caller-org", repo: "caller-repo" }));
