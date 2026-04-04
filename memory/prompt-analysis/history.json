@@ -130,6 +130,71 @@
         "feat": 83.7,
         "none": 75.7
       }
+    },
+    {
+      "date": "2026-04-04",
+      "total_prs": 1000,
+      "merged": 829,
+      "closed": 169,
+      "open": 2,
+      "success_rate": 83.1,
+      "prompt_patterns": {
+        "bug_fix": {
+          "merged": 746,
+          "closed": 150,
+          "total": 896,
+          "rate": 83.3
+        },
+        "feature": {
+          "merged": 66,
+          "closed": 14,
+          "total": 80,
+          "rate": 82.5
+        },
+        "refactor": {
+          "merged": 11,
+          "closed": 3,
+          "total": 14,
+          "rate": 78.6
+        },
+        "docs": {
+          "merged": 4,
+          "closed": 1,
+          "total": 5,
+          "rate": 80.0
+        },
+        "tests": {
+          "merged": 1,
+          "closed": 0,
+          "total": 1,
+          "rate": 100.0
+        },
+        "other": {
+          "merged": 1,
+          "closed": 1,
+          "total": 2,
+          "rate": 50.0
+        }
+      },
+      "successful_keywords": [
+        "fix",
+        "feat",
+        "chore",
+        "specific-file-refs",
+        "conventional-commits"
+      ],
+      "unsuccessful_keywords": [
+        "WIP",
+        "Install",
+        "No-op",
+        "checklist-heavy"
+      ],
+      "avg_body_words_merged": 821.5,
+      "avg_body_words_closed": 794.3,
+      "conventional_commit_merged_rate": 58.7,
+      "conventional_commit_closed_rate": 39.1,
+      "checklist_merged_rate": 2.3,
+      "checklist_closed_rate": 18.3
     }
   ]
 }
