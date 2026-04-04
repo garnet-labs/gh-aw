@@ -330,11 +330,11 @@ call_tool() {
   fi
 
   if echo "\$response" | jq -e ".result.content" >/dev/null 2>&1; then
-    echo "\$response" | jq -r ".result.content[] |
-      if .type == \\"text\\" then .text
-      elif .type == \\"image\\" then \\"[image data - \(.mimeType // \\"unknown\\")]\\""
+    echo "\$response" | jq -r '.result.content[] |
+      if .type == "text" then .text
+      elif .type == "image" then "[image data - \(.mimeType // "unknown")]"
       else (. | tostring)
-      end"
+      end'
   elif echo "\$response" | jq -e ".result" >/dev/null 2>&1; then
     echo "\$response" | jq -r ".result"
   else

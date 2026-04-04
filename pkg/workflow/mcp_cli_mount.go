@@ -5,6 +5,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
+	"github.com/github/gh-aw/pkg/constants"
 )
 
 // mcp_cli_mount.go generates a workflow step that mounts MCP servers as local CLI tools
@@ -51,8 +53,12 @@ func getMCPCLIServerNames(data *WorkflowData) []string {
 		}
 		// Only include tools that have MCP servers (skip bash, web-fetch, web-search, edit, cache-memory, etc.)
 		switch toolName {
-		case "github", "playwright", "qmd", "agentic-workflows":
+		case "github", "playwright", "qmd":
 			servers = append(servers, toolName)
+		case "agentic-workflows":
+			// The gateway and manifest use "agenticworkflows" (no hyphen) as the server ID.
+			// Using the gateway ID here ensures GH_AW_MCP_CLI_SERVERS matches the manifest entries.
+			servers = append(servers, constants.AgenticWorkflowsMCPServerID.String())
 		default:
 			// Include custom MCP servers (not in the internal list)
 			if !internalMCPServerNames[toolName] {
