@@ -1,5 +1,17 @@
 # Session Analysis History
 
+## 2026-04-04
+
+50 sessions total across 6 branches. 7 success (14%), 43 action_required (86%), 0 failures.
+Active branches: add-compiler-check-secrets-expression (16), add-audit-glossary-entries (13), add-guide-for-consuming-audit-reports (11), testify-expert-improve-test-quality (8), feat-activate-otlp-export (1), fix-links (1).
+Agent success rates: "Addressing comment on PR" 100% (3/3), "Running Copilot coding agent" 100% (1/1), CI 100% (1/1), Grumpy Code Reviewer 50% (2/4).
+Review-trigger agents (Scout, Q, /cloclo, PR Nitpick, Security Review): 0% by design.
+Archie: 0% (2/2) — eligibility issue persists across all observed dates.
+Avg duration: 0.72 min overall, 5.14 min for active coding sessions. Max: 15.78 min (no loops).
+Experimental strategy: Agent Role Performance Matrix — confirms binary divide between coding agents (100%) and review-trigger agents (0% by design).
+Recovery from Apr 3 low (6%): driven by 3 successful "Addressing comment" PR tasks.
+No conversation logs available (OAuth gap persists).
+
 ## 2026-03-31
 
 50 sessions total across 3 branches: copilot/fix-yaml-indentation-bug (12), copilot/investigate-documentation-unbloat-failure-again (8), copilot/update-cli-mcp-versions (30).
