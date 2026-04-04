@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-04T00:52:34Z",
-  "run_id": "23967711266",
+  "run_date": "2026-04-04T06:34:24Z",
+  "run_id": "23973310429",
   "fork_prs": 0,
-  "agent_prs_found": 2,
-  "agent_prs_excluded": 2,
-  "notes": "2 open Copilot PRs found (#24404, #23695), both same-repo branches (not forks). Excluded per fork-only triage policy. Newly closed/merged since last run: #24322 (merged - SARIF upload fix), #24341 (merged - create-labels maintenance), #24349 (merged - Daily Issues fix), #24345 (closed - Install Autoloop).",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 open Copilot/bot PRs found (#24450, #24449, #24441, #23695), all same-repo branches (not forks). Excluded per fork-only triage policy. No changes since last run (2026-04-04T00:52:34Z) except #24404 (WIP Debug Copilot Token Optimizer) appears to have been closed/removed from open PRs, and #24450 (Add compiler check disallowing secrets in custom steps) and #24449 (code-simplifier refactor) are new.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,8 +18,8 @@
   },
   "prs_examined": [
     {
-      "number": 24404,
-      "title": "[WIP] Debug Copilot Token Optimizer workflow failure",
+      "number": 24450,
+      "title": "Add compiler check disallowing secrets expressions in custom steps",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
@@ -28,8 +28,28 @@
       "new_since_last_run": true
     },
     {
+      "number": 24449,
+      "title": "[code-simplifier] refactor: extract duplicate GitHub repo path regex to a constant",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-04",
+      "new_since_last_run": true
+    },
+    {
+      "number": 24441,
+      "title": "feat: OTLP trace export via observability.otlp frontmatter config",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-04",
+      "new_since_last_run": false
+    },
+    {
       "number": 23695,
-      "title": "fix: Gemini CLI exits 41 in AWF sandbox \u2014 missing API key and ~/.gemini dir",
+      "title": "fix: Gemini CLI exits 41 in AWF sandbox — missing API key and ~/.gemini dir",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
@@ -37,11 +57,5 @@
       "created_at": "2026-03-31",
       "new_since_last_run": false
     }
-  ],
-  "previous_run_prs_now_closed": [
-    24322,
-    24341,
-    24349,
-    24345
   ]
 }
