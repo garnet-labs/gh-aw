@@ -154,7 +154,102 @@ The compiler validates `required` fields, `choice` options, array element types,
 
 ## Path Formats
 
-Import paths support local files (`shared/file.md`, `../file.md`), remote repositories (`owner/repo/file.md@v1.0.0`), and section references (`file.md#SectionName`). Optional imports use `{{#import? file.md}}`. Paths are resolved relative to the importing file; nested and circular imports are supported.
+Import paths support three resolution modes:
+
+| Mode | Syntax | Resolved against |
+|------|--------|-----------------|
+| Relative (default) | `shared/file.md`, `../file.md` | Workflow directory (default `.github/workflows/`) |
+| Repo-root-relative | `.github/path/file.md` or `/path/file.md` | Repository root |
+| Cross-repo | `owner/repo/path@ref` | Remote GitHub repository |
+
+Section references (`file.md#SectionName`) and optional imports (`{{#import? file.md}}`) work with all three modes.
+
+### Relative paths (default)
+
+Paths that do not start with `.github/`, `/`, or an `owner/repo/` prefix are resolved relative to the workflow's directory (default `.github/workflows/`). This is the backward-compatible, existing behaviour.
+
+```aw wrap
+---
+on: issues
+engine: copilot
+imports:
+  - shared/common-tools.md        # → .github/workflows/shared/common-tools.md
+  - ../agents/code-reviewer.md    # → .github/agents/code-reviewer.md
+---
+```
+
+### Repo-root-relative paths
+
+Paths starting with `.github/` or `/` are resolved from the repository root. Use this form to reference files outside the default workflows directory, such as custom agents in `.github/agents/`.
+
+```aw wrap
+---
+on: pull_request
+engine: copilot
+imports:
+  - .github/agents/code-reviewer.md    # → {repo-root}/.github/agents/code-reviewer.md
+---
+```
+
+> [!NOTE]
+> For security, all locally-resolved paths must remain within the `.github/` folder. Paths that resolve outside this boundary are rejected at compile time.
+
+### Cross-repo imports
+
+Reference shared components from other GitHub repositories using the `owner/repo/path@ref` syntax. The compiler fetches the file from GitHub at compile time and inlines it into the lock file.
+
+```aw wrap
+---
+on: issues
+engine: copilot
+imports:
+  - acme-org/shared-workflows/mcp/tavily.md@v1.0.0           # tagged release
+  - acme-org/shared-workflows/tools/github-setup.md@main     # branch
+  - acme-org/shared-workflows/tools/github-setup.md@abc123   # commit SHA
+---
+
+# Issue Triage Workflow
+
+Analyze incoming issues using imported tools and configurations.
+```
+
+Supported refs: semantic tags (`@v1.0.0`), branches (`@main`), or commit SHAs. Omitting `@ref` defaults to `@main`. See [Reusing Workflows](/gh-aw/guides/packaging-imports/) for installation and update workflows.
+
+### Worked example
+
+All three forms can appear in a single frontmatter block:
+
+```aw wrap
+---
+on: pull_request
+engine: copilot
+imports:
+  # 1. Relative path — resolved from .github/workflows/
+  - shared/common-tools.md
+  # 2. Repo-root-relative path — resolved from the repository root
+  - .github/agents/code-reviewer.md
+  # 3. Cross-repo import — pinned to a release tag
+  - acme-org/shared-workflows/mcp/tavily.md@v1.0.0
+---
+
+# Pull Request Review
+
+Review the pull request for quality and security issues.
+```
+
+### Backward compatibility
+
+The relative-path form has been supported since the beginning. Repo-root-relative paths (`.github/`-prefix and `/`-prefix) and cross-repo imports (`owner/repo/path@ref`) are additive. Existing workflows using relative paths continue to work unchanged.
+
+### Security constraints
+
+All locally-resolved paths (relative and repo-root-relative) must remain within the repository's `.github/` folder. Paths that would resolve outside this boundary are rejected at compile time with an error such as:
+
+```
+security: path ../../../etc/passwd must be within .github folder
+```
+
+Remote cross-repo imports are fetched from GitHub at compile time and cached by commit SHA in `.github/aw/imports/`. They are not subject to the `.github/` constraint but are subject to standard GitHub repository access controls.
 
 ## Remote Repository Imports
 
