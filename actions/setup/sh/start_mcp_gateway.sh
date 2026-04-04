@@ -403,9 +403,15 @@ case "$ENGINE_TYPE" in
   *)
     echo "No agent-specific converter found for engine: $ENGINE_TYPE"
     echo "Using gateway output directly"
-    # Default fallback - copy to most common location
+    # Default fallback - copy to most common location, filtering out CLI-mounted servers
     mkdir -p /home/runner/.copilot
-    cp /tmp/gh-aw/mcp-config/gateway-output.json /home/runner/.copilot/mcp-config.json
+    if [ -n "$GH_AW_MCP_CLI_SERVERS" ]; then
+      jq --argjson cliServers "$GH_AW_MCP_CLI_SERVERS" \
+        '.mcpServers |= with_entries(select(.key | IN($cliServers[]) | not))' \
+        /tmp/gh-aw/mcp-config/gateway-output.json > /home/runner/.copilot/mcp-config.json
+    else
+      cp /tmp/gh-aw/mcp-config/gateway-output.json /home/runner/.copilot/mcp-config.json
+    fi
     cat /home/runner/.copilot/mcp-config.json
     ;;
 esac
