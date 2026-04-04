@@ -92,3 +92,57 @@ Test workflow for stale check step explicitly enabled.
 		})
 	}
 }
+
+// TestStaleCheckNotEmittedInOnSection verifies that the internal on.stale-check flag is
+// stripped from the compiled "on:" YAML block and never emitted into the final workflow.
+// Emitting stale-check in "on:" produces invalid GitHub Actions YAML.
+func TestStaleCheckNotEmittedInOnSection(t *testing.T) {
+	tests := []struct {
+		name       string
+		workflowMD string
+	}{
+		{
+			name: "stale-check: false not emitted when workflow_call trigger used",
+			workflowMD: `---
+engine: copilot
+on:
+  workflow_call:
+  stale-check: false
+---
+Test reusable workflow.
+`,
+		},
+		{
+			name: "stale-check: true not emitted when issues trigger used",
+			workflowMD: `---
+engine: copilot
+on:
+  issues:
+    types: [opened]
+  stale-check: true
+---
+Test workflow.
+`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tmpDir := testutil.TempDir(t, "stale-check-emit-test")
+			testFile := filepath.Join(tmpDir, "test-workflow.md")
+			require.NoError(t, os.WriteFile(testFile, []byte(tt.workflowMD), 0644), "Should write workflow file")
+
+			compiler := NewCompiler()
+			err := compiler.CompileWorkflow(testFile)
+			require.NoError(t, err, "Workflow should compile without errors")
+
+			lockFile := stringutil.MarkdownToLockFile(testFile)
+			lockContent, err := os.ReadFile(lockFile)
+			require.NoError(t, err, "Lock file should be readable")
+			lockStr := string(lockContent)
+
+			assert.NotContains(t, lockStr, "stale-check",
+				"'stale-check' must not appear in the compiled lock file YAML")
+		})
+	}
+}

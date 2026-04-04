@@ -39,44 +39,99 @@ async function main() {
   core.info(`  Source: ${workflowMdPath}`);
   core.info(`  Lock file: ${lockFilePath}`);
 
-  // Determine workflow source repository from the workflow ref for cross-repo support.
-  //
-  // For cross-repo workflow_call invocations (reusable workflows called from another repo),
-  // the GITHUB_WORKFLOW_REF env var always points to the TOP-LEVEL CALLER's workflow, not
-  // the reusable workflow being executed. This causes the script to look for lock files in
-  // the wrong repository.
-  //
-  // The GitHub Actions expression ${{ github.workflow_ref }} is injected as GH_AW_CONTEXT_WORKFLOW_REF
-  // by the compiler and correctly identifies the CURRENT reusable workflow's ref even in
-  // cross-repo workflow_call scenarios. We prefer it over GITHUB_WORKFLOW_REF when available.
-  //
-  // Ref: https://github.com/github/gh-aw/issues/23935
-  const workflowEnvRef = process.env.GH_AW_CONTEXT_WORKFLOW_REF || process.env.GITHUB_WORKFLOW_REF || "";
   const currentRepo = process.env.GITHUB_REPOSITORY || `${context.repo.owner}/${context.repo.repo}`;
 
-  // Parse owner, repo, and optional ref from GITHUB_WORKFLOW_REF as a single unit so that
-  // repo and ref are always consistent with each other.  The @ref segment may be absent (e.g.
-  // when the env var was set without a ref suffix), so treat it as optional.
-  const workflowRefMatch = workflowEnvRef.match(/^([^/]+)\/([^/]+)\/.+?(?:@(.+))?$/);
+  // Resolve the source repository for the stale check.
+  //
+  // For cross-repo workflow_call invocations (reusable workflows called from another repo),
+  // both the GITHUB_WORKFLOW_REF env var AND ${{ github.workflow_ref }} may point to the
+  // TOP-LEVEL CALLER's workflow rather than the callee reusable workflow being executed.
+  // This causes the script to look for lock files in the wrong repository.
+  //
+  // Primary fix: query the Actions API referenced_workflows for this run, which explicitly
+  // lists every reusable workflow invoked by the run and always identifies the callee.
+  //
+  // Secondary fallback: GH_AW_CONTEXT_WORKFLOW_REF (injected from ${{ github.workflow_ref }})
+  // may point to the callee in some runtime environments.
+  //
+  // Last resort: GITHUB_WORKFLOW_REF env var / context.repo (original behavior).
 
-  // Use the workflow source repo if parseable, otherwise fall back to context.repo
-  const owner = workflowRefMatch ? workflowRefMatch[1] : context.repo.owner;
-  const repo = workflowRefMatch ? workflowRefMatch[2] : context.repo.repo;
-  const workflowRepo = `${owner}/${repo}`;
-
-  // Determine ref in a way that keeps repo+ref consistent:
-  //   - If a ref is present in GITHUB_WORKFLOW_REF, use it.
-  //   - For same-repo runs without a parsed ref, fall back to context.sha (existing behavior).
-  //   - For cross-repo runs without a parsed ref, omit ref so the API uses the default branch
-  //     (avoids mixing source repo owner/name with a SHA that only exists in the triggering repo).
-  let ref;
-  if (workflowRefMatch && workflowRefMatch[3]) {
-    ref = workflowRefMatch[3];
-  } else if (workflowRepo === currentRepo) {
-    ref = context.sha;
-  } else {
-    ref = undefined;
+  /**
+   * Tries to resolve the callee reusable workflow's source repo from the Actions API
+   * referenced_workflows list.  Returns null when the API is unavailable or no match is found.
+   * @returns {Promise<{owner: string, repo: string, ref: string|undefined}|null>}
+   */
+  async function resolveSourceFromReferencedWorkflows() {
+    try {
+      if (!github.rest?.actions?.getWorkflowRun || !context.runId) {
+        return null;
+      }
+      const { data: runData } = await github.rest.actions.getWorkflowRun({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        run_id: context.runId,
+      });
+      const referencedWorkflows = runData.referenced_workflows || [];
+      for (const refWorkflow of referencedWorkflows) {
+        // refWorkflow.path format: "owner/repo/.github/workflows/file.yml"
+        if (refWorkflow.path.endsWith(`/.github/workflows/${workflowFile}`)) {
+          const pathMatch = refWorkflow.path.match(/^([^/]+)\/([^/]+)\/.github\/workflows\//);
+          if (pathMatch) {
+            const refOwner = pathMatch[1];
+            const refRepo = pathMatch[2];
+            const refRef = refWorkflow.ref || refWorkflow.sha;
+            core.info(`Resolved source from referenced_workflows: ${refOwner}/${refRepo} @ ${refRef || "(sha)"}`);
+            return { owner: refOwner, repo: refRepo, ref: refRef };
+          }
+        }
+      }
+      if (referencedWorkflows.length > 0) {
+        core.info(`referenced_workflows found but none matched ${workflowFile}; falling back to workflow ref`);
+      }
+    } catch (err) {
+      core.info(`Could not resolve from referenced_workflows: ${getErrorMessage(err)}`);
+    }
+    return null;
   }
+
+  const referencedWorkflowsSource = await resolveSourceFromReferencedWorkflows();
+
+  let owner, repo, ref;
+  if (referencedWorkflowsSource) {
+    owner = referencedWorkflowsSource.owner;
+    repo = referencedWorkflowsSource.repo;
+    ref = referencedWorkflowsSource.ref;
+  } else {
+    // Fall back: use GH_AW_CONTEXT_WORKFLOW_REF (injected from ${{ github.workflow_ref }})
+    // which may correctly identify the callee in some cross-repo scenarios, then fall back to
+    // GITHUB_WORKFLOW_REF / context.repo as a last resort.
+    const workflowEnvRef = process.env.GH_AW_CONTEXT_WORKFLOW_REF || process.env.GITHUB_WORKFLOW_REF || "";
+
+    // Parse owner, repo, and optional ref from the workflow ref as a single unit so that
+    // repo and ref are always consistent with each other.  The @ref segment may be absent (e.g.
+    // when the env var was set without a ref suffix), so treat it as optional.
+    const workflowRefMatch = workflowEnvRef.match(/^([^/]+)\/([^/]+)\/.+?(?:@(.+))?$/);
+
+    // Use the workflow source repo if parseable, otherwise fall back to context.repo
+    owner = workflowRefMatch ? workflowRefMatch[1] : context.repo.owner;
+    repo = workflowRefMatch ? workflowRefMatch[2] : context.repo.repo;
+    const workflowRepoFallback = `${owner}/${repo}`;
+
+    // Determine ref in a way that keeps repo+ref consistent:
+    //   - If a ref is present in the env var, use it.
+    //   - For same-repo runs without a parsed ref, fall back to context.sha (existing behavior).
+    //   - For cross-repo runs without a parsed ref, omit ref so the API uses the default branch
+    //     (avoids mixing source repo owner/name with a SHA that only exists in the triggering repo).
+    if (workflowRefMatch && workflowRefMatch[3]) {
+      ref = workflowRefMatch[3];
+    } else if (workflowRepoFallback === currentRepo) {
+      ref = context.sha;
+    } else {
+      ref = undefined;
+    }
+  }
+
+  const workflowRepo = `${owner}/${repo}`;
 
   const contextWorkflowRef = process.env.GH_AW_CONTEXT_WORKFLOW_REF;
   core.info(`GITHUB_WORKFLOW_REF: ${process.env.GITHUB_WORKFLOW_REF || "(not set)"}`);

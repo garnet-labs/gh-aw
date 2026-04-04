@@ -23,6 +23,9 @@ const mockGithub = {
     repos: {
       getContent: vi.fn(),
     },
+    actions: {
+      getWorkflowRun: vi.fn(),
+    },
   },
 };
 
@@ -32,6 +35,7 @@ const mockContext = {
     repo: "test-repo",
   },
   sha: "abc123",
+  runId: 42,
 };
 
 const mockExec = {
@@ -53,6 +57,9 @@ describe("check_workflow_timestamp_api.cjs", () => {
     delete process.env.GH_AW_CONTEXT_WORKFLOW_REF;
     delete process.env.GITHUB_REPOSITORY;
     delete process.env.GITHUB_WORKSPACE;
+
+    // Default: no referenced_workflows (same-repo, no reusable workflow call)
+    mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({ data: { referenced_workflows: [] } });
 
     // Dynamically import the module to get fresh instance
     const module = await import("./check_workflow_timestamp_api.cjs");
@@ -913,6 +920,147 @@ engine: copilot
       // because the ref is parseable from the env var
       expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ ref: "refs/heads/main" }));
       expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ ref: "abc123" }));
+    });
+  });
+
+  describe("cross-repo invocation via workflow_call (referenced_workflows fix)", () => {
+    // Regression tests for the referenced_workflows-based source resolution.
+    // This is the primary fix for cross-repo reusable workflow calls where both
+    // GITHUB_WORKFLOW_REF and ${{ github.workflow_ref }} may point to the CALLER's workflow.
+    // The referenced_workflows API field always identifies the callee reusable workflow.
+
+    beforeEach(() => {
+      process.env.GH_AW_WORKFLOW_FILE = "my-workflow.lock.yml";
+      // Caller repo triggers the run
+      process.env.GITHUB_REPOSITORY = "caller-org/caller-repo";
+      // GITHUB_WORKFLOW_REF (env var) and GH_AW_CONTEXT_WORKFLOW_REF both point to the caller
+      process.env.GITHUB_WORKFLOW_REF = "caller-org/caller-repo/.github/workflows/caller.yml@refs/heads/main";
+      process.env.GH_AW_CONTEXT_WORKFLOW_REF = "caller-org/caller-repo/.github/workflows/caller.yml@refs/heads/main";
+    });
+
+    it("should use referenced_workflows to identify the callee repo, not the caller", async () => {
+      // API returns a referenced_workflow that matches the workflow file
+      mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({
+        data: {
+          referenced_workflows: [
+            {
+              path: "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml",
+              sha: "deadbeef",
+              ref: "refs/heads/main",
+            },
+          ],
+        },
+      });
+
+      const validHash = "c2a79263dc72f28c76177afda9bf0935481b26da094407a50155a6e0244084e3";
+      const lockFileContent = `# frontmatter-hash: ${validHash}\nname: Test\n`;
+      const mdFileContent = "---\nengine: copilot\n---\n# Test";
+
+      mockGithub.rest.repos.getContent
+        .mockResolvedValueOnce({
+          data: { type: "file", encoding: "base64", content: Buffer.from(lockFileContent).toString("base64") },
+        })
+        .mockResolvedValueOnce({
+          data: { type: "file", encoding: "base64", content: Buffer.from(mdFileContent).toString("base64") },
+        });
+
+      await main();
+
+      // Must use platform-org/platform-repo (from referenced_workflows), not the caller repo
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
+      expect(mockGithub.rest.repos.getContent).not.toHaveBeenCalledWith(expect.objectContaining({ owner: "caller-org", repo: "caller-repo" }));
+      expect(mockCore.setFailed).not.toHaveBeenCalled();
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("✅ Lock file is up to date"));
+    });
+
+    it("should use the ref from referenced_workflows entry", async () => {
+      mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({
+        data: {
+          referenced_workflows: [
+            {
+              path: "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml",
+              sha: "deadbeef",
+              ref: "refs/tags/v1.2.3",
+            },
+          ],
+        },
+      });
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ ref: "refs/tags/v1.2.3" }));
+    });
+
+    it("should log resolved source from referenced_workflows", async () => {
+      mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({
+        data: {
+          referenced_workflows: [
+            {
+              path: "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml",
+              sha: "deadbeef",
+              ref: "refs/heads/main",
+            },
+          ],
+        },
+      });
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Resolved source from referenced_workflows: platform-org/platform-repo"));
+    });
+
+    it("should fall back to GH_AW_CONTEXT_WORKFLOW_REF when referenced_workflows is empty", async () => {
+      // No referenced_workflows (empty list)
+      mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({ data: { referenced_workflows: [] } });
+      // Set GH_AW_CONTEXT_WORKFLOW_REF to the callee's workflow
+      process.env.GH_AW_CONTEXT_WORKFLOW_REF = "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml@refs/heads/main";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      // Falls back to GH_AW_CONTEXT_WORKFLOW_REF
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
+    });
+
+    it("should fall back to GH_AW_CONTEXT_WORKFLOW_REF when referenced_workflows API fails", async () => {
+      mockGithub.rest.actions.getWorkflowRun.mockRejectedValue(new Error("Not authorized"));
+      process.env.GH_AW_CONTEXT_WORKFLOW_REF = "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml@refs/heads/main";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      // Falls back to GH_AW_CONTEXT_WORKFLOW_REF
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Could not resolve from referenced_workflows"));
+    });
+
+    it("should fall back when referenced_workflows has entries but none match the workflow file", async () => {
+      mockGithub.rest.actions.getWorkflowRun.mockResolvedValue({
+        data: {
+          referenced_workflows: [
+            {
+              path: "platform-org/platform-repo/.github/workflows/other-workflow.lock.yml",
+              sha: "deadbeef",
+              ref: "refs/heads/main",
+            },
+          ],
+        },
+      });
+      process.env.GH_AW_CONTEXT_WORKFLOW_REF = "platform-org/platform-repo/.github/workflows/my-workflow.lock.yml@refs/heads/main";
+
+      mockGithub.rest.repos.getContent.mockResolvedValue({ data: null });
+
+      await main();
+
+      expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("referenced_workflows found but none matched my-workflow.lock.yml"));
+      // Falls back to GH_AW_CONTEXT_WORKFLOW_REF
+      expect(mockGithub.rest.repos.getContent).toHaveBeenCalledWith(expect.objectContaining({ owner: "platform-org", repo: "platform-repo" }));
     });
   });
 });
