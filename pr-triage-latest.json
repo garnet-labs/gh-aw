@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-04T12:24:24Z",
-  "run_id": "23978808640",
+  "run_date": "2026-04-04T18:21:16Z",
+  "run_id": "23984798749",
   "fork_prs": 0,
-  "agent_prs_found": 9,
-  "agent_prs_excluded": 9,
-  "notes": "9 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. PRs #24450 (secrets-in-custom-steps compiler check) and #24449 (code-simplifier regex refactor) from previous run were merged. 7 new PRs since last run: #24476 (dead-code removal), #24470 (agentdrain test rewrite), #24466 (docs: secrets compiler check), #24464 (community README), #24463 (instructions sync), #24459 (architecture diagram), #24454 (docs: audit reports guide).",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. Since last run (12:24 UTC): PRs #24476, #24470, #24466, #24464, #24463, #24459, #24454, #23695 were merged or closed. 3 new PRs since last run: #24544 (feat: token usage diff), #24539 (fix: skip copilot in add wizard), #24503 (feat: mount MCP servers as local CLIs).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,18 +18,8 @@
   },
   "prs_examined": [
     {
-      "number": 24476,
-      "title": "[dead-code] chore: remove dead functions — 6 functions removed",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["chore", "dead-code"],
-      "created_at": "2026-04-04",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24470,
-      "title": "test(agentdrain): rewrite anomaly_test.go with testify and table-driven tests",
+      "number": 24544,
+      "title": "feat: support token usage diff and multiple comparison runs in audit diff",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
@@ -38,18 +28,8 @@
       "new_since_last_run": true
     },
     {
-      "number": 24466,
-      "title": "[docs] docs: document secrets-in-custom-steps compiler check",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-04",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24464,
-      "title": "[community] Update community contributions in README",
+      "number": 24539,
+      "title": "fix: skip `engine: copilot` in add/add-wizard; add blank line separator",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
@@ -58,68 +38,34 @@
       "new_since_last_run": true
     },
     {
-      "number": 24463,
-      "title": "[instructions] Sync github-agentic-workflows.md with v0.66.1",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-04",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24459,
-      "title": "[architecture] Update architecture diagram - 2026-04-04",
+      "number": 24503,
+      "title": "feat: mount MCP servers as local CLIs after gateway starts",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-04",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24454,
-      "title": "docs: add guide for consuming audit reports with agents",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
+      "labels": ["smoke", "smoke-claude", "smoke-copilot"],
       "created_at": "2026-04-04",
       "new_since_last_run": true
     },
     {
       "number": 24441,
       "title": "feat: OTLP trace export via observability.otlp frontmatter config",
-      "draft": true,
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
       "created_at": "2026-04-04",
       "new_since_last_run": false
-    },
-    {
-      "number": 23695,
-      "title": "fix: Gemini CLI exits 41 in AWF sandbox — missing API key and ~/.gemini dir",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-03-31",
-      "new_since_last_run": false
     }
   ],
-  "merged_since_last_run": [
-    {
-      "number": 24450,
-      "title": "Add compiler check disallowing secrets expressions in custom steps",
-      "merged_at": "2026-04-04T07:18:37Z",
-      "merged_by": "pelikhan"
-    },
-    {
-      "number": 24449,
-      "title": "[code-simplifier] refactor: extract duplicate GitHub repo path regex to named constant",
-      "merged_at": "2026-04-04T06:37:13Z",
-      "merged_by": "pelikhan"
-    }
+  "closed_since_last_run": [
+    {"number": 24476, "title": "[dead-code] chore: remove dead functions"},
+    {"number": 24470, "title": "test(agentdrain): rewrite anomaly_test.go"},
+    {"number": 24466, "title": "[docs] docs: document secrets-in-custom-steps compiler check"},
+    {"number": 24464, "title": "[community] Update community contributions in README"},
+    {"number": 24463, "title": "[instructions] Sync github-agentic-workflows.md with v0.66.1"},
+    {"number": 24459, "title": "[architecture] Update architecture diagram - 2026-04-04"},
+    {"number": 24454, "title": "docs: add guide for consuming audit reports with agents"},
+    {"number": 23695, "title": "fix: Gemini CLI exits 41 in AWF sandbox"}
   ]
 }
