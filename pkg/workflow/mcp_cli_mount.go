@@ -10,12 +10,13 @@ import (
 // mcp_cli_mount.go generates a workflow step that mounts MCP servers as local CLI tools
 // and produces the prompt section that informs the agent about these tools.
 //
-// After the MCP gateway is started, this step runs mount_mcp_as_cli.sh which:
+// After the MCP gateway is started, this step runs mount_mcp_as_cli.cjs via
+// actions/github-script which:
 //   - Reads the CLI manifest saved by start_mcp_gateway.sh
 //   - Queries each server for its tools/list via JSON-RPC
 //   - Writes a standalone CLI wrapper script for each server to /tmp/gh-aw/mcp-cli/bin/
 //   - Locks the bin directory (chmod 555) so the agent cannot modify the scripts
-//   - Adds the directory to $GITHUB_PATH
+//   - Adds the directory to PATH via core.addPath()
 
 // internalMCPServerNames lists the MCP servers that are internal infrastructure and
 // should not be exposed as user-facing CLI tools.
@@ -82,7 +83,13 @@ func (c *Compiler) generateMCPCLIMountStep(yaml *strings.Builder, data *Workflow
 	yaml.WriteString("        continue-on-error: true\n")
 	yaml.WriteString("        env:\n")
 	yaml.WriteString("          MCP_GATEWAY_API_KEY: ${{ steps.start-mcp-gateway.outputs.gateway-api-key }}\n")
-	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/mount_mcp_as_cli.sh\n")
+	fmt.Fprintf(yaml, "        uses: %s\n", GetActionPin("actions/github-script"))
+	yaml.WriteString("        with:\n")
+	yaml.WriteString("          script: |\n")
+	yaml.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
+	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
+	yaml.WriteString("            const { main } = require('" + SetupActionDestination + "/mount_mcp_as_cli.cjs');\n")
+	yaml.WriteString("            await main();\n")
 }
 
 // buildMCPCLIPromptSection returns a PromptSection describing the CLI tools available
@@ -111,7 +118,8 @@ func buildMCPCLIPromptSection(data *WorkflowData) *PromptSection {
 
 // mcpCLIToolsPromptTemplate is the inline prompt template for MCP CLI tools.
 // It uses the {MCP_CLI_SERVERS_LIST} placeholder which is replaced at compile time.
-const mcpCLIToolsPromptTemplate = `## MCP Tools Available as CLI Commands
+const mcpCLIToolsPromptTemplate = `<mcp-clis>
+## MCP Tools Available as CLI Commands
 
 The following MCP servers have been mounted as local CLI commands and are available directly from the shell:
 
@@ -137,4 +145,5 @@ Each server is a standalone command in your PATH. Use them like any other shell 
 - Parameters are passed as ` + "`" + `--name value` + "`" + ` pairs (all values are treated as strings unless the tool accepts booleans, in which case ` + "`" + `--flag` + "`" + ` with no value sets it to ` + "`" + `true` + "`" + `)
 - Results are printed to stdout; errors are printed to stderr
 - The CLI scripts are read-only — use MCP tools via the CLI wrappers rather than calling the gateway directly
+</mcp-clis>
 `
