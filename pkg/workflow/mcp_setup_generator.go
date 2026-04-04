@@ -575,11 +575,10 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 	// can exclude them from the agent's final MCP config while still letting the gateway
 	// start their Docker containers (needed to populate the CLI manifest).
 	if cliServers := getMCPCLIServerNames(workflowData); len(cliServers) > 0 {
-		quoted := make([]string, len(cliServers))
-		for i, s := range cliServers {
-			quoted[i] = `"` + s + `"`
+		cliServersJSON, err := json.Marshal(cliServers)
+		if err == nil {
+			yaml.WriteString("          export GH_AW_MCP_CLI_SERVERS='" + string(cliServersJSON) + "'\n")
 		}
-		yaml.WriteString("          export GH_AW_MCP_CLI_SERVERS='[" + strings.Join(quoted, ",") + "]'\n")
 	}
 
 	// For Copilot engine with GitHub remote MCP, export GITHUB_PERSONAL_ACCESS_TOKEN

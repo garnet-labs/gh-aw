@@ -406,9 +406,13 @@ case "$ENGINE_TYPE" in
     # Default fallback - copy to most common location, filtering out CLI-mounted servers
     mkdir -p /home/runner/.copilot
     if [ -n "$GH_AW_MCP_CLI_SERVERS" ]; then
-      jq --argjson cliServers "$GH_AW_MCP_CLI_SERVERS" \
+      if ! jq --argjson cliServers "$GH_AW_MCP_CLI_SERVERS" \
         '.mcpServers |= with_entries(select(.key | IN($cliServers[]) | not))' \
-        /tmp/gh-aw/mcp-config/gateway-output.json > /home/runner/.copilot/mcp-config.json
+        /tmp/gh-aw/mcp-config/gateway-output.json > /home/runner/.copilot/mcp-config.json; then
+        echo "ERROR: Failed to filter CLI-mounted servers from agent MCP config"
+        echo "Falling back to unfiltered config"
+        cp /tmp/gh-aw/mcp-config/gateway-output.json /home/runner/.copilot/mcp-config.json
+      fi
     else
       cp /tmp/gh-aw/mcp-config/gateway-output.json /home/runner/.copilot/mcp-config.json
     fi
