@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-04T18:21:16Z",
-  "run_id": "23984798749",
+  "run_date": "2026-04-05T01:01:09Z",
+  "run_id": "23991201561",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. Since last run (12:24 UTC): PRs #24476, #24470, #24466, #24464, #24463, #24459, #24454, #23695 were merged or closed. 3 new PRs since last run: #24544 (feat: token usage diff), #24539 (fix: skip copilot in add wizard), #24503 (feat: mount MCP servers as local CLIs).",
+  "agent_prs_found": 3,
+  "agent_prs_excluded": 3,
+  "notes": "3 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. Since last run (2026-04-04T18:21:16Z): PRs #24544, #24539, #24441 were closed/merged. 2 new PRs since last run: #24610 (fix: Tavily MCP docs + mcp inspect bug), #24623 ([WIP] Fix CI Cleaner workflow).",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,54 +18,39 @@
   },
   "prs_examined": [
     {
-      "number": 24544,
-      "title": "feat: support token usage diff and multiple comparison runs in audit diff",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-04",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24539,
-      "title": "fix: skip `engine: copilot` in add/add-wizard; add blank line separator",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-04",
-      "new_since_last_run": true
-    },
-    {
       "number": 24503,
       "title": "feat: mount MCP servers as local CLIs after gateway starts",
-      "draft": true,
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["smoke", "smoke-claude", "smoke-copilot"],
+      "labels": ["smoke-claude"],
       "created_at": "2026-04-04",
-      "new_since_last_run": true
+      "new_since_last_run": false
     },
     {
-      "number": 24441,
-      "title": "feat: OTLP trace export via observability.otlp frontmatter config",
+      "number": 24610,
+      "title": "Fix invalid Tavily MCP package name/link in docs and mcp inspect missing servers bug",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
       "created_at": "2026-04-04",
-      "new_since_last_run": false
+      "new_since_last_run": true
+    },
+    {
+      "number": 24623,
+      "title": "[WIP] Fix recurring failures in CI Cleaner workflow",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-05",
+      "new_since_last_run": true
     }
   ],
   "closed_since_last_run": [
-    {"number": 24476, "title": "[dead-code] chore: remove dead functions"},
-    {"number": 24470, "title": "test(agentdrain): rewrite anomaly_test.go"},
-    {"number": 24466, "title": "[docs] docs: document secrets-in-custom-steps compiler check"},
-    {"number": 24464, "title": "[community] Update community contributions in README"},
-    {"number": 24463, "title": "[instructions] Sync github-agentic-workflows.md with v0.66.1"},
-    {"number": 24459, "title": "[architecture] Update architecture diagram - 2026-04-04"},
-    {"number": 24454, "title": "docs: add guide for consuming audit reports with agents"},
-    {"number": 23695, "title": "fix: Gemini CLI exits 41 in AWF sandbox"}
+    {"number": 24544, "title": "feat: support token usage diff and multiple comparison runs in audit diff"},
+    {"number": 24539, "title": "fix: skip `engine: copilot` in add/add-wizard; add blank line separator"},
+    {"number": 24441, "title": "feat: OTLP trace export via observability.otlp frontmatter config"}
   ]
 }
