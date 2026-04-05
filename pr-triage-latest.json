@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-05T12:25:15Z",
-  "run_id": "24001449251",
+  "run_date": "2026-04-05T18:22:08Z",
+  "run_id": "24007595712",
   "fork_prs": 0,
-  "agent_prs_found": 5,
-  "agent_prs_excluded": 5,
-  "notes": "5 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-05T06:39:45Z): #24697, #24711, #24712, #24727. #24676 ([docs] Update dictation skill instructions) appears closed/merged since last run. PR #24503 (feat: mount MCP servers as local CLIs) remains open.",
+  "agent_prs_found": 3,
+  "agent_prs_excluded": 3,
+  "notes": "3 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-05T12:25:15Z): #24766 (Fix error message quality). #24711, #24712, #24727 appear closed/merged since last run.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,52 +18,28 @@
   },
   "prs_examined": [
     {
-      "number": 24727,
-      "title": "[dead-code] chore: remove dead functions — 7 functions removed",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "author": "github-actions[bot]",
-      "labels": [],
-      "created_at": "2026-04-05T12:15:43Z",
-      "updated_at": "2026-04-05T12:15:44Z",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24712,
-      "title": "Rename `domainStatus` → `classifyFirewallDomainStatus` and `statusEmoji` → `firewallStatusEmoji`",
+      "number": 24766,
+      "title": "Fix error message quality: prevent duplicate suggestions, strip redundant path prefix",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
       "labels": [],
-      "created_at": "2026-04-05T11:27:55Z",
-      "updated_at": "2026-04-05T11:38:12Z",
-      "new_since_last_run": true
-    },
-    {
-      "number": 24711,
-      "title": "Add gh-aw.staged and deployment.environment to OTLP conclusion spans",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
-      "labels": [],
-      "created_at": "2026-04-05T11:27:17Z",
-      "updated_at": "2026-04-05T11:34:29Z",
+      "created_at": "2026-04-05T18:00:00Z",
+      "updated_at": "2026-04-05T18:00:00Z",
       "new_since_last_run": true
     },
     {
       "number": 24697,
       "title": "Configure MCP gateway OpenTelemetry from observability.otlp and actions/setup trace IDs",
-      "draft": true,
+      "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
       "labels": [],
       "created_at": "2026-04-05T09:27:09Z",
       "updated_at": "2026-04-05T11:44:47Z",
-      "new_since_last_run": true
+      "new_since_last_run": false
     },
     {
       "number": 24503,
@@ -78,11 +54,9 @@
       "new_since_last_run": false
     }
   ],
-  "merged_since_last_run": [
-    {
-      "number": 24676,
-      "title": "[docs] Update dictation skill instructions",
-      "status": "closed_or_merged"
-    }
+  "closed_since_last_run": [
+    { "number": 24727, "title": "[dead-code] chore: remove dead functions — 7 functions removed" },
+    { "number": 24712, "title": "Rename `domainStatus` → `classifyFirewallDomainStatus` and `statusEmoji` → `firewallStatusEmoji`" },
+    { "number": 24711, "title": "Add gh-aw.staged and deployment.environment to OTLP conclusion spans" }
   ]
 }
