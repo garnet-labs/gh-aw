@@ -58,6 +58,27 @@ describe("action_setup_otlp run()", () => {
     }
   });
 
+  it("writes GITHUB_AW_OTEL_JOB_START_MS to GITHUB_ENV after setup span resolves", async () => {
+    const tmpOut = path.join(path.dirname(__dirname), `action_setup_otlp_test_job_start_ms_${Date.now()}.txt`);
+    try {
+      process.env.GITHUB_OUTPUT = tmpOut;
+      process.env.GITHUB_ENV = tmpOut;
+
+      const beforeMs = Date.now();
+      await runSetup();
+      const afterMs = Date.now();
+
+      const contents = fs.readFileSync(tmpOut, "utf8");
+      const match = contents.match(/^GITHUB_AW_OTEL_JOB_START_MS=(\d+)$/m);
+      expect(match).not.toBeNull();
+      const writtenMs = parseInt(match[1], 10);
+      expect(writtenMs).toBeGreaterThanOrEqual(beforeMs);
+      expect(writtenMs).toBeLessThanOrEqual(afterMs);
+    } finally {
+      fs.rmSync(tmpOut, { force: true });
+    }
+  });
+
   it("uses INPUT_TRACE_ID as trace ID when provided", async () => {
     const inputTraceId = "a".repeat(32);
     const tmpOut = path.join(path.dirname(__dirname), `action_setup_otlp_test_input_tid_${Date.now()}.txt`);
@@ -130,6 +151,39 @@ describe("action_setup_otlp run()", () => {
     await expect(runSetup()).resolves.toBeUndefined();
     fetchSpy.mockRestore();
   });
+
+  it("includes github.repository, github.run_id resource attributes in setup span", async () => {
+    const tmpOut = path.join(path.dirname(__dirname), `action_setup_otlp_test_resource_attrs_${Date.now()}.txt`);
+    try {
+      process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+      process.env.GITHUB_REPOSITORY = "owner/repo";
+      process.env.GITHUB_RUN_ID = "111222333";
+      process.env.GITHUB_EVENT_NAME = "workflow_dispatch";
+      process.env.GITHUB_OUTPUT = tmpOut;
+      process.env.GITHUB_ENV = tmpOut;
+
+      let capturedBody;
+      const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+        capturedBody = opts?.body;
+        return Promise.resolve(new Response(null, { status: 200 }));
+      });
+
+      await runSetup();
+
+      const payload = JSON.parse(capturedBody);
+      const resourceAttrs = payload?.resourceSpans?.[0]?.resource?.attributes ?? [];
+      expect(resourceAttrs).toContainEqual({ key: "github.repository", value: { stringValue: "owner/repo" } });
+      expect(resourceAttrs).toContainEqual({ key: "github.run_id", value: { stringValue: "111222333" } });
+      expect(resourceAttrs).toContainEqual({ key: "github.event_name", value: { stringValue: "workflow_dispatch" } });
+
+      fetchSpy.mockRestore();
+    } finally {
+      fs.rmSync(tmpOut, { force: true });
+      delete process.env.GITHUB_REPOSITORY;
+      delete process.env.GITHUB_RUN_ID;
+      delete process.env.GITHUB_EVENT_NAME;
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -173,7 +227,7 @@ describe("action_conclusion_otlp run()", () => {
 
     const payload = JSON.parse(capturedBody);
     const spanName = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0]?.name;
-    expect(spanName).toBe("gh-aw.job.agent");
+    expect(spanName).toBe("gh-aw.agent.conclusion");
     fetchSpy.mockRestore();
   });
 
@@ -190,6 +244,152 @@ describe("action_conclusion_otlp run()", () => {
     const payload = JSON.parse(capturedBody);
     const spanName = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0]?.name;
     expect(spanName).toBe("gh-aw.job.conclusion");
+    fetchSpy.mockRestore();
+  });
+
+  it("records agent failure conclusion as STATUS_CODE_ERROR when GH_AW_AGENT_CONCLUSION is 'failure'", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    process.env.GH_AW_AGENT_CONCLUSION = "failure";
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    expect(span?.status?.code).toBe(2); // STATUS_CODE_ERROR
+    expect(span?.status?.message).toBe("agent failure");
+    const conclusionAttr = span?.attributes?.find(a => a.key === "gh-aw.agent.conclusion");
+    expect(conclusionAttr?.value?.stringValue).toBe("failure");
+    fetchSpy.mockRestore();
+    delete process.env.GH_AW_AGENT_CONCLUSION;
+  });
+
+  it("records timed_out conclusion as STATUS_CODE_ERROR when GH_AW_AGENT_CONCLUSION is 'timed_out'", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    process.env.GH_AW_AGENT_CONCLUSION = "timed_out";
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    expect(span?.status?.code).toBe(2); // STATUS_CODE_ERROR
+    expect(span?.status?.message).toBe("agent timed_out");
+    const conclusionAttr = span?.attributes?.find(a => a.key === "gh-aw.agent.conclusion");
+    expect(conclusionAttr?.value?.stringValue).toBe("timed_out");
+    fetchSpy.mockRestore();
+    delete process.env.GH_AW_AGENT_CONCLUSION;
+  });
+
+  it("records success conclusion as STATUS_CODE_OK when GH_AW_AGENT_CONCLUSION is 'success'", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    process.env.GH_AW_AGENT_CONCLUSION = "success";
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    expect(span?.status?.code).toBe(1); // STATUS_CODE_OK
+    expect(span?.status?.message).toBeUndefined();
+    const conclusionAttr = span?.attributes?.find(a => a.key === "gh-aw.agent.conclusion");
+    expect(conclusionAttr?.value?.stringValue).toBe("success");
+    fetchSpy.mockRestore();
+    delete process.env.GH_AW_AGENT_CONCLUSION;
+  });
+
+  it("records cancelled conclusion as STATUS_CODE_OK when GH_AW_AGENT_CONCLUSION is 'cancelled'", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    process.env.GH_AW_AGENT_CONCLUSION = "cancelled";
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    expect(span?.status?.code).toBe(1); // STATUS_CODE_OK (cancelled is not an error)
+    const conclusionAttr = span?.attributes?.find(a => a.key === "gh-aw.agent.conclusion");
+    expect(conclusionAttr?.value?.stringValue).toBe("cancelled");
+    fetchSpy.mockRestore();
+    delete process.env.GH_AW_AGENT_CONCLUSION;
+  });
+
+  it("omits gh-aw.agent.conclusion attribute when GH_AW_AGENT_CONCLUSION is not set", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    delete process.env.GH_AW_AGENT_CONCLUSION;
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    expect(span?.status?.code).toBe(1); // STATUS_CODE_OK
+    const conclusionAttr = span?.attributes?.find(a => a.key === "gh-aw.agent.conclusion");
+    expect(conclusionAttr).toBeUndefined();
+    fetchSpy.mockRestore();
+  });
+
+  it("uses GITHUB_AW_OTEL_JOB_START_MS as span start time when set", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    const jobStartMs = Date.now() - 120_000; // 2 minutes ago
+    process.env.GITHUB_AW_OTEL_JOB_START_MS = String(jobStartMs);
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    // startTimeUnixNano = jobStartMs * 1_000_000
+    const expectedStartNano = (BigInt(jobStartMs) * 1_000_000n).toString();
+    expect(span?.startTimeUnixNano).toBe(expectedStartNano);
+    // endTimeUnixNano must be after the start
+    expect(BigInt(span?.endTimeUnixNano)).toBeGreaterThan(BigInt(expectedStartNano));
+    fetchSpy.mockRestore();
+    delete process.env.GITHUB_AW_OTEL_JOB_START_MS;
+  });
+
+  it("falls back to current time as span start when GITHUB_AW_OTEL_JOB_START_MS is not set", async () => {
+    process.env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:14317";
+    delete process.env.GITHUB_AW_OTEL_JOB_START_MS;
+    const beforeMs = Date.now();
+    let capturedBody;
+    const fetchSpy = vi.spyOn(global, "fetch").mockImplementation((_url, opts) => {
+      capturedBody = opts?.body;
+      return Promise.resolve(new Response(null, { status: 200 }));
+    });
+
+    await runConclusion();
+
+    const afterMs = Date.now();
+    const payload = JSON.parse(capturedBody);
+    const span = payload?.resourceSpans?.[0]?.scopeSpans?.[0]?.spans?.[0];
+    const startNano = BigInt(span?.startTimeUnixNano);
+    expect(startNano).toBeGreaterThanOrEqual(BigInt(beforeMs) * 1_000_000n);
+    expect(startNano).toBeLessThanOrEqual(BigInt(afterMs) * 1_000_000n);
     fetchSpy.mockRestore();
   });
 });
