@@ -19,7 +19,7 @@ tools:
     toolsets: [repos, issues, pull_requests, actions]
 ```
 
-**Available**: `context`, `repos`, `issues`, `pull_requests`, `users`, `actions`, `code_security`, `discussions`, `labels`, `notifications`, `orgs`, `projects`, `gists`, `search`, `dependabot`, `experiments`, `secret_protection`, `security_advisories`, `stargazers`
+**Available**: `context`, `repos`, `issues`, `pull_requests`, `users`, `actions`, `code_security`, `discussions`, `git`, `labels`, `notifications`, `orgs`, `projects`, `gists`, `search`, `dependabot`, `experiments`, `secret_protection`, `security_advisories`, `stargazers`, `copilot_spaces`, `github_support_docs_search`
 
 **Shorthand values**:
 
@@ -37,7 +37,10 @@ Some key toolsets are:
 - `actions` (workflows, runs, artifacts)
 - `code_security` (scanning alerts)
 - `discussions` (discussions and comments)
+- `git` (Git API operations: repository tree, refs; requires `contents: read` permission)
 - `labels` (labels management)
+- `copilot_spaces` (GitHub Copilot Spaces — remote mode only)
+- `github_support_docs_search` (GitHub support documentation search — remote mode only)
 
 :::note
 `toolsets: [all]` does **not** include the `dependabot` toolset. Because `dependabot` requires the `vulnerability-alerts` GitHub App-only permission (not grantable via `GITHUB_TOKEN`), it must be opted into explicitly:

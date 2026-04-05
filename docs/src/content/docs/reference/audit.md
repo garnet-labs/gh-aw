@@ -49,7 +49,7 @@ gh aw audit 1234567890 -o ./audit-reports
 gh aw audit 1234567890 --repo owner/repo
 ```
 
-**Report sections** (rendered in Markdown or JSON): Overview, Comparison, Task/Domain, Behavior Fingerprint, Agentic Assessments, Metrics, Key Findings, Recommendations, Observability Insights, Performance Metrics, Engine Config, Prompt Analysis, Session Analysis, Safe Output Summary, MCP Server Health, Jobs, Downloaded Files, Missing Tools, Missing Data, Noops, MCP Failures, Firewall Analysis, Policy Analysis, Redacted Domains, Errors, Warnings, Tool Usage, MCP Tool Usage, Created Items.
+**Report sections** (rendered in Markdown or JSON): Overview, Comparison, Task/Domain, Behavior Fingerprint, Agentic Assessments, Metrics, Key Findings, Recommendations, Observability Insights, Performance Metrics, Engine Config, Prompt Analysis, Session Analysis, Safe Output Summary, MCP Server Health, Jobs, Downloaded Files, Missing Tools, Missing Data, Noops, MCP Failures, Firewall Analysis, Policy Analysis, Redacted Domains, Errors, Warnings, Tool Usage, MCP Tool Usage, Created Items, GitHub API Rate Limit Usage.
 
 ## `gh aw audit diff <base-run-id> <comparison-run-id> [<comparison-run-id>...]`
 
@@ -83,6 +83,7 @@ The diff output includes:
 - MCP tool invocation changes (new/removed tools, call count and error count diffs)
 - Run metrics comparison (token usage, duration, turns)
 - Token usage breakdown: input tokens, output tokens, cache read/write tokens, effective tokens, total API requests, and cache efficiency per run
+- GitHub API rate limit consumption comparison (requests consumed per API resource)
 
 **Output behavior with multiple comparisons:**
 - `--json` outputs a single object for one comparison, or an array for multiple
@@ -116,7 +117,7 @@ This feature is built into the `gh aw logs` command via the `--format` flag.
 | `-o, --output <dir>` | `./logs` | Directory for downloaded artifacts |
 | `--verbose` | off | Print detailed progress |
 
-The report output includes an executive summary, domain inventory, metrics trends, MCP server health, and per-run breakdown. It detects cross-run anomalies such as domain access spikes, elevated MCP error rates, and connection rate changes.
+The report output includes an executive summary, domain inventory, metrics trends, MCP server health, GitHub API rate limit consumption, and per-run breakdown. It detects cross-run anomalies such as domain access spikes, elevated MCP error rates, and connection rate changes.
 
 **Examples:**
 
