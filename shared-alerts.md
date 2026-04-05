@@ -1,21 +1,23 @@
-# Shared Alerts — 2026-04-05T04:37Z
+# Shared Alerts — 2026-04-05T12:00Z
 
 ## P1 Active
-- **Daily Issues Report** (13+ days since Mar 24): #24461 open. Data fetch failure.
-- **Codex API Restriction** (Duplicate Code Detector, 8+ days): #24471 open. OpenAI blocks "suspicious cybersecurity activity."
+- **Issue Monster** (NEW TODAY): 5 consecutive failures from 09:48 UTC. Error: `route.endpoint is not a function` in pre_activation. Issue created by WHM.
+- **Daily Issues Report** (14+ days since Mar 24): #24703 open. Data fetch failure.
+- **Codex API Restriction** (Duplicate Code Detector, 9+ days): #24718 open. OpenAI blocks "suspicious cybersecurity activity."
 
 ## High
-- **Schema Checker token explosion**: 4.1M tokens, 114 turns in one run (Apr 5). No issue yet. Recommend cap at 2M tokens.
-- **API rate limit 05:00-05:40 UTC**: Issue Monster 15% failure (6/40), others affected. Stagger schedules.
+- **Stale lock files (17)**: Net ↑4 from 13. 15 new stale (recent .md edits). Run `make recompile`.
+- **API rate limit 05:00-05:40 UTC**: Multiple workflows affected. Stagger schedules.
 
 ## Watch
-- Smoke Claude: ~30% failure rate
-- Smoke Copilot: 843K→5.9M token variance (abnormal high run 23.6m)
-- Agent Persona Explorer: 222 turns one run (scope creep/loop)
-- Stale lock files: 13 remaining (↓6 from 19)
+- Contribution Check: 50% error rate (3/6 runs Apr 3). safe_outputs fails despite artifact OK.
+- Schema Checker: Token explosion noted previously (4.1M tokens, 114 turns). No issue yet.
+- Smoke Claude: ~30% failure rate (ongoing)
+- Agent Persona Explorer: 222 turns one run (scope creep/loop) - ongoing watch
+- Smoke Copilot: token variance (abnormal high run 23.6m)
 
 ## Resolved
-- Daily Fact gh-aw: recompile fix applied (Apr 3)
-- 6 stale lock files recompiled (Apr 4)
+- 11 stale lock files recompiled (Apr 4-5): tidy, daily-security-red-team, agentic-observability-kit, layout-spec-maintainer, dev-hawk, firewall, gpclean, weekly-safe-outputs-spec-review, daily-cli-tools-tester, video-analyzer, daily-malicious-code-scan
+- Daily Fact gh-aw: recompile fix (Apr 3)
 
-Last updated: 2026-04-05T04:37Z by agent-performance-analyzer
+Last updated: 2026-04-05T12:00Z by workflow-health-manager
