@@ -14,6 +14,7 @@ import (
 	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/parser"
+	"github.com/github/gh-aw/pkg/telemetry"
 	"github.com/github/gh-aw/pkg/workflow"
 	"github.com/spf13/cobra"
 )
@@ -390,6 +391,15 @@ Examples:
 		dryRun, _ := cmd.Flags().GetBool("dry-run")
 		jsonOutput, _ := cmd.Flags().GetBool("json")
 
+		ctx := cmd.Context()
+
+		shutdown, err := telemetry.InitTracerProvider(ctx)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage("Failed to initialize telemetry: "+err.Error()))
+		} else {
+			defer shutdown(ctx) //nolint:errcheck
+		}
+
 		if err := validateEngine(engineOverride); err != nil {
 			return err
 		}
@@ -412,10 +422,10 @@ Examples:
 				return errors.New("workflow inputs cannot be specified in interactive mode (they will be collected interactively)")
 			}
 
-			return cli.RunWorkflowInteractively(cmd.Context(), verboseFlag, repoOverride, refOverride, autoMergePRs, push, engineOverride, dryRun)
+			return cli.RunWorkflowInteractively(ctx, verboseFlag, repoOverride, refOverride, autoMergePRs, push, engineOverride, dryRun)
 		}
 
-		return cli.RunWorkflowsOnGitHub(cmd.Context(), args, cli.RunOptions{
+		return cli.RunWorkflowsOnGitHub(ctx, args, cli.RunOptions{
 			RepeatCount:    repeatCount,
 			Enable:         enable,
 			EngineOverride: engineOverride,

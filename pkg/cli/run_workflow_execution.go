@@ -13,10 +13,14 @@ import (
 	"strings"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/logger"
 	"github.com/github/gh-aw/pkg/stringutil"
+	"github.com/github/gh-aw/pkg/telemetry"
 	"github.com/github/gh-aw/pkg/workflow"
 )
 
@@ -50,6 +54,15 @@ type WorkflowRunResult struct {
 
 // RunWorkflowOnGitHub runs an agentic workflow on GitHub Actions
 func RunWorkflowOnGitHub(ctx context.Context, workflowIdOrName string, opts RunOptions) error {
+	ctx, span := telemetry.Tracer().Start(ctx, "gh-aw.agent.execute",
+		trace.WithAttributes(
+			attribute.String("workflow", workflowIdOrName),
+			attribute.String("engine", opts.EngineOverride),
+			attribute.String("repo", opts.RepoOverride),
+		),
+	)
+	defer span.End()
+
 	executionLog.Printf("Starting workflow run: workflow=%s, enable=%v, engineOverride=%s, repo=%s, ref=%s, push=%v, wait=%v, inputs=%v", workflowIdOrName, opts.Enable, opts.EngineOverride, opts.RepoOverride, opts.RefOverride, opts.Push, opts.WaitForCompletion, opts.Inputs)
 
 	// Check context cancellation at the start
