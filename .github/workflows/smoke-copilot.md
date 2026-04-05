@@ -130,7 +130,7 @@ steps:
         > /tmp/gh-aw/agent/smoke-pr-meta.json
       gh api \
         "/repos/$REPO/pulls/$PR_NUMBER/files" \
-        --jq '[.[0:3] | .[] | {filename, patch}]' \
+        --jq '[.[] | select(.patch != null) | {filename, patch}][0:3]' \
         > /tmp/gh-aw/agent/smoke-pr-files.json
 timeout-minutes: 15
 strict: false
