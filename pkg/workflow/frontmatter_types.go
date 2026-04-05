@@ -130,6 +130,16 @@ type OTLPConfig struct {
 	// Supports GitHub Actions expressions such as ${{ secrets.OTLP_HEADERS }}.
 	// Injected as the standard OTEL_EXPORTER_OTLP_HEADERS environment variable.
 	Headers string `json:"headers,omitempty"`
+
+	// TraceID is the W3C trace context parent trace ID (32-character lowercase hex string).
+	// When set, the MCP gateway propagates this trace context to downstream spans.
+	// Supports GitHub Actions expressions such as ${{ vars.PARENT_TRACE_ID }}.
+	TraceID string `json:"traceId,omitempty"`
+
+	// SpanID is the W3C trace context parent span ID (16-character lowercase hex string).
+	// Ignored when TraceID is not also set.
+	// Supports GitHub Actions expressions such as ${{ vars.PARENT_SPAN_ID }}.
+	SpanID string `json:"spanId,omitempty"`
 }
 
 // ObservabilityConfig represents workflow observability options.

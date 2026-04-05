@@ -413,6 +413,8 @@ func TestExtractOTLPConfigFromRaw(t *testing.T) {
 		frontmatter  map[string]any
 		wantEndpoint string
 		wantHeaders  string
+		wantTraceID  string
+		wantSpanID   string
 	}{
 		{
 			name:        "nil frontmatter",
@@ -476,13 +478,45 @@ func TestExtractOTLPConfigFromRaw(t *testing.T) {
 			wantEndpoint: "https://sentry.io/api/123/envelope/",
 			wantHeaders:  "x-sentry-auth=Sentry sentry_key=abc123",
 		},
+		{
+			name: "observability.otlp with traceId and spanId",
+			frontmatter: map[string]any{
+				"observability": map[string]any{
+					"otlp": map[string]any{
+						"endpoint": "https://traces.example.com:4318/v1/traces",
+						"traceId":  "4bf92f3577b34da6a3ce929d0e0e4736",
+						"spanId":   "00f067aa0ba902b7",
+					},
+				},
+			},
+			wantEndpoint: "https://traces.example.com:4318/v1/traces",
+			wantTraceID:  "4bf92f3577b34da6a3ce929d0e0e4736",
+			wantSpanID:   "00f067aa0ba902b7",
+		},
+		{
+			name: "observability.otlp with expression traceId and spanId",
+			frontmatter: map[string]any{
+				"observability": map[string]any{
+					"otlp": map[string]any{
+						"endpoint": "https://traces.example.com",
+						"traceId":  "${{ vars.PARENT_TRACE_ID }}",
+						"spanId":   "${{ vars.PARENT_SPAN_ID }}",
+					},
+				},
+			},
+			wantEndpoint: "https://traces.example.com",
+			wantTraceID:  "${{ vars.PARENT_TRACE_ID }}",
+			wantSpanID:   "${{ vars.PARENT_SPAN_ID }}",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotEndpoint, gotHeaders := extractOTLPConfigFromRaw(tt.frontmatter)
+			gotEndpoint, gotHeaders, gotTraceID, gotSpanID := extractOTLPConfigFromRaw(tt.frontmatter)
 			assert.Equal(t, tt.wantEndpoint, gotEndpoint, "endpoint")
 			assert.Equal(t, tt.wantHeaders, gotHeaders, "headers")
+			assert.Equal(t, tt.wantTraceID, gotTraceID, "traceId")
+			assert.Equal(t, tt.wantSpanID, gotSpanID, "spanId")
 		})
 	}
 }

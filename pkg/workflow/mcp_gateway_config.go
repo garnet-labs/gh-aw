@@ -147,20 +147,27 @@ func buildMCPGatewayConfig(workflowData *WorkflowData) *MCPGatewayRuntimeConfig 
 
 // buildGatewayOTLPFromObservability builds the MCP gateway OpenTelemetry configuration
 // from the workflow's observability.otlp section (per MCP Gateway Spec §4.1.3.6).
-// The endpoint and headers are taken directly from observability.otlp; the OTLP domain
-// is already added to the network allowlist by injectOTLPConfig in the compiler.
+// The endpoint, headers, traceId and spanId are taken directly from observability.otlp;
+// the OTLP domain is already added to the network allowlist by injectOTLPConfig in the compiler.
 // Returns nil when no OTLP endpoint is configured.
 func buildGatewayOTLPFromObservability(workflowData *WorkflowData) *GatewayOpenTelemetryConfig {
 	// Read from the raw frontmatter first (same approach as injectOTLPConfig).
-	endpoint, headers := extractOTLPConfigFromRaw(workflowData.RawFrontmatter)
+	endpoint, headers, traceID, spanID := extractOTLPConfigFromRaw(workflowData.RawFrontmatter)
 
 	// Fall back to ParsedFrontmatter when raw map didn't yield an endpoint.
 	if endpoint == "" && workflowData.ParsedFrontmatter != nil &&
 		workflowData.ParsedFrontmatter.Observability != nil &&
 		workflowData.ParsedFrontmatter.Observability.OTLP != nil {
-		endpoint = workflowData.ParsedFrontmatter.Observability.OTLP.Endpoint
+		otlp := workflowData.ParsedFrontmatter.Observability.OTLP
+		endpoint = otlp.Endpoint
 		if headers == "" {
-			headers = workflowData.ParsedFrontmatter.Observability.OTLP.Headers
+			headers = otlp.Headers
+		}
+		if traceID == "" {
+			traceID = otlp.TraceID
+		}
+		if spanID == "" {
+			spanID = otlp.SpanID
 		}
 	}
 
@@ -170,11 +177,12 @@ func buildGatewayOTLPFromObservability(workflowData *WorkflowData) *GatewayOpenT
 
 	mcpGatewayConfigLog.Printf("Building gateway OpenTelemetry config from observability.otlp: endpoint=%s", endpoint)
 
-	otelConfig := &GatewayOpenTelemetryConfig{
+	return &GatewayOpenTelemetryConfig{
 		Endpoint: endpoint,
 		Headers:  parseOTLPHeadersString(headers),
+		TraceID:  traceID,
+		SpanID:   spanID,
 	}
-	return otelConfig
 }
 
 // parseOTLPHeadersString converts the standard OTEL_EXPORTER_OTLP_HEADERS comma-separated

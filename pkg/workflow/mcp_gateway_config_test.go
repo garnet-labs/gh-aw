@@ -509,6 +509,51 @@ func TestBuildGatewayOTLPFromObservability(t *testing.T) {
 				Endpoint: "https://fallback.example.com:4318/v1/traces",
 			},
 		},
+		{
+			name: "passes traceId and spanId from raw frontmatter",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+				RawFrontmatter: map[string]any{
+					"observability": map[string]any{
+						"otlp": map[string]any{
+							"endpoint": "https://collector.example.com:4318/v1/traces",
+							"traceId":  "4bf92f3577b34da6a3ce929d0e0e4736",
+							"spanId":   "00f067aa0ba902b7",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint: "https://collector.example.com:4318/v1/traces",
+				TraceID:  "4bf92f3577b34da6a3ce929d0e0e4736",
+				SpanID:   "00f067aa0ba902b7",
+			},
+		},
+		{
+			name: "passes traceId and spanId from ParsedFrontmatter fallback",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+				RawFrontmatter: map[string]any{},
+				ParsedFrontmatter: &FrontmatterConfig{
+					Observability: &ObservabilityConfig{
+						OTLP: &OTLPConfig{
+							Endpoint: "https://collector.example.com:4318/v1/traces",
+							TraceID:  "${{ vars.PARENT_TRACE_ID }}",
+							SpanID:   "${{ vars.PARENT_SPAN_ID }}",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint: "https://collector.example.com:4318/v1/traces",
+				TraceID:  "${{ vars.PARENT_TRACE_ID }}",
+				SpanID:   "${{ vars.PARENT_SPAN_ID }}",
+			},
+		},
 	}
 
 	for _, tt := range tests {

@@ -48,12 +48,12 @@ func getOTLPEndpointEnvValue(config *FrontmatterConfig) string {
 	return config.Observability.OTLP.Endpoint
 }
 
-// extractOTLPConfigFromRaw reads OTLP endpoint and headers directly from the raw
-// frontmatter map[string]any.  This avoids dependence on ParseFrontmatterConfig
+// extractOTLPConfigFromRaw reads OTLP endpoint, headers, traceId, and spanId directly from
+// the raw frontmatter map[string]any.  This avoids dependence on ParseFrontmatterConfig
 // succeeding -- that function may fail for workflows with complex tool configurations
 // (e.g. engine objects, array-style bash configs), which would leave ParsedFrontmatter
 // nil and prevent OTLP injection.
-func extractOTLPConfigFromRaw(frontmatter map[string]any) (endpoint, headers string) {
+func extractOTLPConfigFromRaw(frontmatter map[string]any) (endpoint, headers, traceID, spanID string) {
 	obs, ok := frontmatter["observability"]
 	if !ok {
 		return
@@ -76,6 +76,12 @@ func extractOTLPConfigFromRaw(frontmatter map[string]any) (endpoint, headers str
 	if h, ok := otlpMap["headers"].(string); ok {
 		headers = h
 	}
+	if tid, ok := otlpMap["traceId"].(string); ok {
+		traceID = tid
+	}
+	if sid, ok := otlpMap["spanId"].(string); ok {
+		spanID = sid
+	}
 	return
 }
 
@@ -93,7 +99,7 @@ func extractOTLPConfigFromRaw(frontmatter map[string]any) (endpoint, headers str
 func (c *Compiler) injectOTLPConfig(workflowData *WorkflowData) {
 	// Read OTLP config from the raw frontmatter map so that injection works even
 	// when ParseFrontmatterConfig failed (e.g. due to complex tool configs).
-	endpoint, headers := extractOTLPConfigFromRaw(workflowData.RawFrontmatter)
+	endpoint, headers, _, _ := extractOTLPConfigFromRaw(workflowData.RawFrontmatter)
 
 	// Fall back to ParsedFrontmatter when the raw map didn't yield an endpoint.
 	if endpoint == "" {
