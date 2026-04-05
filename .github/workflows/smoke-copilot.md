@@ -18,12 +18,11 @@ permissions:
 name: Smoke Copilot
 engine:
   id: copilot
-  max-continuations: 2
+  max-continuations: 1
 imports:
   - shared/github-guard-policy.md
   - shared/gh.md
   - shared/reporting.md
-  - shared/github-queries-mcp-script.md
   - shared/mcp/serena-go.md
   - shared/observability-otlp.md
 network:
@@ -116,6 +115,23 @@ safe-outputs:
       run-started: "📰 BREAKING: [{workflow_name}]({run_url}) is now investigating this {event_type}. Sources say the story is developing..."
       run-success: "📰 VERDICT: [{workflow_name}]({run_url}) has concluded. All systems operational. This is a developing story. 🎤"
       run-failure: "📰 DEVELOPING STORY: [{workflow_name}]({run_url}) reports {status}. Our correspondents are investigating the incident..."
+steps:
+  - name: Pre-fetch PR context
+    if: github.event_name == 'pull_request'
+    env:
+      GH_TOKEN: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      REPO: ${{ github.repository }}
+    run: |
+      mkdir -p /tmp/gh-aw/agent
+      gh pr view "$PR_NUMBER" \
+        --repo "$REPO" \
+        --json number,title,author,assignees \
+        > /tmp/gh-aw/agent/smoke-pr-meta.json
+      gh api \
+        "/repos/$REPO/pulls/$PR_NUMBER/files" \
+        --jq '[.[0:3] | .[] | {filename, patch}]' \
+        > /tmp/gh-aw/agent/smoke-pr-files.json
 timeout-minutes: 15
 strict: false
 ---
@@ -123,6 +139,8 @@ strict: false
 # Smoke Test: Copilot Engine Validation
 
 **IMPORTANT: Keep all outputs extremely short and concise. Use single-line responses where possible. No verbose explanations.**
+
+**EFFICIENCY RULE: Complete all 12 tests in ≤ 15 tool calls total. Do not verify what you've already confirmed. Batch reads where possible.**
 
 ## Test Requirements
 
@@ -136,13 +154,13 @@ strict: false
 6. **File Writing Testing**: Create a test file `/tmp/gh-aw/agent/smoke-test-copilot-${{ github.run_id }}.txt` with content "Smoke test passed for Copilot at $(date)" (create the directory if it doesn't exist)
 7. **Bash Tool Testing**: Execute bash commands to verify file creation was successful (use `cat` to read the file back)
 8. **Discussion Interaction Testing**: 
-   - Use the `github-discussion-query` mcp-script tool with params: `limit=1, jq=".[0]"` to get the latest discussion from ${{ github.repository }}
+   - Use the `list_discussions` GitHub MCP tool — split `${{ github.repository }}` by `/` to set `owner` (first part) and `repo` (second part), and set `perPage: 1` — to get the latest discussion
    - Extract the discussion number from the result (e.g., if the result is `{"number": 123, "title": "...", ...}`, extract 123)
    - Use the `add_comment` tool with `discussion_number: <extracted_number>` to add a fun, playful comment stating that the smoke test agent was here
 9. **Build gh-aw**: Run `GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod make build` to verify the agent can successfully build the gh-aw project (both caches must be set to /tmp because the default cache locations are not writable). If the command fails, mark this test as ❌ and report the failure.
 10. **Discussion Creation Testing**: Use the `create_discussion` safe-output tool to create a discussion in the announcements category titled "copilot was here" with the label "ai-generated"
 11. **Workflow Dispatch Testing**: Use the `dispatch_workflow` safe output tool to trigger the `haiku-printer` workflow with a haiku as the message input. Create an original, creative haiku about software testing or automation.
-12. **PR Review Testing**: Review the diff of the current pull request. Leave 1-2 inline `create_pull_request_review_comment` comments on specific lines, then call `submit_pull_request_review` with a brief body summarizing your review and event `COMMENT`. To test `reply_to_pull_request_review_comment`: use the `pull_request_read` tool (with `method: "get_review_comments"` and `pullNumber: ${{ github.event.pull_request.number }}`) to fetch the PR's existing review comments, then reply to the most recent one using `reply_to_pull_request_review_comment` with its actual numeric `id` as the `comment_id`. Note: `create_pull_request_review_comment` does not return a `comment_id` — you must fetch existing comment IDs from the GitHub API. If the PR has no existing review comments, skip the reply sub-test.
+12. **PR Review Testing** (only if triggered by a pull_request event): Read the pre-fetched PR context from `/tmp/gh-aw/agent/smoke-pr-meta.json` (PR metadata) and `/tmp/gh-aw/agent/smoke-pr-files.json` (changed files with patch lines). From the files JSON, pick a file and find a line added in the patch (lines prefixed with `+` in the hunk, counting from the hunk header `@@ -a,b +c,d @@` where `c` is the starting line — use the position offset within the patch). Create 1 inline `create_pull_request_review_comment` on that file and line, then call `submit_pull_request_review` with a brief body and event `COMMENT`. Do not call the GitHub API to re-fetch this data. Skip if not a PR event.
 
 ## Output
 
