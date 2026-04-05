@@ -1,19 +1,26 @@
-# Agent Performance - 2026-04-04
-Run: §23971272196 | Q:71↓1 E:68↑1 H:72→
+# Agent Performance - 2026-04-05
+Run: §23994316122 | Q:70↓1 E:68→ H:70↓2
 
-Top: Workflow Health Manager (Q:92 E:89), Deep Report (Q:88 E:85), Plan Agent (Q:85 E:92), CLI Version Checker (Q:82 E:90)
-Watch: Daily Issues Report (P1 11d, E:15), Go Logger Enhancement (crash 17.5m), Prompt Clustering (timeout 37m firewall), Duplicate Code Detector (Codex API restriction P1)
-Systemic: ALL observed Claude runs resource_heavy_for_domain; avg 92% data-gathering (agentic_fraction avg 0.12); 19 stale lock files; Codex API restrictions
+Top: Workflow Health Manager (Q:92 E:89), CLI Version Checker (Q:82 E:90), OTel Advisor (Q:82 E:88), Auto-Triage (Q:78 E:82), Q Command (Q:78 E:85)
+Watch: Schema Consistency Checker (4.1M tokens, 114 turns — resource explosion), Smoke Copilot (7.7m/843K vs 23.6m/5.9M — extreme variability), Agent Persona Explorer (222 turns one run — scope creep), Smoke Claude (30% failure rate)
 
-Failed: Daily Issues Report (11 consecutive), Duplicate Code Detector (7 consecutive, Codex blocked), Go Logger (crash), Prompt Clustering (timeout)
-Active P1: #24266 (Daily Issues Report), #24284 (Duplicate Code Detector, Codex blocked)
-Resolved P1: Daily Fact #24290 (closed, recompile fix)
-New issues (Apr 1-4): 20+ total; 10 closed quickly (high plan/deep-report closure rate)
+Systemic:
+- API rate limiting 05:00-05:40 UTC (Issue Monster 15% failure, others affected)
+- Claude resource-heavy pattern persists (avg data-gathering 92%); Schema Checker is worst case
+- 13 stale lock files (↓6 from 19 last period)
 
-Recommendations:
-- P1: Fix Daily Issues Report Generator (#24266)
-- P1: Batch recompile 19 stale lock files (#24325)
-- Systemic: Optimize Claude prompts (reduce data-gathering from 92% to <70%)
-- P2: Investigate Go Logger crash, Prompt Clustering firewall issue
+Failed/Blocked:
+- Daily Issues Report Generator: 13+ consecutive days (P1, #24461)
+- Duplicate Code Detector: Codex API restriction (P1, #24471)
 
-Stats: 184 total workflows (copilot:124, claude:41, codex:18, gemini:1). All 184 compiled. 35 active.
+New high-priority:
+- Schema Consistency Checker token explosion (4.1M tokens/run) — no issue yet, recommend creating
+- Smoke Copilot token variance (5.9M peak vs 843K baseline)
+
+Active P1: #24461 (Daily Issues Report), #24471 (Duplicate Code Detector)
+Good news: Stale lock files 19→13 (progress). OTel Advisor creating/closing quality issues rapidly.
+
+Stats: 184 total workflows (copilot:124, claude:41, codex:18, gemini:1). 35 active.
+7d window: ~38 runs. Claude 2d: $8.33, 13.2M tokens. Copilot 2d: 13.4M tokens.
+
+Discussion created: Agent Performance Report — Week of April 5, 2026
