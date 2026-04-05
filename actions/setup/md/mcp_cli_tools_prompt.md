@@ -1,28 +1,45 @@
 <mcp-clis>
-## MCP Tools Available as CLI Commands
+## MCP Servers Mounted as Shell CLI Commands
 
-The following MCP servers have been mounted as local CLI commands and are available directly from the shell:
+> **IMPORTANT**: The following MCP servers are **NOT available as MCP tools** in your agent context. They have been mounted exclusively as shell (bash) CLI commands. You **must** call them via the shell — do **not** attempt to use them as MCP protocol tools.
+
+The following servers are available as CLI commands on `PATH`:
 
 __GH_AW_MCP_CLI_SERVERS_LIST__
 
 ### How to Use
 
-Each server is a standalone command in your PATH. Use them like any other shell command:
+Each server is a standalone executable on your `PATH`. Invoke it from bash like any other shell command:
 
 ```bash
-# Show all available tools for a server
+# Discover what tools a server provides
 <server-name> --help
 
-# Show help for a specific tool
+# Get detailed help for a specific tool (description + parameters)
 <server-name> <tool-name> --help
 
-# Call a tool with parameters
+# Call a tool — pass arguments as --name value pairs
 <server-name> <tool-name> --param1 value1 --param2 value2
+```
+
+**Example** — using the `github` CLI:
+```bash
+github --help                                      # list all github tools
+github issue_read --help                           # show parameters for issue_read
+github issue_read --method get --owner octocat --repo Hello-World --issue_number 1
+```
+
+**Example** — using the `playwright` CLI:
+```bash
+playwright --help                                  # list all browser tools
+playwright browser_navigate --url https://example.com
+playwright browser_snapshot                        # capture page accessibility tree
 ```
 
 ### Notes
 
-- Parameters are passed as `--name value` pairs (all values are treated as strings unless the tool accepts booleans, in which case `--flag` with no value sets it to `true`)
-- Results are printed to stdout; errors are printed to stderr
-- The CLI scripts are read-only — use MCP tools via the CLI wrappers rather than calling the gateway directly
+- All parameters are passed as `--name value` pairs; boolean flags can be set with `--flag` (no value) to mean `true`
+- Output is printed to stdout; errors are printed to stderr with a non-zero exit code
+- Run the CLI commands inside a `bash` tool call — they are shell executables, not MCP tools
+- These CLI commands are read-only and cannot be modified by the agent
 </mcp-clis>

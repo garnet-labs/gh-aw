@@ -128,14 +128,30 @@ observability:
 
 **IMPORTANT: Keep all outputs extremely short and concise. Use single-line responses where possible. No verbose explanations.**
 
+## Tool Access Overview
+
+This workflow uses `mount-as-clis: true`. The following MCP servers are **NOT available as MCP tools** — they are mounted exclusively as **shell CLI commands** (see `<mcp-clis>` section above). You **must** use them via the `bash` tool:
+
+- **`github`** — use `github <tool> [--param value...]` in bash (e.g. `github pull_request_read --method list ...`)
+- **`playwright`** — use `playwright <tool> [--param value...]` in bash (e.g. `playwright browser_navigate --url ...`)
+- **`serena`** — use `serena <tool> [--param value...]` in bash (e.g. `serena activate_project --path ...`)
+- **`agenticworkflows`** — use `agenticworkflows <tool> [--param value...]` in bash
+
+Run `<server> --help` to list all available tools for a server, or `<server> <tool> --help` for detailed parameter info.
+
+These are **not** MCP protocol tools — they are bash executables. Call them with the `bash` tool only.
+
 ## Test Requirements
 
-1. **GitHub CLI Testing**: Use the `github` CLI command to list the last 2 merged pull requests in ${{ github.repository }} (e.g., `github pull_request_read --method list --owner <owner> --repo <repo> --state closed --per_page 2`)
+1. **GitHub CLI Testing**: Use the `github` CLI command (via bash) to list the last 2 merged pull requests in ${{ github.repository }}:
+   ```bash
+   github pull_request_read --method list --owner <owner> --repo <repo> --state closed --per_page 2
+   ```
 2. **MCP Scripts GH CLI Testing**: Use the `mcpscripts-gh` tool to query 2 pull requests from ${{ github.repository }} (use args: "pr list --repo ${{ github.repository }} --limit 2 --json number,title,author")
 3. **Serena CLI Testing**: 
-   - Use the `serena` CLI command `serena activate_project --path ${{ github.workspace }}` to initialize the workspace and verify it succeeds (do NOT use bash to run go commands - use the serena CLI)
-   - After initialization, use `serena find_symbol --name_path <symbol>` to search for symbols and verify that at least 3 symbols are found in the results
-4. **Playwright CLI Testing**: Use the `playwright` CLI command (`playwright browser_navigate --url https://github.com`) to navigate to <https://github.com> and verify the page title contains "GitHub" (do NOT try to install playwright - use the `playwright` CLI command)
+   - Use bash to run `serena activate_project --path ${{ github.workspace }}` to initialize the workspace and verify it succeeds (do NOT use bash to run go commands - use the serena CLI only)
+   - After initialization, use bash to run `serena find_symbol --name_path <symbol>` to search for symbols and verify that at least 3 symbols are found in the results
+4. **Playwright CLI Testing**: Use bash to run `playwright browser_navigate --url https://github.com` to navigate to <https://github.com>, then `playwright browser_snapshot` to capture the page and verify the title contains "GitHub" (do NOT try to install playwright - use the `playwright` CLI command via bash only)
 5. **Web Fetch Testing**: Use the web-fetch tool to fetch https://github.com and verify the response contains "GitHub" (do NOT use bash or playwright for this test - use the web-fetch tool directly)
 6. **File Writing Testing**: Create a test file `/tmp/gh-aw/agent/smoke-test-copilot-${{ github.run_id }}.txt` with content "Smoke test passed for Copilot at $(date)" (create the directory if it doesn't exist)
 7. **Bash Tool Testing**: Execute bash commands to verify file creation was successful (use `cat` to read the file back)
@@ -146,7 +162,7 @@ observability:
 9. **Build gh-aw**: Run `GOCACHE=/tmp/go-cache GOMODCACHE=/tmp/go-mod make build` to verify the agent can successfully build the gh-aw project (both caches must be set to /tmp because the default cache locations are not writable). If the command fails, mark this test as ❌ and report the failure.
 10. **Discussion Creation Testing**: Use the `create_discussion` safe-output tool to create a discussion in the announcements category titled "copilot was here" with the label "ai-generated"
 11. **Workflow Dispatch Testing**: Use the `dispatch_workflow` safe output tool to trigger the `haiku-printer` workflow with a haiku as the message input. Create an original, creative haiku about software testing or automation.
-12. **PR Review Testing**: Review the diff of the current pull request. Leave 1-2 inline `create_pull_request_review_comment` comments on specific lines, then call `submit_pull_request_review` with a brief body summarizing your review and event `COMMENT`. To test `reply_to_pull_request_review_comment`: use the `github` CLI command (`github pull_request_read --method get_review_comments --owner <owner> --repo <repo> --pullNumber ${{ github.event.pull_request.number }}`) to fetch the PR's existing review comments, then reply to the most recent one using `reply_to_pull_request_review_comment` with its actual numeric `id` as the `comment_id`. Note: `create_pull_request_review_comment` does not return a `comment_id` — you must fetch existing comment IDs via the `github` CLI. If the PR has no existing review comments, skip the reply sub-test.
+12. **PR Review Testing**: Review the diff of the current pull request. Leave 1-2 inline `create_pull_request_review_comment` comments on specific lines, then call `submit_pull_request_review` with a brief body summarizing your review and event `COMMENT`. To test `reply_to_pull_request_review_comment`: use bash to run the `github` CLI command (`github pull_request_read --method get_review_comments --owner <owner> --repo <repo> --pullNumber ${{ github.event.pull_request.number }}`) to fetch the PR's existing review comments, then reply to the most recent one using `reply_to_pull_request_review_comment` with its actual numeric `id` as the `comment_id`. Note: `create_pull_request_review_comment` does not return a `comment_id` — you must fetch existing comment IDs via the `github` CLI. If the PR has no existing review comments, skip the reply sub-test.
 
 ## Output
 
