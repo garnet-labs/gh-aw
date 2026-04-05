@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2026-04-05",
+    "workflow_name": "CI Cleaner",
+    "workflow_file": "hourly-ci-cleaner",
+    "total_tokens_analyzed": 22734152,
+    "runs_audited": 2,
+    "recommendations_count": 6,
+    "estimated_savings_per_run": 8500000,
+    "notes": "Dominant fix type is golden file drift (automatable). make update-golden already exists. Turn avg 119.5 vs 15-20 target."
+  }
+]
