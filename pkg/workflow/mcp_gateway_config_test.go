@@ -386,158 +386,156 @@ func TestBuildMCPGatewayConfig(t *testing.T) {
 				assert.Equal(t, tt.expected.PayloadSizeThreshold, result.PayloadSizeThreshold, "PayloadSizeThreshold should match")
 				assert.Equal(t, tt.expected.TrustedBots, result.TrustedBots, "TrustedBots should match")
 				assert.Equal(t, tt.expected.KeepaliveInterval, result.KeepaliveInterval, "KeepaliveInterval should match")
-				assert.Equal(t, tt.expected.OpenTelemetry, result.OpenTelemetry, "OpenTelemetry should match")
 			}
 		})
 	}
 }
 
-func TestBuildMCPGatewayConfigOpenTelemetry(t *testing.T) {
+func TestBuildGatewayOTLPFromObservability(t *testing.T) {
 	tests := []struct {
 		name         string
 		workflowData *WorkflowData
 		expectedOTel *GatewayOpenTelemetryConfig
 	}{
 		{
-			name: "propagates OpenTelemetry config from frontmatter",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						OpenTelemetry: &GatewayOpenTelemetryConfig{
-							Endpoint:    "https://collector.example.com:4318/v1/traces",
-							ServiceName: "my-workflow-gateway",
-						},
-					},
-				},
-			},
-			expectedOTel: &GatewayOpenTelemetryConfig{
-				Endpoint:    "https://collector.example.com:4318/v1/traces",
-				ServiceName: "my-workflow-gateway",
-			},
-		},
-		{
-			name: "propagates OpenTelemetry config with headers and trace context",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						OpenTelemetry: &GatewayOpenTelemetryConfig{
-							Endpoint:    "https://collector.example.com:4318/v1/traces",
-							Headers:     map[string]string{"Authorization": "Bearer ${OTEL_TOKEN}"},
-							TraceID:     "${PARENT_TRACE_ID}",
-							SpanID:      "${PARENT_SPAN_ID}",
-							ServiceName: "my-gateway",
-						},
-					},
-				},
-			},
-			expectedOTel: &GatewayOpenTelemetryConfig{
-				Endpoint:    "https://collector.example.com:4318/v1/traces",
-				Headers:     map[string]string{"Authorization": "Bearer ${OTEL_TOKEN}"},
-				TraceID:     "${PARENT_TRACE_ID}",
-				SpanID:      "${PARENT_SPAN_ID}",
-				ServiceName: "my-gateway",
-			},
-		},
-		{
-			name: "nil OpenTelemetry when not specified",
+			name: "builds OTLP config from raw frontmatter observability.otlp",
 			workflowData: &WorkflowData{
 				SandboxConfig: &SandboxConfig{
 					MCP: &MCPGatewayRuntimeConfig{},
 				},
+				RawFrontmatter: map[string]any{
+					"observability": map[string]any{
+						"otlp": map[string]any{
+							"endpoint": "https://collector.example.com:4318/v1/traces",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint: "https://collector.example.com:4318/v1/traces",
+			},
+		},
+		{
+			name: "parses static headers into map",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+				RawFrontmatter: map[string]any{
+					"observability": map[string]any{
+						"otlp": map[string]any{
+							"endpoint": "https://collector.example.com:4318/v1/traces",
+							"headers":  "Authorization=Bearer token123,X-Custom=foo",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint: "https://collector.example.com:4318/v1/traces",
+				Headers:  map[string]string{"Authorization": "Bearer token123", "X-Custom": "foo"},
+			},
+		},
+		{
+			name: "GitHub Actions expression headers - skipped",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+				RawFrontmatter: map[string]any{
+					"observability": map[string]any{
+						"otlp": map[string]any{
+							"endpoint": "https://collector.example.com:4318/v1/traces",
+							"headers":  "${{ secrets.OTLP_HEADERS }}",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint: "https://collector.example.com:4318/v1/traces",
+				Headers:  nil,
+			},
+		},
+		{
+			name: "returns nil when no observability.otlp configured",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+				RawFrontmatter: map[string]any{},
 			},
 			expectedOTel: nil,
+		},
+		{
+			name: "falls back to ParsedFrontmatter when raw map has no endpoint",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+				RawFrontmatter: map[string]any{},
+				ParsedFrontmatter: &FrontmatterConfig{
+					Observability: &ObservabilityConfig{
+						OTLP: &OTLPConfig{
+							Endpoint: "https://fallback.example.com:4318/v1/traces",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint: "https://fallback.example.com:4318/v1/traces",
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := buildMCPGatewayConfig(tt.workflowData)
-			require.NotNil(t, result, "buildMCPGatewayConfig should return config")
-			assert.Equal(t, tt.expectedOTel, result.OpenTelemetry, "OpenTelemetry should match")
+			result := buildGatewayOTLPFromObservability(tt.workflowData)
+			assert.Equal(t, tt.expectedOTel, result, "OTLP config should match")
 		})
 	}
 }
 
-func TestInjectMCPGatewayOTLPNetwork(t *testing.T) {
+func TestParseOTLPHeadersString(t *testing.T) {
 	tests := []struct {
-		name            string
-		workflowData    *WorkflowData
-		expectedAllowed []string
+		name     string
+		input    string
+		expected map[string]string
 	}{
 		{
-			name:            "nil workflow data - no-op",
-			workflowData:    nil,
-			expectedAllowed: nil,
+			name:     "empty string",
+			input:    "",
+			expected: nil,
 		},
 		{
-			name:            "no sandbox config - no-op",
-			workflowData:    &WorkflowData{},
-			expectedAllowed: nil,
+			name:     "GitHub Actions expression",
+			input:    "${{ secrets.OTLP_HEADERS }}",
+			expected: nil,
 		},
 		{
-			name: "no OpenTelemetry config - no-op",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{},
-				},
-			},
-			expectedAllowed: nil,
+			name:     "single key=value",
+			input:    "Authorization=Bearer token",
+			expected: map[string]string{"Authorization": "Bearer token"},
 		},
 		{
-			name: "static HTTPS endpoint adds domain to allowlist",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						OpenTelemetry: &GatewayOpenTelemetryConfig{
-							Endpoint: "https://collector.example.com:4318/v1/traces",
-						},
-					},
-				},
-			},
-			expectedAllowed: []string{"collector.example.com"},
+			name:     "multiple key=value pairs",
+			input:    "Authorization=Bearer token123,X-Custom=foo",
+			expected: map[string]string{"Authorization": "Bearer token123", "X-Custom": "foo"},
 		},
 		{
-			name: "GitHub Actions expression endpoint - skipped",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						OpenTelemetry: &GatewayOpenTelemetryConfig{
-							Endpoint: "${{ secrets.OTEL_ENDPOINT }}",
-						},
-					},
-				},
-			},
-			expectedAllowed: nil,
+			name:     "value with equals sign (e.g. base64)",
+			input:    "Authorization=abc=def==",
+			expected: map[string]string{"Authorization": "abc=def=="},
 		},
 		{
-			name: "appends to existing allowlist",
-			workflowData: &WorkflowData{
-				SandboxConfig: &SandboxConfig{
-					MCP: &MCPGatewayRuntimeConfig{
-						OpenTelemetry: &GatewayOpenTelemetryConfig{
-							Endpoint: "https://otel.corp.example.com:4317",
-						},
-					},
-				},
-				NetworkPermissions: &NetworkPermissions{
-					Allowed: []string{"existing.example.com"},
-				},
-			},
-			expectedAllowed: []string{"existing.example.com", "otel.corp.example.com"},
+			name:     "whitespace trimmed from keys",
+			input:    " Authorization = Bearer token ",
+			expected: map[string]string{"Authorization": " Bearer token"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			injectMCPGatewayOTLPNetwork(tt.workflowData)
-			if tt.expectedAllowed == nil {
-				if tt.workflowData != nil && tt.workflowData.NetworkPermissions != nil {
-					assert.Empty(t, tt.workflowData.NetworkPermissions.Allowed, "Allowed should be empty")
-				}
-			} else {
-				require.NotNil(t, tt.workflowData.NetworkPermissions, "NetworkPermissions should not be nil")
-				assert.Equal(t, tt.expectedAllowed, tt.workflowData.NetworkPermissions.Allowed, "Allowed domains should match")
-			}
+			result := parseOTLPHeadersString(tt.input)
+			assert.Equal(t, tt.expected, result, "parsed headers should match")
 		})
 	}
 }
