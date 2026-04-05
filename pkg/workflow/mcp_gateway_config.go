@@ -195,7 +195,7 @@ func parseOTLPHeadersString(headers string) map[string]string {
 		pair = strings.TrimSpace(pair)
 		if idx := strings.Index(pair, "="); idx > 0 {
 			key := strings.TrimSpace(pair[:idx])
-			value := pair[idx+1:]
+			value := strings.TrimSpace(pair[idx+1:])
 			if key != "" {
 				result[key] = value
 			}

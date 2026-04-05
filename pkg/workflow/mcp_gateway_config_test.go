@@ -369,6 +369,30 @@ func TestBuildMCPGatewayConfig(t *testing.T) {
 				KeepaliveInterval:    -1,
 			},
 		},
+		{
+			name: "populates OpenTelemetry from observability.otlp in raw frontmatter",
+			workflowData: &WorkflowData{
+				RawFrontmatter: map[string]any{
+					"observability": map[string]any{
+						"otlp": map[string]any{
+							"endpoint": "https://collector.example.com:4318/v1/traces",
+							"headers":  "Authorization=Bearer token123",
+						},
+					},
+				},
+			},
+			expected: &MCPGatewayRuntimeConfig{
+				Port:                 int(DefaultMCPGatewayPort),
+				Domain:               "${MCP_GATEWAY_DOMAIN}",
+				APIKey:               "${MCP_GATEWAY_API_KEY}",
+				PayloadDir:           "${MCP_GATEWAY_PAYLOAD_DIR}",
+				PayloadSizeThreshold: constants.DefaultMCPGatewayPayloadSizeThreshold,
+				OpenTelemetry: &GatewayOpenTelemetryConfig{
+					Endpoint: "https://collector.example.com:4318/v1/traces",
+					Headers:  map[string]string{"Authorization": "Bearer token123"},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -386,6 +410,7 @@ func TestBuildMCPGatewayConfig(t *testing.T) {
 				assert.Equal(t, tt.expected.PayloadSizeThreshold, result.PayloadSizeThreshold, "PayloadSizeThreshold should match")
 				assert.Equal(t, tt.expected.TrustedBots, result.TrustedBots, "TrustedBots should match")
 				assert.Equal(t, tt.expected.KeepaliveInterval, result.KeepaliveInterval, "KeepaliveInterval should match")
+				assert.Equal(t, tt.expected.OpenTelemetry, result.OpenTelemetry, "OpenTelemetry should match")
 			}
 		})
 	}
@@ -526,9 +551,9 @@ func TestParseOTLPHeadersString(t *testing.T) {
 			expected: map[string]string{"Authorization": "abc=def=="},
 		},
 		{
-			name:     "whitespace trimmed from keys",
+			name:     "whitespace trimmed from keys and values",
 			input:    " Authorization = Bearer token ",
-			expected: map[string]string{"Authorization": " Bearer token"},
+			expected: map[string]string{"Authorization": "Bearer token"},
 		},
 	}
 
