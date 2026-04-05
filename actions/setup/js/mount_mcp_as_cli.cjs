@@ -35,6 +35,25 @@ const TOOLS_DIR = `${RUNNER_TEMP}/gh-aw/mcp-cli/tools`;
 const INTERNAL_SERVERS = new Set(["safeoutputs", "mcp-scripts", "mcpscripts"]);
 
 /**
+ * Rewrite a raw gateway manifest URL to use the container-accessible domain.
+ *
+ * The manifest stores raw gateway-output URLs (e.g., http://0.0.0.0:80/mcp/server)
+ * that work from the host. Inside the AWF sandbox the gateway is reachable via
+ * MCP_GATEWAY_DOMAIN:MCP_GATEWAY_PORT (typically host.docker.internal:80).
+ *
+ * @param {string} rawUrl - URL from the manifest (host-accessible)
+ * @returns {string} URL suitable for use inside AWF containers
+ */
+function toContainerUrl(rawUrl) {
+  const domain = process.env.MCP_GATEWAY_DOMAIN;
+  const port = process.env.MCP_GATEWAY_PORT;
+  if (domain && port) {
+    return rawUrl.replace(/^https?:\/\/[^/]+\/mcp\//, `http://${domain}:${port}/mcp/`);
+  }
+  return rawUrl;
+}
+
+/**
  * Make an HTTP POST request with a JSON body and return the parsed response.
  *
  * @param {string} urlStr - Full URL to POST to
@@ -398,15 +417,25 @@ async function main() {
     core.warning("MCP_GATEWAY_API_KEY is not set; generated CLI wrappers will not be able to authenticate with the gateway");
   }
 
+  const gatewayDomain = process.env.MCP_GATEWAY_DOMAIN || "";
+  const gatewayPort = process.env.MCP_GATEWAY_PORT || "";
+  if (!gatewayDomain || !gatewayPort) {
+    core.warning("MCP_GATEWAY_DOMAIN or MCP_GATEWAY_PORT is not set; CLI wrappers will use raw manifest URLs which may not be reachable inside the AWF sandbox");
+  }
+
   const mountedServers = [];
 
   for (const server of servers) {
     const { name, url } = server;
-    core.info(`Mounting MCP server '${name}' (url: ${url})...`);
+    // The manifest URL is the host-accessible raw gateway address (e.g., http://0.0.0.0:80/mcp/server).
+    // Rewrite it to the container-accessible URL for the generated CLI wrapper scripts,
+    // which run inside the AWF sandbox where the gateway is reached via MCP_GATEWAY_DOMAIN.
+    const containerUrl = toContainerUrl(url);
+    core.info(`Mounting MCP server '${name}' (host url: ${url}, container url: ${containerUrl})...`);
 
     const toolsFile = path.join(TOOLS_DIR, `${name}.json`);
 
-    // Query tools from the server
+    // Query tools from the server using the host-accessible URL (mount step runs on host)
     const tools = await fetchMCPTools(url, apiKey, core);
     core.info(`  Found ${tools.length} tool(s)`);
 
@@ -417,10 +446,10 @@ async function main() {
       core.warning(`  Failed to write tools cache for ${name}: ${err instanceof Error ? err.message : String(err)}`);
     }
 
-    // Write the CLI wrapper script
+    // Write the CLI wrapper script using the container-accessible URL
     const scriptPath = path.join(CLI_BIN_DIR, name);
     try {
-      fs.writeFileSync(scriptPath, generateCLIWrapperScript(name, url, toolsFile, apiKey), { mode: 0o755 });
+      fs.writeFileSync(scriptPath, generateCLIWrapperScript(name, containerUrl, toolsFile, apiKey), { mode: 0o755 });
       mountedServers.push(name);
       core.info(`  ✓ Mounted as: ${scriptPath}`);
     } catch (err) {
