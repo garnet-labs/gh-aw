@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-04-05T21:02:06Z",
+  "workflow_run_id": "24010369831",
+  "total_workflows": 181,
+  "shared_workflows": 47,
+  "copilot_workflows": 91,
+  "claude_workflows": 36,
+  "codex_workflows": 15,
+  "copilot_adoption_rate": "50%",
+  "features_available": [
+    "engine.version", "engine.model", "engine.agent", "engine.args",
+    "engine.api-target", "engine.command", "max-continuations",
+    "mcp-scripts", "web-fetch", "playwright", "cache-memory",
+    "sandbox-awf", "sandbox-srt", "network", "features.copilot-requests",
+    "toolsets", "strict", "tracker-id", "disable-builtin-mcps"
+  ],
+  "copilot_feature_adoption": {
+    "engine_version_pinned": {"count": 5, "out_of": 91, "pct": "5%"},
+    "engine_model_override": {"count": 1, "out_of": 91, "pct": "1%"},
+    "engine_agent": {"count": 11, "out_of": 91, "pct": "12%"},
+    "engine_args": {"count": 0, "out_of": 91, "pct": "0%"},
+    "engine_api_target": {"count": 0, "out_of": 91, "pct": "0%"},
+    "max_continuations": {"count": 1, "out_of": 91, "pct": "1%"},
+    "mcp_scripts": {"count": 1, "out_of": 91, "pct": "1%"},
+    "web_fetch": {"count": 10, "out_of": 91, "pct": "11%"},
+    "playwright": {"count": 12, "out_of": 181, "pct": "7%"},
+    "cache_memory": {"count": 28, "out_of": 91, "pct": "31%"},
+    "sandbox_awf": {"count": 10, "out_of": 91, "pct": "11%"},
+    "network_config": {"count": 88, "out_of": 91, "pct": "97%"},
+    "copilot_requests_feature": {"count": 42, "out_of": 181, "pct": "23%"},
+    "strict_true_copilot": {"count": 60, "out_of": 91, "pct": "66%"},
+    "tracker_id_copilot": {"count": 34, "out_of": 91, "pct": "37%"},
+    "github_tool_copilot": {"count": 61, "out_of": 91, "pct": "67%"}
+  },
+  "top_opportunities": [
+    "max-continuations severely underused (1/91 = 1%)",
+    "model selection unused for Copilot (1/91 = 1%)",
+    "mcp-scripts nearly absent (1/91 = 1%)",
+    "engine.args zero usage despite availability",
+    "version pinning rare (5/91 = 5%)",
+    "31 copilot workflows without strict: true (34%)",
+    "57 copilot workflows without tracker-id (63%)",
+    "30 copilot workflows without github tool (33%)",
+    "toolsets over-broad [default] in 17 workflows"
+  ]
+}
