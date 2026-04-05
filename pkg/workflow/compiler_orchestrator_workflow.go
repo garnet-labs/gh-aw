@@ -113,6 +113,10 @@ func (c *Compiler) ParseWorkflowFile(markdownPath string) (*WorkflowData, error)
 	// set OTEL env vars in the workflow env block (no-op when not configured).
 	c.injectOTLPConfig(workflowData)
 
+	// Inject MCP gateway OpenTelemetry network allowlist entry for the OTLP endpoint
+	// so the gateway container can reach the collector (no-op when not configured).
+	injectMCPGatewayOTLPNetwork(workflowData)
+
 	// Merge features from imports
 	if len(engineSetup.importsResult.MergedFeatures) > 0 {
 		mergedFeatures, err := c.MergeFeatures(workflowData.Features, engineSetup.importsResult.MergedFeatures)

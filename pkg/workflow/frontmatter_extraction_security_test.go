@@ -296,3 +296,64 @@ func TestExtractMCPGatewayConfigKeepaliveInterval(t *testing.T) {
 		assert.Equal(t, 0, config.KeepaliveInterval, "KeepaliveInterval should be 0 when not specified")
 	})
 }
+
+// TestExtractMCPGatewayConfigOpenTelemetry tests extraction of opentelemetry config from MCP gateway frontmatter
+func TestExtractMCPGatewayConfigOpenTelemetry(t *testing.T) {
+	compiler := &Compiler{}
+
+	t.Run("extracts basic opentelemetry endpoint", func(t *testing.T) {
+		mcpObj := map[string]any{
+			"container": "ghcr.io/github/gh-aw-mcpg",
+			"opentelemetry": map[string]any{
+				"endpoint": "https://collector.example.com:4318/v1/traces",
+			},
+		}
+		config := compiler.extractMCPGatewayConfig(mcpObj)
+		require.NotNil(t, config, "Should extract MCP gateway config")
+		require.NotNil(t, config.OpenTelemetry, "Should extract OpenTelemetry config")
+		assert.Equal(t, "https://collector.example.com:4318/v1/traces", config.OpenTelemetry.Endpoint, "Should extract endpoint")
+	})
+
+	t.Run("extracts opentelemetry with headers, traceId, spanId, serviceName", func(t *testing.T) {
+		mcpObj := map[string]any{
+			"container": "ghcr.io/github/gh-aw-mcpg",
+			"opentelemetry": map[string]any{
+				"endpoint":    "https://collector.example.com:4318/v1/traces",
+				"headers":     map[string]any{"Authorization": "Bearer token123"},
+				"traceId":     "4bf92f3577b34da6a3ce929d0e0e4736",
+				"spanId":      "00f067aa0ba902b7",
+				"serviceName": "my-mcp-gateway",
+			},
+		}
+		config := compiler.extractMCPGatewayConfig(mcpObj)
+		require.NotNil(t, config, "Should extract MCP gateway config")
+		require.NotNil(t, config.OpenTelemetry, "Should extract OpenTelemetry config")
+		assert.Equal(t, "https://collector.example.com:4318/v1/traces", config.OpenTelemetry.Endpoint, "Should extract endpoint")
+		assert.Equal(t, map[string]string{"Authorization": "Bearer token123"}, config.OpenTelemetry.Headers, "Should extract headers")
+		assert.Equal(t, "4bf92f3577b34da6a3ce929d0e0e4736", config.OpenTelemetry.TraceID, "Should extract traceId")
+		assert.Equal(t, "00f067aa0ba902b7", config.OpenTelemetry.SpanID, "Should extract spanId")
+		assert.Equal(t, "my-mcp-gateway", config.OpenTelemetry.ServiceName, "Should extract serviceName")
+	})
+
+	t.Run("extracts opentelemetry with variable expression endpoint", func(t *testing.T) {
+		mcpObj := map[string]any{
+			"container": "ghcr.io/github/gh-aw-mcpg",
+			"opentelemetry": map[string]any{
+				"endpoint": "${{ secrets.OTEL_ENDPOINT }}",
+			},
+		}
+		config := compiler.extractMCPGatewayConfig(mcpObj)
+		require.NotNil(t, config, "Should extract MCP gateway config")
+		require.NotNil(t, config.OpenTelemetry, "Should extract OpenTelemetry config")
+		assert.Equal(t, "${{ secrets.OTEL_ENDPOINT }}", config.OpenTelemetry.Endpoint, "Should extract expression endpoint")
+	})
+
+	t.Run("leaves OpenTelemetry nil when not specified", func(t *testing.T) {
+		mcpObj := map[string]any{
+			"container": "ghcr.io/github/gh-aw-mcpg",
+		}
+		config := compiler.extractMCPGatewayConfig(mcpObj)
+		require.NotNil(t, config, "Should extract MCP gateway config")
+		assert.Nil(t, config.OpenTelemetry, "OpenTelemetry should be nil when not specified")
+	})
+}

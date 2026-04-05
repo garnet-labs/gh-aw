@@ -47,6 +47,7 @@ package workflow
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/github/gh-aw/pkg/logger"
@@ -192,6 +193,36 @@ func RenderJSONMCPConfig(
 		}
 		if options.GatewayConfig.KeepaliveInterval != 0 {
 			fmt.Fprintf(&configBuilder, ",\n              \"keepaliveInterval\": %d", options.GatewayConfig.KeepaliveInterval)
+		}
+		// Render OpenTelemetry config per MCP Gateway Specification v1.11.0 §4.1.3.6
+		if otel := options.GatewayConfig.OpenTelemetry; otel != nil && otel.Endpoint != "" {
+			configBuilder.WriteString(",\n              \"opentelemetry\": {")
+			fmt.Fprintf(&configBuilder, "\n                \"endpoint\": %q", otel.Endpoint)
+			if len(otel.Headers) > 0 {
+				configBuilder.WriteString(",\n                \"headers\": {")
+				headerKeys := make([]string, 0, len(otel.Headers))
+				for k := range otel.Headers {
+					headerKeys = append(headerKeys, k)
+				}
+				sort.Strings(headerKeys)
+				for i, k := range headerKeys {
+					if i > 0 {
+						configBuilder.WriteString(",")
+					}
+					fmt.Fprintf(&configBuilder, "\n                  %q: %q", k, otel.Headers[k])
+				}
+				configBuilder.WriteString("\n                }")
+			}
+			if otel.TraceID != "" {
+				fmt.Fprintf(&configBuilder, ",\n                \"traceId\": %q", otel.TraceID)
+			}
+			if otel.SpanID != "" {
+				fmt.Fprintf(&configBuilder, ",\n                \"spanId\": %q", otel.SpanID)
+			}
+			if otel.ServiceName != "" {
+				fmt.Fprintf(&configBuilder, ",\n                \"serviceName\": %q", otel.ServiceName)
+			}
+			configBuilder.WriteString("\n              }")
 		}
 		configBuilder.WriteString("\n")
 		configBuilder.WriteString("            }\n")

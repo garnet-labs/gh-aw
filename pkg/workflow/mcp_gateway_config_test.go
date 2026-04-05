@@ -386,6 +386,157 @@ func TestBuildMCPGatewayConfig(t *testing.T) {
 				assert.Equal(t, tt.expected.PayloadSizeThreshold, result.PayloadSizeThreshold, "PayloadSizeThreshold should match")
 				assert.Equal(t, tt.expected.TrustedBots, result.TrustedBots, "TrustedBots should match")
 				assert.Equal(t, tt.expected.KeepaliveInterval, result.KeepaliveInterval, "KeepaliveInterval should match")
+				assert.Equal(t, tt.expected.OpenTelemetry, result.OpenTelemetry, "OpenTelemetry should match")
+			}
+		})
+	}
+}
+
+func TestBuildMCPGatewayConfigOpenTelemetry(t *testing.T) {
+	tests := []struct {
+		name         string
+		workflowData *WorkflowData
+		expectedOTel *GatewayOpenTelemetryConfig
+	}{
+		{
+			name: "propagates OpenTelemetry config from frontmatter",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{
+						OpenTelemetry: &GatewayOpenTelemetryConfig{
+							Endpoint:    "https://collector.example.com:4318/v1/traces",
+							ServiceName: "my-workflow-gateway",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint:    "https://collector.example.com:4318/v1/traces",
+				ServiceName: "my-workflow-gateway",
+			},
+		},
+		{
+			name: "propagates OpenTelemetry config with headers and trace context",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{
+						OpenTelemetry: &GatewayOpenTelemetryConfig{
+							Endpoint:    "https://collector.example.com:4318/v1/traces",
+							Headers:     map[string]string{"Authorization": "Bearer ${OTEL_TOKEN}"},
+							TraceID:     "${PARENT_TRACE_ID}",
+							SpanID:      "${PARENT_SPAN_ID}",
+							ServiceName: "my-gateway",
+						},
+					},
+				},
+			},
+			expectedOTel: &GatewayOpenTelemetryConfig{
+				Endpoint:    "https://collector.example.com:4318/v1/traces",
+				Headers:     map[string]string{"Authorization": "Bearer ${OTEL_TOKEN}"},
+				TraceID:     "${PARENT_TRACE_ID}",
+				SpanID:      "${PARENT_SPAN_ID}",
+				ServiceName: "my-gateway",
+			},
+		},
+		{
+			name: "nil OpenTelemetry when not specified",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+			},
+			expectedOTel: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := buildMCPGatewayConfig(tt.workflowData)
+			require.NotNil(t, result, "buildMCPGatewayConfig should return config")
+			assert.Equal(t, tt.expectedOTel, result.OpenTelemetry, "OpenTelemetry should match")
+		})
+	}
+}
+
+func TestInjectMCPGatewayOTLPNetwork(t *testing.T) {
+	tests := []struct {
+		name            string
+		workflowData    *WorkflowData
+		expectedAllowed []string
+	}{
+		{
+			name:            "nil workflow data - no-op",
+			workflowData:    nil,
+			expectedAllowed: nil,
+		},
+		{
+			name:            "no sandbox config - no-op",
+			workflowData:    &WorkflowData{},
+			expectedAllowed: nil,
+		},
+		{
+			name: "no OpenTelemetry config - no-op",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{},
+				},
+			},
+			expectedAllowed: nil,
+		},
+		{
+			name: "static HTTPS endpoint adds domain to allowlist",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{
+						OpenTelemetry: &GatewayOpenTelemetryConfig{
+							Endpoint: "https://collector.example.com:4318/v1/traces",
+						},
+					},
+				},
+			},
+			expectedAllowed: []string{"collector.example.com"},
+		},
+		{
+			name: "GitHub Actions expression endpoint - skipped",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{
+						OpenTelemetry: &GatewayOpenTelemetryConfig{
+							Endpoint: "${{ secrets.OTEL_ENDPOINT }}",
+						},
+					},
+				},
+			},
+			expectedAllowed: nil,
+		},
+		{
+			name: "appends to existing allowlist",
+			workflowData: &WorkflowData{
+				SandboxConfig: &SandboxConfig{
+					MCP: &MCPGatewayRuntimeConfig{
+						OpenTelemetry: &GatewayOpenTelemetryConfig{
+							Endpoint: "https://otel.corp.example.com:4317",
+						},
+					},
+				},
+				NetworkPermissions: &NetworkPermissions{
+					Allowed: []string{"existing.example.com"},
+				},
+			},
+			expectedAllowed: []string{"existing.example.com", "otel.corp.example.com"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			injectMCPGatewayOTLPNetwork(tt.workflowData)
+			if tt.expectedAllowed == nil {
+				if tt.workflowData != nil && tt.workflowData.NetworkPermissions != nil {
+					assert.Empty(t, tt.workflowData.NetworkPermissions.Allowed, "Allowed should be empty")
+				}
+			} else {
+				require.NotNil(t, tt.workflowData.NetworkPermissions, "NetworkPermissions should not be nil")
+				assert.Equal(t, tt.expectedAllowed, tt.workflowData.NetworkPermissions.Allowed, "Allowed domains should match")
 			}
 		})
 	}

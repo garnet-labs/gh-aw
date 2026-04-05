@@ -46,6 +46,9 @@
 package workflow
 
 import (
+	"net/url"
+	"strings"
+
 	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/logger"
 )
@@ -139,6 +142,7 @@ func buildMCPGatewayConfig(workflowData *WorkflowData) *MCPGatewayRuntimeConfig 
 		PayloadSizeThreshold: payloadSizeThreshold,                             // Size threshold in bytes
 		TrustedBots:          workflowData.SandboxConfig.MCP.TrustedBots,       // Additional trusted bot identities from frontmatter
 		KeepaliveInterval:    workflowData.SandboxConfig.MCP.KeepaliveInterval, // Keepalive interval from frontmatter (0=default, -1=disabled, >0=custom)
+		OpenTelemetry:        workflowData.SandboxConfig.MCP.OpenTelemetry,     // Optional OpenTelemetry OTLP tracing config (spec §4.1.3.6)
 	}
 }
 
@@ -163,4 +167,47 @@ func isAgentSandboxDisabled(workflowData *WorkflowData) bool {
 		mcpGatewayConfigLog.Print("Agent sandbox (firewall) is explicitly disabled via sandbox.agent: false")
 	}
 	return disabled
+}
+
+// injectMCPGatewayOTLPNetwork adds the MCP gateway OpenTelemetry endpoint domain to the
+// network firewall allowlist so the gateway container can reach the OTLP collector.
+// Per MCP Gateway Specification v1.11.0 §4.1.3.6, endpoint must be an HTTPS URL.
+// When the endpoint is a GitHub Actions expression it cannot be resolved at compile time
+// and is skipped — the user must ensure the domain is allowed via network.allowed.
+// This is a no-op when no OpenTelemetry config or endpoint is set.
+func injectMCPGatewayOTLPNetwork(workflowData *WorkflowData) {
+	if workflowData == nil || workflowData.SandboxConfig == nil ||
+		workflowData.SandboxConfig.MCP == nil ||
+		workflowData.SandboxConfig.MCP.OpenTelemetry == nil {
+		return
+	}
+
+	endpoint := workflowData.SandboxConfig.MCP.OpenTelemetry.Endpoint
+	if endpoint == "" {
+		return
+	}
+
+	// GitHub Actions expressions cannot be resolved at compile time — skip domain extraction.
+	if strings.Contains(endpoint, "${{") {
+		mcpGatewayConfigLog.Printf("MCP gateway OTLP endpoint is a GitHub Actions expression, skipping domain injection: %s", endpoint)
+		return
+	}
+
+	parsed, err := url.Parse(endpoint)
+	if err != nil || parsed.Host == "" {
+		mcpGatewayConfigLog.Printf("Failed to parse MCP gateway OTLP endpoint %q: %v", endpoint, err)
+		return
+	}
+
+	// Strip port from host so the allowlist entry matches all ports.
+	host := parsed.Hostname()
+	if host == "" {
+		return
+	}
+
+	if workflowData.NetworkPermissions == nil {
+		workflowData.NetworkPermissions = &NetworkPermissions{}
+	}
+	workflowData.NetworkPermissions.Allowed = append(workflowData.NetworkPermissions.Allowed, host)
+	mcpGatewayConfigLog.Printf("Added MCP gateway OTLP domain to network allowlist: %s", host)
 }

@@ -493,26 +493,57 @@ type MCPServerConfig struct {
 	CustomFields map[string]any `yaml:",inline"`
 }
 
+// GatewayOpenTelemetryConfig holds OpenTelemetry tracing configuration for the MCP gateway.
+// Per MCP Gateway Specification v1.11.0 section 4.1.3.6.
+// When configured, the gateway emits distributed tracing events for MCP calls via OTLP/HTTP.
+type GatewayOpenTelemetryConfig struct {
+	// Endpoint is the OTLP/HTTP collector endpoint URL (e.g. "https://collector.example.com:4318/v1/traces").
+	// Required when the opentelemetry object is present. Must be an HTTPS URL.
+	// Supports variable expressions (e.g. "${OTEL_ENDPOINT}").
+	Endpoint string `yaml:"endpoint,omitempty"`
+
+	// Headers contains additional HTTP headers sent with every OTLP export request.
+	// Commonly used for authentication (e.g. {"Authorization": "Bearer ${OTEL_TOKEN}"}).
+	// Values support variable expressions.
+	Headers map[string]string `yaml:"headers,omitempty"`
+
+	// TraceID is the parent trace ID for W3C trace context propagation.
+	// Must be a 32-character lowercase hex string when set.
+	// Supports variable expressions (e.g. "${PARENT_TRACE_ID}").
+	TraceID string `yaml:"traceId,omitempty"`
+
+	// SpanID is the parent span ID for W3C trace context propagation.
+	// Must be a 16-character lowercase hex string when set.
+	// Ignored when TraceID is not also set.
+	// Supports variable expressions (e.g. "${PARENT_SPAN_ID}").
+	SpanID string `yaml:"spanId,omitempty"`
+
+	// ServiceName is the logical service name reported in the service.name resource attribute.
+	// Defaults to "mcp-gateway" when not specified.
+	ServiceName string `yaml:"serviceName,omitempty"`
+}
+
 // MCPGatewayRuntimeConfig represents the configuration for the MCP gateway runtime execution
 // The gateway routes MCP server calls through a unified HTTP endpoint
 // Per MCP Gateway Specification v1.0.0: All stdio-based MCP servers MUST be containerized.
 // Direct command execution is not supported.
 type MCPGatewayRuntimeConfig struct {
-	Container            string            `yaml:"container,omitempty"`              // Container image for the gateway (required)
-	Version              string            `yaml:"version,omitempty"`                // Optional version/tag for the container
-	Entrypoint           string            `yaml:"entrypoint,omitempty"`             // Optional entrypoint override for the container
-	Args                 []string          `yaml:"args,omitempty"`                   // Arguments for docker run
-	EntrypointArgs       []string          `yaml:"entrypointArgs,omitempty"`         // Arguments passed to container entrypoint
-	Env                  map[string]string `yaml:"env,omitempty"`                    // Environment variables for the gateway
-	Port                 int               `yaml:"port,omitempty"`                   // Port for the gateway HTTP server (default: 8080)
-	APIKey               string            `yaml:"api-key,omitempty"`                // API key for gateway authentication
-	Domain               string            `yaml:"domain,omitempty"`                 // Domain for gateway URL (localhost or host.docker.internal)
-	Mounts               []string          `yaml:"mounts,omitempty"`                 // Volume mounts for the gateway container (format: "source:dest:mode")
-	PayloadDir           string            `yaml:"payload-dir,omitempty"`            // Directory path for storing large payload JSON files (must be absolute path)
-	PayloadPathPrefix    string            `yaml:"payload-path-prefix,omitempty"`    // Path prefix to remap payload paths for agent containers (e.g., /workspace/payloads)
-	PayloadSizeThreshold int               `yaml:"payload-size-threshold,omitempty"` // Size threshold in bytes for storing payloads to disk (default: 524288 = 512KB)
-	TrustedBots          []string          `yaml:"trusted-bots,omitempty"`           // Additional bot identity strings to pass to the gateway, merged with its built-in list
-	KeepaliveInterval    int               `yaml:"keepalive-interval,omitempty"`     // Keepalive ping interval in seconds for HTTP MCP backends (0=default 1500s, -1=disabled, >0=custom)
+	Container            string                      `yaml:"container,omitempty"`              // Container image for the gateway (required)
+	Version              string                      `yaml:"version,omitempty"`                // Optional version/tag for the container
+	Entrypoint           string                      `yaml:"entrypoint,omitempty"`             // Optional entrypoint override for the container
+	Args                 []string                    `yaml:"args,omitempty"`                   // Arguments for docker run
+	EntrypointArgs       []string                    `yaml:"entrypointArgs,omitempty"`         // Arguments passed to container entrypoint
+	Env                  map[string]string           `yaml:"env,omitempty"`                    // Environment variables for the gateway
+	Port                 int                         `yaml:"port,omitempty"`                   // Port for the gateway HTTP server (default: 8080)
+	APIKey               string                      `yaml:"api-key,omitempty"`                // API key for gateway authentication
+	Domain               string                      `yaml:"domain,omitempty"`                 // Domain for gateway URL (localhost or host.docker.internal)
+	Mounts               []string                    `yaml:"mounts,omitempty"`                 // Volume mounts for the gateway container (format: "source:dest:mode")
+	PayloadDir           string                      `yaml:"payload-dir,omitempty"`            // Directory path for storing large payload JSON files (must be absolute path)
+	PayloadPathPrefix    string                      `yaml:"payload-path-prefix,omitempty"`    // Path prefix to remap payload paths for agent containers (e.g., /workspace/payloads)
+	PayloadSizeThreshold int                         `yaml:"payload-size-threshold,omitempty"` // Size threshold in bytes for storing payloads to disk (default: 524288 = 512KB)
+	TrustedBots          []string                    `yaml:"trusted-bots,omitempty"`           // Additional bot identity strings to pass to the gateway, merged with its built-in list
+	KeepaliveInterval    int                         `yaml:"keepalive-interval,omitempty"`     // Keepalive ping interval in seconds for HTTP MCP backends (0=default 1500s, -1=disabled, >0=custom)
+	OpenTelemetry        *GatewayOpenTelemetryConfig `yaml:"opentelemetry,omitempty"`          // Optional OpenTelemetry OTLP tracing configuration (spec §4.1.3.6)
 }
 
 // HasTool checks if a tool is present in the configuration

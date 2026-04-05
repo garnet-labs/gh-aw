@@ -516,6 +516,40 @@ func (c *Compiler) extractMCPGatewayConfig(mcpVal any) *MCPGatewayRuntimeConfig 
 		}
 	}
 
+	// Extract opentelemetry (optional OTLP tracing config per MCP Gateway Spec §4.1.3.6)
+	if otelVal, hasOtel := mcpObj["opentelemetry"]; hasOtel {
+		if otelObj, ok := otelVal.(map[string]any); ok {
+			otelConfig := &GatewayOpenTelemetryConfig{}
+
+			if endpoint, ok := otelObj["endpoint"].(string); ok {
+				otelConfig.Endpoint = endpoint
+			}
+			if traceID, ok := otelObj["traceId"].(string); ok {
+				otelConfig.TraceID = traceID
+			}
+			if spanID, ok := otelObj["spanId"].(string); ok {
+				otelConfig.SpanID = spanID
+			}
+			if serviceName, ok := otelObj["serviceName"].(string); ok {
+				otelConfig.ServiceName = serviceName
+			}
+			// Extract headers object (key-value string pairs)
+			if headersVal, hasHeaders := otelObj["headers"]; hasHeaders {
+				if headersObj, ok := headersVal.(map[string]any); ok {
+					otelConfig.Headers = make(map[string]string)
+					for k, v := range headersObj {
+						if vStr, ok := v.(string); ok {
+							otelConfig.Headers[k] = vStr
+						}
+					}
+				}
+			}
+
+			mcpConfig.OpenTelemetry = otelConfig
+			frontmatterExtractionSecurityLog.Printf("Extracted MCP gateway OpenTelemetry config: endpoint=%s", otelConfig.Endpoint)
+		}
+	}
+
 	return mcpConfig
 }
 
