@@ -8,5 +8,15 @@
     "recommendations_count": 6,
     "estimated_savings_per_run": 8500000,
     "notes": "Dominant fix type is golden file drift (automatable). make update-golden already exists. Turn avg 119.5 vs 15-20 target."
+  },
+  {
+    "date": "2026-04-05",
+    "workflow_name": "Smoke Copilot",
+    "workflow_file": "smoke-copilot",
+    "total_tokens_analyzed": 20140468,
+    "runs_audited": 9,
+    "recommendations_count": 5,
+    "estimated_savings_per_run": 500000,
+    "notes": "All 9 runs flagged resource_heavy + poor_agentic_control. Outlier 4.2M/62-turn run from PR review test complexity. Per-request cost ~64K stable, so turn reduction is primary lever."
   }
 ]
