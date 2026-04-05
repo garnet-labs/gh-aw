@@ -603,7 +603,9 @@ func (c *Compiler) buildPushRepoMemoryJob(data *WorkflowData, threatDetectionEna
 		steps = append(steps, c.generateCheckoutActionsFolder(data)...)
 
 		// Repo memory job doesn't need project support
-		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false)...)
+		// Repo memory job depends on agent job; reuse the agent's trace ID so all jobs share one OTLP trace
+		repoMemoryTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, repoMemoryTraceID)...)
 	}
 
 	// Add checkout step to configure git (without checking out files)
@@ -741,7 +743,7 @@ func (c *Compiler) buildPushRepoMemoryJob(data *WorkflowData, threatDetectionEna
 		BuildPropertyAccess(fmt.Sprintf("needs.%s.result", constants.AgentJobName)),
 		BuildStringLiteral("success"),
 	)
-	jobNeeds := []string{string(constants.AgentJobName)}
+	jobNeeds := []string{string(constants.AgentJobName), string(constants.ActivationJobName)}
 	var jobCondition string
 	if threatDetectionEnabled {
 		// When threat detection is enabled, also require detection passed (succeeded or skipped).

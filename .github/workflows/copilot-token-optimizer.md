@@ -17,26 +17,21 @@ tools:
     toolsets: [default]
   bash:
     - "*"
-steps:
-  - name: Install gh-aw CLI
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    run: |
-      if ! gh aw --version >/dev/null 2>&1; then
-        gh extension install github/gh-aw
-      fi
-      gh aw --version
+safe-outputs:
+  create-issue:
+    expires: 7d
+    title-prefix: "[copilot-token-optimizer] "
+    close-older-issues: true
+    max: 1
 timeout-minutes: 30
 imports:
-  - uses: shared/daily-audit-discussion.md
-    with:
-      title-prefix: "[copilot-token-optimizer] "
-      expires: "7d"
   - uses: shared/repo-memory-standard.md
     with:
       branch-name: "memory/token-audit"
       description: "Historical daily Copilot token usage snapshots (shared with copilot-token-audit)"
+      max-patch-size: 51200
   - copilot-setup-steps.yml
+  - uses: shared/mcp/gh-aw.md
   - shared/reporting.md
 features:
   copilot-requests: true
@@ -53,7 +48,7 @@ You are the Copilot Token Optimizer — an analyst that picks one high-token-usa
 2. Pick the **single workflow** with the highest total token usage that has **not been optimized recently**.
 3. Use the `agentic-workflows` MCP tools (`logs`, `audit`) to deeply inspect 5–10 recent runs of that workflow.
 4. Analyze firewall proxy token logs, tool usage patterns, MCP server calls, and error/warning counts.
-5. Produce a conservative, evidence-based optimization discussion with specific recommendations.
+5. Produce a conservative, evidence-based optimization issue with specific recommendations.
 
 ## Guiding Principles
 
@@ -211,9 +206,9 @@ Generate specific, actionable recommendations with estimated token savings:
    - Use shared components to reduce duplication
    - Pre-compute data in bash steps to reduce agent work
 
-## Phase 5 — Publish Discussion
+## Phase 5 — Publish Issue
 
-Create a discussion with the analysis. Use this structure:
+Create an issue with the analysis. Use this structure:
 
 ```
 ### 🔍 Optimization Target: [Workflow Name]

@@ -110,17 +110,23 @@ func (c *Compiler) generateRestoreActionsSetupStep() string {
 //   - setupActionRef: The action reference for setup action (e.g., "./actions/setup" or "github/gh-aw/actions/setup@sha")
 //   - destination: The destination path where files should be copied (e.g., SetupActionDestination)
 //   - enableCustomTokens: Whether to enable custom-token support (installs @actions/github so handler_auth.cjs can create per-handler Octokit clients)
+//   - traceID: Optional OTLP trace ID expression for cross-job span correlation (e.g., "${{ needs.activation.outputs.setup-trace-id }}"). Empty string means a new trace ID is generated.
 //
 // Returns a slice of strings representing the YAML lines for the setup step.
-func (c *Compiler) generateSetupStep(setupActionRef string, destination string, enableCustomTokens bool) []string {
+func (c *Compiler) generateSetupStep(setupActionRef string, destination string, enableCustomTokens bool, traceID string) []string {
 	// Script mode: run the setup.sh script directly
 	if c.actionMode.IsScript() {
 		lines := []string{
 			"      - name: Setup Scripts\n",
+			"        id: setup\n",
 			"        run: |\n",
 			"          bash /tmp/gh-aw/actions-source/actions/setup/setup.sh\n",
 			"        env:\n",
 			fmt.Sprintf("          INPUT_DESTINATION: %s\n", destination),
+			"          INPUT_JOB_NAME: ${{ github.job }}\n",
+		}
+		if traceID != "" {
+			lines = append(lines, fmt.Sprintf("          INPUT_TRACE_ID: %s\n", traceID))
 		}
 		if enableCustomTokens {
 			lines = append(lines, "          INPUT_SAFE_OUTPUT_CUSTOM_TOKENS: 'true'\n")
@@ -131,9 +137,14 @@ func (c *Compiler) generateSetupStep(setupActionRef string, destination string, 
 	// Dev/Release mode: use the setup action
 	lines := []string{
 		"      - name: Setup Scripts\n",
+		"        id: setup\n",
 		fmt.Sprintf("        uses: %s\n", setupActionRef),
 		"        with:\n",
 		fmt.Sprintf("          destination: %s\n", destination),
+		"          job-name: ${{ github.job }}\n",
+	}
+	if traceID != "" {
+		lines = append(lines, fmt.Sprintf("          trace-id: %s\n", traceID))
 	}
 	if enableCustomTokens {
 		lines = append(lines, "          safe-output-custom-tokens: 'true'\n")
@@ -154,4 +165,24 @@ func (c *Compiler) generateSetRuntimePathsStep() []string {
 		"          echo \"GH_AW_SAFE_OUTPUTS_CONFIG_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/config.json\" >> \"$GITHUB_OUTPUT\"\n",
 		"          echo \"GH_AW_SAFE_OUTPUTS_TOOLS_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json\" >> \"$GITHUB_OUTPUT\"\n",
 	}
+}
+
+// generateScriptModeCleanupStep generates a cleanup step for script mode that sends an OTLP
+// conclusion span and removes /tmp/gh-aw/. This mirrors the post.js post step that runs
+// automatically when using a `uses:` action in dev/release/action mode.
+//
+// The step is guarded by `if: always()` so it runs even if prior steps fail, ensuring
+// trace spans are exported and temporary files are cleaned up in all cases.
+//
+// Only call this in script mode (c.actionMode.IsScript()).
+func (c *Compiler) generateScriptModeCleanupStep() string {
+	var step strings.Builder
+	step.WriteString("      - name: Clean Scripts\n")
+	step.WriteString("        if: always()\n")
+	step.WriteString("        run: |\n")
+	step.WriteString("          bash /tmp/gh-aw/actions-source/actions/setup/clean.sh\n")
+	step.WriteString("        env:\n")
+	fmt.Fprintf(&step, "          INPUT_DESTINATION: %s\n", SetupActionDestination)
+	step.WriteString("          INPUT_JOB_NAME: ${{ github.job }}\n")
+	return step.String()
 }

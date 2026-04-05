@@ -117,18 +117,38 @@ type RateLimitConfig struct {
 	IgnoredRoles []string `json:"ignored-roles,omitempty"` // Roles that are exempt from rate limiting (e.g., ["admin", "maintainer"])
 }
 
+// OTLPConfig holds configuration for OTLP (OpenTelemetry Protocol) trace export.
+type OTLPConfig struct {
+	// Endpoint is the OTLP collector endpoint URL (e.g. "https://traces.example.com:4317").
+	// Supports GitHub Actions expressions such as ${{ secrets.OTLP_ENDPOINT }}.
+	// When a static URL is provided, its hostname is automatically added to the
+	// network firewall allowlist.
+	Endpoint string `json:"endpoint,omitempty"`
+
+	// Headers is a comma-separated list of key=value HTTP headers to include with
+	// every OTLP export request (e.g. "Authorization=Bearer <token>").
+	// Supports GitHub Actions expressions such as ${{ secrets.OTLP_HEADERS }}.
+	// Injected as the standard OTEL_EXPORTER_OTLP_HEADERS environment variable.
+	Headers string `json:"headers,omitempty"`
+}
+
 // ObservabilityConfig represents workflow observability options.
 type ObservabilityConfig struct {
-	JobSummary string `json:"job-summary,omitempty"`
+	JobSummary string      `json:"job-summary,omitempty"`
+	OTLP       *OTLPConfig `json:"otlp,omitempty"`
 }
 
 // FrontmatterConfig represents the structured configuration from workflow frontmatter
 // This provides compile-time type safety and clearer error messages compared to map[string]any
 type FrontmatterConfig struct {
 	// Core workflow fields
-	Name           string            `json:"name,omitempty"`
-	Description    string            `json:"description,omitempty"`
-	Engine         string            `json:"engine,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	// Engine accepts both a plain string engine name (e.g. "copilot") and an object-style
+	// configuration (e.g. {id: copilot, max-continuations: 2}).  Using any prevents
+	// JSON unmarshal failures when the engine is an object, which would otherwise cause
+	// ParseFrontmatterConfig to return nil and break features that depend on it (e.g. OTLP).
+	Engine         any               `json:"engine,omitempty"`
 	Source         string            `json:"source,omitempty"`
 	TrackerID      string            `json:"tracker-id,omitempty"`
 	Version        string            `json:"version,omitempty"`
@@ -256,7 +276,7 @@ func ParseFrontmatterConfig(frontmatter map[string]any) (*FrontmatterConfig, err
 		}
 	}
 
-	frontmatterTypesLog.Printf("Successfully parsed frontmatter config: name=%s, engine=%s", config.Name, config.Engine)
+	frontmatterTypesLog.Printf("Successfully parsed frontmatter config: name=%s, engine=%v", config.Name, config.Engine)
 	return &config, nil
 }
 
@@ -525,7 +545,7 @@ func (fc *FrontmatterConfig) ToMap() map[string]any {
 	if fc.Description != "" {
 		result["description"] = fc.Description
 	}
-	if fc.Engine != "" {
+	if fc.Engine != nil {
 		result["engine"] = fc.Engine
 	}
 	if fc.Source != "" {

@@ -37,7 +37,9 @@ func (c *Compiler) buildUnlockJob(data *WorkflowData, threatDetectionEnabled boo
 	steps = append(steps, c.generateCheckoutActionsFolder(data)...)
 
 	// Unlock job doesn't need project support
-	steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false)...)
+	// Unlock job depends on activation, reuse its trace ID
+	unlockTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+	steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, unlockTraceID)...)
 
 	// Add unlock step
 	// Build condition: only unlock if issue was locked by activation job
@@ -93,6 +95,11 @@ func (c *Compiler) buildUnlockJob(data *WorkflowData, threatDetectionEnabled boo
 	}
 
 	compilerUnlockJobLog.Printf("Job built successfully: dependencies=%v", needs)
+
+	// In script mode, explicitly add a cleanup step (mirrors post.js in dev/release/action mode).
+	if c.actionMode.IsScript() {
+		steps = append(steps, c.generateScriptModeCleanupStep())
+	}
 
 	job := &Job{
 		Name:           "unlock",

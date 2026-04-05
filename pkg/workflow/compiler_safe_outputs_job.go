@@ -51,7 +51,9 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 
 		// Enable custom-tokens flag if any safe output uses a per-handler github-token
 		enableCustomTokens := c.hasCustomTokenSafeOutputs(data.SafeOutputs)
-		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, enableCustomTokens)...)
+		// Safe outputs job depends on agent job; reuse the agent's trace ID so all jobs share one OTLP trace
+		safeOutputsTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, enableCustomTokens, safeOutputsTraceID)...)
 	}
 
 	// Add artifact download steps after setup.
@@ -336,7 +338,9 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 		setupActionRef := c.resolveActionReference("./actions/setup", data)
 		if setupActionRef != "" {
 			insertIndex += len(c.generateCheckoutActionsFolder(data))
-			insertIndex += len(c.generateSetupStep(setupActionRef, SetupActionDestination, c.hasCustomTokenSafeOutputs(data.SafeOutputs)))
+			// Use the same traceID as the real call so the line count matches exactly
+			countTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+			insertIndex += len(c.generateSetupStep(setupActionRef, SetupActionDestination, c.hasCustomTokenSafeOutputs(data.SafeOutputs), countTraceID))
 		}
 
 		// Add artifact download steps count
@@ -379,6 +383,10 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 		steps = append(steps, buildSafeOutputItemsManifestUploadStep(agentArtifactPrefix)...)
 	}
 
+	// Append OTLP conclusion span step (no-op when endpoint is not configured).
+	// Note: this step is now handled by the action post step (post.js) so no
+	// injected step is needed here.
+
 	// In dev mode the setup action is referenced via a local path (./actions/setup), so its files
 	// live in the workspace. When the safe_outputs job contains a checkout step for
 	// create_pull_request or push_to_pull_request_branch, the workspace is replaced with the
@@ -390,6 +398,11 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 	if c.actionMode.IsDev() && usesPatchesAndCheckouts(data.SafeOutputs) {
 		steps = append(steps, c.generateRestoreActionsSetupStep())
 		consolidatedSafeOutputsJobLog.Print("Added restore actions folder step to safe_outputs job (dev mode with checkout)")
+	}
+
+	// In script mode, explicitly add a cleanup step (mirrors post.js in dev/release/action mode).
+	if c.actionMode.IsScript() {
+		steps = append(steps, c.generateScriptModeCleanupStep())
 	}
 
 	// Build the job condition
@@ -414,13 +427,12 @@ func (c *Compiler) buildConsolidatedSafeOutputsJob(data *WorkflowData, mainJobNa
 		needs = append(needs, string(constants.DetectionJobName))
 		consolidatedSafeOutputsJobLog.Print("Added detection job dependency to safe_outputs job")
 	}
-	// Add activation job dependency when:
+	// Always add activation job dependency to get the trace-id for OTLP correlation,
+	// and also when needed for other reasons:
 	// - create_pull_request or push_to_pull_request_branch (need the activation artifact)
 	// - lock-for-agent (need the activation lock)
 	// - workflow_call trigger (need needs.activation.outputs.target_repo for cross-repo token/dispatch)
-	if usesPatchesAndCheckouts(data.SafeOutputs) || data.LockForAgent || hasWorkflowCallTrigger(data.On) {
-		needs = append(needs, string(constants.ActivationJobName))
-	}
+	needs = append(needs, string(constants.ActivationJobName))
 	// Add unlock job dependency if lock-for-agent is enabled
 	// This ensures the issue is unlocked before safe outputs run
 	if data.LockForAgent {

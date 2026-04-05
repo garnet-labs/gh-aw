@@ -16,14 +16,6 @@ tools:
   bash:
     - "*"
 steps:
-  - name: Install gh-aw CLI
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    run: |
-      if ! gh aw --version >/dev/null 2>&1; then
-        gh extension install github/gh-aw
-      fi
-      gh aw --version
   - name: Download Copilot workflow logs
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -62,7 +54,9 @@ imports:
     with:
       branch-name: "memory/token-audit"
       description: "Historical daily Copilot token usage snapshots"
+      max-patch-size: 51200
   - copilot-setup-steps.yml
+  - uses: shared/mcp/gh-aw.md
   - shared/reporting.md
   - shared/python-dataviz.md
 features:

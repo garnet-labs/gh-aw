@@ -71,6 +71,7 @@ jobs:
       comment_repo: ""
       lockdown_check_failed: ${{ steps.generate_aw_info.outputs.lockdown_check_failed == 'true' }}
       model: ${{ steps.generate_aw_info.outputs.model }}
+      setup-trace-id: ${{ steps.setup.outputs.trace-id }}
     steps:
       - name: Checkout actions folder
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -80,9 +81,11 @@ jobs:
             actions
           persist-credentials: false
       - name: Setup Scripts
+        id: setup
         uses: ./actions/setup
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
+          job-name: ${{ github.job }}
       - name: Generate agentic run info
         id: generate_aw_info
         env:
@@ -219,7 +222,7 @@ jobs:
           GH_AW_GITHUB_RUN_ID: ${{ github.run_id }}
           GH_AW_GITHUB_WORKSPACE: ${{ github.workspace }}
           GH_AW_MEMORY_BRANCH_NAME: 'memory/discussion-task-miner'
-          GH_AW_MEMORY_CONSTRAINTS: "\n\n**Constraints:**\n- **Allowed Files**: Only files matching patterns: memory/discussion-task-miner/*.json, memory/discussion-task-miner/*.jsonl, memory/discussion-task-miner/*.csv, memory/discussion-task-miner/*.md\n- **Max File Size**: 102400 bytes (0.10 MB) per file\n- **Max File Count**: 100 files per commit\n- **Max Patch Size**: 10240 bytes (10 KB) total per push (max: 100 KB)\n"
+          GH_AW_MEMORY_CONSTRAINTS: "\n\n**Constraints:**\n- **Allowed Files**: Only files matching patterns: *.json, *.jsonl, *.csv, *.md\n- **Max File Size**: 102400 bytes (0.10 MB) per file\n- **Max File Count**: 100 files per commit\n- **Max Patch Size**: 10240 bytes (10 KB) total per push (max: 100 KB)\n"
           GH_AW_MEMORY_DESCRIPTION: ' Track processed discussions and extracted tasks'
           GH_AW_MEMORY_DIR: '/tmp/gh-aw/repo-memory/default/'
           GH_AW_MEMORY_TARGET_REPO: ' of the current repository'
@@ -297,6 +300,7 @@ jobs:
       model: ${{ needs.activation.outputs.model }}
       output: ${{ steps.collect_output.outputs.output }}
       output_types: ${{ steps.collect_output.outputs.output_types }}
+      setup-trace-id: ${{ steps.setup.outputs.trace-id }}
     steps:
       - name: Checkout actions folder
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -306,9 +310,12 @@ jobs:
             actions
           persist-credentials: false
       - name: Setup Scripts
+        id: setup
         uses: ./actions/setup
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
+          job-name: ${{ github.job }}
+          trace-id: ${{ needs.activation.outputs.setup-trace-id }}
       - name: Set runtime paths
         id: set-runtime-paths
         run: |
@@ -878,9 +885,12 @@ jobs:
             actions
           persist-credentials: false
       - name: Setup Scripts
+        id: setup
         uses: ./actions/setup
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
+          job-name: ${{ github.job }}
+          trace-id: ${{ needs.activation.outputs.setup-trace-id }}
       - name: Download agent output artifact
         id: download-agent-output
         continue-on-error: true
@@ -960,7 +970,9 @@ jobs:
             await main();
 
   detection:
-    needs: agent
+    needs:
+      - activation
+      - agent
     if: >
       always() && needs.agent.result != 'skipped' && (needs.agent.outputs.output_types != '' || needs.agent.outputs.has_patch == 'true')
     runs-on: ubuntu-latest
@@ -979,9 +991,12 @@ jobs:
             actions
           persist-credentials: false
       - name: Setup Scripts
+        id: setup
         uses: ./actions/setup
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
+          job-name: ${{ github.job }}
+          trace-id: ${{ needs.activation.outputs.setup-trace-id }}
       - name: Download agent output artifact
         id: download-agent-output
         continue-on-error: true
@@ -1115,6 +1130,7 @@ jobs:
 
   push_repo_memory:
     needs:
+      - activation
       - agent
       - detection
     if: >
@@ -1139,9 +1155,12 @@ jobs:
             actions
           persist-credentials: false
       - name: Setup Scripts
+        id: setup
         uses: ./actions/setup
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
+          job-name: ${{ github.job }}
+          trace-id: ${{ needs.activation.outputs.setup-trace-id }}
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -1181,7 +1200,7 @@ jobs:
           MAX_FILE_COUNT: 100
           MAX_PATCH_SIZE: 10240
           ALLOWED_EXTENSIONS: '[]'
-          FILE_GLOB_FILTER: "memory/discussion-task-miner/*.json memory/discussion-task-miner/*.jsonl memory/discussion-task-miner/*.csv memory/discussion-task-miner/*.md"
+          FILE_GLOB_FILTER: "*.json *.jsonl *.csv *.md"
         with:
           script: |
             const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
@@ -1200,6 +1219,7 @@ jobs:
 
   safe_outputs:
     needs:
+      - activation
       - agent
       - detection
     if: (!cancelled()) && needs.agent.result != 'skipped' && needs.detection.result == 'success'
@@ -1239,9 +1259,12 @@ jobs:
             actions
           persist-credentials: false
       - name: Setup Scripts
+        id: setup
         uses: ./actions/setup
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
+          job-name: ${{ github.job }}
+          trace-id: ${{ needs.activation.outputs.setup-trace-id }}
       - name: Download agent output artifact
         id: download-agent-output
         continue-on-error: true

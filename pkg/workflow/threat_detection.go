@@ -657,7 +657,9 @@ func (c *Compiler) buildDetectionJob(data *WorkflowData) (*Job, error) {
 	if setupActionRef != "" || c.actionMode.IsScript() {
 		// For dev mode (local action path), checkout the actions folder first
 		steps = append(steps, c.generateCheckoutActionsFolder(data)...)
-		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false)...)
+		// Detection job depends on agent job; reuse the agent's trace ID so all jobs share one OTLP trace
+		detectionTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, detectionTraceID)...)
 	}
 
 	// Download agent output artifact to access output files (prompt.txt, agent_output.json, patches).
@@ -679,8 +681,8 @@ func (c *Compiler) buildDetectionJob(data *WorkflowData) (*Job, error) {
 		"detection_conclusion": "${{ steps.detection_conclusion.outputs.conclusion }}",
 	}
 
-	// Detection job depends on agent job
-	needs := []string{string(constants.AgentJobName)}
+	// Detection job depends on agent job and activation job (for trace ID)
+	needs := []string{string(constants.AgentJobName), string(constants.ActivationJobName)}
 
 	// Determine runs-on: use threat detection override if set, otherwise ubuntu-latest.
 	// The detection job runs on a fresh runner separate from the agent job, so it does

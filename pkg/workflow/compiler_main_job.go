@@ -27,7 +27,9 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 		steps = append(steps, c.generateCheckoutActionsFolder(data)...)
 
 		// Main job doesn't need project support (no safe outputs processed here)
-		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false)...)
+		// Pass activation's trace ID so all agent spans share the same OTLP trace
+		agentTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, agentTraceID)...)
 	}
 
 	// Set runtime paths that depend on RUNNER_TEMP via $GITHUB_ENV.
@@ -68,13 +70,14 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 		return nil, fmt.Errorf("failed to generate main job steps: %w", err)
 	}
 
-	// Compiler invariant: the agent job must not mint GitHub App tokens.
-	// All token minting (create-github-app-token) must happen in the activation job so that
-	// app-id / private-key secrets never reach the agent's environment. Fail fast during
-	// compilation if this invariant is violated to catch regressions early.
+	// Compiler invariant: the agent job must not mint checkout-related GitHub App tokens.
+	// Checkout token minting (checkout-app-token-*) must happen in the activation job.
+	// Note: the GitHub MCP App token (github-mcp-app-token) IS minted in the agent job —
+	// this is intentional because masked values are silently dropped by the runner when passed
+	// as job outputs (runner v2.308+), so the token must be minted within the job that uses it.
 	stepsContent := stepBuilder.String()
-	if strings.Contains(stepsContent, "create-github-app-token") {
-		return nil, errors.New("compiler invariant violated: agent job contains a GitHub App token minting step (create-github-app-token); token minting must only occur in the activation job")
+	if strings.Contains(stepsContent, "id: checkout-app-token-") {
+		return nil, errors.New("compiler invariant violated: agent job contains a checkout GitHub App token minting step (checkout-app-token-*); checkout token minting must only occur in the activation job")
 	}
 
 	// Split the steps content into individual step entries
@@ -154,6 +157,8 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 		// It is exposed here so that the safe_outputs job can set GH_AW_EFFECTIVE_TOKENS and render
 		// the {effective_tokens_suffix} template expression in footer templates.
 		"effective_tokens": fmt.Sprintf("${{ steps.%s.outputs.effective_tokens }}", constants.ParseMCPGatewayStepID),
+		// setup-trace-id propagates the shared OTLP trace ID to downstream jobs (detection, safe_outputs, cache, etc.)
+		"setup-trace-id": "${{ steps.setup.outputs.trace-id }}",
 	}
 
 	// Note: secret_verification_result is now an output of the activation job (not the agent job).
@@ -263,6 +268,11 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 				permissions = perms.RenderToYAML()
 			}
 		}
+	}
+
+	// In script mode, explicitly add a cleanup step (mirrors post.js in dev/release/action mode).
+	if c.actionMode.IsScript() {
+		steps = append(steps, c.generateScriptModeCleanupStep())
 	}
 
 	job := &Job{

@@ -34,7 +34,16 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 	steps = append(steps, c.generateCheckoutActionsFolder(data)...)
 
 	// Activation job doesn't need project support (no safe outputs processed here)
-	steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false)...)
+	// When a pre-activation job exists, reuse its trace ID so all three jobs (pre_activation,
+	// activation, agent) share a single OTLP trace. When no pre-activation job exists, the
+	// empty string instructs the setup action to generate a new root trace ID.
+	activationSetupTraceID := ""
+	if preActivationJobCreated {
+		activationSetupTraceID = fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.PreActivationJobName)
+	}
+	steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, activationSetupTraceID)...)
+	// Expose the trace ID for cross-job span correlation so downstream jobs can reuse it
+	outputs["setup-trace-id"] = "${{ steps.setup.outputs.trace-id }}"
 
 	// When a workflow_call trigger is present, resolve the platform (host) repository before
 	// generating aw_info so that target_repo can be included in aw_info.json and used by
@@ -119,14 +128,6 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 		// Track whether the token minting succeeded so the conclusion job can surface
 		// GitHub App authentication errors in the failure issue.
 		outputs["activation_app_token_minting_failed"] = "${{ steps.activation-app-token.outcome == 'failure' }}"
-	}
-
-	// Mint the GitHub MCP app token in the activation job so that the agent job never
-	// receives the app-id / private-key secrets. The minted token is exposed as a job
-	// output and consumed by the agent job via needs.activation.outputs.github_mcp_app_token.
-	if data.ParsedTools != nil && data.ParsedTools.GitHub != nil && data.ParsedTools.GitHub.GitHubApp != nil {
-		steps = append(steps, c.generateGitHubMCPAppTokenMintingSteps(data)...)
-		outputs["github_mcp_app_token"] = "${{ steps.github-mcp-app-token.outputs.token }}"
 	}
 
 	// Mint checkout app tokens in the activation job so that the agent job never
@@ -568,6 +569,11 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 		// Strip ANSI escape codes from manual-approval environment name
 		cleanManualApproval := stringutil.StripANSI(data.ManualApproval)
 		environment = "environment: " + cleanManualApproval
+	}
+
+	// In script mode, explicitly add a cleanup step (mirrors post.js in dev/release/action mode).
+	if c.actionMode.IsScript() {
+		steps = append(steps, c.generateScriptModeCleanupStep())
 	}
 
 	job := &Job{

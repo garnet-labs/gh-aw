@@ -43,7 +43,9 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 		steps = append(steps, c.generateCheckoutActionsFolder(data)...)
 
 		// Notify comment job doesn't need project support
-		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false)...)
+		// Conclusion/notify job depends on activation, reuse its trace ID
+		notifyTraceID := fmt.Sprintf("${{ needs.%s.outputs.setup-trace-id }}", constants.ActivationJobName)
+		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, notifyTraceID)...)
 	}
 
 	// Add GitHub App token minting step if app is configured
@@ -354,6 +356,10 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 		steps = append(steps, c.buildGitHubAppTokenInvalidationStep()...)
 	}
 
+	// Append OTLP conclusion span step (no-op when endpoint is not configured).
+	// Note: this step is now handled by the action post step (post.js) so no
+	// injected step is needed here.
+
 	// Build the condition for this job:
 	// 1. always() - run even if agent fails
 	// 2. agent was activated (not skipped) OR lockdown check failed in activation job
@@ -439,6 +445,11 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 		}
 		concurrency = c.indentYAMLLines(fmt.Sprintf("concurrency:\n  group: %q\n  cancel-in-progress: false", group), "    ")
 		notifyCommentLog.Printf("Configuring conclusion job concurrency group: %s", group)
+	}
+
+	// In script mode, explicitly add a cleanup step (mirrors post.js in dev/release/action mode).
+	if c.actionMode.IsScript() {
+		steps = append(steps, c.generateScriptModeCleanupStep())
 	}
 
 	job := &Job{
