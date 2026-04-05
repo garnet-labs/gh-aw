@@ -5906,6 +5906,23 @@ secret-masking:
 # Optional observability output settings for workflow runs.
 # (optional)
 observability:
+  # Export OpenTelemetry spans to any OTLP-compatible backend (Honeycomb, Grafana
+  # Tempo, Datadog, Sentry, etc.). When configured, gh-aw injects
+  # OTEL_EXPORTER_OTLP_ENDPOINT and OTEL_SERVICE_NAME=gh-aw into every job.
+  # (optional)
+  otlp:
+    # Base URL of your OTLP/HTTP collector. Spans are posted to
+    # {endpoint}/v1/traces. When a static URL is provided its hostname is
+    # automatically added to the network firewall allowlist. Supports GitHub
+    # Actions expressions (e.g. '${{ secrets.OTEL_ENDPOINT }}').
+    endpoint: "example-value"
+
+    # Comma-separated key=value HTTP headers included in every OTLP export
+    # request (e.g. 'Authorization=Bearer <token>'). Injected as
+    # OTEL_EXPORTER_OTLP_HEADERS. Supports GitHub Actions expressions.
+    # (optional)
+    headers: "example-value"
+
   # If set to 'on', append a compact observability section to the GitHub Actions job
   # summary. Defaults to off when omitted.
   # (optional)

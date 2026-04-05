@@ -322,6 +322,7 @@ export default defineConfig({
 						{ label: 'Markdown', link: '/reference/markdown/' },
 						{ label: 'MCP Gateway', link: '/reference/mcp-gateway/' },
 						{ label: 'Network Access', link: '/reference/network/' },
+						{ label: 'Observability', link: '/reference/observability/' },
 						{ label: 'Playwright', link: '/reference/playwright/' },
 						{ label: 'Rate Limiting', link: '/reference/rate-limiting-controls/' },
 						{ label: 'Releases and Versioning', link: '/reference/releases/' },
