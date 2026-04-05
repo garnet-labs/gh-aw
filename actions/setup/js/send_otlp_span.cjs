@@ -4,6 +4,7 @@
 const { randomBytes } = require("crypto");
 const fs = require("fs");
 const { nowMs } = require("./performance_now.cjs");
+const { buildWorkflowRunUrl } = require("./workflow_metadata_helpers.cjs");
 
 /**
  * send_otlp_span.cjs
@@ -386,6 +387,10 @@ async function sendJobSetupSpan(options = {}) {
   }
 
   const resourceAttributes = [buildAttr("github.repository", repository), buildAttr("github.run_id", runId)];
+  if (repository && runId) {
+    const [owner, repo] = repository.split("/");
+    resourceAttributes.push(buildAttr("github.actions.run_url", buildWorkflowRunUrl({ runId }, { owner, repo })));
+  }
   if (eventName) {
     resourceAttributes.push(buildAttr("github.event_name", eventName));
   }
@@ -548,6 +553,10 @@ async function sendJobConclusionSpan(spanName, options = {}) {
   }
 
   const resourceAttributes = [buildAttr("github.repository", repository), buildAttr("github.run_id", runId)];
+  if (repository && runId) {
+    const [owner, repo] = repository.split("/");
+    resourceAttributes.push(buildAttr("github.actions.run_url", buildWorkflowRunUrl({ runId }, { owner, repo })));
+  }
   if (eventName) {
     resourceAttributes.push(buildAttr("github.event_name", eventName));
   }
