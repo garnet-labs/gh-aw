@@ -124,9 +124,9 @@ steps:
       REPO: ${{ github.repository }}
     run: |
       mkdir -p /tmp/gh-aw/agent
-      gh pr view "$PR_NUMBER" \
-        --repo "$REPO" \
-        --json number,title,author,assignees \
+      gh api \
+        "/repos/$REPO/pulls/$PR_NUMBER" \
+        --jq '{number, title, author: .user, assignees}' \
         > /tmp/gh-aw/agent/smoke-pr-meta.json
       gh api \
         "/repos/$REPO/pulls/$PR_NUMBER/files" \
