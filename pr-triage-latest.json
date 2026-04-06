@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-06T00:59:38Z",
-  "run_id": "24014476592",
+  "run_date": "2026-04-06T06:53:55Z",
+  "run_id": "24022170859",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-05T18:22:08Z): #24796 (Fix gh-aw handling of comment-based review verdicts), #24792 (Fix disappearing bot-gated PR review runs). #24766 appears closed since last run.",
+  "agent_prs_found": 5,
+  "agent_prs_excluded": 5,
+  "notes": "5 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-06T00:59:38Z): #24836 ([code-simplifier] refactor: extract getActionInput()), #24834 (chore: update drain3 default log pattern weights), #24828 ([jsweep] Clean add_reviewer.cjs), #24822 (fix(assign_to_agent): allow multiple assignments). Closed since last run: #24796, #24792, #24697.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,50 +18,56 @@
   },
   "prs_examined": [
     {
-      "number": 24796,
-      "title": "[WIP] Fix gh-aw handling of comment-based review verdicts",
+      "number": 24836,
+      "title": "[code-simplifier] refactor: extract getActionInput() helper for hyphen normalization",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
-      "labels": [],
-      "created_at": "2026-04-06T00:40:25Z",
-      "updated_at": "2026-04-06T00:51:14Z",
-      "ci_status": "in_progress",
+      "author": "github-actions[bot]",
+      "labels": ["automation", "code-quality", "refactoring"],
+      "created_at": "2026-04-06",
       "new_since_last_run": true,
-      "category_observation": "feature",
-      "risk_observation": "high"
+      "category_observation": "refactor",
+      "risk_observation": "low-medium"
     },
     {
-      "number": 24792,
-      "title": "[WIP] Fix disappearing bot-gated PR review runs",
+      "number": 24834,
+      "title": "chore: update drain3 default log pattern weights",
+      "draft": false,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "author": "github-actions[bot]",
+      "labels": [],
+      "created_at": "2026-04-06",
+      "new_since_last_run": true,
+      "category_observation": "chore",
+      "risk_observation": "low"
+    },
+    {
+      "number": 24828,
+      "title": "[jsweep] Clean add_reviewer.cjs",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
-      "labels": [],
-      "created_at": "2026-04-06T00:31:39Z",
-      "updated_at": "2026-04-06T00:56:36Z",
-      "ci_status": "no_runs",
+      "author": "github-actions[bot]",
+      "labels": ["automation", "unbloat"],
+      "created_at": "2026-04-06",
       "new_since_last_run": true,
-      "category_observation": "bug/feature",
-      "risk_observation": "high"
+      "category_observation": "refactor",
+      "risk_observation": "low"
     },
     {
-      "number": 24697,
-      "title": "Configure MCP gateway OpenTelemetry from observability.otlp and actions/setup trace IDs",
+      "number": 24822,
+      "title": "fix(assign_to_agent): allow multiple assignments to same issue when pushing",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
-      "labels": ["smoke-claude", "smoke-copilot"],
-      "created_at": "2026-04-05T09:27:09Z",
-      "updated_at": "2026-04-06T00:41:04Z",
-      "ci_status": "passing",
-      "ci_check_count": 153,
-      "new_since_last_run": false,
-      "category_observation": "feature",
-      "risk_observation": "high"
+      "labels": [],
+      "created_at": "2026-04-06",
+      "new_since_last_run": true,
+      "category_observation": "bug",
+      "risk_observation": "medium"
     },
     {
       "number": 24503,
@@ -71,15 +77,15 @@
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
       "labels": ["smoke", "smoke-claude", "smoke-copilot", "needs-work"],
-      "created_at": "2026-04-04T14:25:04Z",
-      "updated_at": "2026-04-05T21:06:15Z",
-      "ci_status": "no_runs",
+      "created_at": "2026-04-04",
       "new_since_last_run": false,
       "category_observation": "feature",
       "risk_observation": "high"
     }
   ],
   "closed_since_last_run": [
-    { "number": 24766, "title": "Fix error message quality: prevent duplicate suggestions, strip redundant path prefix" }
+    { "number": 24796, "title": "Fix gh-aw handling of comment-based review verdicts" },
+    { "number": 24792, "title": "Fix disappearing bot-gated PR review runs" },
+    { "number": 24697, "title": "Configure MCP gateway OpenTelemetry from observability.otlp and actions/setup trace IDs" }
   ]
 }
