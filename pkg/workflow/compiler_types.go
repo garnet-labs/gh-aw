@@ -86,6 +86,7 @@ type Compiler struct {
 	contentOverride         string              // If set, use this content instead of reading from disk (for Wasm/in-memory compilation)
 	skipHeader              bool                // If true, skip ASCII art header in generated YAML (for Wasm/editor mode)
 	inlinePrompt            bool                // If true, inline markdown content in YAML instead of using runtime-import macros (for Wasm builds)
+	environmentManager      *EnvironmentManager // Determines correct env vars for each step based on deployment target (github.com vs GHE)
 }
 
 // NewCompiler creates a new workflow compiler with functional options.
@@ -101,18 +102,19 @@ func NewCompiler(opts ...CompilerOption) *Compiler {
 
 	// Create compiler with defaults
 	c := &Compiler{
-		verbose:           false,
-		engineOverride:    "",
-		version:           version,
-		skipValidation:    true,                      // Skip validation by default for now since existing workflows don't fully comply
-		actionMode:        DetectActionMode(version), // Auto-detect action mode based on version
-		jobManager:        NewJobManager(),
-		engineRegistry:    GetGlobalEngineRegistry(),
-		engineCatalog:     NewEngineCatalog(GetGlobalEngineRegistry()),
-		stepOrderTracker:  NewStepOrderTracker(),
-		artifactManager:   NewArtifactManager(),
-		actionPinWarnings: make(map[string]bool), // Initialize warning cache
-		gitRoot:           gitRoot,               // Auto-detected git root
+		verbose:            false,
+		engineOverride:     "",
+		version:            version,
+		skipValidation:     true,                      // Skip validation by default for now since existing workflows don't fully comply
+		actionMode:         DetectActionMode(version), // Auto-detect action mode based on version
+		jobManager:         NewJobManager(),
+		engineRegistry:     GetGlobalEngineRegistry(),
+		engineCatalog:      NewEngineCatalog(GetGlobalEngineRegistry()),
+		stepOrderTracker:   NewStepOrderTracker(),
+		artifactManager:    NewArtifactManager(),
+		environmentManager: NewEnvironmentManager(),
+		actionPinWarnings:  make(map[string]bool), // Initialize warning cache
+		gitRoot:            gitRoot,               // Auto-detected git root
 	}
 
 	// Apply functional options
