@@ -20,7 +20,7 @@ AI API keys (Anthropic, OpenAI, GitHub Copilot) and GitHub tokens for workflow e
 
 Available subcommands:
   • set       - Create or update individual secrets
-  • bootstrap - Validate and configure all required secrets for workflows
+  • bootstrap - Analyze workflows and set up required secrets
 
 Examples:
   gh aw secrets set MY_SECRET --value "secret123"    # Set a secret directly

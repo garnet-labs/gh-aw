@@ -33,8 +33,8 @@ secrets are not shared with the MCP server process itself.
 The server provides the following tools:
   - status      - Show status of agentic workflow files
   - compile     - Compile Markdown workflows to GitHub Actions YAML
-  - logs        - Download and analyze workflow logs (requires write+ access)
-  - audit       - Investigate a workflow run, job, or step and generate a report (requires write+ access)
+  - logs        - Download and analyze workflow logs (requires write access or higher)
+  - audit       - Investigate a workflow run, job, or step and generate a report (requires write access or higher)
   - checks      - Classify CI check state for a pull request
   - mcp-inspect - Inspect MCP servers in workflows and list available tools
   - add         - Add workflows from remote repositories to .github/workflows
@@ -45,7 +45,7 @@ Access Control:
   The GITHUB_ACTOR environment variable specifies the GitHub username for role-based
   access control. The actor's repository role (admin, maintain, write, etc.) determines
   which tools are available. Tools requiring elevated permissions (logs, audit) are always
-  mounted but will return permission denied errors if the actor lacks write+ access.
+  mounted but will return permission denied errors if the actor lacks write access or higher.
 
   Use the --validate-actor flag to enforce actor validation. When enabled, logs and audit
   tools will return permission denied errors if GITHUB_ACTOR is not set. When disabled
@@ -60,7 +60,7 @@ Examples:
   gh aw mcp-server --port 8080                         # Run HTTP server on port 8080 (for web-based clients)
   gh aw mcp-server --cmd ./gh-aw                       # Use custom gh-aw binary path
   GITHUB_ACTOR=octocat gh aw mcp-server                # Set actor via environment variable for access control
-  DEBUG=mcp:* GITHUB_ACTOR=octocat gh aw mcp-server    # Run with verbose logging and actor`,
+  DEBUG=mcp:* GITHUB_ACTOR=octocat gh aw mcp-server    # Run with verbose logging and actor set`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runMCPServer(port, cmdPath, validateActor)
 		},

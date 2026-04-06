@@ -208,8 +208,8 @@ Examples:
 	logsCmd.Flags().Int("timeout", 0, "Download timeout in minutes (0 = no timeout)")
 	logsCmd.Flags().String("summary-file", "summary.json", "Path to write the summary JSON file relative to output directory (use empty string to disable)")
 	logsCmd.Flags().Bool("train", false, "Train drain3 log template weights from downloaded runs and write drain3_weights.json to the output directory")
-	logsCmd.Flags().String("format", "", "Output format for cross-run audit report: markdown, pretty (generates security audit report instead of default metrics table)")
-	logsCmd.Flags().Int("last", 0, "Alias for --count: number of recent runs to analyze when generating a cross-run report")
+	logsCmd.Flags().String("format", "", "Output format for cross-run audit report: pretty, markdown (generates security audit report instead of default metrics table)")
+	logsCmd.Flags().Int("last", 0, "Alias for --count: number of recent runs to include in a cross-run report")
 	logsCmd.MarkFlagsMutuallyExclusive("firewall", "no-firewall")
 
 	// Register completions for logs command
