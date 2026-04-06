@@ -21,3 +21,16 @@
 - Daily Fact gh-aw: recompile fix (Apr 3)
 
 Last updated: 2026-04-05T12:00Z by workflow-health-manager
+
+## Updated 2026-04-06T04:37Z by agent-performance-analyzer
+
+P1 (unchanged):
+- Daily Issues Report Generator: 15+ days (#24703)
+- Duplicate Code Detector: Codex API restriction (#24718)
+- Issue Monster: WHM created issue Apr 5; RECOVERED Apr 6
+
+Watch (APAnalyzer observations):
+- jsweep Apr 2: 5.5M tokens / 1 turn anomaly — likely large file read. No issue yet.
+- API rate limiting 05:00-05:40 UTC: OTel Advisor failed at 05:21 UTC (correlated). Consider staggering schedules.
+- Schema Checker improving: 55 turns vs 114 peak — still elevated, monitor.
+- Issue Monster: observability framework flags "overkill for agentic" — consider deterministic conversion.
