@@ -33,6 +33,8 @@
 #   - ANTHROPIC_API_KEY
 #   - GH_AW_GITHUB_MCP_SERVER_TOKEN
 #   - GH_AW_GITHUB_TOKEN
+#   - GH_AW_OTEL_ENDPOINT
+#   - GH_AW_OTEL_HEADERS
 #   - GITHUB_TOKEN
 #
 # Custom actions used:
@@ -66,6 +68,11 @@ concurrency:
 
 run-name: "Multi-Device Docs Tester"
 
+env:
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GH_AW_OTEL_ENDPOINT }}
+  OTEL_SERVICE_NAME: gh-aw
+  OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GH_AW_OTEL_HEADERS }}
+
 jobs:
   activation:
     runs-on: ubuntu-slim
@@ -92,6 +99,8 @@ jobs:
         with:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Generate agentic run info
         id: generate_aw_info
         env:
@@ -329,6 +338,8 @@ jobs:
           echo "GH_AW_SAFE_OUTPUTS=${RUNNER_TEMP}/gh-aw/safeoutputs/outputs.jsonl" >> "$GITHUB_OUTPUT"
           echo "GH_AW_SAFE_OUTPUTS_CONFIG_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/config.json" >> "$GITHUB_OUTPUT"
           echo "GH_AW_SAFE_OUTPUTS_TOOLS_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json" >> "$GITHUB_OUTPUT"
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -348,13 +359,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Checkout PR branch
         id: checkout-pr
@@ -397,7 +409,7 @@ jobs:
           mkdir -p /tmp/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/mcp-logs/safeoutputs
           cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/config.json << 'GH_AW_SAFE_OUTPUTS_CONFIG_732bcf318c5a65f2_EOF'
-          {"create_issue":{"expires":48,"labels":["cookie"],"max":1},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"upload_asset":{"allowed-exts":[".png",".jpg",".jpeg"],"branch":"assets/${{ github.workflow }}","max-size":10240}}
+          {"create_issue":{"expires":48,"labels":["cookie"],"max":1},"create_report_incomplete_issue":{},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"report_incomplete":{},"upload_asset":{"allowed-exts":[".png",".jpg",".jpeg"],"branch":"assets/${{ github.workflow }}","max-size":10240}}
           GH_AW_SAFE_OUTPUTS_CONFIG_732bcf318c5a65f2_EOF
       - name: Write Safe Outputs Tools
         run: |
@@ -500,6 +512,22 @@ jobs:
                   "type": "string",
                   "sanitize": true,
                   "maxLength": 65000
+                }
+              }
+            },
+            "report_incomplete": {
+              "defaultMax": 5,
+              "fields": {
+                "details": {
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 65000
+                },
+                "reason": {
+                  "required": true,
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 1024
                 }
               }
             },
@@ -809,13 +837,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Stop MCP Gateway
         if: always()
@@ -912,6 +941,15 @@ jobs:
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/parse_token_usage.cjs');
             await main();
+      - name: Generate observability summary
+        if: always()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_observability_summary.cjs');
+            await main(core);
       - name: Write agent output placeholder if missing
         if: always()
         run: |
@@ -972,6 +1010,7 @@ jobs:
       group: "gh-aw-conclusion-daily-multi-device-docs-tester"
       cancel-in-progress: false
     outputs:
+      incomplete_count: ${{ steps.report_incomplete.outputs.incomplete_count }}
       noop_message: ${{ steps.noop.outputs.noop_message }}
       tools_reported: ${{ steps.missing_tool.outputs.tools_reported }}
       total_count: ${{ steps.missing_tool.outputs.total_count }}
@@ -1036,6 +1075,21 @@ jobs:
             const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/missing_tool.cjs');
+            await main();
+      - name: Record Incomplete
+        id: report_incomplete
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          GH_AW_AGENT_OUTPUT: ${{ steps.setup-agent-output-env.outputs.GH_AW_AGENT_OUTPUT }}
+          GH_AW_REPORT_INCOMPLETE_CREATE_ISSUE: "true"
+          GH_AW_WORKFLOW_NAME: "Multi-Device Docs Tester"
+          GH_AW_TRACKER_ID: "daily-multi-device-docs-tester"
+        with:
+          github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/report_incomplete_handler.cjs');
             await main();
       - name: Handle Agent Failure
         id: handle_agent_failure
@@ -1278,6 +1332,8 @@ jobs:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
           trace-id: ${{ needs.activation.outputs.setup-trace-id }}
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Download agent output artifact
         id: download-agent-output
         continue-on-error: true
@@ -1309,7 +1365,7 @@ jobs:
           GH_AW_ALLOWED_DOMAINS: "*.githubusercontent.com,anthropic.com,api.anthropic.com,api.github.com,api.npms.io,api.snapcraft.io,archive.ubuntu.com,azure.archive.ubuntu.com,bun.sh,cdn.jsdelivr.net,cdn.playwright.dev,codeload.github.com,crl.geotrust.com,crl.globalsign.com,crl.identrust.com,crl.sectigo.com,crl.thawte.com,crl.usertrust.com,crl.verisign.com,crl3.digicert.com,crl4.digicert.com,crls.ssl.com,deb.nodesource.com,deno.land,esm.sh,files.pythonhosted.org,get.pnpm.io,ghcr.io,github-cloud.githubusercontent.com,github-cloud.s3.amazonaws.com,github.com,googleapis.deno.dev,googlechromelabs.github.io,host.docker.internal,json-schema.org,json.schemastore.org,jsr.io,keyserver.ubuntu.com,lfs.github.com,nodejs.org,npm.pkg.github.com,npmjs.com,npmjs.org,objects.githubusercontent.com,ocsp.digicert.com,ocsp.geotrust.com,ocsp.globalsign.com,ocsp.identrust.com,ocsp.sectigo.com,ocsp.ssl.com,ocsp.thawte.com,ocsp.usertrust.com,ocsp.verisign.com,packagecloud.io,packages.cloud.google.com,packages.microsoft.com,playwright.download.prss.microsoft.com,ppa.launchpad.net,pypi.org,raw.githubusercontent.com,registry.bower.io,registry.npmjs.com,registry.npmjs.org,registry.yarnpkg.com,repo.yarnpkg.com,s.symcb.com,s.symcd.com,security.ubuntu.com,sentry.io,skimdb.npmjs.com,statsig.anthropic.com,storage.googleapis.com,telemetry.vercel.com,ts-crl.ws.symantec.com,ts-ocsp.ws.symantec.com,www.npmjs.com,www.npmjs.org,yarnpkg.com"
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_issue\":{\"expires\":48,\"labels\":[\"cookie\"],\"max\":1},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"upload_asset\":{\"allowed-exts\":[\".png\",\".jpg\",\".jpeg\"],\"branch\":\"assets/${{ github.workflow }}\",\"max-size\":10240}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_issue\":{\"expires\":48,\"labels\":[\"cookie\"],\"max\":1},\"create_report_incomplete_issue\":{},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"report_incomplete\":{},\"upload_asset\":{\"allowed-exts\":[\".png\",\".jpg\",\".jpeg\"],\"branch\":\"assets/${{ github.workflow }}\",\"max-size\":10240}}"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
@@ -1361,13 +1417,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Download assets
         continue-on-error: true

@@ -32,6 +32,8 @@
 #   - GH_AW_CI_TRIGGER_TOKEN
 #   - GH_AW_GITHUB_MCP_SERVER_TOKEN
 #   - GH_AW_GITHUB_TOKEN
+#   - GH_AW_OTEL_ENDPOINT
+#   - GH_AW_OTEL_HEADERS
 #   - GH_AW_PROJECT_GITHUB_TOKEN
 #   - GITHUB_TOKEN
 #
@@ -63,6 +65,11 @@ concurrency:
   cancel-in-progress: true
 
 run-name: "Smoke Project"
+
+env:
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GH_AW_OTEL_ENDPOINT }}
+  OTEL_SERVICE_NAME: gh-aw
+  OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GH_AW_OTEL_HEADERS }}
 
 jobs:
   activation:
@@ -102,6 +109,8 @@ jobs:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
           trace-id: ${{ needs.pre_activation.outputs.setup-trace-id }}
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Generate agentic run info
         id: generate_aw_info
         env:
@@ -366,6 +375,8 @@ jobs:
           echo "GH_AW_SAFE_OUTPUTS=${RUNNER_TEMP}/gh-aw/safeoutputs/outputs.jsonl" >> "$GITHUB_OUTPUT"
           echo "GH_AW_SAFE_OUTPUTS_CONFIG_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/config.json" >> "$GITHUB_OUTPUT"
           echo "GH_AW_SAFE_OUTPUTS_TOOLS_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json" >> "$GITHUB_OUTPUT"
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -380,13 +391,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Checkout PR branch
         id: checkout-pr
@@ -421,12 +433,14 @@ jobs:
       - name: Download container images
         run: bash ${RUNNER_TEMP}/gh-aw/actions/download_docker_images.sh ghcr.io/github/gh-aw-firewall/agent:0.25.13 ghcr.io/github/gh-aw-firewall/api-proxy:0.25.13 ghcr.io/github/gh-aw-firewall/squid:0.25.13 ghcr.io/github/gh-aw-mcpg:v0.2.14 ghcr.io/github/github-mcp-server:v0.32.0 node:lts-alpine
       - name: Write Safe Outputs Config
+        env:
+          GH_AW_PROJECT_GITHUB_TOKEN: ${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}
         run: |
           mkdir -p ${RUNNER_TEMP}/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/mcp-logs/safeoutputs
-          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/config.json << 'GH_AW_SAFE_OUTPUTS_CONFIG_1160c02dd06158cf_EOF'
-          {"add_comment":{"hide_older_comments":true,"max":2},"add_labels":{"allowed":["smoke-project"]},"create_issue":{"close_older_issues":true,"expires":2,"group":true,"labels":["ai-generated","automation","testing"],"max":1},"create_project_status_update":{"github-token":"${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}","max":1,"project":"https://github.com/orgs/github/projects/24068"},"create_pull_request":{"expires":2,"if_no_changes":"warn","labels":["ai-generated"],"max":1,"max_patch_size":1024,"protected_files":["package.json","bun.lockb","bunfig.toml","deno.json","deno.jsonc","deno.lock","global.json","NuGet.Config","Directory.Packages.props","mix.exs","mix.lock","go.mod","go.sum","stack.yaml","stack.yaml.lock","pom.xml","build.gradle","build.gradle.kts","settings.gradle","settings.gradle.kts","gradle.properties","package-lock.json","yarn.lock","pnpm-lock.yaml","npm-shrinkwrap.json","requirements.txt","Pipfile","Pipfile.lock","pyproject.toml","setup.py","setup.cfg","Gemfile","Gemfile.lock","uv.lock","CODEOWNERS"],"protected_path_prefixes":[".github/",".agents/"],"title_prefix":"[smoke-project] "},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"remove_labels":{"allowed":["smoke-project"]},"update_project":{"github-token":"${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}","max":20,"project":"https://github.com/orgs/github/projects/24068","views":[{"name":"Smoke Test Board","layout":"board","filter":"is:open"}]}}
+          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/config.json << GH_AW_SAFE_OUTPUTS_CONFIG_1160c02dd06158cf_EOF
+          {"add_comment":{"hide_older_comments":true,"max":2},"add_labels":{"allowed":["smoke-project"]},"create_issue":{"close_older_issues":true,"expires":2,"group":true,"labels":["ai-generated","automation","testing"],"max":1},"create_project_status_update":{"github-token":"${GH_AW_PROJECT_GITHUB_TOKEN}","max":1,"project":"https://github.com/orgs/github/projects/24068"},"create_pull_request":{"expires":2,"if_no_changes":"warn","labels":["ai-generated"],"max":1,"max_patch_size":1024,"protected_files":["package.json","bun.lockb","bunfig.toml","deno.json","deno.jsonc","deno.lock","global.json","NuGet.Config","Directory.Packages.props","mix.exs","mix.lock","go.mod","go.sum","stack.yaml","stack.yaml.lock","pom.xml","build.gradle","build.gradle.kts","settings.gradle","settings.gradle.kts","gradle.properties","package-lock.json","yarn.lock","pnpm-lock.yaml","npm-shrinkwrap.json","requirements.txt","Pipfile","Pipfile.lock","pyproject.toml","setup.py","setup.cfg","Gemfile","Gemfile.lock","uv.lock","CODEOWNERS"],"protected_path_prefixes":[".github/",".agents/"],"title_prefix":"[smoke-project] "},"create_report_incomplete_issue":{},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"remove_labels":{"allowed":["smoke-project"]},"report_incomplete":{},"update_project":{"github-token":"${GH_AW_PROJECT_GITHUB_TOKEN}","max":20,"project":"https://github.com/orgs/github/projects/24068","views":[{"name":"Smoke Test Board","layout":"board","filter":"is:open"}]}}
           GH_AW_SAFE_OUTPUTS_CONFIG_1160c02dd06158cf_EOF
       - name: Write Safe Outputs Tools
         run: |
@@ -668,6 +682,22 @@ jobs:
                 }
               }
             },
+            "report_incomplete": {
+              "defaultMax": 5,
+              "fields": {
+                "details": {
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 65000
+                },
+                "reason": {
+                  "required": true,
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 1024
+                }
+              }
+            },
             "update_project": {
               "defaultMax": 10,
               "fields": {
@@ -873,13 +903,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Copy Copilot session state files to logs
         if: always()
@@ -981,6 +1012,15 @@ jobs:
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/parse_token_usage.cjs');
             await main();
+      - name: Generate observability summary
+        if: always()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_observability_summary.cjs');
+            await main(core);
       - name: Write agent output placeholder if missing
         if: always()
         run: |
@@ -1035,6 +1075,7 @@ jobs:
       group: "gh-aw-conclusion-smoke-project"
       cancel-in-progress: false
     outputs:
+      incomplete_count: ${{ steps.report_incomplete.outputs.incomplete_count }}
       noop_message: ${{ steps.noop.outputs.noop_message }}
       tools_reported: ${{ steps.missing_tool.outputs.tools_reported }}
       total_count: ${{ steps.missing_tool.outputs.total_count }}
@@ -1097,6 +1138,20 @@ jobs:
             const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/missing_tool.cjs');
+            await main();
+      - name: Record Incomplete
+        id: report_incomplete
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          GH_AW_AGENT_OUTPUT: ${{ steps.setup-agent-output-env.outputs.GH_AW_AGENT_OUTPUT }}
+          GH_AW_REPORT_INCOMPLETE_CREATE_ISSUE: "true"
+          GH_AW_WORKFLOW_NAME: "Smoke Project"
+        with:
+          github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/report_incomplete_handler.cjs');
             await main();
       - name: Handle Agent Failure
         id: handle_agent_failure
@@ -1391,6 +1446,8 @@ jobs:
           job-name: ${{ github.job }}
           trace-id: ${{ needs.activation.outputs.setup-trace-id }}
           safe-output-custom-tokens: 'true'
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Download agent output artifact
         id: download-agent-output
         continue-on-error: true
@@ -1450,7 +1507,7 @@ jobs:
           GH_AW_ALLOWED_DOMAINS: "*.githubusercontent.com,127.0.0.1,::1,api.business.githubcopilot.com,api.enterprise.githubcopilot.com,api.github.com,api.githubcopilot.com,api.individual.githubcopilot.com,api.npms.io,api.snapcraft.io,app.renovatebot.com,appveyor.com,archive.ubuntu.com,azure.archive.ubuntu.com,badgen.net,bun.sh,cdn.jsdelivr.net,circleci.com,codacy.com,codeclimate.com,codecov.io,codeload.github.com,coveralls.io,crl.geotrust.com,crl.globalsign.com,crl.identrust.com,crl.sectigo.com,crl.thawte.com,crl.usertrust.com,crl.verisign.com,crl3.digicert.com,crl4.digicert.com,crls.ssl.com,deb.nodesource.com,deepsource.io,deno.land,docs.github.com,drone.io,esm.sh,get.pnpm.io,github-cloud.githubusercontent.com,github-cloud.s3.amazonaws.com,github.blog,github.com,github.githubassets.com,googleapis.deno.dev,googlechromelabs.github.io,host.docker.internal,img.shields.io,json-schema.org,json.schemastore.org,jsr.io,keyserver.ubuntu.com,lfs.github.com,localhost,nodejs.org,npm.pkg.github.com,npmjs.com,npmjs.org,objects.githubusercontent.com,ocsp.digicert.com,ocsp.geotrust.com,ocsp.globalsign.com,ocsp.identrust.com,ocsp.sectigo.com,ocsp.ssl.com,ocsp.thawte.com,ocsp.usertrust.com,ocsp.verisign.com,packagecloud.io,packages.cloud.google.com,packages.microsoft.com,ppa.launchpad.net,raw.githubusercontent.com,readthedocs.io,readthedocs.org,registry.bower.io,registry.npmjs.com,registry.npmjs.org,registry.yarnpkg.com,renovatebot.com,repo.yarnpkg.com,s.symcb.com,s.symcd.com,security.ubuntu.com,semaphoreci.com,shields.io,skimdb.npmjs.com,snyk.io,sonarcloud.io,sonarqube.com,storage.googleapis.com,telemetry.enterprise.githubcopilot.com,telemetry.vercel.com,travis-ci.com,ts-crl.ws.symantec.com,ts-ocsp.ws.symantec.com,www.googleapis.com,www.npmjs.com,www.npmjs.org,yarnpkg.com"
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"add_comment\":{\"hide_older_comments\":true,\"max\":2},\"add_labels\":{\"allowed\":[\"smoke-project\"]},\"create_issue\":{\"close_older_issues\":true,\"expires\":2,\"group\":true,\"labels\":[\"ai-generated\",\"automation\",\"testing\"],\"max\":1},\"create_project_status_update\":{\"github-token\":\"${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}\",\"max\":1,\"project\":\"https://github.com/orgs/github/projects/24068\"},\"create_pull_request\":{\"expires\":2,\"if_no_changes\":\"warn\",\"labels\":[\"ai-generated\"],\"max\":1,\"max_patch_size\":1024,\"protected_files\":[\"package.json\",\"bun.lockb\",\"bunfig.toml\",\"deno.json\",\"deno.jsonc\",\"deno.lock\",\"global.json\",\"NuGet.Config\",\"Directory.Packages.props\",\"mix.exs\",\"mix.lock\",\"go.mod\",\"go.sum\",\"stack.yaml\",\"stack.yaml.lock\",\"pom.xml\",\"build.gradle\",\"build.gradle.kts\",\"settings.gradle\",\"settings.gradle.kts\",\"gradle.properties\",\"package-lock.json\",\"yarn.lock\",\"pnpm-lock.yaml\",\"npm-shrinkwrap.json\",\"requirements.txt\",\"Pipfile\",\"Pipfile.lock\",\"pyproject.toml\",\"setup.py\",\"setup.cfg\",\"Gemfile\",\"Gemfile.lock\",\"uv.lock\",\"CODEOWNERS\",\"AGENTS.md\"],\"protected_path_prefixes\":[\".github/\",\".agents/\"],\"title_prefix\":\"[smoke-project] \"},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"remove_labels\":{\"allowed\":[\"smoke-project\"]},\"update_project\":{\"github-token\":\"${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}\",\"max\":20,\"project\":\"https://github.com/orgs/github/projects/24068\",\"views\":[{\"name\":\"Smoke Test Board\",\"layout\":\"board\",\"filter\":\"is:open\"}]}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"add_comment\":{\"hide_older_comments\":true,\"max\":2},\"add_labels\":{\"allowed\":[\"smoke-project\"]},\"create_issue\":{\"close_older_issues\":true,\"expires\":2,\"group\":true,\"labels\":[\"ai-generated\",\"automation\",\"testing\"],\"max\":1},\"create_project_status_update\":{\"github-token\":\"${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}\",\"max\":1,\"project\":\"https://github.com/orgs/github/projects/24068\"},\"create_pull_request\":{\"expires\":2,\"if_no_changes\":\"warn\",\"labels\":[\"ai-generated\"],\"max\":1,\"max_patch_size\":1024,\"protected_files\":[\"package.json\",\"bun.lockb\",\"bunfig.toml\",\"deno.json\",\"deno.jsonc\",\"deno.lock\",\"global.json\",\"NuGet.Config\",\"Directory.Packages.props\",\"mix.exs\",\"mix.lock\",\"go.mod\",\"go.sum\",\"stack.yaml\",\"stack.yaml.lock\",\"pom.xml\",\"build.gradle\",\"build.gradle.kts\",\"settings.gradle\",\"settings.gradle.kts\",\"gradle.properties\",\"package-lock.json\",\"yarn.lock\",\"pnpm-lock.yaml\",\"npm-shrinkwrap.json\",\"requirements.txt\",\"Pipfile\",\"Pipfile.lock\",\"pyproject.toml\",\"setup.py\",\"setup.cfg\",\"Gemfile\",\"Gemfile.lock\",\"uv.lock\",\"CODEOWNERS\",\"AGENTS.md\"],\"protected_path_prefixes\":[\".github/\",\".agents/\"],\"title_prefix\":\"[smoke-project] \"},\"create_report_incomplete_issue\":{},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"remove_labels\":{\"allowed\":[\"smoke-project\"]},\"report_incomplete\":{},\"update_project\":{\"github-token\":\"${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}\",\"max\":20,\"project\":\"https://github.com/orgs/github/projects/24068\",\"views\":[{\"name\":\"Smoke Test Board\",\"layout\":\"board\",\"filter\":\"is:open\"}]}}"
           GH_AW_CI_TRIGGER_TOKEN: ${{ secrets.GH_AW_CI_TRIGGER_TOKEN }}
           GH_AW_PROJECT_URL: "https://github.com/orgs/github/projects/24068"
           GH_AW_PROJECT_GITHUB_TOKEN: ${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}

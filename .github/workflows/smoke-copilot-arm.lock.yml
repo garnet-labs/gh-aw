@@ -36,6 +36,8 @@
 #   - COPILOT_GITHUB_TOKEN
 #   - GH_AW_GITHUB_MCP_SERVER_TOKEN
 #   - GH_AW_GITHUB_TOKEN
+#   - GH_AW_OTEL_ENDPOINT
+#   - GH_AW_OTEL_HEADERS
 #   - GITHUB_TOKEN
 #
 # Custom actions used:
@@ -71,6 +73,11 @@ concurrency:
   cancel-in-progress: true
 
 run-name: "Smoke Copilot ARM64"
+
+env:
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${{ secrets.GH_AW_OTEL_ENDPOINT }}
+  OTEL_SERVICE_NAME: gh-aw
+  OTEL_EXPORTER_OTLP_HEADERS: ${{ secrets.GH_AW_OTEL_HEADERS }}
 
 jobs:
   activation:
@@ -110,6 +117,8 @@ jobs:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
           trace-id: ${{ needs.pre_activation.outputs.setup-trace-id }}
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Generate agentic run info
         id: generate_aw_info
         env:
@@ -423,6 +432,8 @@ jobs:
           echo "GH_AW_SAFE_OUTPUTS=${RUNNER_TEMP}/gh-aw/safeoutputs/outputs.jsonl" >> "$GITHUB_OUTPUT"
           echo "GH_AW_SAFE_OUTPUTS_CONFIG_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/config.json" >> "$GITHUB_OUTPUT"
           echo "GH_AW_SAFE_OUTPUTS_TOOLS_PATH=${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json" >> "$GITHUB_OUTPUT"
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -489,13 +500,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Checkout PR branch
         id: checkout-pr
@@ -559,7 +571,7 @@ jobs:
           mkdir -p /tmp/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/mcp-logs/safeoutputs
           cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/config.json << 'GH_AW_SAFE_OUTPUTS_CONFIG_91819629c5ddeb32_EOF'
-          {"add_comment":{"allowed_repos":["github/gh-aw"],"hide_older_comments":true,"max":2},"add_labels":{"allowed":["smoke-copilot-arm"],"allowed_repos":["github/gh-aw"]},"create_discussion":{"category":"announcements","close_older_discussions":true,"expires":2,"fallback_to_issue":true,"labels":["ai-generated"],"max":1},"create_issue":{"close_older_issues":true,"close_older_key":"smoke-copilot-arm","expires":2,"group":true,"labels":["automation","testing"],"max":1},"create_pull_request_review_comment":{"max":5,"side":"RIGHT"},"dispatch_workflow":{"max":1,"workflow_files":{"haiku-printer":".yml"},"workflows":["haiku-printer"]},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"remove_labels":{"allowed":["smoke"]},"send-slack-message":{"description":"Send a message to Slack (stub for testing)","inputs":{"message":{"description":"The message to send","required":false,"type":"string"}},"output":"Slack message stub executed!"},"submit_pull_request_review":{"max":1}}
+          {"add_comment":{"allowed_repos":["github/gh-aw"],"hide_older_comments":true,"max":2},"add_labels":{"allowed":["smoke-copilot-arm"],"allowed_repos":["github/gh-aw"]},"create_discussion":{"category":"announcements","close_older_discussions":true,"expires":2,"fallback_to_issue":true,"labels":["ai-generated"],"max":1},"create_issue":{"close_older_issues":true,"close_older_key":"smoke-copilot-arm","expires":2,"group":true,"labels":["automation","testing"],"max":1},"create_pull_request_review_comment":{"max":5,"side":"RIGHT"},"create_report_incomplete_issue":{},"dispatch_workflow":{"max":1,"workflow_files":{"haiku-printer":".yml"},"workflows":["haiku-printer"]},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"remove_labels":{"allowed":["smoke"]},"report_incomplete":{},"send-slack-message":{"description":"Send a message to Slack (stub for testing)","inputs":{"message":{"description":"The message to send","required":false,"type":"string"}},"output":"Slack message stub executed!"},"submit_pull_request_review":{"max":1}}
           GH_AW_SAFE_OUTPUTS_CONFIG_91819629c5ddeb32_EOF
       - name: Write Safe Outputs Tools
         run: |
@@ -829,6 +841,22 @@ jobs:
                 "repo": {
                   "type": "string",
                   "maxLength": 256
+                }
+              }
+            },
+            "report_incomplete": {
+              "defaultMax": 5,
+              "fields": {
+                "details": {
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 65000
+                },
+                "reason": {
+                  "required": true,
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 1024
                 }
               }
             },
@@ -1591,13 +1619,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Copy Copilot session state files to logs
         if: always()
@@ -1707,6 +1736,15 @@ jobs:
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/parse_token_usage.cjs');
             await main();
+      - name: Generate observability summary
+        if: always()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_observability_summary.cjs');
+            await main(core);
       - name: Write agent output placeholder if missing
         if: always()
         run: |
@@ -1776,6 +1814,7 @@ jobs:
       group: "gh-aw-conclusion-smoke-copilot-arm"
       cancel-in-progress: false
     outputs:
+      incomplete_count: ${{ steps.report_incomplete.outputs.incomplete_count }}
       noop_message: ${{ steps.noop.outputs.noop_message }}
       tools_reported: ${{ steps.missing_tool.outputs.tools_reported }}
       total_count: ${{ steps.missing_tool.outputs.total_count }}
@@ -1838,6 +1877,20 @@ jobs:
             const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/missing_tool.cjs');
+            await main();
+      - name: Record Incomplete
+        id: report_incomplete
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          GH_AW_AGENT_OUTPUT: ${{ steps.setup-agent-output-env.outputs.GH_AW_AGENT_OUTPUT }}
+          GH_AW_REPORT_INCOMPLETE_CREATE_ISSUE: "true"
+          GH_AW_WORKFLOW_NAME: "Smoke Copilot ARM64"
+        with:
+          github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/report_incomplete_handler.cjs');
             await main();
       - name: Handle Agent Failure
         id: handle_agent_failure
@@ -2131,6 +2184,8 @@ jobs:
           destination: ${{ runner.temp }}/gh-aw/actions
           job-name: ${{ github.job }}
           trace-id: ${{ needs.activation.outputs.setup-trace-id }}
+      - name: Mask OTLP telemetry headers
+        run: echo '::add-mask::'"$OTEL_EXPORTER_OTLP_HEADERS"
       - name: Download agent output artifact
         id: download-agent-output
         continue-on-error: true
@@ -2163,7 +2218,7 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
           GH_AW_SAFE_OUTPUT_JOBS: "{\"send_slack_message\":\"\"}"
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"add_comment\":{\"allowed_repos\":[\"github/gh-aw\"],\"hide_older_comments\":true,\"max\":2},\"add_labels\":{\"allowed\":[\"smoke-copilot-arm\"],\"allowed_repos\":[\"github/gh-aw\"]},\"create_discussion\":{\"category\":\"announcements\",\"close_older_discussions\":true,\"expires\":2,\"fallback_to_issue\":true,\"labels\":[\"ai-generated\"],\"max\":1},\"create_issue\":{\"close_older_issues\":true,\"close_older_key\":\"smoke-copilot-arm\",\"expires\":2,\"group\":true,\"labels\":[\"automation\",\"testing\"],\"max\":1},\"create_pull_request_review_comment\":{\"max\":5,\"side\":\"RIGHT\"},\"dispatch_workflow\":{\"max\":1,\"workflow_files\":{\"haiku-printer\":\".yml\"},\"workflows\":[\"haiku-printer\"]},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"remove_labels\":{\"allowed\":[\"smoke\"]},\"submit_pull_request_review\":{\"max\":1}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"add_comment\":{\"allowed_repos\":[\"github/gh-aw\"],\"hide_older_comments\":true,\"max\":2},\"add_labels\":{\"allowed\":[\"smoke-copilot-arm\"],\"allowed_repos\":[\"github/gh-aw\"]},\"create_discussion\":{\"category\":\"announcements\",\"close_older_discussions\":true,\"expires\":2,\"fallback_to_issue\":true,\"labels\":[\"ai-generated\"],\"max\":1},\"create_issue\":{\"close_older_issues\":true,\"close_older_key\":\"smoke-copilot-arm\",\"expires\":2,\"group\":true,\"labels\":[\"automation\",\"testing\"],\"max\":1},\"create_pull_request_review_comment\":{\"max\":5,\"side\":\"RIGHT\"},\"create_report_incomplete_issue\":{},\"dispatch_workflow\":{\"max\":1,\"workflow_files\":{\"haiku-printer\":\".yml\"},\"workflows\":[\"haiku-printer\"]},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"remove_labels\":{\"allowed\":[\"smoke\"]},\"report_incomplete\":{},\"submit_pull_request_review\":{\"max\":1}}"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |

@@ -439,6 +439,8 @@ func (c *Compiler) buildPreActivationJob(data *WorkflowData, needsPermissionChec
 	return job, nil
 }
 
+// generateReportSkipStep generates the "Report skip reason" step for the pre-activation job.
+// The step runs with if: always() and writes skip reasons to the GitHub Actions job summary
 // extractPreActivationCustomFields extracts custom steps and outputs from jobs.pre-activation field in frontmatter.
 // It validates that only steps and outputs fields are present, and errors on any other fields.
 // If both jobs.pre-activation and jobs.pre_activation are defined, imports from both.

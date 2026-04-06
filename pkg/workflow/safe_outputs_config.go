@@ -356,6 +356,22 @@ func (c *Compiler) extractSafeOutputsConfig(frontmatter map[string]any) *SafeOut
 				}
 			}
 
+			// Handle report-incomplete (parse configuration if present, or enable by default)
+			reportIncompleteConfig := c.parseReportIncompleteConfig(outputMap)
+			if reportIncompleteConfig != nil {
+				config.ReportIncomplete = reportIncompleteConfig
+			} else {
+				// Enable report-incomplete by default if safe-outputs exists and it wasn't explicitly disabled.
+				// This ensures agents always have a first-class channel to signal task incompletion.
+				if _, exists := outputMap["report-incomplete"]; !exists {
+					config.ReportIncomplete = &ReportIncompleteConfig{
+						CreateIssue: true,
+						TitlePrefix: "",
+						Labels:      nil,
+					}
+				}
+			}
+
 			// Handle staged flag
 			if staged, exists := outputMap["staged"]; exists {
 				if stagedBool, ok := staged.(bool); ok {

@@ -328,13 +328,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Checkout PR branch
         id: checkout-pr
@@ -374,7 +375,7 @@ jobs:
           mkdir -p /tmp/gh-aw/safeoutputs
           mkdir -p /tmp/gh-aw/mcp-logs/safeoutputs
           cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/config.json << 'GH_AW_SAFE_OUTPUTS_CONFIG_f47397802db60484_EOF'
-          {"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"notion-add-comment":{"description":"Add a comment to a Notion page","inputs":{"comment":{"default":null,"description":"The comment text to add","required":true,"type":"string"}},"output":"Comment added to Notion successfully!"}}
+          {"create_report_incomplete_issue":{},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"notion-add-comment":{"description":"Add a comment to a Notion page","inputs":{"comment":{"default":null,"description":"The comment text to add","required":true,"type":"string"}},"output":"Comment added to Notion successfully!"},"report_incomplete":{}}
           GH_AW_SAFE_OUTPUTS_CONFIG_f47397802db60484_EOF
       - name: Write Safe Outputs Tools
         run: |
@@ -459,6 +460,22 @@ jobs:
                   "type": "string",
                   "sanitize": true,
                   "maxLength": 65000
+                }
+              }
+            },
+            "report_incomplete": {
+              "defaultMax": 5,
+              "fields": {
+                "details": {
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 65000
+                },
+                "reason": {
+                  "required": true,
+                  "type": "string",
+                  "sanitize": true,
+                  "maxLength": 1024
                 }
               }
             }
@@ -645,13 +662,14 @@ jobs:
         env:
           REPO_NAME: ${{ github.repository }}
           SERVER_URL: ${{ github.server_url }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           git config --global am.keepcr true
           # Re-authenticate git with GitHub token
           SERVER_URL_STRIPPED="${SERVER_URL#https://}"
-          git remote set-url origin "https://x-access-token:${{ github.token }}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@${SERVER_URL_STRIPPED}/${REPO_NAME}.git"
           echo "Git configured with standard GitHub Actions identity"
       - name: Copy Copilot session state files to logs
         if: always()
@@ -804,6 +822,7 @@ jobs:
       group: "gh-aw-conclusion-notion-issue-summary"
       cancel-in-progress: false
     outputs:
+      incomplete_count: ${{ steps.report_incomplete.outputs.incomplete_count }}
       noop_message: ${{ steps.noop.outputs.noop_message }}
       tools_reported: ${{ steps.missing_tool.outputs.tools_reported }}
       total_count: ${{ steps.missing_tool.outputs.total_count }}
@@ -866,6 +885,20 @@ jobs:
             const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/missing_tool.cjs');
+            await main();
+      - name: Record Incomplete
+        id: report_incomplete
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          GH_AW_AGENT_OUTPUT: ${{ steps.setup-agent-output-env.outputs.GH_AW_AGENT_OUTPUT }}
+          GH_AW_REPORT_INCOMPLETE_CREATE_ISSUE: "true"
+          GH_AW_WORKFLOW_NAME: "Issue Summary to Notion"
+        with:
+          github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/report_incomplete_handler.cjs');
             await main();
       - name: Handle Agent Failure
         id: handle_agent_failure
@@ -1251,7 +1284,7 @@ jobs:
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
           GH_AW_SAFE_OUTPUT_JOBS: "{\"notion_add_comment\":\"\"}"
-          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"}}"
+          GH_AW_SAFE_OUTPUTS_HANDLER_CONFIG: "{\"create_report_incomplete_issue\":{},\"missing_data\":{},\"missing_tool\":{},\"noop\":{\"max\":1,\"report-as-issue\":\"true\"},\"report_incomplete\":{}}"
         with:
           github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
