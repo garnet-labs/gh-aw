@@ -9,6 +9,7 @@
 // # Validation Functions
 //
 //   - ValidateMCPConfigs() - Validates all MCP configurations in tools section
+//   - WarnUnknownTools() - Returns warnings for unrecognized tool names with no MCP config
 //   - validateStringProperty() - Validates that a property is a string type
 //   - validateMCPRequirements() - Validates type-specific MCP requirements
 //
@@ -108,6 +109,79 @@ func ValidateMCPConfigs(tools map[string]any) error {
 
 	mcpValidationLog.Print("MCP configuration validation completed successfully")
 	return nil
+}
+
+// WarnUnknownTools returns a list of warning messages for tool names in the tools map
+// that are not recognized built-in tools and have no valid MCP server configuration
+// (i.e., no type, url, command, or container field).
+//
+// This helps users catch typos or unsupported tool names that would otherwise be
+// silently ignored during compilation.
+func WarnUnknownTools(tools map[string]any) []string {
+	// Built-in tools with their own processing — these are always valid
+	builtInTools := map[string]bool{
+		"github":            true,
+		"playwright":        true,
+		"qmd":               true,
+		"agentic-workflows": true,
+		"cache-memory":      true,
+		"repo-memory":       true,
+		"bash":              true,
+		"edit":              true,
+		"web-fetch":         true,
+		"web-search":        true,
+		"safety-prompt":     true,
+		"timeout":           true,
+		"startup-timeout":   true,
+	}
+
+	// MCP type-indicator fields: presence of any of these means the entry is
+	// intentionally a custom MCP server (even if it is misconfigured).
+	mcpIndicators := map[string]bool{
+		"type":      true,
+		"url":       true,
+		"command":   true,
+		"container": true,
+	}
+
+	var warnings []string
+	// Collect and sort tool names for deterministic output
+	toolNames := make([]string, 0, len(tools))
+	for name := range tools {
+		toolNames = append(toolNames, name)
+	}
+	sort.Strings(toolNames)
+
+	for _, toolName := range toolNames {
+		if builtInTools[toolName] {
+			continue
+		}
+
+		toolConfig := tools[toolName]
+		configMap, ok := toolConfig.(map[string]any)
+		if !ok {
+			// Non-map value for a non-built-in tool — unrecognized
+			warnings = append(warnings, fmt.Sprintf("tools.%s: unknown tool name, will be ignored. If this is a custom MCP server, add a 'command', 'url', or 'container' field. See: %s", toolName, constants.DocsToolsURL))
+			mcpValidationLog.Printf("Unknown tool (non-map value): %s", toolName)
+			continue
+		}
+
+		// Check if any MCP type-indicator field is present
+		hasMCPIndicator := false
+		for field := range configMap {
+			if mcpIndicators[field] {
+				hasMCPIndicator = true
+				break
+			}
+		}
+
+		if !hasMCPIndicator {
+			warnings = append(warnings, fmt.Sprintf("tools.%s: unknown tool name, will be ignored. If this is a custom MCP server, add a 'command', 'url', or 'container' field. See: %s", toolName, constants.DocsToolsURL))
+			mcpValidationLog.Printf("Unknown tool (no MCP indicator fields): %s", toolName)
+		}
+	}
+
+	return warnings
 }
 
 // getRawMCPConfig extracts MCP configuration without any transformations for validation

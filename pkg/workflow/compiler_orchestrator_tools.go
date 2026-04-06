@@ -177,6 +177,12 @@ func (c *Compiler) processToolsAndMarkdown(result *parser.FrontmatterResult, cle
 		return nil, err
 	}
 
+	// Warn about unrecognized tool names that have no MCP server configuration
+	for _, warning := range WarnUnknownTools(tools) {
+		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(warning))
+		c.IncrementWarningCount()
+	}
+
 	if !agenticEngine.SupportsToolsAllowlist() {
 		// For engines that don't support tool allowlists (like custom engine), ignore tools section and provide warnings
 		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Using experimental %s support (engine: %s)", agenticEngine.GetDisplayName(), agenticEngine.GetID())))

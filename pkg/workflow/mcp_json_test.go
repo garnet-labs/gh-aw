@@ -600,3 +600,145 @@ func TestValidateMCPConfigs(t *testing.T) {
 		})
 	}
 }
+
+func TestWarnUnknownTools(t *testing.T) {
+	tests := []struct {
+		name          string
+		tools         map[string]any
+		wantWarnings  []string
+		wantNoWarning []string
+	}{
+		{
+			name:          "nil tools",
+			tools:         nil,
+			wantWarnings:  nil,
+			wantNoWarning: nil,
+		},
+		{
+			name:          "empty tools",
+			tools:         map[string]any{},
+			wantWarnings:  nil,
+			wantNoWarning: nil,
+		},
+		{
+			name: "built-in tools only - no warnings",
+			tools: map[string]any{
+				"github":     map[string]any{"mode": "local"},
+				"playwright": map[string]any{"version": "v1.41.0"},
+				"bash":       []any{"echo", "ls"},
+				"web-fetch":  nil,
+			},
+			wantWarnings:  nil,
+			wantNoWarning: []string{"github", "playwright", "bash", "web-fetch"},
+		},
+		{
+			name: "unknown tool name with version-only config",
+			tools: map[string]any{
+				"nonexistent-tool-xyz": map[string]any{"version": "1.0"},
+			},
+			wantWarnings: []string{"tools.nonexistent-tool-xyz"},
+		},
+		{
+			name: "typo of built-in tool name",
+			tools: map[string]any{
+				"playwrigjht": map[string]any{"version": "v1.41.0"},
+			},
+			wantWarnings: []string{"tools.playwrigjht"},
+		},
+		{
+			name: "valid custom MCP server with command - no warning",
+			tools: map[string]any{
+				"my-mcp-server": map[string]any{
+					"command": "node",
+					"args":    []any{"server.js"},
+				},
+			},
+			wantWarnings:  nil,
+			wantNoWarning: []string{"my-mcp-server"},
+		},
+		{
+			name: "valid custom MCP server with url - no warning",
+			tools: map[string]any{
+				"my-http-server": map[string]any{
+					"url": "https://my-server.example.com/mcp",
+				},
+			},
+			wantWarnings:  nil,
+			wantNoWarning: []string{"my-http-server"},
+		},
+		{
+			name: "valid custom MCP server with container - no warning",
+			tools: map[string]any{
+				"my-container-server": map[string]any{
+					"container": "ghcr.io/my/mcp-server",
+					"version":   "latest",
+				},
+			},
+			wantWarnings:  nil,
+			wantNoWarning: []string{"my-container-server"},
+		},
+		{
+			name: "valid custom MCP server with explicit type - no warning",
+			tools: map[string]any{
+				"my-typed-server": map[string]any{
+					"type": "stdio",
+				},
+			},
+			wantWarnings:  nil,
+			wantNoWarning: []string{"my-typed-server"},
+		},
+		{
+			name: "unknown tool with allowed-only config",
+			tools: map[string]any{
+				"unknown-tool": map[string]any{
+					"allowed": []any{"some-tool"},
+				},
+			},
+			wantWarnings: []string{"tools.unknown-tool"},
+		},
+		{
+			name: "multiple unknown tools are all warned",
+			tools: map[string]any{
+				"bad-tool-a": map[string]any{"version": "1.0"},
+				"bad-tool-b": map[string]any{"mode": "remote"},
+				"github":     nil,
+			},
+			wantWarnings:  []string{"tools.bad-tool-a", "tools.bad-tool-b"},
+			wantNoWarning: []string{"tools.github"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			warnings := WarnUnknownTools(tt.tools)
+
+			// Check expected warnings are present
+			for _, expected := range tt.wantWarnings {
+				found := false
+				for _, w := range warnings {
+					if strings.Contains(w, expected) {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("WarnUnknownTools() expected warning containing %q, but got: %v", expected, warnings)
+				}
+			}
+
+			// Check that no unexpected warnings are emitted for these names
+			for _, notExpected := range tt.wantNoWarning {
+				for _, w := range warnings {
+					if strings.Contains(w, notExpected) {
+						t.Errorf("WarnUnknownTools() unexpected warning containing %q: %v", notExpected, w)
+					}
+				}
+			}
+
+			// If no warnings expected, assert none returned
+			if len(tt.wantWarnings) == 0 && len(warnings) > 0 {
+				t.Errorf("WarnUnknownTools() expected no warnings, got: %v", warnings)
+			}
+		})
+	}
+}
