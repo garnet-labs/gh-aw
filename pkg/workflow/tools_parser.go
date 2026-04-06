@@ -155,7 +155,6 @@ func NewTools(toolsMap map[string]any) *Tools {
 		"web-search":        true,
 		"edit":              true,
 		"playwright":        true,
-		"qmd":               true,
 		"agentic-workflows": true,
 		"cache-memory":      true,
 		"repo-memory":       true,

@@ -62,7 +62,6 @@ var mcpValidationLog = newValidationLogger("mcp_config")
 var builtInToolNames = map[string]bool{
 	"github":            true,
 	"playwright":        true,
-	"qmd":               true,
 	"agentic-workflows": true,
 	"cache-memory":      true,
 	"repo-memory":       true,
