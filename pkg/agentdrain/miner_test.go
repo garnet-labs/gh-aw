@@ -18,8 +18,8 @@ func TestNewMiner(t *testing.T) {
 	if m == nil {
 		t.Fatal("NewMiner: expected non-nil miner")
 	}
-	if m.ClusterCount() != 0 {
-		t.Errorf("NewMiner: expected 0 clusters, got %d", m.ClusterCount())
+	if len(m.store.clusters) != 0 {
+		t.Errorf("NewMiner: expected 0 clusters, got %d", len(m.store.clusters))
 	}
 }
 
@@ -35,8 +35,8 @@ func TestTrain_ClusterCreation(t *testing.T) {
 	if result.ClusterID == 0 {
 		t.Error("Train: expected non-zero ClusterID")
 	}
-	if m.ClusterCount() != 1 {
-		t.Errorf("Train: expected 1 cluster, got %d", m.ClusterCount())
+	if len(m.store.clusters) != 1 {
+		t.Errorf("Train: expected 1 cluster, got %d", len(m.store.clusters))
 	}
 }
 
@@ -59,8 +59,8 @@ func TestTrain_ClusterMerge(t *testing.T) {
 	}
 
 	// Should merge into one cluster.
-	if m.ClusterCount() != 1 {
-		t.Errorf("expected 1 cluster after merge, got %d", m.ClusterCount())
+	if len(m.store.clusters) != 1 {
+		t.Errorf("expected 1 cluster after merge, got %d", len(m.store.clusters))
 	}
 	if !strings.Contains(result.Template, "<*>") {
 		t.Errorf("expected wildcard in merged template, got: %q", result.Template)
@@ -156,7 +156,7 @@ func TestConcurrency(t *testing.T) {
 	}
 	wg.Wait()
 
-	if m.ClusterCount() == 0 {
+	if len(m.store.clusters) == 0 {
 		t.Error("expected clusters after concurrent training")
 	}
 }
