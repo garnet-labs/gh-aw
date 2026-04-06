@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-05T18:22:08Z",
-  "run_id": "24007595712",
+  "run_date": "2026-04-06T00:59:38Z",
+  "run_id": "24014476592",
   "fork_prs": 0,
-  "agent_prs_found": 3,
-  "agent_prs_excluded": 3,
-  "notes": "3 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-05T12:25:15Z): #24766 (Fix error message quality). #24711, #24712, #24727 appear closed/merged since last run.",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-05T18:22:08Z): #24796 (Fix gh-aw handling of comment-based review verdicts), #24792 (Fix disappearing bot-gated PR review runs). #24766 appears closed since last run.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,16 +18,34 @@
   },
   "prs_examined": [
     {
-      "number": 24766,
-      "title": "Fix error message quality: prevent duplicate suggestions, strip redundant path prefix",
+      "number": 24796,
+      "title": "[WIP] Fix gh-aw handling of comment-based review verdicts",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
       "labels": [],
-      "created_at": "2026-04-05T18:00:00Z",
-      "updated_at": "2026-04-05T18:00:00Z",
-      "new_since_last_run": true
+      "created_at": "2026-04-06T00:40:25Z",
+      "updated_at": "2026-04-06T00:51:14Z",
+      "ci_status": "in_progress",
+      "new_since_last_run": true,
+      "category_observation": "feature",
+      "risk_observation": "high"
+    },
+    {
+      "number": 24792,
+      "title": "[WIP] Fix disappearing bot-gated PR review runs",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "author": "Copilot",
+      "labels": [],
+      "created_at": "2026-04-06T00:31:39Z",
+      "updated_at": "2026-04-06T00:56:36Z",
+      "ci_status": "no_runs",
+      "new_since_last_run": true,
+      "category_observation": "bug/feature",
+      "risk_observation": "high"
     },
     {
       "number": 24697,
@@ -36,10 +54,14 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
-      "labels": [],
+      "labels": ["smoke-claude", "smoke-copilot"],
       "created_at": "2026-04-05T09:27:09Z",
-      "updated_at": "2026-04-05T11:44:47Z",
-      "new_since_last_run": false
+      "updated_at": "2026-04-06T00:41:04Z",
+      "ci_status": "passing",
+      "ci_check_count": 153,
+      "new_since_last_run": false,
+      "category_observation": "feature",
+      "risk_observation": "high"
     },
     {
       "number": 24503,
@@ -48,15 +70,16 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "author": "Copilot",
-      "labels": [],
+      "labels": ["smoke", "smoke-claude", "smoke-copilot", "needs-work"],
       "created_at": "2026-04-04T14:25:04Z",
-      "updated_at": "2026-04-05T09:45:21Z",
-      "new_since_last_run": false
+      "updated_at": "2026-04-05T21:06:15Z",
+      "ci_status": "no_runs",
+      "new_since_last_run": false,
+      "category_observation": "feature",
+      "risk_observation": "high"
     }
   ],
   "closed_since_last_run": [
-    { "number": 24727, "title": "[dead-code] chore: remove dead functions — 7 functions removed" },
-    { "number": 24712, "title": "Rename `domainStatus` → `classifyFirewallDomainStatus` and `statusEmoji` → `firewallStatusEmoji`" },
-    { "number": 24711, "title": "Add gh-aw.staged and deployment.environment to OTLP conclusion spans" }
+    { "number": 24766, "title": "Fix error message quality: prevent duplicate suggestions, strip redundant path prefix" }
   ]
 }
