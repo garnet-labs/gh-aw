@@ -170,17 +170,11 @@ func (c *Compiler) processToolsAndMarkdown(result *parser.FrontmatterResult, cle
 		}
 	}
 
-	// Validate MCP configurations
+	// Validate MCP configurations (also errors on unknown tool names)
 	orchestratorToolsLog.Printf("Validating MCP configurations")
 	if err := ValidateMCPConfigs(tools); err != nil {
 		orchestratorToolsLog.Printf("MCP configuration validation failed: %v", err)
 		return nil, err
-	}
-
-	// Warn about unrecognized tool names that have no MCP server configuration
-	for _, warning := range WarnUnknownTools(tools) {
-		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(warning))
-		c.IncrementWarningCount()
 	}
 
 	if !agenticEngine.SupportsToolsAllowlist() {
