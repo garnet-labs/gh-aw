@@ -24,10 +24,12 @@ package workflow
 import (
 	"fmt"
 	"maps"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/github/gh-aw/pkg/console"
 	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/logger"
 )
@@ -234,6 +236,19 @@ COPILOT_CLI_INSTRUCTION="$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"
 		copilotExecLog.Print("Using GitHub Actions token as COPILOT_GITHUB_TOKEN (copilot-requests feature enabled)")
 	} else {
 		copilotGitHubToken = "${{ secrets.COPILOT_GITHUB_TOKEN }}"
+	}
+
+	// Warn when copilot-requests is enabled and timeout-minutes > 60.
+	// The github.token Copilot session is bound at creation time and expires after ~1 hour,
+	// causing silent mid-run authentication failures for long-running workflows.
+	if useCopilotRequests && workflowData.TimeoutMinutes != "" {
+		timeoutVal := parseTimeoutMinutesInt(workflowData.TimeoutMinutes)
+		if timeoutVal > 60 {
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(
+				"features: copilot-requests: true with timeout-minutes > 60 may cause mid-run "+
+					"authentication failures: the github.token Copilot session expires after ~1 hour. "+
+					"Set timeout-minutes <= 60 or configure COPILOT_GITHUB_TOKEN as a PAT instead."))
+		}
 	}
 
 	env := map[string]string{
@@ -451,4 +466,20 @@ func generateCopilotSessionFileCopyStep() GitHubActionStep {
 	step = append(step, "        run: bash ${RUNNER_TEMP}/gh-aw/actions/copy_copilot_session_state.sh")
 
 	return GitHubActionStep(step)
+}
+
+// parseTimeoutMinutesInt parses the integer value from a timeout-minutes string.
+// The input is expected in the form "timeout-minutes: N" (e.g. "timeout-minutes: 90").
+// GitHub Actions expression values (e.g. "${{ inputs.timeout }}") are skipped and return 0.
+// Returns 0 if the value is an expression or cannot be parsed as an integer.
+func parseTimeoutMinutesInt(timeoutMinutes string) int {
+	val := strings.TrimPrefix(timeoutMinutes, "timeout-minutes: ")
+	if strings.HasPrefix(val, "${{") {
+		return 0 // GitHub Actions expression – skip
+	}
+	n, err := strconv.Atoi(strings.TrimSpace(val))
+	if err != nil {
+		return 0
+	}
+	return n
 }
