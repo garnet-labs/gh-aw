@@ -13,7 +13,6 @@ const (
 	prContextPushToPRBranchGuidanceFile     = "pr_context_push_to_pr_branch_guidance.md"
 	tempFolderPromptFile                    = "temp_folder_prompt.md"
 	playwrightPromptFile                    = "playwright_prompt.md"
-	qmdPromptFile                           = "qmd_prompt.md"
 	markdownPromptFile                      = "markdown.md"
 	xpiaPromptFile                          = "xpia.md"
 	cacheMemoryPromptFile                   = "cache_memory_prompt.md"

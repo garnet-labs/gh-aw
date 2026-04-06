@@ -59,9 +59,6 @@ const DefaultMCPGatewayVersion Version = "v0.2.15"
 // DefaultPlaywrightMCPVersion is the default version of the @playwright/mcp package
 const DefaultPlaywrightMCPVersion Version = "0.0.70"
 
-// DefaultQmdVersion is the default version of the @tobilu/qmd npm package
-const DefaultQmdVersion Version = "2.0.1"
-
 // DefaultPlaywrightBrowserVersion is the default version of the Playwright browser Docker image
 const DefaultPlaywrightBrowserVersion Version = "v1.59.1"
 
