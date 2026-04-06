@@ -18,5 +18,15 @@
     "recommendations_count": 5,
     "estimated_savings_per_run": 500000,
     "notes": "All 9 runs flagged resource_heavy + poor_agentic_control. Outlier 4.2M/62-turn run from PR review test complexity. Per-request cost ~64K stable, so turn reduction is primary lever."
+  },
+  {
+    "date": "2026-04-06",
+    "workflow_name": "Daily Syntax Error Quality Check",
+    "workflow_file": "daily-syntax-error-quality",
+    "total_tokens_analyzed": 18584032,
+    "runs_audited": 2,
+    "recommendations_count": 4,
+    "estimated_savings_per_run": 8300000,
+    "notes": "Root cause: gh aw compile * pattern blocks /tmp/ absolute paths. 2/2 runs show identical 129-131 turn failure \u2192 source code fallback. Fix tool pattern to allow /tmp/*.md paths."
   }
 ]
