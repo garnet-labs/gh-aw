@@ -596,7 +596,7 @@ func TestValidateMCPConfigs(t *testing.T) {
 	}
 }
 
-func TestValidateMCPConfigs_UnknownTools(t *testing.T) {
+func TestValidateToolsSection(t *testing.T) {
 	tests := []struct {
 		name        string
 		tools       map[string]any
@@ -640,56 +640,16 @@ func TestValidateMCPConfigs_UnknownTools(t *testing.T) {
 			errContains: "tools.playwrigjht: unknown tool name",
 		},
 		{
-			name: "valid custom MCP server with command - no error",
+			// Custom MCP servers with command/url/container belong under mcp-servers, not tools
+			name: "custom MCP server in tools section is an error",
 			tools: map[string]any{
 				"my-mcp-server": map[string]any{
 					"command": "node",
 					"args":    []any{"server.js"},
 				},
 			},
-			wantErr: false,
-		},
-		{
-			name: "valid custom MCP server with url - no error",
-			tools: map[string]any{
-				"my-http-server": map[string]any{
-					"url": "https://my-server.example.com/mcp",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "valid custom MCP server with container - no error",
-			tools: map[string]any{
-				"my-container-server": map[string]any{
-					"container": "ghcr.io/my/mcp-server",
-					"version":   "latest",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "valid custom MCP server with explicit type and url - no error",
-			tools: map[string]any{
-				"my-http-typed-server": map[string]any{
-					"type": "http",
-					"url":  "https://my-server.example.com/mcp",
-				},
-			},
-			wantErr: false,
-		},
-		{
-			// 'type' alone triggers MCP processing (passes unknown-tool check) but
-			// fails the subsequent MCP requirements validation — NOT an "unknown tool" error.
-			name: "type alone bypasses unknown-tool check but fails MCP requirements",
-			tools: map[string]any{
-				"my-typed-server": map[string]any{
-					"type": "stdio",
-					// Missing required 'command' or 'container' for stdio
-				},
-			},
 			wantErr:     true,
-			errContains: "mcp configuration must specify either 'command' or 'container'",
+			errContains: "tools.my-mcp-server: unknown tool name",
 		},
 		{
 			name: "unknown tool with allowed-only config",
@@ -710,30 +670,31 @@ func TestValidateMCPConfigs_UnknownTools(t *testing.T) {
 			errContains: "tools.bad-tool: unknown tool name",
 		},
 		{
-			name: "built-in tools pass through alongside valid custom MCP",
+			// Error message should direct users to mcp-servers:
+			name: "error message references mcp-servers",
 			tools: map[string]any{
-				"github":        map[string]any{"mode": "local"},
-				"my-mcp-server": map[string]any{"command": "node server.js"},
+				"my-custom-server": map[string]any{"command": "npx my-tool"},
 			},
-			wantErr: false,
+			wantErr:     true,
+			errContains: "mcp-servers",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateMCPConfigs(tt.tools)
+			err := ValidateToolsSection(tt.tools)
 
 			if tt.wantErr {
 				if err == nil {
-					t.Errorf("ValidateMCPConfigs() expected an error, got nil")
+					t.Errorf("ValidateToolsSection() expected an error, got nil")
 					return
 				}
 				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Errorf("ValidateMCPConfigs() error = %q, expected to contain %q", err.Error(), tt.errContains)
+					t.Errorf("ValidateToolsSection() error = %q, expected to contain %q", err.Error(), tt.errContains)
 				}
 			} else {
 				if err != nil {
-					t.Errorf("ValidateMCPConfigs() unexpected error: %v", err)
+					t.Errorf("ValidateToolsSection() unexpected error: %v", err)
 				}
 			}
 		})
