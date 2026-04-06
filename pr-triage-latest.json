@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-06T12:43:14Z",
-  "run_id": "24031918046",
+  "run_date": "2026-04-06T18:32:04Z",
+  "run_id": "24044886433",
   "fork_prs": 0,
-  "agent_prs_found": 9,
-  "agent_prs_excluded": 9,
-  "notes": "9 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. New since last run (2026-04-06T06:53:55Z): #24872 (Convert Write Safe Outputs Tools step), #24871 (test(agentdrain): migrate miner_test.go), #24870 (refactor: consolidate duplicate logic in role_checks.go), #24864 (Add validation: safe-outputs max field), #24863 (Add run-install-scripts flag), #24862 ([rendering-scripts] fix: preserve fenced code blocks), #24855 (fix: unknown tool names in frontmatter). Closed since last run: #24836, #24834, #24828.",
+  "agent_prs_found": 6,
+  "agent_prs_excluded": 6,
+  "notes": "6 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,126 +18,70 @@
   },
   "prs_examined": [
     {
-      "number": 24872,
-      "title": "Convert Write Safe Outputs Tools step to actions/github-script with JSON env vars",
+      "number": 24933,
+      "title": "Add compile-time warning when timeout-minutes &gt; 60 with copilot-requests feature enabled",
+      "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
       "labels": [],
       "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "refactor",
-      "risk_observation": "medium"
+      "updated_at": "2026-04-06"
     },
     {
-      "number": 24871,
-      "title": "test(agentdrain): migrate miner_test.go to testify, add coverage for TrainEvent/Clusters/Config",
+      "number": 24931,
+      "title": "Add maximum: 360 to timeout-minutes schema to enforce GitHub Actions runner limit",
+      "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
       "labels": [],
       "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "test",
-      "risk_observation": "low"
+      "updated_at": "2026-04-06"
     },
     {
-      "number": 24870,
-      "title": "refactor: consolidate duplicate logic in role_checks.go",
+      "number": 24934,
+      "title": "Merge assign-to-agent safe output handler into the safe output main handler loop",
+      "author": "Copilot",
       "draft": true,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
       "labels": [],
       "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "refactor",
-      "risk_observation": "low-medium"
+      "updated_at": "2026-04-06"
     },
     {
-      "number": 24864,
-      "title": "Add validation: safe-outputs max field must be a positive integer or -1 (unlimited)",
+      "number": 24924,
+      "title": "Fix cross-repo reusable workflow hash check: remove workflow_call event gate and correct workflow_ref assumptions",
+      "author": "Copilot",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
       "labels": [],
       "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "feature",
-      "risk_observation": "medium"
-    },
-    {
-      "number": 24863,
-      "title": "Add run-install-scripts flag to disable npm pre/post install scripts by default",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
-      "labels": ["agent-quality"],
-      "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "feature",
-      "risk_observation": "medium"
-    },
-    {
-      "number": 24862,
-      "title": "[rendering-scripts] fix: preserve fenced code blocks in template rendering",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "author": "github-actions[bot]",
-      "labels": ["javascript", "automated-fix", "rendering"],
-      "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "bug",
-      "risk_observation": "medium"
+      "updated_at": "2026-04-06"
     },
     {
       "number": 24855,
-      "title": "fix: unknown tool names in frontmatter tools section are compile errors",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
+      "title": "fix: unknown tool names in frontmatter tools section are compile errors; remove qmd built-in",
       "author": "Copilot",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "new_since_last_run": true,
-      "category_observation": "bug",
-      "risk_observation": "medium"
-    },
-    {
-      "number": 24822,
-      "title": "fix(assign_to_agent): allow multiple assignments to same issue when pull_request_repo differs",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
       "labels": [],
       "created_at": "2026-04-06",
-      "new_since_last_run": false,
-      "category_observation": "bug",
-      "risk_observation": "medium"
+      "updated_at": "2026-04-06"
     },
     {
       "number": 24503,
       "title": "feat: mount MCP servers as local CLIs after gateway starts",
+      "author": "Copilot",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "author": "Copilot",
-      "labels": ["smoke", "smoke-claude", "smoke-copilot", "lgtm", "needs-work"],
+      "labels": [],
       "created_at": "2026-04-04",
-      "new_since_last_run": false,
-      "category_observation": "feature",
-      "risk_observation": "high"
+      "updated_at": "2026-04-06"
     }
-  ],
-  "closed_since_last_run": [
-    { "number": 24836, "title": "[code-simplifier] refactor: extract getActionInput() helper for hyphen normalization" },
-    { "number": 24834, "title": "chore: update drain3 default log pattern weights" },
-    { "number": 24828, "title": "[jsweep] Clean add_reviewer.cjs" }
   ]
 }
