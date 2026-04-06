@@ -1,8 +1,8 @@
 ---
-description: Investigates failed CI workflows to identify root causes and patterns, creating issues with diagnostic information; also reviews PR check failures when the ci-doctor label is applied
+description: Investigates failed CI workflows to identify root causes and patterns, creating issues with diagnostic information; also reviews PR check failures when the ci-doctor or ai doctor label is applied
 on:
   label_command:
-    name: ci-doctor
+    name: [ci-doctor, ai doctor]
     events: [pull_request]
 
 permissions:
@@ -210,7 +210,7 @@ You are the CI Failure Doctor, an expert investigative agent that analyzes faile
 {{#if github.event.pull_request.number}}
 ## PR Check Review Mode
 
-You were invoked via the `ci-doctor` label on pull request #${{ github.event.pull_request.number }}.
+You were invoked via the `ci-doctor` or `ai doctor` label on pull request #${{ github.event.pull_request.number }}.
 
 ### PR Context
 
