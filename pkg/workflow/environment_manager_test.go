@@ -187,6 +187,21 @@ func TestEnvironmentManagerIntegration_CopilotInstallerUsesGitHubCom(t *testing.
 		"copilot installer step must pin GH_HOST to github.com via DeploymentTargetGitHubCom")
 }
 
+func TestEnvironmentManagerIntegration_AWFInstallerUsesGitHubCom(t *testing.T) {
+	// Verify that the AWF installer step pins GH_HOST to github.com.
+	// AWF is downloaded from GitHub releases at github.com so it must not be
+	// affected by a workflow-level GHE GH_HOST override.
+	step := generateAWFInstallationStep("v0.25.10", nil)
+
+	require.NotEmpty(t, step, "should produce a non-empty AWF install step")
+	stepContent := joinLines(step)
+
+	assert.Contains(t, stepContent, "Install AWF binary",
+		"AWF install step should have expected name")
+	assert.Contains(t, stepContent, ghHostEnvVar+": "+githubComHost,
+		"AWF installer step must pin GH_HOST to github.com via DeploymentTargetGitHubCom")
+}
+
 // joinLines joins a GitHubActionStep ([]string) into a single string for assertion.
 func joinLines(step GitHubActionStep) string {
 	var sb strings.Builder

@@ -49,6 +49,9 @@ func TestClaudeEngineNetworkPermissions(t *testing.T) {
 		if !strings.Contains(awfStepStr, "Install AWF binary") {
 			t.Error("Second step should install AWF binary")
 		}
+		if !strings.Contains(awfStepStr, "GH_HOST: github.com") {
+			t.Error("AWF install step should pin GH_HOST: github.com to prevent GHES workflow-level overrides")
+		}
 	})
 
 	t.Run("ExecutionSteps without network permissions", func(t *testing.T) {
@@ -200,6 +203,9 @@ func TestNetworkPermissionsIntegration(t *testing.T) {
 		awfStep := strings.Join(steps[1], "\n")
 		if !strings.Contains(awfStep, "Install AWF binary") {
 			t.Error("Second step should install AWF binary")
+		}
+		if !strings.Contains(awfStep, "GH_HOST: github.com") {
+			t.Error("AWF install step should pin GH_HOST: github.com to prevent GHES workflow-level overrides")
 		}
 
 		// Get execution steps

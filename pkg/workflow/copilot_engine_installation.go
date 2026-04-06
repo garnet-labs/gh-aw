@@ -95,9 +95,18 @@ func generateAWFInstallationStep(version string, agentConfig *AgentSandboxConfig
 		version = string(constants.DefaultFirewallVersion)
 	}
 
+	// GH_HOST is pinned to github.com at the step level (via DeploymentTargetGitHubCom) to
+	// prevent any workflow-level env.GH_HOST (common on GHES deployments) from leaking into
+	// this step. AWF is downloaded from GitHub releases at github.com, so the step must always
+	// target github.com regardless of the deployment environment.
+	envManager := NewEnvironmentManager()
+	githubComEnv := envManager.EnvVarsForTarget(DeploymentTargetGitHubCom)
+
 	stepLines := []string{
 		"      - name: Install AWF binary",
 		"        run: bash ${RUNNER_TEMP}/gh-aw/actions/install_awf_binary.sh " + version,
+		"        env:",
+		"          " + ghHostEnvVar + ": " + githubComEnv[ghHostEnvVar],
 	}
 
 	return GitHubActionStep(stepLines)
