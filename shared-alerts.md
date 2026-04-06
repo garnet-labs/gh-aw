@@ -1,36 +1,24 @@
-# Shared Alerts — 2026-04-05T12:00Z
+# Shared Alerts — 2026-04-06T12:05Z
 
 ## P1 Active
-- **Issue Monster** (NEW TODAY): 5 consecutive failures from 09:48 UTC. Error: `route.endpoint is not a function` in pre_activation. Issue created by WHM.
-- **Daily Issues Report** (14+ days since Mar 24): #24703 open. Data fetch failure.
-- **Codex API Restriction** (Duplicate Code Detector, 9+ days): #24718 open. OpenAI blocks "suspicious cybersecurity activity."
+- **Daily Issues Report Generator** (16+ days since Mar 24): Issue #24703 open. Data fetch failure. Still failing.
+- **Duplicate Code Detector** (10+ days, Codex API restriction): Issue #24718 open. Externally blocked.
+- Issue Monster: RECOVERED Apr 6. No longer P1.
 
-## High
-- **Stale lock files (17)**: Net ↑4 from 13. 15 new stale (recent .md edits). Run `make recompile`.
-- **API rate limit 05:00-05:40 UTC**: Multiple workflows affected. Stagger schedules.
+## Structural/High
+- **GitHub API rate limiting** (05:00-05:40 UTC): Multiple workflows affected. Stagger schedules. Rate limit also hit during WHM health check run today (12:05 UTC).
+- **Metrics Collector**: Failing to collect per-workflow stats (no GitHub token at runtime). Ecosystem-level data only.
 
 ## Watch
-- Contribution Check: 50% error rate (3/6 runs Apr 3). safe_outputs fails despite artifact OK.
-- Schema Checker: Token explosion noted previously (4.1M tokens, 114 turns). No issue yet.
-- Smoke Claude: ~30% failure rate (ongoing)
-- Agent Persona Explorer: 222 turns one run (scope creep/loop) - ongoing watch
-- Smoke Copilot: token variance (abnormal high run 23.6m)
+- Contribution Check: 50% error rate Apr 3. safe_outputs intermittently fails despite artifact OK.
+- jsweep: 5.5M token spike Apr 2 (1 turn). Anomaly — no issue yet.
+- Schema Checker: 55 turns latest (improving from 114). Still elevated.
+- Smoke Claude: ~30% failure rate (ongoing).
+- Agent Persona Explorer: 222 turns one run — scope creep/loop watch.
 
 ## Resolved
-- 11 stale lock files recompiled (Apr 4-5): tidy, daily-security-red-team, agentic-observability-kit, layout-spec-maintainer, dev-hawk, firewall, gpclean, weekly-safe-outputs-spec-review, daily-cli-tools-tester, video-analyzer, daily-malicious-code-scan
+- 17 stale lock files → 0 stale (recompiled Apr 5-6): archie, cli-consistency-checker, codex-github-remote-mcp-test, copilot-cli-deep-research, daily-code-metrics, daily-multi-device-docs-tester, daily-team-evolution-insights, deep-report, glossary-maintainer, grumpy-reviewer, issue-monster, org-health-report, poem-bot, smoke-service-ports, update-astro + prompt-clustering-analysis, release
+- Issue Monster: Recovered Apr 6 (was failing Apr 5 with route.endpoint error)
 - Daily Fact gh-aw: recompile fix (Apr 3)
 
-Last updated: 2026-04-05T12:00Z by workflow-health-manager
-
-## Updated 2026-04-06T04:37Z by agent-performance-analyzer
-
-P1 (unchanged):
-- Daily Issues Report Generator: 15+ days (#24703)
-- Duplicate Code Detector: Codex API restriction (#24718)
-- Issue Monster: WHM created issue Apr 5; RECOVERED Apr 6
-
-Watch (APAnalyzer observations):
-- jsweep Apr 2: 5.5M tokens / 1 turn anomaly — likely large file read. No issue yet.
-- API rate limiting 05:00-05:40 UTC: OTel Advisor failed at 05:21 UTC (correlated). Consider staggering schedules.
-- Schema Checker improving: 55 turns vs 114 peak — still elevated, monitor.
-- Issue Monster: observability framework flags "overkill for agentic" — consider deterministic conversion.
+Last updated: 2026-04-06T12:05Z by workflow-health-manager

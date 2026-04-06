@@ -1,46 +1,55 @@
-# Workflow Health - 2026-04-05T12:00Z
+# Workflow Health - 2026-04-06T12:05Z
 
-Score: 68/100 (↓2 from 70). 181 workflows total. Run: §24001031380
+Score: 71/100 (↑3 from 68). 181 workflows. Run: §24031053292
 
-## 🆕 New Regression: Issue Monster
-**CRITICAL** - 5 consecutive pre_activation failures since ~09:48 UTC today.
-Error: `ERR_API: Failed to fetch check runs for ref "main": route.endpoint is not a function`
-Runs #3715-#3719 failing. Runs #3712-#3714 succeeded earlier today. No prior issue.
-Auto-issue created: #aw_imon0405 (WHM-created).
-Lock file also stale.
+## KEY IMPROVEMENT: Lock Files
 
-## P1 Issues (Active)
-- **Daily Issues Report Generator** (14+ days since Mar 24): Auto-issue #24703 (today). Ongoing.
-- **Duplicate Code Detector** (Codex API restriction, 9+ days): Auto-issue #24718 (today). Externally blocked.
-- **Issue Monster** (new today): WHM-created issue (see above). 5+ consecutive failures.
+All 17 previously-stale lock files have been recompiled → **0 stale lock files** today.
+(Previous: 17 stale ↑4 net)
 
-## Stale Lock Files (17) — ↑4 from 13 (11 fixed, 15 new)
-NEW: archie, cli-consistency-checker, codex-github-remote-mcp-test, copilot-cli-deep-research, daily-code-metrics, daily-multi-device-docs-tester, daily-team-evolution-insights, deep-report, glossary-maintainer, grumpy-reviewer, issue-monster, org-health-report, poem-bot, smoke-service-ports, update-astro
-CARRIED OVER: prompt-clustering-analysis, release
-Action: run `make recompile`
+## P1 Issues (Ongoing)
 
-## P2 (Intermittent, monitor)
-- Contribution Check: 50% error rate on Apr 3 (3/6 runs). safe_outputs fails despite artifact OK. Run: §23998304116
-- API rate limiting 05:00-05:40 UTC: multiple workflows hit installation rate limit
+- **Daily Issues Report Generator** (16+ days since Mar 24): Issue #24703 open. Still failing.
+- **Duplicate Code Detector** (10+ days, Codex API restriction): Issue #24718 open. Externally blocked.
+- Issue Monster: **RECOVERED** Apr 6 (was P1 Apr 5). No new issue needed.
 
-## P2 (Team decided "not_planned")
-- Smoke Update Cross-Repo PR, Smoke Create Cross-Repo PR, Smoke Codex, Smoke Gemini
+## P2 (Watch)
 
-## Actions Taken This Run
-- Created WHM Dashboard (2026-04-05): #aw_whm0405
-- Created Issue Monster regression issue: #aw_imon0405
-- Confirmed Daily Issues Report auto-issue #24703
-- Confirmed Duplicate Code Detector auto-issue #24718
-- Found 15 new stale lock files (significant churn from .md edits)
+- Contribution Check: 50% error rate Apr 3. safe_outputs fails intermittently.
+- API rate limiting 05:00-05:40 UTC: Multiple workflows affected.
+- jsweep: 5.5M token spike (Apr 2, 1 turn). Anomaly — monitor.
+- Schema Checker: Improving (55 turns vs 114 peak). Still elevated.
+- Metrics Collector: Partial failure (no GitHub token at runtime). Ecosystem data only.
+- **GitHub API rate limit**: Installation rate limit exceeded during this run (reset ~12:43 UTC). Prevented per-workflow run queries.
 
-## Systemic Issues
-1. **Issue Monster route.endpoint error** (NEW): pre_activation API call broken. Affects check run validation. May affect other workflows using same CI check logic.
-2. **API rate limiting 05:00-05:40 UTC**: Concurrent scheduling hits installation rate limit.
-3. **Codex API restrictions**: Duplicate Code Detector blocked.
-4. **Stale lock files (17)**: Up from 13. Need `make recompile`.
-5. **safe_outputs processing errors (intermittent)**: Contribution Check affected.
+## Actions This Run
 
-## Run Info
-- Timestamp: 2026-04-05T12:00Z
-- Run: §24001031380
-- Score: 70→68 (↓2)
+- No new issues created (existing issues cover active P1s)
+- All lock files verified: 0 stale (181/181 up to date)
+- Issue Monster confirmed recovered (no new issue)
+
+## Score Breakdown
+
+- Compilation success (all 181 lock files present): +20
+- Lock files up to date (0 stale): +15 (was +8)
+- Issue Monster recovered: +2
+- P1 issues ongoing: -8
+- API rate limit (structural concern): -4
+- Intermittent errors (Contribution Check, jsweep): -4
+- Subtotal: ~71/100
+
+## Trends
+
+- Lock files: 17 stale → 0 (major fix)
+- Issue Monster: RECOVERED
+- P1 count: 3 → 2 (Issue Monster resolved)
+- API rate limiting: ongoing structural issue
+
+## Next Run Priorities
+
+1. Check if Daily Issues Report (#24703) is progressing/resolved
+2. Monitor Duplicate Code Detector (#24718) for Codex API status
+3. Investigate API rate limiting pattern (05:00-05:40 UTC window)
+4. Monitor jsweep for repeat token spike
+
+Last updated: 2026-04-06T12:05Z by workflow-health-manager
