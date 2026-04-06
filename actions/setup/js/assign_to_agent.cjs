@@ -448,8 +448,11 @@ async function main() {
 
       core.info(`${type} ID: ${assignableId}`);
 
-      // Check if agent is already assigned
-      if (currentAssignees.some(a => a.id === agentId)) {
+      // Check if agent is already assigned.
+      // When a pull_request_repo is explicitly provided, the pair of (agent, pull_request_repo)
+      // is the uniqueness key, so we allow the assignment to proceed even if the agent is
+      // already assigned (it may target a different repository).
+      if (currentAssignees.some(a => a.id === agentId) && !effectivePullRequestRepoId) {
         core.info(`${agentName} is already assigned to ${type} #${number}`);
         results.push({
           issue_number: issueNumber,

@@ -344,6 +344,67 @@ describe("assign_to_agent", () => {
     expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("copilot is already assigned to issue #42"));
   });
 
+  it("should allow assignment when agent is already assigned but pull_request_repo differs", async () => {
+    // When an agent is already assigned to an issue but a different pull_request_repo is requested,
+    // the assignment must proceed so that Copilot is triggered for the new target repository.
+    process.env.GH_AW_AGENT_ALLOWED_PULL_REQUEST_REPOS = "test-owner/android-repo";
+    setAgentOutput({
+      items: [
+        {
+          type: "assign_to_agent",
+          issue_number: 42,
+          agent: "copilot",
+          pull_request_repo: "test-owner/android-repo",
+        },
+      ],
+      errors: [],
+    });
+
+    // Mock GraphQL responses - agent is already assigned, but a different pull_request_repo is provided
+    mockGithub.graphql
+      // Get item PR repository ID
+      .mockResolvedValueOnce({
+        repository: {
+          id: "android-repo-id",
+        },
+      })
+      // Find agent
+      .mockResolvedValueOnce({
+        repository: {
+          suggestedActors: {
+            nodes: [{ login: "copilot-swe-agent", id: "MDQ6VXNlcjE=" }],
+          },
+        },
+      })
+      // Get issue details - agent already assigned
+      .mockResolvedValueOnce({
+        repository: {
+          issue: {
+            id: "issue-id",
+            assignees: {
+              nodes: [{ id: "MDQ6VXNlcjE=" }],
+            },
+          },
+        },
+      })
+      // Assign agent with agentAssignment (targetRepositoryId = android-repo-id)
+      .mockResolvedValueOnce({
+        replaceActorsForAssignable: {
+          __typename: "ReplaceActorsForAssignablePayload",
+        },
+      });
+
+    await eval(`(async () => { ${assignToAgentScript}; await main(); })()`);
+
+    // Should NOT skip the assignment
+    expect(mockCore.info).not.toHaveBeenCalledWith(expect.stringContaining("copilot is already assigned to issue #42"));
+    // Should proceed with the assignment
+    expect(mockCore.info).toHaveBeenCalledWith(expect.stringContaining("Successfully assigned copilot coding agent to issue #42"));
+    // The mutation must include the target repository ID for the new platform
+    const lastGraphQLCall = mockGithub.graphql.mock.lastCall;
+    expect(lastGraphQLCall[1].targetRepoId).toBe("android-repo-id");
+  });
+
   it("should handle API errors gracefully", async () => {
     setAgentOutput({
       items: [
