@@ -120,8 +120,8 @@ Common file paths referenced in workflow files:
 
 | Path | Type | Description | Usage Context |
 |------|------|-------------|---------------|
-| `.github/workflows/` | Directory | Workflow definition directory | Contains all `.md` and `.lock.yml` workflow files |
-| `.github/aw/` | Directory | Agentic workflow configuration | Contains `aw-lock.json` and other configs |
+| `.github/workflows/` | Directory | Workflow definition directory | Contains all `.md`, `.lock.yml` workflow files, and `aw-lock.json` |
+| `.github/aw/` | Directory | Agentic workflow configuration | Contains other configs and legacy `.github/aw/actions-lock.json` path |
 | `.github/agents/` | Directory | Custom agent definitions | Contains agent markdown files (e.g., `test-agent.md`) |
 | `/tmp/gh-aw/` | Directory | Temporary workflow data | Root temporary directory for all workflow artifacts |
 | `/tmp/gh-aw/agent/` | Directory | Agent execution workspace | Agent's working directory during execution |
@@ -381,11 +381,12 @@ GitHub Actions runner images used across compiled workflows:
 .github/
 ├── agents/                     # Custom agent definitions
 │   └── test-agent.md
-├── aw/                         # Workflow configuration
-│   └── aw-lock.json
+├── aw/                         # Legacy workflow configuration
+│   └── actions-lock.json       # Legacy (migrated to .github/workflows/aw-lock.json)
 └── workflows/                  # Workflow files
     ├── *.md                    # Source workflows
     ├── *.lock.yml              # Compiled workflows
+    ├── aw-lock.json            # Canonical actions lock file
     └── shared/                 # Shared workflow components
 ````
 

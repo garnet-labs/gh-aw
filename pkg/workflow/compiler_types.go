@@ -96,7 +96,7 @@ func NewCompiler(opts ...CompilerOption) *Compiler {
 	version := GetVersion()
 
 	// Auto-detect git repository root for action cache path resolution
-	// This ensures aw-lock.yml is created at repo root regardless of CWD
+	// This ensures aw-lock.json is created at repo root regardless of CWD
 	gitRoot := findGitRoot()
 
 	// Create compiler with defaults

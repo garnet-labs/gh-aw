@@ -76,10 +76,10 @@ The action cache is stored at `.github/workflows/aw-lock.json`. Examine it for d
 cat .github/workflows/aw-lock.json | jq .
 
 # Find entries for a specific action
-cat .github/workflows/aw-lock.json | jq '.entries | to_entries[] | select(.value.repo == "actions/github-script")'
+cat .github/workflows/aw-lock.json | jq '.actions | to_entries[] | select(.value.repo == "actions/github-script")'
 
 # Check for duplicate SHAs
-cat .github/workflows/aw-lock.json | jq -r '.entries | to_entries[] | "\(.value.sha) \(.key)"' | sort | uniq -d -w 40
+cat .github/workflows/aw-lock.json | jq -r '.actions | to_entries[] | "\(.value.sha) \(.key)"' | sort | uniq -d -w 40
 ```
 
 ### 3. Check for Version Aliases
@@ -374,10 +374,10 @@ Check for unexpected cache entries:
 
 ```bash
 # List all SHAs with their version tags
-jq -r '.entries | to_entries[] | "\(.value.sha) \(.value.version) \(.key)"' .github/workflows/aw-lock.json | sort
+jq -r '.actions | to_entries[] | "\(.value.sha) \(.value.version) \(.key)"' .github/workflows/aw-lock.json | sort
 
 # Find duplicate SHAs
-jq -r '.entries | to_entries[] | .value.sha' .github/workflows/aw-lock.json | sort | uniq -d
+jq -r '.actions | to_entries[] | .value.sha' .github/workflows/aw-lock.json | sort | uniq -d
 ```
 
 ## Related Documentation

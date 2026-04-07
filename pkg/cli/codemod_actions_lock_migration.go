@@ -50,15 +50,12 @@ func MigrateActionsLockFile(write bool, verbose bool) (bool, error) {
 		return true, nil
 	}
 
-	// If the new file already exists, skip migration to avoid overwriting.
+	// If the new file already exists, skip migration to avoid overwriting or
+	// discarding the legacy file without verifying the contents match.
 	if _, err := os.Stat(newPath); err == nil {
-		// Both files exist: warn and remove the legacy file.
 		fmt.Fprintf(os.Stderr, "%s\n", console.FormatWarningMessage(
-			fmt.Sprintf("%s already exists; removing legacy %s", newPath, legacyPath)))
-		if err := os.Remove(legacyPath); err != nil {
-			return false, fmt.Errorf("removing legacy %s: %w", legacyPath, err)
-		}
-		return true, nil
+			fmt.Sprintf("%s already exists; leaving legacy %s in place and skipping migration", newPath, legacyPath)))
+		return false, nil
 	}
 
 	// Load via ActionCache (which handles the legacy JSON format) and re-save

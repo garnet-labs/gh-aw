@@ -17,10 +17,31 @@ import (
 )
 
 func main() {
+	sourcePaths := []string{
+		".github/workflows/aw-lock.json",
+		".github/aw/actions-lock.json",
+	}
+
+	foundSource := false
+	for _, path := range sourcePaths {
+		if _, err := os.Stat(path); err == nil {
+			foundSource = true
+			break
+		} else if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "Error checking %s: %v\n", path, err)
+			os.Exit(1)
+		}
+	}
+
+	if !foundSource {
+		fmt.Fprintf(os.Stderr, "Error: no action cache source file found; expected %q or %q\n", sourcePaths[0], sourcePaths[1])
+		os.Exit(1)
+	}
+
 	cache := workflow.NewActionCache(".")
 	if err := cache.Load(); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: failed to load action cache: %v\n", err)
-		// Continue with empty cache — action_pins.json will be written empty.
+		fmt.Fprintf(os.Stderr, "Error: failed to load action cache: %v\n", err)
+		os.Exit(1)
 	}
 
 	type actionPin struct {
