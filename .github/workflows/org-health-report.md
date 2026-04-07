@@ -12,7 +12,7 @@ permissions:
 engine: copilot
 tools:
   github:
-    min-integrity: approved
+    min-integrity: none
     toolsets:
       - repos
       - issues
