@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-07T00:57:42Z",
-  "run_id": "24058857304",
+  "run_date": "2026-04-07T06:45:17Z",
+  "run_id": "24068215896",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
+  "agent_prs_found": 8,
+  "agent_prs_excluded": 8,
+  "notes": "8 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,55 +17,19 @@
     "by_action": {}
   },
   "prs_examined": [
-    {
-      "number": 24974,
-      "title": "Fix resolve_host_repo.cjs to correctly identify callee repo in cross-org workflow_call",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "updated_at": "2026-04-07"
-    },
-    {
-      "number": 24968,
-      "title": "feat: safe update mode enforcement for secrets (#safe-update)",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "updated_at": "2026-04-07"
-    },
-    {
-      "number": 24966,
-      "title": "feat: add `assignees` to `create-pull-request` for fallback issues",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "updated_at": "2026-04-07"
-    },
-    {
-      "number": 24503,
-      "title": "feat: mount MCP servers as local CLIs after gateway starts",
-      "author": "Copilot",
-      "draft": false,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": ["smoke", "smoke-claude", "smoke-copilot", "lgtm", "needs-work"],
-      "created_at": "2026-04-04",
-      "updated_at": "2026-04-07"
-    }
+    {"number": 25037, "title": "[code-simplifier] refactor: simplify cli-proxy code from #25013", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25036, "title": "[WIP] Fix 20.1% regression in validation performance", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25030, "title": "Refocus api-consumption-report on GitHub API usage only", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25029, "title": "Add BYOK support for Copilot CLI 1.0.19 (COPILOT_PROVIDER_BASE_URL)", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25028, "title": "fix: AI Moderator always reports missing_data due to MCP integrity filter", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25002, "title": "feat: add upload-artifact safe output type for run-scoped GitHub Actions", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 24968, "title": "feat: safe update mode warning prompt for secrets and actions (#safe-update)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 24503, "title": "feat: mount MCP servers as local CLIs after gateway starts", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ],
   "previous_run": {
-    "run_id": "24044886433",
-    "run_date": "2026-04-06T18:32:04Z",
+    "run_id": "24058857304",
+    "run_date": "2026-04-07T00:57:42Z",
     "fork_prs": 0,
-    "agent_prs_found": 6
+    "agent_prs_found": 4
   }
 }
