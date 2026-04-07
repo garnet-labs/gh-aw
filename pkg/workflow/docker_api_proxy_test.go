@@ -44,7 +44,7 @@ func TestCollectDockerImages_APIProxyForEnginesWithLLMGateway(t *testing.T) {
 				},
 			}
 
-			images := collectDockerImages(nil, workflowData, ActionModeRelease)
+			images := collectDockerImages(nil, workflowData, ActionModeRelease, nil)
 
 			apiProxyImage := constants.DefaultFirewallRegistry + "/api-proxy:" + awfImageTag
 			found := slices.Contains(images, apiProxyImage)

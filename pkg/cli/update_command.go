@@ -127,6 +127,13 @@ func RunUpdateWorkflows(workflowNames []string, allowMajor, force, verbose bool,
 		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update actions-lock.json: %v", err)))
 	}
 
+	// Update container image digests in containers-lock.json.
+	updateLog.Print("Updating container image digests in containers-lock.json")
+	if err := UpdateContainers(verbose); err != nil {
+		// Non-fatal: warn but don't fail the update
+		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update containers-lock.json: %v", err)))
+	}
+
 	// Update action references in user-provided steps within workflow .md files.
 	// By default all org/repo@version references are updated to the latest major version.
 	updateLog.Print("Updating action references in workflow .md files")

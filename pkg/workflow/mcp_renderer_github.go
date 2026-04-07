@@ -11,13 +11,12 @@ import (
 )
 
 // buildGitHubMCPServerImageRef constructs the full Docker image reference for the GitHub MCP server.
-// When version matches the default, the reference includes the SHA-256 digest for supply-chain pinning.
-func buildGitHubMCPServerImageRef(version string) string {
+// When the container cache has a digest for this reference, it appends "@sha256:..." for content pinning.
+func buildGitHubMCPServerImageRef(version string, cache *ContainerCache) string {
 	return buildVersionedImageRef(
 		"ghcr.io/github/github-mcp-server",
 		version,
-		string(constants.DefaultGitHubMCPServerVersion),
-		constants.DefaultGitHubMCPServerDigest,
+		cache,
 	)
 }
 
@@ -87,6 +86,7 @@ func (r *MCPConfigRendererUnified) RenderGitHubMCP(yaml *strings.Builder, github
 			AllowedTools:          getGitHubAllowedTools(githubTool),
 			EffectiveToken:        "", // Token passed via env
 			GuardPolicies:         explicitGuardPolicies,
+			ContainerCache:        r.options.ContainerCache,
 		})
 	}
 
@@ -160,7 +160,7 @@ func (r *MCPConfigRendererUnified) renderGitHubTOML(yaml *strings.Builder, githu
 		customArgs := getGitHubCustomArgs(githubTool)
 
 		// MCP Gateway spec fields for containerized stdio servers
-		yaml.WriteString("          container = \"" + buildGitHubMCPServerImageRef(githubDockerImageVersion) + "\"\n")
+		yaml.WriteString("          container = \"" + buildGitHubMCPServerImageRef(githubDockerImageVersion, r.options.ContainerCache) + "\"\n")
 
 		// Append custom args if present (these are Docker runtime args, go before container image)
 		if len(customArgs) > 0 {
@@ -230,7 +230,7 @@ func RenderGitHubMCPDockerConfig(yaml *strings.Builder, options GitHubMCPDockerO
 	}
 
 	// MCP Gateway spec fields for containerized stdio servers
-	yaml.WriteString("                \"container\": \"" + buildGitHubMCPServerImageRef(options.DockerImageVersion) + "\",\n")
+	yaml.WriteString("                \"container\": \"" + buildGitHubMCPServerImageRef(options.DockerImageVersion, options.ContainerCache) + "\",\n")
 
 	// Append custom args if present (these are Docker runtime args, go before container image)
 	if len(options.CustomArgs) > 0 {

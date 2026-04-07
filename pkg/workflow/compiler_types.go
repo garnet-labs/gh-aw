@@ -76,6 +76,7 @@ type Compiler struct {
 	actionCache             *ActionCache        // Shared cache for action pin resolutions across all workflows
 	actionResolver          *ActionResolver     // Shared resolver for action pins across all workflows
 	actionPinWarnings       map[string]bool     // Shared cache of already-warned action pin failures (key: "repo@version")
+	containerCache          *ContainerCache     // Shared cache for container image digest resolutions across all workflows
 	importCache             *parser.ImportCache // Shared cache for imported workflow files
 	workflowIdentifier      string              // Identifier for the current workflow being compiled (for schedule scattering)
 	scheduleWarnings        []string            // Accumulated schedule warnings for this compiler instance
@@ -254,6 +255,7 @@ func (c *Compiler) GetScheduleWarnings() []string {
 }
 
 // getSharedActionResolver returns the shared action resolver, initializing it on first use
+// getSharedActionResolver returns the shared action cache and resolver, initializing them on first use.
 // This ensures all workflows compiled by this compiler instance share the same in-memory cache
 func (c *Compiler) getSharedActionResolver() (*ActionCache, *ActionResolver) {
 	if c.actionCache == nil {
@@ -287,6 +289,26 @@ func (c *Compiler) getSharedActionResolver() (*ActionCache, *ActionResolver) {
 		c.actionCacheCleared = true
 	}
 	return c.actionCache, c.actionResolver
+}
+
+// getSharedContainerCache returns the shared container cache, initializing it on first use.
+// The cache is loaded from .github/aw/containers-lock.json and used to append SHA-256 digests
+// to image references, providing immutable content addresses for default images.
+func (c *Compiler) getSharedContainerCache() *ContainerCache {
+	if c.containerCache == nil {
+		baseDir := c.gitRoot
+		if baseDir == "" {
+			cwd, err := os.Getwd()
+			if err != nil {
+				cwd = "."
+			}
+			baseDir = cwd
+		}
+		c.containerCache = NewContainerCache(baseDir)
+		_ = c.containerCache.Load() // Non-fatal; empty cache means no digest pinning
+		logTypes.Print("Initialized shared container cache for compiler")
+	}
+	return c.containerCache
 }
 
 // getSharedImportCache returns the shared import cache, initializing it on first use
@@ -416,6 +438,7 @@ type WorkflowData struct {
 	ActionCache                 *ActionCache              // cache for action pin resolutions
 	ActionResolver              *ActionResolver           // resolver for action pins
 	StrictMode                  bool                      // strict mode for action pinning
+	ContainerCache              *ContainerCache           // cache for container image digest resolutions
 	SecretMasking               *SecretMaskingConfig      // secret masking configuration
 	ParsedFrontmatter           *FrontmatterConfig        // cached parsed frontmatter configuration (for performance optimization)
 	RawFrontmatter              map[string]any            // raw parsed frontmatter map (for passing to hash functions without re-parsing)

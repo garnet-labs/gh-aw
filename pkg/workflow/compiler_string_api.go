@@ -151,6 +151,7 @@ func (c *Compiler) ParseWorkflowString(content string, virtualPath string) (*Wor
 	workflowData.ActionCache = actionCache
 	workflowData.ActionResolver = actionResolver
 	workflowData.ActionPinWarnings = c.actionPinWarnings
+	workflowData.ContainerCache = c.getSharedContainerCache()
 
 	// Extract YAML configuration sections
 	c.extractYAMLSections(parseResult.frontmatterResult.Frontmatter, workflowData)

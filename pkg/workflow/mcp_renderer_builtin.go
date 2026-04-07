@@ -27,7 +27,7 @@ func (r *MCPConfigRendererUnified) RenderPlaywrightMCP(yaml *strings.Builder, pl
 	}
 
 	// JSON format
-	renderPlaywrightMCPConfigWithOptions(yaml, playwrightConfig, r.options.IsLast, r.options.IncludeCopilotFields, r.options.InlineArgs, r.options.WriteSinkGuardPolicies)
+	renderPlaywrightMCPConfigWithOptions(yaml, playwrightConfig, r.options.IsLast, r.options.IncludeCopilotFields, r.options.InlineArgs, r.options.WriteSinkGuardPolicies, r.options.ContainerCache)
 }
 
 // renderPlaywrightTOML generates Playwright MCP configuration in TOML format
@@ -37,8 +37,11 @@ func (r *MCPConfigRendererUnified) renderPlaywrightTOML(yaml *strings.Builder, p
 	mcpRendererBuiltinLog.Print("Rendering Playwright MCP in TOML format")
 	customArgs := getPlaywrightCustomArgs(playwrightConfig)
 
-	// Use official Playwright MCP Docker image pinned to a specific version with SHA-256 digest
-	playwrightImage := "mcr.microsoft.com/playwright/mcp:" + string(constants.DefaultPlaywrightMCPDockerVersion) + "@" + constants.DefaultPlaywrightMCPDockerDigest
+	// Use official Playwright MCP Docker image with digest from containers-lock.json when available
+	playwrightImage := lookupContainerDigest(
+		"mcr.microsoft.com/playwright/mcp:"+string(constants.DefaultPlaywrightMCPDockerVersion),
+		r.options.ContainerCache,
+	)
 
 	yaml.WriteString("          \n")
 	yaml.WriteString("          [mcp_servers.playwright]\n")
@@ -169,7 +172,7 @@ func (r *MCPConfigRendererUnified) RenderAgenticWorkflowsMCP(yaml *strings.Build
 	}
 
 	// JSON format
-	renderAgenticWorkflowsMCPConfigWithOptions(yaml, r.options.IsLast, r.options.IncludeCopilotFields, r.options.ActionMode, r.options.WriteSinkGuardPolicies)
+	renderAgenticWorkflowsMCPConfigWithOptions(yaml, r.options.IsLast, r.options.IncludeCopilotFields, r.options.ActionMode, r.options.WriteSinkGuardPolicies, r.options.ContainerCache)
 }
 
 // renderAgenticWorkflowsTOML generates Agentic Workflows MCP configuration in TOML format
@@ -179,7 +182,7 @@ func (r *MCPConfigRendererUnified) renderAgenticWorkflowsTOML(yaml *strings.Buil
 	yaml.WriteString("          \n")
 	yaml.WriteString("          [mcp_servers." + constants.AgenticWorkflowsMCPServerID.String() + "]\n")
 
-	containerImage := constants.DefaultAlpineImage
+	containerImage := lookupContainerDigest(constants.DefaultAlpineImage, r.options.ContainerCache)
 	var entrypoint string
 	var entrypointArgs []string
 	var mounts []string

@@ -201,13 +201,12 @@ func TestMCPGatewayVersionFromFrontmatter(t *testing.T) {
 				"Version after normalization should be %s (%s)", tt.expectedVersion, tt.description)
 
 			// Test 1: Verify docker image collection uses the correct version
-			dockerImages := collectDockerImages(workflowData.Tools, workflowData, ActionModeRelease)
-			// When using the default version, the image reference includes the SHA-256 digest
+			dockerImages := collectDockerImages(workflowData.Tools, workflowData, ActionModeRelease, nil)
+			// Without a container cache, image references are just "image:version" (no digest)
 			expectedImage := buildVersionedImageRef(
 				constants.DefaultMCPGatewayContainer,
 				tt.expectedVersion,
-				string(constants.DefaultMCPGatewayVersion),
-				constants.DefaultMCPGatewayDigest,
+				nil,
 			)
 
 			found := false

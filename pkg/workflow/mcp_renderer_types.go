@@ -19,6 +19,10 @@ type MCPRendererOptions struct {
 	// to ensure that as guard policies are rolled out, only GitHub inputs are filtered while outputs
 	// to non-GitHub servers are not restricted. Nil when no GitHub guard policies are configured.
 	WriteSinkGuardPolicies map[string]any
+	// ContainerCache provides SHA-256 digest lookup for container image references.
+	// When set, default image references are pinned to immutable content addresses.
+	// Loaded from .github/aw/containers-lock.json and updated by 'gh aw upgrade'.
+	ContainerCache *ContainerCache
 }
 
 // MCPConfigRendererUnified provides unified rendering methods for MCP configurations
@@ -82,6 +86,9 @@ type GitHubMCPDockerOptions struct {
 	EffectiveToken string
 	// GuardPolicies specifies access control policies for the MCP gateway (e.g., allow-only repos/integrity)
 	GuardPolicies map[string]any
+	// ContainerCache provides SHA-256 digest lookup for image pinning.
+	// When set, the image reference will include an @sha256: digest from containers-lock.json.
+	ContainerCache *ContainerCache
 }
 
 // GitHubMCPRemoteOptions defines configuration for GitHub MCP remote mode rendering

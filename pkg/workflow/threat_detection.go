@@ -242,7 +242,7 @@ func (c *Compiler) buildPullAWFContainersStep(data *WorkflowData) []string {
 		},
 	}
 
-	images := collectDockerImages(detectionData.Tools, detectionData, c.actionMode)
+	images := collectDockerImages(detectionData.Tools, detectionData, c.actionMode, c.getSharedContainerCache())
 	if len(images) == 0 {
 		return nil
 	}

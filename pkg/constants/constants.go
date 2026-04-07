@@ -145,19 +145,19 @@ const DefaultMCPGatewayPayloadSizeThreshold = 524288
 const DefaultFirewallRegistry = "ghcr.io/github/gh-aw-firewall"
 
 // DefaultNodeAlpineLTSImage is the default Node.js Alpine container image for MCP servers.
-// Pinned to Node 22 (current LTS) with an immutable SHA-256 digest to prevent floating-tag
-// and supply-chain attacks. Update the tag and digest together on each Node LTS upgrade.
-const DefaultNodeAlpineLTSImage = "node:22-alpine@sha256:4d64b49e6c891c8fc821007cb1cdc6c0db7773110ac2c34bf2e6960adef62ed3"
+// Pinned to Node 22 (current LTS) to avoid the floating lts-alpine alias.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+const DefaultNodeAlpineLTSImage = "node:22-alpine"
 
 // DefaultPythonAlpineLTSImage is the default Python Alpine container image for MCP servers.
-// Pinned to Python 3.12 with an immutable SHA-256 digest to prevent floating-tag and
-// supply-chain attacks. Update the tag and digest together on each Python version upgrade.
-const DefaultPythonAlpineLTSImage = "python:3.12-alpine@sha256:7747d47f92cfca63a6e2b50275e23dba8407c30d8ae929a88ddd49a5d3f2d331"
+// Pinned to Python 3.12 to avoid the floating python:alpine alias.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+const DefaultPythonAlpineLTSImage = "python:3.12-alpine"
 
 // DefaultAlpineImage is the default minimal Alpine container image for running Go binaries.
-// Pinned to Alpine 3.21 with an immutable SHA-256 digest to prevent floating-tag and
-// supply-chain attacks. Update the tag and digest together on each Alpine version upgrade.
-const DefaultAlpineImage = "alpine:3.21@sha256:c3f8e73fdb79deaebaa2037150150191b9dcbfba68b4a46d70103204c53f4709"
+// Pinned to Alpine 3.21 to avoid the floating alpine:latest alias.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+const DefaultAlpineImage = "alpine:3.21"
 
 // DevModeGhAwImage is the Docker image tag for locally built gh-aw container in dev mode
 // This image is built during workflow execution and includes the gh-aw binary and dependencies

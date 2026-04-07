@@ -39,7 +39,7 @@ tools:
 			// With Docker MCP always enabled, default is docker (not services)
 			expectedType:        "docker",
 			expectedCommand:     "docker",
-			expectedDockerImage: buildGitHubMCPServerImageRef(string(constants.DefaultGitHubMCPServerVersion)),
+			expectedDockerImage: buildGitHubMCPServerImageRef(string(constants.DefaultGitHubMCPServerVersion), nil),
 		},
 	}
 
@@ -92,7 +92,9 @@ This is a test workflow for MCP configuration.
 				}
 			case "docker":
 				// Should contain container configuration (new MCP gateway format)
-				if !strings.Contains(lockContent, `"container": "`+tt.expectedDockerImage+`"`) {
+				// The compiled output may append "@sha256:..." when digests are available in containers-lock.json,
+				// so check that the container value starts with the expected image reference.
+				if !strings.Contains(lockContent, `"container": "`+tt.expectedDockerImage) {
 					t.Errorf("Expected container with image '%s' but didn't find it in:\n%s", tt.expectedDockerImage, lockContent)
 				}
 				// Security fix: Verify env block contains GitHub expression and JSON contains shell variable
@@ -174,7 +176,7 @@ func TestGenerateGitHubMCPConfig(t *testing.T) {
 
 			switch tt.expectedType {
 			case "docker":
-				if !strings.Contains(result, `"container": "`+buildGitHubMCPServerImageRef(string(constants.DefaultGitHubMCPServerVersion))+`"`) {
+				if !strings.Contains(result, `"container": "`+buildGitHubMCPServerImageRef(string(constants.DefaultGitHubMCPServerVersion), nil)+`"`) {
 					t.Errorf("Expected container field with GitHub MCP image but got:\n%s", result)
 				}
 				if strings.Contains(result, `"type": "http"`) {

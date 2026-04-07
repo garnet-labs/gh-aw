@@ -143,7 +143,7 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 	ensureDefaultMCPGatewayConfig(workflowData)
 
 	// Collect all Docker images that will be used and generate download step
-	dockerImages := collectDockerImages(tools, workflowData, c.actionMode)
+	dockerImages := collectDockerImages(tools, workflowData, c.actionMode, c.getSharedContainerCache())
 	generateDownloadDockerImagesStep(yaml, dockerImages)
 
 	// If no MCP tools, no configuration needed
@@ -622,8 +622,7 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 	containerImage := buildVersionedImageRef(
 		gatewayConfig.Container,
 		mcpGatewayVersion,
-		string(constants.DefaultMCPGatewayVersion),
-		constants.DefaultMCPGatewayDigest,
+		c.getSharedContainerCache(),
 	)
 
 	var containerCmd strings.Builder

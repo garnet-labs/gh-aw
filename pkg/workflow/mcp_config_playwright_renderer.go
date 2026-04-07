@@ -69,7 +69,7 @@ var mcpPlaywrightLog = logger.New("workflow:mcp_config_playwright_renderer")
 // renderPlaywrightMCPConfigWithOptions generates the Playwright MCP server configuration with engine-specific options
 // Per MCP Gateway Specification v1.0.0 section 3.2.1, stdio-based MCP servers MUST be containerized.
 // Uses MCP Gateway spec format: container, entrypointArgs, mounts, and args fields.
-func renderPlaywrightMCPConfigWithOptions(yaml *strings.Builder, playwrightConfig *PlaywrightToolConfig, isLast bool, includeCopilotFields bool, inlineArgs bool, guardPolicies map[string]any) {
+func renderPlaywrightMCPConfigWithOptions(yaml *strings.Builder, playwrightConfig *PlaywrightToolConfig, isLast bool, includeCopilotFields bool, inlineArgs bool, guardPolicies map[string]any, cache *ContainerCache) {
 	mcpPlaywrightLog.Printf("Rendering Playwright MCP config options: copilot_fields=%t, inline_args=%t", includeCopilotFields, inlineArgs)
 	customArgs := getPlaywrightCustomArgs(playwrightConfig)
 
@@ -82,8 +82,11 @@ func renderPlaywrightMCPConfigWithOptions(yaml *strings.Builder, playwrightConfi
 		customArgs = replaceExpressionsInPlaywrightArgs(customArgs, expressions)
 	}
 
-	// Use official Playwright MCP Docker image pinned to a specific version with SHA-256 digest
-	playwrightImage := "mcr.microsoft.com/playwright/mcp:" + string(constants.DefaultPlaywrightMCPDockerVersion) + "@" + constants.DefaultPlaywrightMCPDockerDigest
+	// Use official Playwright MCP Docker image with digest from containers-lock.json when available
+	playwrightImage := lookupContainerDigest(
+		"mcr.microsoft.com/playwright/mcp:"+string(constants.DefaultPlaywrightMCPDockerVersion),
+		cache,
+	)
 
 	yaml.WriteString("              \"playwright\": {\n")
 
