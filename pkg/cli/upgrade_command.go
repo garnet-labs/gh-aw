@@ -226,13 +226,13 @@ func runUpgradeCommand(verbose bool, workflowDir string, noFix bool, noCompile b
 			fmt.Fprintln(os.Stderr, console.FormatSuccessMessage("✓ Updated GitHub Actions versions"))
 		}
 
-		// Step 3b: Update container image digests in containers-lock.json
+		// Step 3b: Update container image digests in actions-lock.json (containers section)
 		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updating container image digests..."))
 		upgradeLog.Print("Updating container image digests")
 		if err := UpdateContainers(verbose); err != nil {
 			upgradeLog.Printf("Failed to update container digests: %v", err)
 			// Don't fail the upgrade if container digest resolution fails - this is non-critical
-			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update containers-lock.json: %v", err)))
+			fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update actions-lock.json (containers section): %v", err)))
 		} else if verbose {
 			fmt.Fprintln(os.Stderr, console.FormatSuccessMessage("✓ Updated container image digests"))
 		}

@@ -291,21 +291,17 @@ func (c *Compiler) getSharedActionResolver() (*ActionCache, *ActionResolver) {
 }
 
 // getSharedContainerCache returns the shared container cache, initializing it on first use.
-// The cache is loaded from .github/aw/containers-lock.json and used to append SHA-256 digests
-// to image references, providing immutable content addresses for default images.
+// Container digests are stored in the "containers" section of actions-lock.json and used to
+// append SHA-256 digests to image references, providing immutable content addresses for default images.
+// The container cache is backed by the same ActionCache used for action pin resolutions so
+// both sections are read from / written to a single file.
 func (c *Compiler) getSharedContainerCache() *ContainerCache {
 	if c.containerCache == nil {
-		baseDir := c.gitRoot
-		if baseDir == "" {
-			cwd, err := os.Getwd()
-			if err != nil {
-				cwd = "."
-			}
-			baseDir = cwd
-		}
-		c.containerCache = NewContainerCache(baseDir)
-		_ = c.containerCache.Load() // Non-fatal; empty cache means no digest pinning
-		logTypes.Print("Initialized shared container cache for compiler")
+		// Reuse the shared action cache so container digests are read from
+		// the same actions-lock.json that already holds action pins.
+		ac, _ := c.getSharedActionResolver()
+		c.containerCache = NewContainerCacheFromActionCache(ac)
+		logTypes.Print("Initialized shared container cache backed by action cache")
 	}
 	return c.containerCache
 }

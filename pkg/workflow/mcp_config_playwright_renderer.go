@@ -82,7 +82,7 @@ func renderPlaywrightMCPConfigWithOptions(yaml *strings.Builder, playwrightConfi
 		customArgs = replaceExpressionsInPlaywrightArgs(customArgs, expressions)
 	}
 
-	// Use official Playwright MCP Docker image with digest from containers-lock.json when available
+	// Use official Playwright MCP Docker image with digest from actions-lock.json when available
 	playwrightImage := lookupContainerDigest(
 		"mcr.microsoft.com/playwright/mcp:"+string(constants.DefaultPlaywrightMCPDockerVersion),
 		cache,

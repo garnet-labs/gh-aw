@@ -66,7 +66,7 @@ const DefaultPlaywrightMCPVersion Version = "0.0.70"
 // DefaultPlaywrightMCPDockerVersion is the default version tag for the mcr.microsoft.com/playwright/mcp Docker image.
 // This version is separate from DefaultPlaywrightMCPVersion (npm package) because MCR and npm may use
 // different version numbering or release cadences.
-// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in actions-lock.json.
 const DefaultPlaywrightMCPDockerVersion Version = "v0.0.68"
 
 // DefaultPlaywrightBrowserVersion is the default version of the Playwright browser Docker image

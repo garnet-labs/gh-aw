@@ -127,11 +127,11 @@ func RunUpdateWorkflows(workflowNames []string, allowMajor, force, verbose bool,
 		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update actions-lock.json: %v", err)))
 	}
 
-	// Update container image digests in containers-lock.json.
-	updateLog.Print("Updating container image digests in containers-lock.json")
+	// Update container image digests in actions-lock.json (containers section).
+	updateLog.Print("Updating container image digests in actions-lock.json (containers section)")
 	if err := UpdateContainers(verbose); err != nil {
 		// Non-fatal: warn but don't fail the update
-		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update containers-lock.json: %v", err)))
+		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update actions-lock.json (containers section): %v", err)))
 	}
 
 	// Update action references in user-provided steps within workflow .md files.

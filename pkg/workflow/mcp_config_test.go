@@ -92,7 +92,7 @@ This is a test workflow for MCP configuration.
 				}
 			case "docker":
 				// Should contain container configuration (new MCP gateway format)
-				// The compiled output may append "@sha256:..." when digests are available in containers-lock.json,
+				// The compiled output may append "@sha256:..." when digests are available in actions-lock.json,
 				// so check that the container value starts with the expected image reference.
 				if !strings.Contains(lockContent, `"container": "`+tt.expectedDockerImage) {
 					t.Errorf("Expected container with image '%s' but didn't find it in:\n%s", tt.expectedDockerImage, lockContent)

@@ -454,7 +454,7 @@ This workflow tests that agentic-workflows uses the correct container in dev mod
 			}
 
 			// Check that the container image is correct
-			// The compiled output may append "@sha256:..." when a digest is available in containers-lock.json,
+			// The compiled output may append "@sha256:..." when a digest is available in actions-lock.json,
 			// so check that the container value starts with the expected image reference.
 			if !strings.Contains(string(lockContent), `"container": "`+tt.expectedContainer) {
 				t.Errorf("Expected container %q in lock file, but not found. Lock file content:\n%s",

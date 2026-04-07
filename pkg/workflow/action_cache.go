@@ -29,9 +29,10 @@ type ActionCacheEntry struct {
 
 // ActionCache manages cached action pin resolutions.
 type ActionCache struct {
-	Entries map[string]ActionCacheEntry `json:"entries"` // key: "repo@version"
-	path    string
-	dirty   bool // tracks if cache has unsaved changes
+	Entries    map[string]ActionCacheEntry    `json:"entries"`              // key: "repo@version"
+	Containers map[string]ContainerCacheEntry `json:"containers,omitempty"` // key: "image:version"
+	path       string
+	dirty      bool // tracks if cache has unsaved changes
 }
 
 // NewActionCache creates a new action cache instance
@@ -39,8 +40,9 @@ func NewActionCache(repoRoot string) *ActionCache {
 	cachePath := filepath.Join(repoRoot, ".github", "aw", CacheFileName)
 	actionCacheLog.Printf("Creating action cache with path: %s", cachePath)
 	return &ActionCache{
-		Entries: make(map[string]ActionCacheEntry),
-		path:    cachePath,
+		Entries:    make(map[string]ActionCacheEntry),
+		Containers: make(map[string]ContainerCacheEntry),
+		path:       cachePath,
 		// dirty is initialized to false (zero value)
 	}
 }
@@ -64,10 +66,18 @@ func (c *ActionCache) Load() error {
 		return err
 	}
 
+	// Ensure maps are initialized (json.Unmarshal leaves them nil when absent)
+	if c.Entries == nil {
+		c.Entries = make(map[string]ActionCacheEntry)
+	}
+	if c.Containers == nil {
+		c.Containers = make(map[string]ContainerCacheEntry)
+	}
+
 	// Mark cache as clean after successful load (it matches disk state)
 	c.dirty = false
 
-	actionCacheLog.Printf("Successfully loaded cache with %d entries", len(c.Entries))
+	actionCacheLog.Printf("Successfully loaded cache with %d entries, %d containers", len(c.Entries), len(c.Containers))
 	return nil
 }
 
@@ -131,7 +141,7 @@ func (c *ActionCache) Save() error {
 
 // marshalSorted marshals the cache with entries sorted by key
 func (c *ActionCache) marshalSorted() ([]byte, error) {
-	// Extract and sort the keys
+	// Extract and sort the action entry keys
 	keys := make([]string, 0, len(c.Entries))
 	for key := range c.Entries {
 		keys = append(keys, key)
@@ -162,8 +172,64 @@ func (c *ActionCache) marshalSorted() ([]byte, error) {
 		result = append(result, '\n')
 	}
 
-	result = append(result, []byte("  }\n}")...)
+	result = append(result, []byte("  }")...)
+
+	// Include containers section when non-empty
+	if len(c.Containers) > 0 {
+		containerKeys := make([]string, 0, len(c.Containers))
+		for key := range c.Containers {
+			containerKeys = append(containerKeys, key)
+		}
+		sort.Strings(containerKeys)
+
+		result = append(result, []byte(",\n  \"containers\": {\n")...)
+		for i, key := range containerKeys {
+			entry := c.Containers[key]
+			entryJSON, err := json.MarshalIndent(entry, "    ", "  ")
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, []byte("    \""+key+"\": ")...)
+			result = append(result, entryJSON...)
+			if i < len(containerKeys)-1 {
+				result = append(result, ',')
+			}
+			result = append(result, '\n')
+		}
+		result = append(result, []byte("  }")...)
+	}
+
+	result = append(result, []byte("\n}")...)
 	return result, nil
+}
+
+// GetContainerDigest returns the SHA-256 digest for the given full image reference (e.g. "node:22-alpine").
+// Returns empty string when no cached digest is available.
+func (c *ActionCache) GetContainerDigest(imageRef string) string {
+	if c == nil || c.Containers == nil {
+		return ""
+	}
+	entry, ok := c.Containers[imageRef]
+	if !ok {
+		return ""
+	}
+	return entry.Digest
+}
+
+// SetContainer stores a container digest entry in the Containers map.
+// The key is the full image reference "image:version".
+func (c *ActionCache) SetContainer(imageRef, image, version, digest, source string) {
+	if c.Containers == nil {
+		c.Containers = make(map[string]ContainerCacheEntry)
+	}
+	c.Containers[imageRef] = ContainerCacheEntry{
+		Image:   image,
+		Version: version,
+		Digest:  digest,
+		Source:  source,
+	}
+	c.dirty = true
+	actionCacheLog.Printf("Set container entry: %s -> %s", imageRef, digest)
 }
 
 // Delete removes the cache entry for the given repo and version.

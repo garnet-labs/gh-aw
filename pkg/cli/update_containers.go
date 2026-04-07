@@ -24,7 +24,7 @@ type containerImageSpec struct {
 }
 
 // defaultContainerImages returns the list of container images whose digests should be
-// tracked in containers-lock.json.  Any image referenced by the compiler as a default
+// tracked in actions-lock.json.  Any image referenced by the compiler as a default
 // (non-user-overridable) image should appear here.
 func defaultContainerImages() []containerImageSpec {
 	awfTag := strings.TrimPrefix(string(constants.DefaultFirewallVersion), "v")
@@ -72,8 +72,8 @@ func defaultBaseImages() []string {
 }
 
 // UpdateContainers resolves SHA-256 digests for all default container images and
-// stores the results in .github/aw/containers-lock.json, analogous to how
-// UpdateActions stores action SHAs in actions-lock.json.
+// stores the results in the "containers" section of .github/aw/actions-lock.json,
+// alongside the GitHub Actions pin entries.
 //
 // Digest resolution uses the OCI Distribution Specification registry HTTP API.
 // GHCR images are authenticated with GITHUB_TOKEN (or $GH_TOKEN).
@@ -110,7 +110,7 @@ func UpdateContainers(verbose bool) error {
 			continue
 		}
 
-		existing := containerCache.Entries[imageRef]
+		existing := containerCache.GetEntry(imageRef)
 		if existing.Digest == digest {
 			updateContainersLog.Printf("%s is already up to date (%s)", imageRef, digest[:min(16, len(digest))])
 			continue
@@ -140,7 +140,7 @@ func UpdateContainers(verbose bool) error {
 			continue
 		}
 
-		existing := containerCache.Entries[imageRef]
+		existing := containerCache.GetEntry(imageRef)
 		if existing.Digest == digest {
 			updateContainersLog.Printf("%s is already up to date (%s)", imageRef, digest[:min(16, len(digest))])
 			continue
@@ -156,9 +156,9 @@ func UpdateContainers(verbose bool) error {
 
 	if len(updatedImages) > 0 {
 		if err := containerCache.Save(); err != nil {
-			return fmt.Errorf("failed to save containers-lock.json: %w", err)
+			return fmt.Errorf("failed to save actions-lock.json: %w", err)
 		}
-		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated containers-lock.json file"))
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated actions-lock.json with container digests"))
 	}
 
 	if len(failedImages) > 0 {

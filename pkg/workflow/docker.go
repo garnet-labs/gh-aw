@@ -33,7 +33,7 @@ func baseImageRef(imageRef string) string {
 
 // collectDockerImages collects all Docker images used in MCP configurations.
 // When cache is non-nil, each default image reference will have a @sha256: digest
-// appended from the containers-lock.json file when one is available.
+// appended from the actions-lock.json file when one is available.
 // Deduplication is done by base image reference (digest stripped), keeping the
 // digest-pinned version when both a pinned and unpinned reference exist.
 func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actionMode ActionMode, cache *ContainerCache) []string {

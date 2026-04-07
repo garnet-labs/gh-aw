@@ -146,17 +146,17 @@ const DefaultFirewallRegistry = "ghcr.io/github/gh-aw-firewall"
 
 // DefaultNodeAlpineLTSImage is the default Node.js Alpine container image for MCP servers.
 // Pinned to Node 22 (current LTS) to avoid the floating lts-alpine alias.
-// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in actions-lock.json.
 const DefaultNodeAlpineLTSImage = "node:22-alpine"
 
 // DefaultPythonAlpineLTSImage is the default Python Alpine container image for MCP servers.
 // Pinned to Python 3.12 to avoid the floating python:alpine alias.
-// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in actions-lock.json.
 const DefaultPythonAlpineLTSImage = "python:3.12-alpine"
 
 // DefaultAlpineImage is the default minimal Alpine container image for running Go binaries.
 // Pinned to Alpine 3.21 to avoid the floating alpine:latest alias.
-// Run 'gh aw upgrade' to refresh the SHA-256 digest in containers-lock.json.
+// Run 'gh aw upgrade' to refresh the SHA-256 digest in actions-lock.json.
 const DefaultAlpineImage = "alpine:3.21"
 
 // DevModeGhAwImage is the Docker image tag for locally built gh-aw container in dev mode
