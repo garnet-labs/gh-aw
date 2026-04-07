@@ -1,24 +1,26 @@
-# Shared Alerts — 2026-04-06T12:05Z
+# Shared Alerts — 2026-04-07T04:36Z
 
-## P1 Active
-- **Daily Issues Report Generator** (16+ days since Mar 24): Issue #24703 open. Data fetch failure. Still failing.
-- **Duplicate Code Detector** (10+ days, Codex API restriction): Issue #24718 open. Externally blocked.
-- Issue Monster: RECOVERED Apr 6. No longer P1.
+## P1
+- **Duplicate Code Detector** (#24718, Codex API restriction). Externally blocked.
 
-## Structural/High
-- **GitHub API rate limiting** (05:00-05:40 UTC): Multiple workflows affected. Stagger schedules. Rate limit also hit during WHM health check run today (12:05 UTC).
-- **Metrics Collector**: Failing to collect per-workflow stats (no GitHub token at runtime). Ecosystem-level data only.
+## Resolved P1
+- Daily Issues Report Generator: #24703 CLOSED by pelikhan Apr 6 (not_planned).
+
+## High
+- GitHub Remote MCP Auth: false-negative (agent passes internally, workflow=failure). Issue #24829. Comment added Apr 7.
+- AI Moderator (Codex) missing_data: 4/4 runs Apr 7. New issue created Apr 7.
+- GitHub API rate limiting (05:00-05:40 UTC). Historical pattern.
 
 ## Watch
-- Contribution Check: 50% error rate Apr 3. safe_outputs intermittently fails despite artifact OK.
-- jsweep: 5.5M token spike Apr 2 (1 turn). Anomaly — no issue yet.
-- Schema Checker: 55 turns latest (improving from 114). Still elevated.
+- Schema Checker: 62 turns today (↑7 from 55, improving from 114 peak). Monitor.
+- Documentation Unbloat: $1.94/run, 53 turns. Optimization candidate.
+- GitHub API Consumption Report: 35→43 turns (creep). Monitor.
+- Agent Persona Explorer: 165→14 turns improvement today. Monitor consistency.
 - Smoke Claude: ~30% failure rate (ongoing).
-- Agent Persona Explorer: 222 turns one run — scope creep/loop watch.
+- Metrics Collector: Partial failure (no GitHub token). Ecosystem data only.
 
 ## Resolved
-- 17 stale lock files → 0 stale (recompiled Apr 5-6): archie, cli-consistency-checker, codex-github-remote-mcp-test, copilot-cli-deep-research, daily-code-metrics, daily-multi-device-docs-tester, daily-team-evolution-insights, deep-report, glossary-maintainer, grumpy-reviewer, issue-monster, org-health-report, poem-bot, smoke-service-ports, update-astro + prompt-clustering-analysis, release
-- Issue Monster: Recovered Apr 6 (was failing Apr 5 with route.endpoint error)
-- Daily Fact gh-aw: recompile fix (Apr 3)
+- Issue Monster: RECOVERED Apr 6
+- 17 stale lock files → 0 (recompiled Apr 5-6)
 
-Last updated: 2026-04-06T12:05Z by workflow-health-manager
+Last updated: 2026-04-07T04:36Z by agent-performance-analyzer
