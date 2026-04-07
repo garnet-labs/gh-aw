@@ -166,7 +166,7 @@ func parseActionUsesField(uses string) (*actionRef, error) {
 //
 // Resolution priority (highest wins):
 //  1. Inputs already specified in the frontmatter (config.Inputs != nil)
-//  2. Inputs cached in the ActionCache (actions-lock.json)
+//  2. Inputs cached in the ActionCache (aw-lock.yml)
 //  3. Inputs fetched from the remote action.yml (result cached for future runs)
 //
 // When available, the action reference is pinned to a commit SHA for security;
@@ -220,7 +220,7 @@ func (c *Compiler) fetchAndParseActionYAML(actionName string, config *SafeOutput
 		if !inputsFromFrontmatter {
 			// Check the ActionCache for previously-fetched inputs before going to the network.
 			// The cache key uses the original version tag from the `uses:` field (ref.Ref, e.g.
-			// "v1") which matches the key stored in actions-lock.json.
+			// "v1") which matches the key stored in aw-lock.yml.
 			if data.ActionCache != nil {
 				if cachedInputs, ok := data.ActionCache.GetInputs(ref.Repo, ref.Ref); ok {
 					safeOutputActionsLog.Printf("Using cached inputs for %q (%s@%s)", actionName, ref.Repo, ref.Ref)

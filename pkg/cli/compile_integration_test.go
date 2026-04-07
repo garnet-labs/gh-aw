@@ -14,6 +14,7 @@ import (
 
 	"github.com/creack/pty"
 	"github.com/github/gh-aw/pkg/fileutil"
+	"github.com/github/gh-aw/pkg/workflow"
 )
 
 // Global binary path shared across all integration tests
@@ -67,7 +68,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// Clean up any action cache files created during tests
-	// Tests may create .github/aw/actions-lock.json in the pkg/cli directory
+	// Tests may create .github/workflows/aw-lock.yml in the pkg/cli directory
 	actionCacheDir := filepath.Join(wd, ".github")
 	if _, err := os.Stat(actionCacheDir); err == nil {
 		_ = os.RemoveAll(actionCacheDir)
@@ -1278,22 +1279,22 @@ Test workflow to verify actions-lock.json path handling when compiling from subd
 		t.Fatalf("Failed to change back to temp directory: %v", err)
 	}
 
-	// Verify actions-lock.json is created at the repository root (.github/aw/actions-lock.json)
-	// NOT at .github/workflows/.github/aw/actions-lock.json
-	expectedLockPath := filepath.Join(setup.tempDir, ".github", "aw", "actions-lock.json")
-	wrongLockPath := filepath.Join(setup.workflowsDir, ".github", "aw", "actions-lock.json")
+	// Verify aw-lock.yml is created at the repository root (.github/workflows/aw-lock.yml)
+	// NOT at .github/workflows/.github/workflows/aw-lock.yml
+	expectedLockPath := filepath.Join(setup.tempDir, ".github", "workflows", workflow.CacheFileName)
+	wrongLockPath := filepath.Join(setup.workflowsDir, ".github", "workflows", workflow.CacheFileName)
 
-	// Check if actions-lock.json exists (it may or may not, depending on whether actions were pinned)
+	// Check if aw-lock.yml exists (it may or may not, depending on whether actions were pinned)
 	// The important part is that if it exists, it's in the right place
 	if _, err := os.Stat(expectedLockPath); err == nil {
-		t.Logf("actions-lock.json correctly created at repo root: %s", expectedLockPath)
+		t.Logf("aw-lock.yml correctly created at repo root: %s", expectedLockPath)
 	} else if !os.IsNotExist(err) {
-		t.Fatalf("Failed to check for actions-lock.json at expected path: %v", err)
+		t.Fatalf("Failed to check for aw-lock.yml at expected path: %v", err)
 	}
 
-	// Verify actions-lock.json was NOT created in the wrong location
+	// Verify aw-lock.yml was NOT created in the wrong location
 	if _, err := os.Stat(wrongLockPath); err == nil {
-		t.Errorf("actions-lock.json incorrectly created at nested path: %s (should be at repo root)", wrongLockPath)
+		t.Errorf("aw-lock.yml incorrectly created at nested path: %s (should be at repo root)", wrongLockPath)
 	}
 
 	// Verify the workflow lock file was created
@@ -1302,7 +1303,7 @@ Test workflow to verify actions-lock.json path handling when compiling from subd
 		t.Fatalf("Expected lock file %s was not created", lockFilePath)
 	}
 
-	t.Logf("Integration test passed - actions-lock.json created at correct location")
+	t.Logf("Integration test passed - aw-lock.yml created at correct location")
 }
 
 // TestCompileSafeOutputsActions verifies that a workflow with safe-outputs.actions

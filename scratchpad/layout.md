@@ -121,7 +121,7 @@ Common file paths referenced in workflow files:
 | Path | Type | Description | Usage Context |
 |------|------|-------------|---------------|
 | `.github/workflows/` | Directory | Workflow definition directory | Contains all `.md` and `.lock.yml` workflow files |
-| `.github/aw/` | Directory | Agentic workflow configuration | Contains `actions-lock.json` and other configs |
+| `.github/aw/` | Directory | Agentic workflow configuration | Contains `aw-lock.yml` and other configs |
 | `.github/agents/` | Directory | Custom agent definitions | Contains agent markdown files (e.g., `test-agent.md`) |
 | `/tmp/gh-aw/` | Directory | Temporary workflow data | Root temporary directory for all workflow artifacts |
 | `/tmp/gh-aw/agent/` | Directory | Agent execution workspace | Agent's working directory during execution |
@@ -382,7 +382,7 @@ GitHub Actions runner images used across compiled workflows:
 ├── agents/                     # Custom agent definitions
 │   └── test-agent.md
 ├── aw/                         # Workflow configuration
-│   └── actions-lock.json
+│   └── aw-lock.yml
 └── workflows/                  # Workflow files
     ├── *.md                    # Source workflows
     ├── *.lock.yml              # Compiled workflows

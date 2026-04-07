@@ -3,12 +3,12 @@
 package workflow
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/github/gh-aw/pkg/testutil"
+	"go.yaml.in/yaml/v3"
 )
 
 func TestActionCache(t *testing.T) {
@@ -51,7 +51,7 @@ func TestActionCacheSaveLoad(t *testing.T) {
 	}
 
 	// Verify file exists
-	cachePath := filepath.Join(tmpDir, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(tmpDir, ".github", "workflows", CacheFileName)
 	if _, err := os.Stat(cachePath); os.IsNotExist(err) {
 		t.Fatalf("Cache file was not created at %s", cachePath)
 	}
@@ -97,7 +97,7 @@ func TestActionCacheGetCachePath(t *testing.T) {
 	tmpDir := testutil.TempDir(t, "test-*")
 	cache := NewActionCache(tmpDir)
 
-	expectedPath := filepath.Join(tmpDir, ".github", "aw", CacheFileName)
+	expectedPath := filepath.Join(tmpDir, ".github", "workflows", CacheFileName)
 	if cache.GetCachePath() != expectedPath {
 		t.Errorf("Expected cache path '%s', got '%s'", expectedPath, cache.GetCachePath())
 	}
@@ -118,7 +118,7 @@ func TestActionCacheTrailingNewline(t *testing.T) {
 	}
 
 	// Read the file and check for trailing newline
-	cachePath := filepath.Join(tmpDir, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(tmpDir, ".github", "workflows", CacheFileName)
 	data, err := os.ReadFile(cachePath)
 	if err != nil {
 		t.Fatalf("Failed to read cache file: %v", err)
@@ -149,7 +149,7 @@ func TestActionCacheSortedEntries(t *testing.T) {
 	}
 
 	// Read the file content
-	cachePath := filepath.Join(tmpDir, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(tmpDir, ".github", "workflows", CacheFileName)
 	data, err := os.ReadFile(cachePath)
 	if err != nil {
 		t.Fatalf("Failed to read cache file: %v", err)
@@ -179,16 +179,16 @@ func TestActionCacheSortedEntries(t *testing.T) {
 		lastPos = pos
 	}
 
-	// Also verify the file is valid JSON
-	var loadedCache ActionCache
-	err = json.Unmarshal(data, &loadedCache)
+	// Also verify the file is valid YAML
+	var loadedFile awLockFileFormat
+	err = yaml.Unmarshal(data, &loadedFile)
 	if err != nil {
-		t.Fatalf("Saved cache is not valid JSON: %v", err)
+		t.Fatalf("Saved cache is not valid YAML: %v", err)
 	}
 
 	// Verify all entries are present
-	if len(loadedCache.Entries) != 5 {
-		t.Errorf("Expected 5 entries, got %d", len(loadedCache.Entries))
+	if len(loadedFile.Actions) != 5 {
+		t.Errorf("Expected 5 entries, got %d", len(loadedFile.Actions))
 	}
 }
 
@@ -216,7 +216,7 @@ func TestActionCacheEmptySaveDoesNotCreateFile(t *testing.T) {
 	}
 
 	// Verify file does NOT exist
-	cachePath := filepath.Join(tmpDir, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(tmpDir, ".github", "workflows", CacheFileName)
 	if _, err := os.Stat(cachePath); !os.IsNotExist(err) {
 		t.Error("Empty cache should not create a file")
 	}
@@ -235,7 +235,7 @@ func TestActionCacheEmptySaveDeletesExistingFile(t *testing.T) {
 	}
 
 	// Verify file exists
-	cachePath := filepath.Join(tmpDir, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(tmpDir, ".github", "workflows", CacheFileName)
 	if _, err := os.Stat(cachePath); os.IsNotExist(err) {
 		t.Fatal("Cache file should exist after saving with entries")
 	}

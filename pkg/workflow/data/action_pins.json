@@ -20,8 +20,7 @@
           "description": "The owner and repository name. e.g.) Codertocat/Hello-World",
           "default": "${{ github.repository }}"
         }
-      },
-      "action_description": "Add labels to an issue or a pull request."
+      }
     },
     "actions/ai-inference@v2.0.8": {
       "repo": "actions/ai-inference",

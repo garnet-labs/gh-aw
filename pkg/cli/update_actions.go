@@ -22,7 +22,7 @@ func isCoreAction(repo string) bool {
 	return strings.HasPrefix(repo, "actions/")
 }
 
-// UpdateActions updates GitHub Actions versions in .github/aw/actions-lock.json
+// UpdateActions updates GitHub Actions versions in .github/workflows/aw-lock.yml
 // It checks each action for newer releases and updates the SHA if a newer version is found.
 // By default all actions are updated to the latest major version; pass disableReleaseBump=true
 // to revert to the old behaviour where only core (actions/*) actions bypass the --major flag.
@@ -37,14 +37,18 @@ func UpdateActions(allowMajor, verbose, disableReleaseBump bool) error {
 		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Checking for GitHub Actions updates..."))
 	}
 
-	// Load the action cache (actions-lock.json) using the shared ActionCache helpers
+	// Load the action cache (aw-lock.yml) using the shared ActionCache helpers
 	// so that cached inputs/descriptions for safe-outputs.actions entries are preserved.
-	actionsLockPath := filepath.Join(".github", "aw", "actions-lock.json")
-	if _, err := os.Stat(actionsLockPath); os.IsNotExist(err) {
-		if verbose {
-			fmt.Fprintln(os.Stderr, console.FormatVerboseMessage("Actions lock file not found: "+actionsLockPath))
+	// NewActionCache also handles loading from the legacy actions-lock.json path.
+	awLockPath := filepath.Join(".github", "workflows", workflow.CacheFileName)
+	legacyPath := filepath.Join(".github", "aw", workflow.LegacyCacheFileName)
+	if _, err := os.Stat(awLockPath); os.IsNotExist(err) {
+		if _, err2 := os.Stat(legacyPath); os.IsNotExist(err2) {
+			if verbose {
+				fmt.Fprintln(os.Stderr, console.FormatVerboseMessage("Actions lock file not found: "+awLockPath))
+			}
+			return nil // Not an error, just skip
 		}
-		return nil // Not an error, just skip
 	}
 
 	actionCache := workflow.NewActionCache(".")
@@ -52,7 +56,7 @@ func UpdateActions(allowMajor, verbose, disableReleaseBump bool) error {
 		return fmt.Errorf("failed to parse actions lock file: %w", err)
 	}
 
-	updateLog.Printf("Loaded %d action entries from actions-lock.json", len(actionCache.Entries))
+	updateLog.Printf("Loaded %d action entries from aw-lock.yml", len(actionCache.Entries))
 
 	// Track updates
 	var updatedActions []string
@@ -153,8 +157,8 @@ func UpdateActions(allowMajor, verbose, disableReleaseBump bool) error {
 			return fmt.Errorf("failed to save actions lock file: %w", err)
 		}
 
-		updateLog.Printf("Successfully wrote updated actions-lock.json with %d updates", len(updatedActions))
-		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated actions-lock.json file"))
+		updateLog.Printf("Successfully wrote updated aw-lock.yml with %d updates", len(updatedActions))
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated aw-lock.yml file"))
 	}
 
 	return nil

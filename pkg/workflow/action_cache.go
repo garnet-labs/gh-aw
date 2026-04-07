@@ -9,72 +9,146 @@ import (
 	"strings"
 
 	"github.com/github/gh-aw/pkg/logger"
+	"go.yaml.in/yaml/v3"
 )
 
 var actionCacheLog = logger.New("workflow:action_cache")
 
 const (
-	// CacheFileName is the name of the cache file in .github/aw/.
-	CacheFileName = "actions-lock.json"
+	// CacheFileName is the name of the lock file in .github/workflows/.
+	CacheFileName = "aw-lock.yml"
+
+	// LegacyCacheFileName is the old name of the lock file in .github/aw/.
+	// Used for backward-compatible loading and migration codemods.
+	LegacyCacheFileName = "actions-lock.json"
+
+	// awLockFileVersion is the current version of the aw-lock.yml format.
+	awLockFileVersion = "1"
 )
 
 // ActionCacheEntry represents a cached action pin resolution.
 type ActionCacheEntry struct {
-	Repo              string                      `json:"repo"`
-	Version           string                      `json:"version"`
-	SHA               string                      `json:"sha"`
-	Inputs            map[string]*ActionYAMLInput `json:"inputs,omitempty"`             // cached inputs from action.yml
-	ActionDescription string                      `json:"action_description,omitempty"` // cached description from action.yml
+	Repo              string                      `json:"repo" yaml:"repo"`
+	Version           string                      `json:"version" yaml:"version"`
+	SHA               string                      `json:"sha" yaml:"sha"`
+	Inputs            map[string]*ActionYAMLInput `json:"inputs,omitempty" yaml:"inputs,omitempty"`                         // cached inputs from action.yml
+	ActionDescription string                      `json:"action_description,omitempty" yaml:"action_description,omitempty"` // cached description from action.yml
+}
+
+// ContainerPinEntry represents a cached container image pin resolution.
+type ContainerPinEntry struct {
+	Image  string `yaml:"image"`
+	Digest string `yaml:"digest"`
+}
+
+// awLockFileFormat is the on-disk representation of aw-lock.yml.
+type awLockFileFormat struct {
+	Version    string                       `yaml:"version"`
+	Actions    map[string]ActionCacheEntry  `yaml:"actions"`
+	Containers map[string]ContainerPinEntry `yaml:"containers,omitempty"`
+}
+
+// legacyActionsLockFormat is the on-disk representation of the old actions-lock.json.
+type legacyActionsLockFormat struct {
+	Entries map[string]ActionCacheEntry `json:"entries"`
 }
 
 // ActionCache manages cached action pin resolutions.
 type ActionCache struct {
-	Entries map[string]ActionCacheEntry `json:"entries"` // key: "repo@version"
-	path    string
-	dirty   bool // tracks if cache has unsaved changes
+	Entries    map[string]ActionCacheEntry  // key: "repo@version"
+	Containers map[string]ContainerPinEntry // key: image name
+	path       string
+	dirty      bool // tracks if cache has unsaved changes
 }
 
 // NewActionCache creates a new action cache instance
 func NewActionCache(repoRoot string) *ActionCache {
-	cachePath := filepath.Join(repoRoot, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(repoRoot, ".github", "workflows", CacheFileName)
 	actionCacheLog.Printf("Creating action cache with path: %s", cachePath)
 	return &ActionCache{
-		Entries: make(map[string]ActionCacheEntry),
-		path:    cachePath,
+		Entries:    make(map[string]ActionCacheEntry),
+		Containers: make(map[string]ContainerPinEntry),
+		path:       cachePath,
 		// dirty is initialized to false (zero value)
 	}
 }
 
-// Load loads the cache from disk
+// Load loads the cache from disk.
+// It first tries the new YAML format at .github/workflows/aw-lock.yml.
+// If that file does not exist, it falls back to the legacy JSON format at
+// .github/aw/actions-lock.json for backward compatibility.
 func (c *ActionCache) Load() error {
 	actionCacheLog.Printf("Loading action cache from: %s", c.path)
 	data, err := os.ReadFile(c.path)
 	if err != nil {
-		if os.IsNotExist(err) {
-			// Cache file doesn't exist yet, that's OK
-			actionCacheLog.Print("Cache file does not exist, starting with empty cache")
-			return nil
+		if !os.IsNotExist(err) {
+			actionCacheLog.Printf("Failed to read cache file: %v", err)
+			return err
 		}
-		actionCacheLog.Printf("Failed to read cache file: %v", err)
+		// New path doesn't exist — try legacy path for backward compatibility.
+		legacyPath := legacyCachePath(c.path)
+		actionCacheLog.Printf("Cache file not found; trying legacy path: %s", legacyPath)
+		data, err = os.ReadFile(legacyPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				actionCacheLog.Print("Cache file does not exist, starting with empty cache")
+				return nil
+			}
+			actionCacheLog.Printf("Failed to read legacy cache file: %v", err)
+			return err
+		}
+		actionCacheLog.Printf("Loaded from legacy cache path: %s", legacyPath)
+		return c.loadLegacyJSON(data)
+	}
+
+	var lf awLockFileFormat
+	if err := yaml.Unmarshal(data, &lf); err != nil {
+		actionCacheLog.Printf("Failed to unmarshal YAML cache data: %v", err)
 		return err
 	}
 
-	if err := json.Unmarshal(data, c); err != nil {
-		actionCacheLog.Printf("Failed to unmarshal cache data: %v", err)
-		return err
+	if lf.Actions != nil {
+		c.Entries = lf.Actions
+	}
+	if lf.Containers != nil {
+		c.Containers = lf.Containers
 	}
 
 	// Mark cache as clean after successful load (it matches disk state)
 	c.dirty = false
 
-	actionCacheLog.Printf("Successfully loaded cache with %d entries", len(c.Entries))
+	actionCacheLog.Printf("Successfully loaded cache with %d action entries", len(c.Entries))
 	return nil
 }
 
-// Save saves the cache to disk with sorted entries
-// If the cache is empty, the file is not created or is deleted if it exists
-// Deduplicates entries by keeping only the most precise version reference for each repo+SHA combination
-// Only saves if the cache has been modified (dirty flag is true)
+// loadLegacyJSON populates the cache from the old actions-lock.json format.
+func (c *ActionCache) loadLegacyJSON(data []byte) error {
+	var legacy legacyActionsLockFormat
+	if err := json.Unmarshal(data, &legacy); err != nil {
+		actionCacheLog.Printf("Failed to unmarshal legacy JSON cache data: %v", err)
+		return err
+	}
+	if legacy.Entries != nil {
+		c.Entries = legacy.Entries
+	}
+	c.dirty = false
+	actionCacheLog.Printf("Successfully loaded legacy cache with %d entries", len(c.Entries))
+	return nil
+}
+
+// legacyCachePath derives the old .github/aw/actions-lock.json path from
+// the new .github/workflows/aw-lock.yml path.
+func legacyCachePath(newPath string) string {
+	dir := filepath.Dir(newPath)      // .github/workflows
+	repoRoot := filepath.Dir(dir)     // .github
+	repoRoot = filepath.Dir(repoRoot) // repo root
+	return filepath.Join(repoRoot, ".github", "aw", LegacyCacheFileName)
+}
+
+// Save saves the cache to disk with sorted entries.
+// If the cache is empty, the file is not created or is deleted if it exists.
+// Deduplicates entries by keeping only the most precise version reference for each repo+SHA combination.
+// Only saves if the cache has been modified (dirty flag is true).
 func (c *ActionCache) Save() error {
 	// Skip saving if cache hasn't been modified
 	if !c.dirty {
@@ -85,7 +159,7 @@ func (c *ActionCache) Save() error {
 	actionCacheLog.Printf("Saving action cache to: %s with %d entries", c.path, len(c.Entries))
 
 	// If cache is empty, skip saving and delete the file if it exists
-	if len(c.Entries) == 0 {
+	if len(c.Entries) == 0 && len(c.Containers) == 0 {
 		actionCacheLog.Print("Cache is empty, skipping file creation")
 		// Remove the file if it exists
 		if _, err := os.Stat(c.path); err == nil {
@@ -109,14 +183,14 @@ func (c *ActionCache) Save() error {
 		return err
 	}
 
-	// Marshal with sorted entries
-	data, err := c.marshalSorted()
+	// Marshal with sorted entries in YAML format
+	data, err := c.marshalSortedYAML()
 	if err != nil {
 		actionCacheLog.Printf("Failed to marshal cache data: %v", err)
 		return err
 	}
 
-	// Add trailing newline for prettier compliance
+	// Add trailing newline
 	data = append(data, '\n')
 
 	if err := os.WriteFile(c.path, data, 0644); err != nil {
@@ -129,41 +203,81 @@ func (c *ActionCache) Save() error {
 	return nil
 }
 
-// marshalSorted marshals the cache with entries sorted by key
-func (c *ActionCache) marshalSorted() ([]byte, error) {
-	// Extract and sort the keys
-	keys := make([]string, 0, len(c.Entries))
+// marshalSortedYAML marshals the cache as YAML with sorted action entries.
+func (c *ActionCache) marshalSortedYAML() ([]byte, error) {
+	// Sort action keys
+	actionKeys := make([]string, 0, len(c.Entries))
 	for key := range c.Entries {
-		keys = append(keys, key)
+		actionKeys = append(actionKeys, key)
 	}
-	sort.Strings(keys)
+	sort.Strings(actionKeys)
 
-	// Manually construct JSON with sorted keys
-	var result []byte
-	result = append(result, []byte("{\n  \"entries\": {\n")...)
+	var sb strings.Builder
+	sb.WriteString("version: \"")
+	sb.WriteString(awLockFileVersion)
+	sb.WriteString("\"\n")
+	sb.WriteString("actions:\n")
 
-	for i, key := range keys {
+	for _, key := range actionKeys {
 		entry := c.Entries[key]
 
-		// Marshal the entry
-		entryJSON, err := json.MarshalIndent(entry, "    ", "  ")
+		// Marshal the entry fields as YAML.
+		entryBytes, err := yaml.Marshal(entry)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("marshaling action entry %q: %w", key, err)
 		}
 
-		// Add the key and entry
-		result = append(result, []byte("    \""+key+"\": ")...)
-		result = append(result, entryJSON...)
+		// Write the key (indent 2 spaces, quote if needed for YAML safety).
+		sb.WriteString("  ")
+		sb.WriteString(yamlQuoteKey(key))
+		sb.WriteString(":\n")
 
-		// Add comma if not the last entry
-		if i < len(keys)-1 {
-			result = append(result, ',')
+		// Indent each line of the entry YAML by 4 spaces.
+		for line := range strings.SplitSeq(strings.TrimRight(string(entryBytes), "\n"), "\n") {
+			sb.WriteString("    ")
+			sb.WriteString(line)
+			sb.WriteString("\n")
 		}
-		result = append(result, '\n')
 	}
 
-	result = append(result, []byte("  }\n}")...)
-	return result, nil
+	// Write containers section.
+	if len(c.Containers) > 0 {
+		containerKeys := make([]string, 0, len(c.Containers))
+		for key := range c.Containers {
+			containerKeys = append(containerKeys, key)
+		}
+		sort.Strings(containerKeys)
+
+		sb.WriteString("containers:\n")
+		for _, key := range containerKeys {
+			entry := c.Containers[key]
+			entryBytes, err := yaml.Marshal(entry)
+			if err != nil {
+				return nil, fmt.Errorf("marshaling container entry %q: %w", key, err)
+			}
+			sb.WriteString("  ")
+			sb.WriteString(yamlQuoteKey(key))
+			sb.WriteString(":\n")
+			for line := range strings.SplitSeq(strings.TrimRight(string(entryBytes), "\n"), "\n") {
+				sb.WriteString("    ")
+				sb.WriteString(line)
+				sb.WriteString("\n")
+			}
+		}
+	}
+
+	return []byte(sb.String()), nil
+}
+
+// yamlQuoteKey returns a YAML-safe key string, quoting it if it contains
+// characters that require quoting (e.g. '@', '/', ':').
+func yamlQuoteKey(key string) string {
+	needsQuoting := strings.ContainsAny(key, "@/:[]{}#&*?|<>=!%,`\"'\\")
+	if needsQuoting {
+		escaped := strings.ReplaceAll(key, "'", "''")
+		return "'" + escaped + "'"
+	}
+	return key
 }
 
 // Delete removes the cache entry for the given repo and version.
@@ -354,6 +468,14 @@ func (c *ActionCache) SetActionDescription(repo, version, description string) {
 // GetCachePath returns the path to the cache file
 func (c *ActionCache) GetCachePath() string {
 	return c.path
+}
+
+// MarkDirty forces the cache to be saved on the next call to Save,
+// even if no entries have changed via Set/Delete. This is useful when
+// the cache was loaded from a legacy format and needs to be written to the
+// new location/format.
+func (c *ActionCache) MarkDirty() {
+	c.dirty = true
 }
 
 // deduplicateEntries removes duplicate entries by keeping only the most precise version reference

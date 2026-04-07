@@ -221,7 +221,7 @@ jobs:
 	cache.Set("actions/checkout", "v5", "93cb6efe18208431cddfb8368fd83d5badbf9bfd")
 
 	// Verify cache file doesn't exist before validation
-	cachePath := filepath.Join(testDir, ".github", "aw", CacheFileName)
+	cachePath := filepath.Join(testDir, ".github", "workflows", CacheFileName)
 	if _, err := os.Stat(cachePath); !os.IsNotExist(err) {
 		os.RemoveAll(filepath.Join(testDir, ".github"))
 	}

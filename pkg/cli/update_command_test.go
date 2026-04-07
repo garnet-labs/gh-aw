@@ -738,7 +738,7 @@ func TestMarshalActionsLockSorted(t *testing.T) {
 	}
 
 	// Read the file back
-	data, err := os.ReadFile(filepath.Join(tmpDir, ".github", "aw", "actions-lock.json"))
+	data, err := os.ReadFile(filepath.Join(tmpDir, ".github", "workflows", workflow.CacheFileName))
 	if err != nil {
 		t.Fatalf("Expected to read saved file, got: %v", err)
 	}
@@ -757,20 +757,20 @@ func TestMarshalActionsLockSorted(t *testing.T) {
 		t.Errorf("Expected actions/checkout to appear before zebra/action in sorted output")
 	}
 
-	// Check JSON structure
-	if !strings.Contains(result, `"entries": {`) {
-		t.Error("Expected 'entries' key in JSON output")
+	// Check YAML structure
+	if !strings.Contains(result, "actions:") {
+		t.Error("Expected 'actions:' key in YAML output")
 	}
 
-	if !strings.Contains(result, `"repo": "actions/checkout"`) {
+	if !strings.Contains(result, "repo: actions/checkout") {
 		t.Error("Expected actions/checkout repo in output")
 	}
 
-	if !strings.Contains(result, `"version": "v5"`) {
+	if !strings.Contains(result, "version: v5") {
 		t.Error("Expected v5 version in output")
 	}
 
-	if !strings.Contains(result, `"sha": "def456"`) {
+	if !strings.Contains(result, "sha: def456") {
 		t.Error("Expected def456 SHA in output")
 	}
 }

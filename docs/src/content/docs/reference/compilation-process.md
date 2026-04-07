@@ -203,15 +203,15 @@ Data flows via GitHub Actions artifacts: agent writes `agent_output.json` → de
 
 ## Action Pinning
 
-All GitHub Actions are pinned to commit SHAs (e.g., `actions/checkout@b4ffde6...11 # v6`) to prevent supply chain attacks. Tags can be moved to malicious commits, but SHA commits are immutable. The resolution order mirrors Phase 4: cache (`.github/aw/actions-lock.json`) → GitHub API → embedded pins.
+All GitHub Actions are pinned to commit SHAs (e.g., `actions/checkout@b4ffde6...11 # v6`) to prevent supply chain attacks. Tags can be moved to malicious commits, but SHA commits are immutable. The resolution order mirrors Phase 4: cache (`.github/workflows/aw-lock.yml`) → GitHub API → embedded pins.
 
-### The actions-lock.json Cache
+### The aw-lock.yml Cache
 
-`.github/aw/actions-lock.json` stores resolved `action@version` → SHA mappings so that compilation produces consistent results regardless of the token available. Resolving a version tag to a SHA requires querying the GitHub API, which can fail when the token has limited permissions — notably when compiling via GitHub Copilot Coding Agent (CCA), which uses a restricted token that may not have access to external repositories.
+`.github/workflows/aw-lock.yml` stores resolved `action@version` → SHA mappings so that compilation produces consistent results regardless of the token available. Resolving a version tag to a SHA requires querying the GitHub API, which can fail when the token has limited permissions — notably when compiling via GitHub Copilot Coding Agent (CCA), which uses a restricted token that may not have access to external repositories.
 
 By caching SHA resolutions from a prior compilation (done with a user PAT or a GitHub Actions token with broader scope), subsequent compilations reuse those SHAs without making API calls. Without the cache, compilation is unstable: it succeeds with a permissive token but fails when token access is restricted.
 
-**Commit `actions-lock.json` to version control.** This ensures all contributors and automated tools, including CCA, use the same immutable pins. Refresh it periodically with `gh aw update-actions`, or delete it and recompile with an appropriate token to force full re-resolution.
+**Commit `aw-lock.yml` to version control.** This ensures all contributors and automated tools, including CCA, use the same immutable pins. Refresh it periodically with `gh aw update-actions`, or delete it and recompile with an appropriate token to force full re-resolution.
 
 ## The gh-aw-actions Repository
 
@@ -316,7 +316,7 @@ Pre-activation runs checks sequentially. Any failure sets `activated=false`, pre
 
 ## Performance Optimization
 
-**Compilation speed**: Simple workflows compile in ~100ms, complex workflows with imports in ~500ms, and workflows with dynamic action resolution in ~2s. Optimize by using action cache (`.github/aw/actions-lock.json`), minimizing import depth, and pre-compiling shared workflows.
+**Compilation speed**: Simple workflows compile in ~100ms, complex workflows with imports in ~500ms, and workflows with dynamic action resolution in ~2s. Optimize by using action cache (`.github/workflows/aw-lock.yml`), minimizing import depth, and pre-compiling shared workflows.
 
 **Runtime performance**: Safe output jobs without dependencies run in parallel. Enable `cache:` for dependencies, use `cache-memory:` for persistent agent memory, and cache action resolutions for faster compilation.
 
@@ -332,7 +332,7 @@ Pre-activation runs checks sequentially. Any failure sets `activated=false`, pre
 
 **Security**: Always use action pinning (never floating tags), enable threat detection (`safe-outputs.threat-detection:`), limit tool access with `allowed:`, review generated `.lock.yml` files, and run security scanners (`--actionlint --zizmor --poutine`).
 
-**Maintainability**: Use imports for shared configuration, document complex workflows with `description:`, compile frequently during development, version control lock files and action pins (`.github/aw/actions-lock.json`).
+**Maintainability**: Use imports for shared configuration, document complex workflows with `description:`, compile frequently during development, version control lock files and action pins (`.github/workflows/aw-lock.yml`).
 
 **Performance**: Enable caching (`cache:` and `cache-memory:`), minimize imports to essentials, optimize tool configurations with restricted `allowed:` lists, use safe-jobs for custom logic.
 
