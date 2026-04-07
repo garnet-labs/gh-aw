@@ -3,7 +3,6 @@
 package workflow
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,7 +39,7 @@ tools:
 			// With Docker MCP always enabled, default is docker (not services)
 			expectedType:        "docker",
 			expectedCommand:     "docker",
-			expectedDockerImage: fmt.Sprintf("ghcr.io/github/github-mcp-server:%s", constants.DefaultGitHubMCPServerVersion),
+			expectedDockerImage: buildGitHubMCPServerImageRef(string(constants.DefaultGitHubMCPServerVersion)),
 		},
 	}
 
@@ -175,7 +174,7 @@ func TestGenerateGitHubMCPConfig(t *testing.T) {
 
 			switch tt.expectedType {
 			case "docker":
-				if !strings.Contains(result, fmt.Sprintf(`"container": "ghcr.io/github/github-mcp-server:%s"`, constants.DefaultGitHubMCPServerVersion)) {
+				if !strings.Contains(result, `"container": "`+buildGitHubMCPServerImageRef(string(constants.DefaultGitHubMCPServerVersion))+`"`) {
 					t.Errorf("Expected container field with GitHub MCP image but got:\n%s", result)
 				}
 				if strings.Contains(result, `"type": "http"`) {

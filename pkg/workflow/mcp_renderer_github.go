@@ -10,6 +10,17 @@ import (
 	"github.com/github/gh-aw/pkg/constants"
 )
 
+// buildGitHubMCPServerImageRef constructs the full Docker image reference for the GitHub MCP server.
+// When version matches the default, the reference includes the SHA-256 digest for supply-chain pinning.
+func buildGitHubMCPServerImageRef(version string) string {
+	return buildVersionedImageRef(
+		"ghcr.io/github/github-mcp-server",
+		version,
+		string(constants.DefaultGitHubMCPServerVersion),
+		constants.DefaultGitHubMCPServerDigest,
+	)
+}
+
 // RenderGitHubMCP generates the GitHub MCP server configuration
 // Supports both local (Docker) and remote (hosted) modes
 func (r *MCPConfigRendererUnified) RenderGitHubMCP(yaml *strings.Builder, githubTool any, workflowData *WorkflowData) {
@@ -149,7 +160,7 @@ func (r *MCPConfigRendererUnified) renderGitHubTOML(yaml *strings.Builder, githu
 		customArgs := getGitHubCustomArgs(githubTool)
 
 		// MCP Gateway spec fields for containerized stdio servers
-		yaml.WriteString("          container = \"ghcr.io/github/github-mcp-server:" + githubDockerImageVersion + "\"\n")
+		yaml.WriteString("          container = \"" + buildGitHubMCPServerImageRef(githubDockerImageVersion) + "\"\n")
 
 		// Append custom args if present (these are Docker runtime args, go before container image)
 		if len(customArgs) > 0 {
@@ -219,7 +230,7 @@ func RenderGitHubMCPDockerConfig(yaml *strings.Builder, options GitHubMCPDockerO
 	}
 
 	// MCP Gateway spec fields for containerized stdio servers
-	yaml.WriteString("                \"container\": \"ghcr.io/github/github-mcp-server:" + options.DockerImageVersion + "\",\n")
+	yaml.WriteString("                \"container\": \"" + buildGitHubMCPServerImageRef(options.DockerImageVersion) + "\",\n")
 
 	// Append custom args if present (these are Docker runtime args, go before container image)
 	if len(options.CustomArgs) > 0 {

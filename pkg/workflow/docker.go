@@ -11,6 +11,19 @@ import (
 
 var dockerLog = logger.New("workflow:docker")
 
+// buildVersionedImageRef constructs a Docker image reference with SHA-256 digest pinning
+// for the default image version. When version matches defaultVersion the returned reference
+// is "container:version@sha256:digest", providing an immutable content address that defends
+// against tag mutation and supply-chain attacks on the registry. For any custom (non-default)
+// version the digest is unknown at compile time, so only "container:version" is returned.
+func buildVersionedImageRef(container, version, defaultVersion, defaultDigest string) string {
+	ref := container + ":" + version
+	if version == defaultVersion {
+		ref += "@" + defaultDigest
+	}
+	return ref
+}
+
 // collectDockerImages collects all Docker images used in MCP configurations
 func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actionMode ActionMode) []string {
 	var images []string
@@ -22,7 +35,12 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		// Only add if using local (Docker) mode
 		if githubType == "local" {
 			githubDockerImageVersion := getGitHubDockerImageVersion(githubTool)
-			image := "ghcr.io/github/github-mcp-server:" + githubDockerImageVersion
+			image := buildVersionedImageRef(
+				"ghcr.io/github/github-mcp-server",
+				githubDockerImageVersion,
+				string(constants.DefaultGitHubMCPServerVersion),
+				constants.DefaultGitHubMCPServerDigest,
+			)
 			if !imageSet[image] {
 				images = append(images, image)
 				imageSet[image] = true
@@ -30,9 +48,9 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		}
 	}
 
-	// Check for Playwright tool (uses Docker image - no version tag, only one image)
+	// Check for Playwright tool (uses Docker image - pinned to a versioned tag with SHA-256 digest)
 	if _, hasPlaywright := tools["playwright"]; hasPlaywright {
-		image := "mcr.microsoft.com/playwright/mcp"
+		image := "mcr.microsoft.com/playwright/mcp:" + string(constants.DefaultPlaywrightMCPDockerVersion) + "@" + constants.DefaultPlaywrightMCPDockerDigest
 		if !imageSet[image] {
 			images = append(images, image)
 			imageSet[image] = true
@@ -71,9 +89,16 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		// Get the firewall version for image tags
 		firewallConfig := getFirewallConfig(workflowData)
 		awfImageTag := getAWFImageTag(firewallConfig)
+		// Default version for digest comparison (strip 'v' prefix as getAWFImageTag does)
+		defaultAWFTag := strings.TrimPrefix(string(constants.DefaultFirewallVersion), "v")
 
 		// Add squid (proxy) container
-		squidImage := constants.DefaultFirewallRegistry + "/squid:" + awfImageTag
+		squidImage := buildVersionedImageRef(
+			constants.DefaultFirewallRegistry+"/squid",
+			awfImageTag,
+			defaultAWFTag,
+			constants.DefaultFirewallSquidDigest,
+		)
 		if !imageSet[squidImage] {
 			images = append(images, squidImage)
 			imageSet[squidImage] = true
@@ -81,7 +106,12 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		}
 
 		// Add default agent container
-		agentImage := constants.DefaultFirewallRegistry + "/agent:" + awfImageTag
+		agentImage := buildVersionedImageRef(
+			constants.DefaultFirewallRegistry+"/agent",
+			awfImageTag,
+			defaultAWFTag,
+			constants.DefaultFirewallAgentDigest,
+		)
 		if !imageSet[agentImage] {
 			images = append(images, agentImage)
 			imageSet[agentImage] = true
@@ -92,7 +122,12 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		// The api-proxy holds LLM API keys securely and proxies requests through Squid
 		// Each engine uses its own dedicated port for communication
 		if workflowData != nil && workflowData.AI != "" {
-			apiProxyImage := constants.DefaultFirewallRegistry + "/api-proxy:" + awfImageTag
+			apiProxyImage := buildVersionedImageRef(
+				constants.DefaultFirewallRegistry+"/api-proxy",
+				awfImageTag,
+				defaultAWFTag,
+				constants.DefaultFirewallAPIProxyDigest,
+			)
 			if !imageSet[apiProxyImage] {
 				images = append(images, apiProxyImage)
 				imageSet[apiProxyImage] = true
@@ -110,13 +145,17 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		if !sandboxDisabled && workflowData.SandboxConfig.MCP != nil {
 			mcpGateway := workflowData.SandboxConfig.MCP
 			if mcpGateway.Container != "" {
-				image := mcpGateway.Container
-				if mcpGateway.Version != "" {
-					image += ":" + mcpGateway.Version
-				} else {
+				mcpGatewayVersion := mcpGateway.Version
+				if mcpGatewayVersion == "" {
 					// Use default version if not specified (consistent with mcp_servers.go)
-					image += ":" + string(constants.DefaultMCPGatewayVersion)
+					mcpGatewayVersion = string(constants.DefaultMCPGatewayVersion)
 				}
+				image := buildVersionedImageRef(
+					mcpGateway.Container,
+					mcpGatewayVersion,
+					string(constants.DefaultMCPGatewayVersion),
+					constants.DefaultMCPGatewayDigest,
+				)
 				if !imageSet[image] {
 					images = append(images, image)
 					imageSet[image] = true

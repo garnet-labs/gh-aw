@@ -5,6 +5,8 @@ package workflow
 import (
 	"strings"
 	"testing"
+
+	"github.com/github/gh-aw/pkg/constants"
 )
 
 // TestRenderSafeOutputsMCPConfigWithOptions verifies the shared Safe Outputs config helper
@@ -131,7 +133,7 @@ func TestRenderAgenticWorkflowsMCPConfigWithOptions(t *testing.T) {
 			expectedContent: []string{
 				`"agenticworkflows": {`,
 				`"type": "stdio"`,
-				`"container": "alpine:latest"`,
+				`"container": "` + constants.DefaultAlpineImage + `"`,
 				`"entrypoint": "${RUNNER_TEMP}/gh-aw/gh-aw"`,
 				`"entrypointArgs": ["mcp-server", "--validate-actor"]`,
 				`"${RUNNER_TEMP}/gh-aw:${RUNNER_TEMP}/gh-aw:ro"`,              // gh-aw binary mount (read-only)
@@ -331,7 +333,7 @@ func TestRenderAgenticWorkflowsMCPConfigTOML(t *testing.T) {
 		{
 			name:                 "release mode with entrypoint and mounts",
 			actionMode:           ActionModeRelease,
-			expectedContainer:    `container = "alpine:latest"`,
+			expectedContainer:    `container = "` + constants.DefaultAlpineImage + `"`,
 			shouldHaveEntrypoint: true,
 			expectedMounts: []string{
 				`entrypoint = "${RUNNER_TEMP}/gh-aw/gh-aw"`,           // Entrypoint needed in release mode

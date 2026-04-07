@@ -37,8 +37,8 @@ func (r *MCPConfigRendererUnified) renderPlaywrightTOML(yaml *strings.Builder, p
 	mcpRendererBuiltinLog.Print("Rendering Playwright MCP in TOML format")
 	customArgs := getPlaywrightCustomArgs(playwrightConfig)
 
-	// Use official Playwright MCP Docker image (no version tag - only one image)
-	playwrightImage := "mcr.microsoft.com/playwright/mcp"
+	// Use official Playwright MCP Docker image pinned to a specific version with SHA-256 digest
+	playwrightImage := "mcr.microsoft.com/playwright/mcp:" + string(constants.DefaultPlaywrightMCPDockerVersion) + "@" + constants.DefaultPlaywrightMCPDockerDigest
 
 	yaml.WriteString("          \n")
 	yaml.WriteString("          [mcp_servers.playwright]\n")

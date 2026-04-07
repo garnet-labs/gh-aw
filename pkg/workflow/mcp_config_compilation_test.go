@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/github/gh-aw/pkg/constants"
 )
 
 // TestMCPServersCompilation verifies that mcp-servers configuration is properly compiled into workflows
@@ -392,12 +394,12 @@ func TestDevModeAgenticWorkflowsContainer(t *testing.T) {
 		{
 			name:              "release mode uses alpine",
 			actionMode:        ActionModeRelease,
-			expectedContainer: "alpine:latest",
+			expectedContainer: constants.DefaultAlpineImage,
 		},
 		{
 			name:              "script mode uses alpine",
 			actionMode:        ActionModeScript,
-			expectedContainer: "alpine:latest",
+			expectedContainer: constants.DefaultAlpineImage,
 		},
 	}
 

@@ -5,6 +5,8 @@ package workflow
 import (
 	"strings"
 	"testing"
+
+	"github.com/github/gh-aw/pkg/constants"
 )
 
 func TestRenderSharedMCPConfig_CopilotFields(t *testing.T) {
@@ -78,7 +80,7 @@ func TestRenderSharedMCPConfig_CopilotFields(t *testing.T) {
 			expectedContent: []string{
 				// After auto-containerization, npx becomes container with entrypoint
 				`"type": "stdio"`,
-				`"container": "node:lts-alpine"`, // Auto-assigned container for npx
+				`"container": "` + constants.DefaultNodeAlpineLTSImage + `"`, // Auto-assigned container for npx
 				`"entrypoint": "npx"`,
 				`"entrypointArgs": [`,
 				`"env": {`,

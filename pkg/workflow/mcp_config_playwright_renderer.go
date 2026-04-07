@@ -60,6 +60,7 @@ package workflow
 import (
 	"strings"
 
+	"github.com/github/gh-aw/pkg/constants"
 	"github.com/github/gh-aw/pkg/logger"
 )
 
@@ -81,8 +82,8 @@ func renderPlaywrightMCPConfigWithOptions(yaml *strings.Builder, playwrightConfi
 		customArgs = replaceExpressionsInPlaywrightArgs(customArgs, expressions)
 	}
 
-	// Use official Playwright MCP Docker image (no version tag - only one image)
-	playwrightImage := "mcr.microsoft.com/playwright/mcp"
+	// Use official Playwright MCP Docker image pinned to a specific version with SHA-256 digest
+	playwrightImage := "mcr.microsoft.com/playwright/mcp:" + string(constants.DefaultPlaywrightMCPDockerVersion) + "@" + constants.DefaultPlaywrightMCPDockerDigest
 
 	yaml.WriteString("              \"playwright\": {\n")
 

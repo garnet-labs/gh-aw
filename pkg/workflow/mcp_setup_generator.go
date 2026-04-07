@@ -613,12 +613,18 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 	}
 
 	// Build container command
-	containerImage := gatewayConfig.Container
+	var mcpGatewayVersion string
 	if gatewayConfig.Version != "" {
-		containerImage += ":" + gatewayConfig.Version
+		mcpGatewayVersion = gatewayConfig.Version
 	} else {
-		containerImage += ":" + string(constants.DefaultMCPGatewayVersion)
+		mcpGatewayVersion = string(constants.DefaultMCPGatewayVersion)
 	}
+	containerImage := buildVersionedImageRef(
+		gatewayConfig.Container,
+		mcpGatewayVersion,
+		string(constants.DefaultMCPGatewayVersion),
+		constants.DefaultMCPGatewayDigest,
+	)
 
 	var containerCmd strings.Builder
 	containerCmd.WriteString("docker run -i --rm --network host")

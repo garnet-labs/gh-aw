@@ -77,7 +77,7 @@ Test workflow with custom MCP container.`,
 			expectStep: true,
 		},
 		{
-			name: "Safe outputs includes node:lts-alpine",
+			name: "Safe outputs includes node:22-alpine (pinned)",
 			frontmatter: `---
 on: issues
 engine: claude
@@ -92,7 +92,7 @@ network:
 Test workflow - safe outputs MCP server without GitHub tool.`,
 			expectedImages: []string{
 				"ghcr.io/github/gh-aw-mcpg:" + string(constants.DefaultMCPGatewayVersion),
-				"node:lts-alpine",
+				constants.DefaultNodeAlpineLTSImage,
 			},
 			expectStep: true,
 		},

@@ -202,7 +202,13 @@ func TestMCPGatewayVersionFromFrontmatter(t *testing.T) {
 
 			// Test 1: Verify docker image collection uses the correct version
 			dockerImages := collectDockerImages(workflowData.Tools, workflowData, ActionModeRelease)
-			expectedImage := constants.DefaultMCPGatewayContainer + ":" + tt.expectedVersion
+			// When using the default version, the image reference includes the SHA-256 digest
+			expectedImage := buildVersionedImageRef(
+				constants.DefaultMCPGatewayContainer,
+				tt.expectedVersion,
+				string(constants.DefaultMCPGatewayVersion),
+				constants.DefaultMCPGatewayDigest,
+			)
 
 			found := false
 			for _, img := range dockerImages {
