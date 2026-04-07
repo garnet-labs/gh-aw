@@ -534,7 +534,7 @@ gh aw remove my-workflow --keep-orphans  # Remove but keep orphaned include file
 
 Update workflows based on `source` field (`owner/repo/path@ref`). By default, performs a 3-way merge to preserve local changes; use `--no-merge` to override with upstream. Semantic versions update within same major version.
 
-By default, `update` also force-updates all GitHub Actions referenced in your workflows (both in `aw-lock.yml` and workflow files) to their latest major version. Use `--disable-release-bump` to restrict force-updates to core `actions/*` actions only.
+By default, `update` also force-updates all GitHub Actions referenced in your workflows (both in `aw-lock.json` and workflow files) to their latest major version. Use `--disable-release-bump` to restrict force-updates to core `actions/*` actions only.
 
 If no workflows in the repository contain a `source` field, the command exits gracefully with an informational message rather than an error. This is expected behavior for repositories that have not yet added updatable workflows.
 

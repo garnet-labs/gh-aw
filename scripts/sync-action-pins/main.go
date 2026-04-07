@@ -1,4 +1,4 @@
-// sync-action-pins converts .github/workflows/aw-lock.yml into
+// sync-action-pins converts .github/workflows/aw-lock.json (JSON) into
 // pkg/workflow/data/action_pins.json (the embedded JSON fallback used by the
 // compiler for SHA pinning when the GitHub API is unavailable).
 //
@@ -30,7 +30,7 @@ func main() {
 		Inputs  map[string]*workflow.ActionYAMLInput `json:"inputs,omitempty"`
 		// ActionDescription is intentionally omitted: action_pins.json is the embedded
 		// fallback used only for SHA pinning; descriptions are only needed at compile time
-		// from the user-facing aw-lock.yml cache and are not part of ActionPin.
+		// from the user-facing aw-lock.json cache and are not part of ActionPin.
 	}
 	type actionPinsData struct {
 		Entries map[string]actionPin `json:"entries"`

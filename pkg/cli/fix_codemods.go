@@ -51,7 +51,7 @@ func GetAllCodemods() []Codemod {
 		getPluginsToDependenciesCodemod(),             // Migrate plugins to dependencies (plugins removed in favour of APM)
 		getGitHubReposToAllowedReposCodemod(),         // Rename deprecated tools.github.repos to tools.github.allowed-repos
 		getDIFCProxyToIntegrityProxyCodemod(),         // Migrate deprecated features.difc-proxy to tools.github.integrity-proxy
-		getActionsLockMigrationCodemod(),              // Migrate .github/aw/actions-lock.json to .github/workflows/aw-lock.yml
+		getActionsLockMigrationCodemod(),              // Migrate .github/aw/actions-lock.json to .github/workflows/aw-lock.json
 	}
 	fixCodemodsLog.Printf("Loaded codemod registry: %d codemods available", len(codemods))
 	return codemods

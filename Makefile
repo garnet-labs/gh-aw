@@ -665,10 +665,10 @@ clean-docs:
 	@echo "✓ Documentation artifacts cleaned"
 
 # Sync templates from .github to pkg/cli/templates
-# Sync action pins from .github/workflows/aw-lock.yml to pkg/workflow/data
+# Sync action pins from .github/workflows/aw-lock.json to pkg/workflow/data
 .PHONY: sync-action-pins
 sync-action-pins:
-	@echo "Syncing action pins from .github/workflows/aw-lock.yml to pkg/workflow/data/action_pins.json..."
+	@echo "Syncing action pins from .github/workflows/aw-lock.json to pkg/workflow/data/action_pins.json..."
 	@go run ./scripts/sync-action-pins
 	@echo "✓ Action pins synced successfully"
 
@@ -802,7 +802,7 @@ help:
 	@echo "  actionlint       - Validate workflows with actionlint (depends on build)"
 	@echo "  validate-workflows - Validate compiled workflow lock files (depends on build)"
 	@echo "  install          - Install binary locally"
-	@echo "  sync-action-pins - Sync action pins from .github/workflows/aw-lock.yml to pkg/workflow/data (runs automatically during build)"
+	@echo "  sync-action-pins - Sync action pins from .github/workflows/aw-lock.json to pkg/workflow/data (runs automatically during build)"
 	@echo "  sync-action-scripts - Sync install-gh-aw.sh to actions/setup-cli/install.sh (runs automatically during build)"
 	@echo "  update           - Update GitHub Actions and workflows, sync action pins, and rebuild binary"
 	@echo "  fix              - Apply automatic codemod-style fixes to workflow files (depends on build)"

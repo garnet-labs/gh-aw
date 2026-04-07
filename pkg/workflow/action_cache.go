@@ -9,43 +9,42 @@ import (
 	"strings"
 
 	"github.com/github/gh-aw/pkg/logger"
-	"go.yaml.in/yaml/v3"
 )
 
 var actionCacheLog = logger.New("workflow:action_cache")
 
 const (
 	// CacheFileName is the name of the lock file in .github/workflows/.
-	CacheFileName = "aw-lock.yml"
+	CacheFileName = "aw-lock.json"
 
 	// LegacyCacheFileName is the old name of the lock file in .github/aw/.
 	// Used for backward-compatible loading and migration codemods.
 	LegacyCacheFileName = "actions-lock.json"
 
-	// awLockFileVersion is the current version of the aw-lock.yml format.
+	// awLockFileVersion is the current version of the aw-lock.json format.
 	awLockFileVersion = "1"
 )
 
 // ActionCacheEntry represents a cached action pin resolution.
 type ActionCacheEntry struct {
-	Repo              string                      `json:"repo" yaml:"repo"`
-	Version           string                      `json:"version" yaml:"version"`
-	SHA               string                      `json:"sha" yaml:"sha"`
-	Inputs            map[string]*ActionYAMLInput `json:"inputs,omitempty" yaml:"inputs,omitempty"`                         // cached inputs from action.yml
-	ActionDescription string                      `json:"action_description,omitempty" yaml:"action_description,omitempty"` // cached description from action.yml
+	Repo              string                      `json:"repo"`
+	Version           string                      `json:"version"`
+	SHA               string                      `json:"sha"`
+	Inputs            map[string]*ActionYAMLInput `json:"inputs,omitempty"`             // cached inputs from action.yml
+	ActionDescription string                      `json:"action_description,omitempty"` // cached description from action.yml
 }
 
 // ContainerPinEntry represents a cached container image pin resolution.
 type ContainerPinEntry struct {
-	Image  string `yaml:"image"`
-	Digest string `yaml:"digest"`
+	Image  string `json:"image"`
+	Digest string `json:"digest"`
 }
 
-// awLockFileFormat is the on-disk representation of aw-lock.yml.
+// awLockFileFormat is the on-disk representation of aw-lock.json.
 type awLockFileFormat struct {
-	Version    string                       `yaml:"version"`
-	Actions    map[string]ActionCacheEntry  `yaml:"actions"`
-	Containers map[string]ContainerPinEntry `yaml:"containers,omitempty"`
+	Version    string                       `json:"version"`
+	Actions    map[string]ActionCacheEntry  `json:"actions"`
+	Containers map[string]ContainerPinEntry `json:"containers,omitempty"`
 }
 
 // legacyActionsLockFormat is the on-disk representation of the old actions-lock.json.
@@ -74,7 +73,7 @@ func NewActionCache(repoRoot string) *ActionCache {
 }
 
 // Load loads the cache from disk.
-// It first tries the new YAML format at .github/workflows/aw-lock.yml.
+// It first tries the new JSON format at .github/workflows/aw-lock.json.
 // If that file does not exist, it falls back to the legacy JSON format at
 // .github/aw/actions-lock.json for backward compatibility.
 func (c *ActionCache) Load() error {
@@ -102,8 +101,8 @@ func (c *ActionCache) Load() error {
 	}
 
 	var lf awLockFileFormat
-	if err := yaml.Unmarshal(data, &lf); err != nil {
-		actionCacheLog.Printf("Failed to unmarshal YAML cache data: %v", err)
+	if err := json.Unmarshal(data, &lf); err != nil {
+		actionCacheLog.Printf("Failed to unmarshal JSON cache data: %v", err)
 		return err
 	}
 
@@ -137,7 +136,7 @@ func (c *ActionCache) loadLegacyJSON(data []byte) error {
 }
 
 // legacyCachePath derives the old .github/aw/actions-lock.json path from
-// the new .github/workflows/aw-lock.yml path.
+// the new .github/workflows/aw-lock.json path.
 func legacyCachePath(newPath string) string {
 	dir := filepath.Dir(newPath)      // .github/workflows
 	repoRoot := filepath.Dir(dir)     // .github
@@ -183,14 +182,14 @@ func (c *ActionCache) Save() error {
 		return err
 	}
 
-	// Marshal with sorted entries in YAML format
-	data, err := c.marshalSortedYAML()
+	// Marshal with sorted entries in JSON format
+	data, err := c.marshalSortedJSON()
 	if err != nil {
 		actionCacheLog.Printf("Failed to marshal cache data: %v", err)
 		return err
 	}
 
-	// Add trailing newline
+	// Add trailing newline for prettier compliance
 	data = append(data, '\n')
 
 	if err := os.WriteFile(c.path, data, 0644); err != nil {
@@ -203,8 +202,8 @@ func (c *ActionCache) Save() error {
 	return nil
 }
 
-// marshalSortedYAML marshals the cache as YAML with sorted action entries.
-func (c *ActionCache) marshalSortedYAML() ([]byte, error) {
+// marshalSortedJSON marshals the cache as JSON with sorted action entries.
+func (c *ActionCache) marshalSortedJSON() ([]byte, error) {
 	// Sort action keys
 	actionKeys := make([]string, 0, len(c.Entries))
 	for key := range c.Entries {
@@ -212,72 +211,60 @@ func (c *ActionCache) marshalSortedYAML() ([]byte, error) {
 	}
 	sort.Strings(actionKeys)
 
-	var sb strings.Builder
-	sb.WriteString("version: \"")
-	sb.WriteString(awLockFileVersion)
-	sb.WriteString("\"\n")
-	sb.WriteString("actions:\n")
+	// Sort container keys
+	containerKeys := make([]string, 0, len(c.Containers))
+	for key := range c.Containers {
+		containerKeys = append(containerKeys, key)
+	}
+	sort.Strings(containerKeys)
 
-	for _, key := range actionKeys {
+	// Build the structure with sorted keys manually so JSON output is sorted.
+	var result []byte
+	result = append(result, []byte("{\n  \"version\": \""+awLockFileVersion+"\",\n  \"actions\": {\n")...)
+
+	for i, key := range actionKeys {
 		entry := c.Entries[key]
-
-		// Marshal the entry fields as YAML.
-		entryBytes, err := yaml.Marshal(entry)
+		entryJSON, err := json.MarshalIndent(entry, "    ", "  ")
 		if err != nil {
 			return nil, fmt.Errorf("marshaling action entry %q: %w", key, err)
 		}
-
-		// Write the key (indent 2 spaces, quote if needed for YAML safety).
-		sb.WriteString("  ")
-		sb.WriteString(yamlQuoteKey(key))
-		sb.WriteString(":\n")
-
-		// Indent each line of the entry YAML by 4 spaces.
-		for line := range strings.SplitSeq(strings.TrimRight(string(entryBytes), "\n"), "\n") {
-			sb.WriteString("    ")
-			sb.WriteString(line)
-			sb.WriteString("\n")
+		result = append(result, []byte("    \""+jsonEscapeString(key)+"\": ")...)
+		result = append(result, entryJSON...)
+		if i < len(actionKeys)-1 {
+			result = append(result, ',')
 		}
+		result = append(result, '\n')
 	}
 
-	// Write containers section.
-	if len(c.Containers) > 0 {
-		containerKeys := make([]string, 0, len(c.Containers))
-		for key := range c.Containers {
-			containerKeys = append(containerKeys, key)
-		}
-		sort.Strings(containerKeys)
+	result = append(result, []byte("  }")...)
 
-		sb.WriteString("containers:\n")
-		for _, key := range containerKeys {
+	if len(containerKeys) > 0 {
+		result = append(result, []byte(",\n  \"containers\": {\n")...)
+		for i, key := range containerKeys {
 			entry := c.Containers[key]
-			entryBytes, err := yaml.Marshal(entry)
+			entryJSON, err := json.MarshalIndent(entry, "    ", "  ")
 			if err != nil {
 				return nil, fmt.Errorf("marshaling container entry %q: %w", key, err)
 			}
-			sb.WriteString("  ")
-			sb.WriteString(yamlQuoteKey(key))
-			sb.WriteString(":\n")
-			for line := range strings.SplitSeq(strings.TrimRight(string(entryBytes), "\n"), "\n") {
-				sb.WriteString("    ")
-				sb.WriteString(line)
-				sb.WriteString("\n")
+			result = append(result, []byte("    \""+jsonEscapeString(key)+"\": ")...)
+			result = append(result, entryJSON...)
+			if i < len(containerKeys)-1 {
+				result = append(result, ',')
 			}
+			result = append(result, '\n')
 		}
+		result = append(result, []byte("  }")...)
 	}
 
-	return []byte(sb.String()), nil
+	result = append(result, []byte("\n}")...)
+	return result, nil
 }
 
-// yamlQuoteKey returns a YAML-safe key string, quoting it if it contains
-// characters that require quoting (e.g. '@', '/', ':').
-func yamlQuoteKey(key string) string {
-	needsQuoting := strings.ContainsAny(key, "@/:[]{}#&*?|<>=!%,`\"'\\")
-	if needsQuoting {
-		escaped := strings.ReplaceAll(key, "'", "''")
-		return "'" + escaped + "'"
-	}
-	return key
+// jsonEscapeString returns a JSON-safe string (escaping backslash and double-quote).
+func jsonEscapeString(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	return s
 }
 
 // Delete removes the cache entry for the given repo and version.

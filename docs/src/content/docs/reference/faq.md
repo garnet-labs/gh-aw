@@ -270,13 +270,13 @@ Both files should be committed to version control:
 - **`.md` file**: Your source - edit the prompt body freely; changes take effect at the next run without recompiling
 - **`.lock.yml` file**: The compiled workflow GitHub Actions actually runs; must be regenerated after any frontmatter changes (permissions, tools, triggers)
 
-### What is the aw-lock.yml file?
+### What is the aw-lock.json file?
 
-The `.github/workflows/aw-lock.yml` file is a cache of resolved `action@version` → ref mappings. During compilation, the compiler **tries** to pin each action reference to an immutable commit SHA for security. Resolving a version tag to a SHA requires querying the GitHub API (scanning releases), which can fail when the available token has limited permissions — for example, when compiling via GitHub Copilot Coding Agent (CCA) where the token may not have access to external repositories. In those cases, the compiler may fall back to leaving a stable version tag ref (such as `@v0`) instead of a SHA.
+The `.github/workflows/aw-lock.json` file is a cache of resolved `action@version` → ref mappings. During compilation, the compiler **tries** to pin each action reference to an immutable commit SHA for security. Resolving a version tag to a SHA requires querying the GitHub API (scanning releases), which can fail when the available token has limited permissions — for example, when compiling via GitHub Copilot Coding Agent (CCA) where the token may not have access to external repositories. In those cases, the compiler may fall back to leaving a stable version tag ref (such as `@v0`) instead of a SHA.
 
-The cache avoids this problem: if a ref (typically a SHA) was previously resolved (using a user PAT or a GitHub Actions token with broader access), the result is stored in `aw-lock.yml` and reused on subsequent compilations, regardless of the current token's capabilities. Without this cache, compilation is unstable — it succeeds with a permissive token but fails when token access is restricted.
+The cache avoids this problem: if a ref (typically a SHA) was previously resolved (using a user PAT or a GitHub Actions token with broader access), the result is stored in `aw-lock.json` and reused on subsequent compilations, regardless of the current token's capabilities. Without this cache, compilation is unstable — it succeeds with a permissive token but fails when token access is restricted.
 
-Commit `aw-lock.yml` to version control so that all contributors and automated tools (including CCA) use consistent action refs (SHAs or version tags) without needing to re-resolve them. Refresh the cache periodically with `gh aw update-actions`, or delete it and recompile to force a full re-resolution when you have an appropriate token. See [Action Pinning](/gh-aw/reference/compilation-process/#action-pinning) for details.
+Commit `aw-lock.json` to version control so that all contributors and automated tools (including CCA) use consistent action refs (SHAs or version tags) without needing to re-resolve them. Refresh the cache periodically with `gh aw update-actions`, or delete it and recompile to force a full re-resolution when you have an appropriate token. See [Action Pinning](/gh-aw/reference/compilation-process/#action-pinning) for details.
 
 ### What is `github/gh-aw-actions`?
 

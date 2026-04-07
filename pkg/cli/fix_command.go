@@ -50,7 +50,7 @@ The command will:
 Without --write (dry-run mode), no files are modified. With --write, the command performs
 all steps and additionally:
   4. Write updated files back to disk
-  5. Migrate .github/aw/actions-lock.json to .github/workflows/aw-lock.yml if it exists
+  5. Migrate .github/aw/actions-lock.json to .github/workflows/aw-lock.json if it exists
   6. Delete deprecated .github/aw/schemas/agentic-workflow.json file if it exists
   7. Delete old template files from previous versions if present
   8. Delete old workflow-specific .agent.md files from .github/agents/ if present
@@ -206,7 +206,7 @@ func runFixCommand(workflowIDs []string, write bool, verbose bool, workflowDir s
 		}
 	}
 
-	// Migrate legacy .github/aw/actions-lock.json → .github/workflows/aw-lock.yml
+	// Migrate legacy .github/aw/actions-lock.json → .github/workflows/aw-lock.json
 	fixLog.Print("Checking for legacy actions-lock.json to migrate")
 	if _, err := MigrateActionsLockFile(write, verbose); err != nil {
 		fixLog.Printf("Failed to migrate actions-lock.json: %v", err)

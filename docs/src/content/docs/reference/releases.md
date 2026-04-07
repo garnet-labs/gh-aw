@@ -81,12 +81,12 @@ uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
 SHA pins are immutable — unlike tags, they cannot be silently redirected to a different commit. This protects workflows from supply-chain attacks.
 
-The resolved SHA mappings are cached in `.github/workflows/aw-lock.yml`. Commit this file to version control so that all contributors and automated tools (including GitHub Copilot Coding Agent) produce identical lock files without needing broad API access.
+The resolved SHA mappings are cached in `.github/workflows/aw-lock.json`. Commit this file to version control so that all contributors and automated tools (including GitHub Copilot Coding Agent) produce identical lock files without needing broad API access.
 
 To refresh action pins:
 
 ```bash
-gh aw update-actions   # Update aw-lock.yml to latest SHAs
+gh aw update-actions   # Update aw-lock.json to latest SHAs
 gh aw compile          # Recompile workflows using the refreshed pins
 ```
 
@@ -104,7 +104,7 @@ These two commands address different concerns:
 1. Self-updates the `gh aw` extension to the latest version
 2. Regenerates the dispatcher agent file (like `gh aw init`)
 3. Applies codemods to fix deprecated syntax across all workflow markdown files
-4. Updates GitHub Actions versions in `aw-lock.yml`
+4. Updates GitHub Actions versions in `aw-lock.json`
 5. Recompiles all workflows to produce fresh `.lock.yml` files
 
 Run `upgrade` after installing a new version of `gh aw`, or periodically to keep your repository current.

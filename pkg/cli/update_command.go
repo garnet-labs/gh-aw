@@ -118,13 +118,13 @@ func RunUpdateWorkflows(workflowNames []string, allowMajor, force, verbose bool,
 		firstErr = fmt.Errorf("workflow update failed: %w", err)
 	}
 
-	// Update GitHub Actions versions in aw-lock.yml.
+	// Update GitHub Actions versions in aw-lock.json.
 	// By default all actions are updated to the latest major version.
 	// Pass --disable-release-bump to revert to only forcing updates for core (actions/*) actions.
-	updateLog.Printf("Updating GitHub Actions versions in aw-lock.yml: allowMajor=%v, disableReleaseBump=%v", allowMajor, disableReleaseBump)
+	updateLog.Printf("Updating GitHub Actions versions in aw-lock.json: allowMajor=%v, disableReleaseBump=%v", allowMajor, disableReleaseBump)
 	if err := UpdateActions(allowMajor, verbose, disableReleaseBump); err != nil {
 		// Non-fatal: warn but don't fail the update
-		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update aw-lock.yml: %v", err)))
+		fmt.Fprintln(os.Stderr, console.FormatWarningMessage(fmt.Sprintf("Warning: Failed to update aw-lock.json: %v", err)))
 	}
 
 	// Update action references in user-provided steps within workflow .md files.

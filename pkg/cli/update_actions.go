@@ -22,7 +22,7 @@ func isCoreAction(repo string) bool {
 	return strings.HasPrefix(repo, "actions/")
 }
 
-// UpdateActions updates GitHub Actions versions in .github/workflows/aw-lock.yml
+// UpdateActions updates GitHub Actions versions in .github/workflows/aw-lock.json
 // It checks each action for newer releases and updates the SHA if a newer version is found.
 // By default all actions are updated to the latest major version; pass disableReleaseBump=true
 // to revert to the old behaviour where only core (actions/*) actions bypass the --major flag.
@@ -37,7 +37,7 @@ func UpdateActions(allowMajor, verbose, disableReleaseBump bool) error {
 		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Checking for GitHub Actions updates..."))
 	}
 
-	// Load the action cache (aw-lock.yml) using the shared ActionCache helpers
+	// Load the action cache (aw-lock.json) using the shared ActionCache helpers
 	// so that cached inputs/descriptions for safe-outputs.actions entries are preserved.
 	// NewActionCache also handles loading from the legacy actions-lock.json path.
 	awLockPath := filepath.Join(".github", "workflows", workflow.CacheFileName)
@@ -56,7 +56,7 @@ func UpdateActions(allowMajor, verbose, disableReleaseBump bool) error {
 		return fmt.Errorf("failed to parse actions lock file: %w", err)
 	}
 
-	updateLog.Printf("Loaded %d action entries from aw-lock.yml", len(actionCache.Entries))
+	updateLog.Printf("Loaded %d action entries from aw-lock.json", len(actionCache.Entries))
 
 	// Track updates
 	var updatedActions []string
@@ -157,8 +157,8 @@ func UpdateActions(allowMajor, verbose, disableReleaseBump bool) error {
 			return fmt.Errorf("failed to save actions lock file: %w", err)
 		}
 
-		updateLog.Printf("Successfully wrote updated aw-lock.yml with %d updates", len(updatedActions))
-		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated aw-lock.yml file"))
+		updateLog.Printf("Successfully wrote updated aw-lock.json with %d updates", len(updatedActions))
+		fmt.Fprintln(os.Stderr, console.FormatInfoMessage("Updated aw-lock.json file"))
 	}
 
 	return nil

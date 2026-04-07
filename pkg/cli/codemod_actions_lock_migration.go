@@ -10,14 +10,14 @@ import (
 )
 
 // getActionsLockMigrationCodemod returns a file-level codemod that migrates the
-// old .github/aw/actions-lock.json to the new .github/workflows/aw-lock.yml format.
+// old .github/aw/actions-lock.json to the new .github/workflows/aw-lock.json format.
 // The Apply function is a no-op (it doesn't modify workflow files); the actual
 // migration is performed by MigrateActionsLockFile which is called from fix_command.go.
 func getActionsLockMigrationCodemod() Codemod {
 	return Codemod{
 		ID:           "migrate-actions-lock-file",
-		Name:         "Migrate actions-lock.json to aw-lock.yml",
-		Description:  "Moves .github/aw/actions-lock.json to .github/workflows/aw-lock.yml with the new YAML format",
+		Name:         "Migrate actions-lock.json to aw-lock.json",
+		Description:  "Moves .github/aw/actions-lock.json to .github/workflows/aw-lock.json with the new JSON format",
 		IntroducedIn: "0.71.0",
 		Apply: func(content string, frontmatter map[string]any) (string, bool, error) {
 			// This codemod is handled by MigrateActionsLockFile (called from fix_command.go).
@@ -28,7 +28,7 @@ func getActionsLockMigrationCodemod() Codemod {
 }
 
 // MigrateActionsLockFile moves .github/aw/actions-lock.json to
-// .github/workflows/aw-lock.yml and converts the format from JSON to YAML.
+// .github/workflows/aw-lock.json and migrates the format (entries → actions, adds version).
 // Returns (migrated, error): migrated is true when the migration was performed.
 func MigrateActionsLockFile(write bool, verbose bool) (bool, error) {
 	legacyPath := filepath.Join(".github", "aw", workflow.LegacyCacheFileName)
@@ -62,7 +62,7 @@ func MigrateActionsLockFile(write bool, verbose bool) (bool, error) {
 	}
 
 	// Load via ActionCache (which handles the legacy JSON format) and re-save
-	// to the new YAML path.
+	// to the new path with the updated schema (entries → actions, adds version).
 	cache := workflow.NewActionCache(".")
 	if err := cache.Load(); err != nil {
 		return false, fmt.Errorf("loading %s: %w", legacyPath, err)

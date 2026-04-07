@@ -3,12 +3,12 @@
 package workflow
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/github/gh-aw/pkg/testutil"
-	"go.yaml.in/yaml/v3"
 )
 
 func TestActionCache(t *testing.T) {
@@ -179,11 +179,11 @@ func TestActionCacheSortedEntries(t *testing.T) {
 		lastPos = pos
 	}
 
-	// Also verify the file is valid YAML
+	// Also verify the file is valid JSON
 	var loadedFile awLockFileFormat
-	err = yaml.Unmarshal(data, &loadedFile)
+	err = json.Unmarshal(data, &loadedFile)
 	if err != nil {
-		t.Fatalf("Saved cache is not valid YAML: %v", err)
+		t.Fatalf("Saved cache is not valid JSON: %v", err)
 	}
 
 	// Verify all entries are present

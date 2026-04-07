@@ -69,17 +69,17 @@ DEBUG=workflow:action_* gh aw compile 2> debug.log
 
 ### 2. Inspect the Action Cache
 
-The action cache is stored at `.github/workflows/aw-lock.yml`. Examine it for duplicate entries:
+The action cache is stored at `.github/workflows/aw-lock.json`. Examine it for duplicate entries:
 
 ```bash
 # Pretty-print the cache
-cat .github/workflows/aw-lock.yml | jq .
+cat .github/workflows/aw-lock.json | jq .
 
 # Find entries for a specific action
-cat .github/workflows/aw-lock.yml | jq '.entries | to_entries[] | select(.value.repo == "actions/github-script")'
+cat .github/workflows/aw-lock.json | jq '.entries | to_entries[] | select(.value.repo == "actions/github-script")'
 
 # Check for duplicate SHAs
-cat .github/workflows/aw-lock.yml | jq -r '.entries | to_entries[] | "\(.value.sha) \(.key)"' | sort | uniq -d -w 40
+cat .github/workflows/aw-lock.json | jq -r '.entries | to_entries[] | "\(.value.sha) \(.key)"' | sort | uniq -d -w 40
 ```
 
 ### 3. Check for Version Aliases
@@ -120,7 +120,7 @@ workflow:action_pins Dynamic resolution succeeded: actions/github-script@v8 → 
 #### Cache Operations
 
 ```
-workflow:action_cache Loading action cache from: .github/workflows/aw-lock.yml
+workflow:action_cache Loading action cache from: .github/workflows/aw-lock.json
 workflow:action_cache Successfully loaded cache with 15 entries
 workflow:action_cache Setting cache entry: key=actions/github-script@v8, sha=ed597411...
 workflow:action_cache Deduplicating: keeping actions/github-script@v8.0.0, removing actions/github-script@v8
@@ -176,7 +176,7 @@ If you suspect cache corruption, clear it and recompile:
 
 ```bash
 # Remove the cache file
-rm .github/workflows/aw-lock.yml
+rm .github/workflows/aw-lock.json
 
 # Recompile all workflows
 gh aw compile
@@ -223,7 +223,7 @@ If you're using shared workflows that reference actions differently than your lo
 CI environments may use a fresh cache on each run, while local development persists the cache:
 
 1. CI may show different version comments than local
-2. Solution: Commit `.github/workflows/aw-lock.yml` to version control
+2. Solution: Commit `.github/workflows/aw-lock.json` to version control
 3. This ensures consistent resolution across environments
 
 ### Scenario 3: Upstream Version Changes
@@ -296,10 +296,10 @@ All workflow files must use full semantic versioning for actions:
 
 ### 2. Commit the Action Cache
 
-Add `.github/workflows/aw-lock.yml` to version control:
+Add `.github/workflows/aw-lock.json` to version control:
 
 ```bash
-git add .github/workflows/aw-lock.yml
+git add .github/workflows/aw-lock.json
 git commit -m "chore: add action cache for consistent pinning"
 ```
 
@@ -311,9 +311,9 @@ Add to your maintenance workflow:
 
 ```bash
 # Monthly: clear and regenerate cache
-rm .github/workflows/aw-lock.yml
+rm .github/workflows/aw-lock.json
 gh aw compile
-git add .github/workflows/aw-lock.yml
+git add .github/workflows/aw-lock.json
 git commit -m "chore: refresh action cache"
 ```
 
@@ -356,13 +356,13 @@ Track cache evolution across compiles:
 
 ```bash
 # Before
-cp .github/workflows/aw-lock.yml before.json
+cp .github/workflows/aw-lock.json before.json
 
 # Compile
 gh aw compile
 
 # After
-cp .github/workflows/aw-lock.yml after.json
+cp .github/workflows/aw-lock.json after.json
 
 # Compare
 diff -u before.json after.json
@@ -374,10 +374,10 @@ Check for unexpected cache entries:
 
 ```bash
 # List all SHAs with their version tags
-jq -r '.entries | to_entries[] | "\(.value.sha) \(.value.version) \(.key)"' .github/workflows/aw-lock.yml | sort
+jq -r '.entries | to_entries[] | "\(.value.sha) \(.value.version) \(.key)"' .github/workflows/aw-lock.json | sort
 
 # Find duplicate SHAs
-jq -r '.entries | to_entries[] | .value.sha' .github/workflows/aw-lock.yml | sort | uniq -d
+jq -r '.entries | to_entries[] | .value.sha' .github/workflows/aw-lock.json | sort | uniq -d
 ```
 
 ## Related Documentation
@@ -389,10 +389,10 @@ jq -r '.entries | to_entries[] | .value.sha' .github/workflows/aw-lock.yml | sor
 ## Troubleshooting Checklist
 
 - [ ] Enabled debug logging: `DEBUG=workflow:action_* gh aw compile`
-- [ ] Checked `.github/workflows/aw-lock.yml` for duplicate entries
+- [ ] Checked `.github/workflows/aw-lock.json` for duplicate entries
 - [ ] Verified version tags point to same SHA via GitHub API
 - [ ] Searched workflows for inconsistent version formats
-- [ ] Cleared cache and recompiled: `rm .github/workflows/aw-lock.yml && gh aw compile`
+- [ ] Cleared cache and recompiled: `rm .github/workflows/aw-lock.json && gh aw compile`
 - [ ] Checked for upstream version tag changes
 - [ ] Reviewed action_pins.json for canonical versions
 - [ ] Consulted team on preferred version format
@@ -404,7 +404,7 @@ jq -r '.entries | to_entries[] | .value.sha' .github/workflows/aw-lock.yml | sor
 If the issue persists after following this guide:
 
 1. Capture debug logs: `DEBUG=workflow:action_* gh aw compile 2> debug.log`
-2. Export cache state: `cat .github/workflows/aw-lock.yml > cache.json`
+2. Export cache state: `cat .github/workflows/aw-lock.json > cache.json`
 3. List workflow action references: `grep -r "uses: " .github/workflows/ > actions.txt`
 4. Create an issue with these artifacts attached
 

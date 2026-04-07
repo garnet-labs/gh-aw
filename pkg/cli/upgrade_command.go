@@ -38,7 +38,7 @@ func NewUpgradeCommand() *cobra.Command {
 This command:
   1. Updates the dispatcher agent file to the latest template (like 'init' command)
   2. Applies automatic codemods to fix deprecated fields in all workflows (like 'fix --write')
-  3. Updates GitHub Actions versions in .github/workflows/aw-lock.yml (unless --no-actions is set)
+  3. Updates GitHub Actions versions in .github/workflows/aw-lock.json (unless --no-actions is set)
   4. Compiles all workflows to generate lock files (like 'compile' command)
 
 DEPENDENCY HEALTH AUDIT:
