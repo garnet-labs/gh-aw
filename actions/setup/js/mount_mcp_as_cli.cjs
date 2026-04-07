@@ -34,6 +34,9 @@ const TOOLS_DIR = `${RUNNER_TEMP}/gh-aw/mcp-cli/tools`;
 /** MCP servers that are internal infrastructure and should not be user-facing CLIs */
 const INTERNAL_SERVERS = new Set(["safeoutputs", "mcp-scripts", "mcpscripts"]);
 
+/** Default timeout (ms) for HTTP calls to the local MCP gateway */
+const DEFAULT_HTTP_TIMEOUT_MS = 15000;
+
 /**
  * Rewrite a raw gateway manifest URL to use the container-accessible domain.
  *
@@ -59,10 +62,12 @@ function toContainerUrl(rawUrl) {
  * @param {string} urlStr - Full URL to POST to
  * @param {Record<string, string>} headers - Request headers
  * @param {unknown} body - Request body (will be JSON-serialized)
- * @param {number} [timeoutMs=15000] - Request timeout in milliseconds
+ * @param {number} [timeoutMs=DEFAULT_HTTP_TIMEOUT_MS] - Request timeout in milliseconds.
+ *   `initialize` and `tools/list` calls are expected to be fast (local gateway),
+ *   but tool invocations may take longer; callers can override as needed.
  * @returns {Promise<{statusCode: number, body: unknown, headers: Record<string, string | string[] | undefined>}>}
  */
-function httpPostJSON(urlStr, headers, body, timeoutMs = 15000) {
+function httpPostJSON(urlStr, headers, body, timeoutMs = DEFAULT_HTTP_TIMEOUT_MS) {
   return new Promise((resolve, reject) => {
     const parsedUrl = new URL(urlStr);
     const bodyStr = JSON.stringify(body);
@@ -104,6 +109,7 @@ function httpPostJSON(urlStr, headers, body, timeoutMs = 15000) {
     });
 
     req.setTimeout(timeoutMs, () => {
+      // req.destroy() is the correct modern API; req.abort() is deprecated since Node.js v14
       req.destroy();
       reject(new Error(`HTTP request timed out after ${timeoutMs}ms`));
     });
@@ -141,7 +147,7 @@ async function fetchMCPTools(serverUrl, apiKey, core) {
           protocolVersion: "2024-11-05",
         },
       },
-      15000
+      DEFAULT_HTTP_TIMEOUT_MS
     );
     const sessionId = initResp.headers["mcp-session-id"];
     if (sessionId && typeof sessionId === "string") {
@@ -162,7 +168,7 @@ async function fetchMCPTools(serverUrl, apiKey, core) {
 
   // Step 3: tools/list – get the available tool definitions
   try {
-    const listResp = await httpPostJSON(serverUrl, { ...authHeaders, ...sessionHeader }, { jsonrpc: "2.0", id: 2, method: "tools/list" }, 15000);
+    const listResp = await httpPostJSON(serverUrl, { ...authHeaders, ...sessionHeader }, { jsonrpc: "2.0", id: 2, method: "tools/list" }, DEFAULT_HTTP_TIMEOUT_MS);
     const respBody = /** @type {Record<string, unknown>} */ listResp.body;
     if (respBody && respBody.result && typeof respBody.result === "object") {
       const result = /** @type {Record<string, unknown>} */ respBody.result;
