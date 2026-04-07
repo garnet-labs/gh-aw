@@ -12,5 +12,12 @@
     "total_cost": 0,
     "total_runs": 89,
     "total_action_minutes": 719
+  },
+  {
+    "date": "2026-04-07",
+    "total_tokens": 87979806,
+    "total_cost": 0,
+    "total_runs": 82,
+    "total_action_minutes": 757
   }
 ]
