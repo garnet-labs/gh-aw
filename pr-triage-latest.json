@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-07T12:36:40Z",
-  "run_id": "24081593583",
+  "run_date": "2026-04-07T18:32:04Z",
+  "run_id": "24097842638",
   "fork_prs": 0,
-  "agent_prs_found": 16,
-  "agent_prs_excluded": 16,
-  "notes": "16 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,27 +17,15 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 25079, "title": "fix: sanitizeUrlProtocols bypassed by percent-encoded protocols", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25073, "title": "Rename `newActivationOutputsCodemod` → `getActivationOutputsCo...`", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25140, "title": "Bump MCPG container image to v0.2.16", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25135, "title": "fix(spec+compiler): update MCP gateway OTLP headers to string-only (v1.13.0)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 25072, "title": "Pin all MCP container images to SHA-256 digests; replace floating tags", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25069, "title": "[docs] docs(dev.md): add rate-limit reset timestamp OTLP attribute", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25068, "title": "docs: Document Copilot CLI 1.0.19 BYOK, new flags, and env vars", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25067, "title": "perf: fix 16.5% regression in CompileComplexWorkflow", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25066, "title": "[instructions] Sync github-agentic-workflows.md with v0.67.1", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25064, "title": "[community] Update community contributions in README", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25062, "title": "[docs] Update glossary - weekly full scan", "author": "github-actions[bot]", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25056, "title": "fix(create_issue): concurrency safety + direct copilot assignment", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25044, "title": "perf: fix 18.9% YAMLGeneration regression — replace regex scanning", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25040, "title": "fix: logs MCP tool always writes to content-addressed temp file", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25029, "title": "Add BYOK support for Copilot CLI 1.0.19 (COPILOT_PROVIDER_BASE_URL)", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25028, "title": "fix: AI Moderator always reports missing_data due to MCP integrity filter", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25002, "title": "feat: add upload-artifact safe output type for run-scoped GitHub Actions", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 24968, "title": "feat: safe update mode warning prompt for secrets and actions (#safe-update)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
+    {"number": 25002, "title": "feat: add upload-artifact safe output type for run-scoped GitHub Actions artifact uploads", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ],
   "previous_run": {
-    "run_id": "24068215896",
-    "run_date": "2026-04-07T06:45:17Z",
+    "run_id": "24081593583",
+    "run_date": "2026-04-07T12:36:40Z",
     "fork_prs": 0,
-    "agent_prs_found": 8
+    "agent_prs_found": 16
   }
 }
