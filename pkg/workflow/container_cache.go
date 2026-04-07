@@ -47,8 +47,12 @@ func (c *ContainerCache) Save() error {
 
 // GetDigest returns the SHA-256 digest for the given full image reference (e.g. "node:22-alpine").
 // Returns empty string when no cached digest is available.
+// c may be nil (callers that pass an optional cache use nil to mean "no cache").
 func (c *ContainerCache) GetDigest(imageRef string) string {
 	if c == nil || c.ac == nil {
+		// c.ac is non-nil after construction via NewContainerCache or
+		// NewContainerCacheFromActionCache; the nil guard is for callers that
+		// pass an optional *ContainerCache and may pass nil.
 		return ""
 	}
 	digest := c.ac.GetContainerDigest(imageRef)
