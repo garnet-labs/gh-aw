@@ -31,6 +31,8 @@ tools:
 safe-outputs:
   add-labels:
     max: 10
+  remove-labels: {}
+  assign-to-user: {}
   create-discussion:
     expires: 1d
     title-prefix: "[Auto-Triage] "
@@ -59,32 +61,58 @@ When triggered by an issue event (opened/edited), scheduled run, or manual dispa
 When an issue is opened or edited:
 
 1. **Analyze the issue** that triggered this workflow (available in `github.event.issue`)
-2. **Check if the author is a community member** — if `author_association` is `NONE`, `FIRST_TIME_CONTRIBUTOR`, `FIRST_TIMER`, or `CONTRIBUTOR`, and the author is **not** a bot (`user.type != "Bot"` and login does not end with `[bot]`), include `community` in the labels to apply
-3. **Classify the issue** based on its title and body content
-4. **Apply all labels** (including `community` if applicable) in a single `add_labels` call
-5. If uncertain about classification, add the `needs-triage` label for human review
+2. **Check if the issue has the `gh-aw-security-finding` label** — if so, follow the Security Finding Triage rules below in addition to normal classification
+3. **Check if the author is a community member** — if `author_association` is `NONE`, `FIRST_TIME_CONTRIBUTOR`, `FIRST_TIMER`, or `CONTRIBUTOR`, and the author is **not** a bot (`user.type != "Bot"` and login does not end with `[bot]`), include `community` in the labels to apply
+4. **Classify the issue** based on its title and body content
+5. **Apply all labels** (including `community` if applicable) in a single `add_labels` call
+6. If uncertain about classification, add the `needs-triage` label for human review
 
 ### On Scheduled Runs (Every 6 Hours)
 
 When running on schedule:
 
 1. **Fetch unlabeled issues** using GitHub tools
-2. **Process up to 10 unlabeled issues** (respecting safe-output limits)
-3. **Apply labels** to each issue based on classification
-4. **Create a summary report** as a discussion with statistics on processed issues
+2. **Fetch `gh-aw-security-finding` issues** that lack severity labels (`security:critical`, `security:high-severity`, `security:medium-severity`, `security:low-severity`) and lack assignees
+3. **Process up to 10 unlabeled or un-triaged security issues** (respecting safe-output limits)
+4. **Apply labels** to each issue based on classification; for security findings, apply severity labels and assign to an appropriate team member
+5. **Create a summary report** as a discussion with statistics on processed issues
 
 ### On Manual/On-Demand Runs (workflow_dispatch)
 
 When triggered manually as a backfill pass:
 
 1. **Fetch ALL open issues without any labels** using GitHub tools — do not limit to a fixed count
-2. **Process up to 10 unlabeled issues** in this run (respecting safe-output limits); if more exist, note the remainder in the report
-3. **Apply labels** to each issue based on classification rules below, using title/body heuristics and existing triage rules
-4. **Create a summary report** as a discussion listing every issue processed, the labels applied, and how many unlabeled issues (if any) still remain for the next pass
+2. **Fetch ALL open `gh-aw-security-finding` issues** that lack severity labels or assignees — these get priority processing regardless of other labels
+3. **Process up to 10 unlabeled or un-triaged security issues** in this run (respecting safe-output limits); if more exist, note the remainder in the report
+4. **Apply labels** to each issue based on classification rules below, using title/body heuristics and existing triage rules; for security findings apply severity labels and assign to an appropriate reviewer
+5. **Create a summary report** as a discussion listing every issue processed, the labels applied, and how many unlabeled issues (if any) still remain for the next pass
 
 ## Classification Rules
 
 Apply labels based on the following rules. You can apply multiple labels when appropriate.
+
+### Security Finding Triage (`gh-aw-security-finding` label)
+
+When an issue already has the `gh-aw-security-finding` label, perform a dedicated security triage pass **in addition to** the normal classification below:
+
+1. **Check for existing severity label** — if the issue already has one of `security:critical`, `security:high-severity`, `security:medium-severity`, or `security:low-severity`, skip severity labeling (already triaged).
+
+2. **Determine severity** by analyzing the issue title and body:
+   - `security:critical` — Remote code execution, authentication bypass, full data exfiltration, or supply-chain compromise (e.g., SHA-less container images from untrusted registries, token leakage to external parties)
+   - `security:high-severity` — Privilege escalation, bearer-token bypass, sandbox escape, improper input sanitization that enables injection, or pinned-version violations that expose the supply chain (e.g., Claude engine unpinned `claude-code` version, MCP containers without SHA-256 digest, percent-encoding bypass of URL sanitization)
+   - `security:medium-severity` — Sensitive data in logs with insufficiently restrictive file permissions, weak credential masking, limited-scope information disclosure, or defense-in-depth gaps (e.g., `agent-stdio.log` mode 0600 + token masking)
+   - `security:low-severity` — Minor hardening improvements, low-impact information exposure, or configuration suggestions with no direct exploitability path
+
+3. **Apply the severity label** determined above.
+
+4. **Also apply** the `security` component label if not already present.
+
+5. **Assign to an appropriate reviewer** using `assign_to_user`. Use the following heuristic:
+   - If the issue mentions a specific maintainer or the body includes a GitHub handle with `@`, assign to that user.
+   - Otherwise, look up recent contributors to security-related files in the repository (e.g., recent commit authors on files under `pkg/workflow/`, `actions/`) and assign to the most recent contributor who appears to have security domain knowledge.
+   - If no clear match is found, skip the assignment and note in the scheduled-run report that the issue needs manual assignment.
+
+6. **Remove `needs-triage`** if it is the only remaining label after applying the severity label (use `remove_labels`). Do not remove other labels.
 
 ### Issue Type Classification
 
