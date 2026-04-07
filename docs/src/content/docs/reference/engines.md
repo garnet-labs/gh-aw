@@ -40,6 +40,18 @@ Not all features are available across all engines. The table below summarizes pe
 - `web-search` for Codex is disabled by default; add `tools: web-search:` to enable it. Other engines use a third-party MCP server — see [Using Web Search](/gh-aw/guides/web-search/).
 - `engine.agent` references a `.github/agents/` file for custom Copilot agent behavior. See [Copilot Custom Configuration](#copilot-custom-configuration).
 
+## Available Models (Copilot)
+
+As of Copilot CLI 1.0.19, the following models are available via `engine.model:` or the `COPILOT_MODEL` environment variable:
+
+**Claude:**
+`claude-sonnet-4.6`, `claude-sonnet-4.5`, `claude-haiku-4.5`, `claude-opus-4.6`, `claude-opus-4.6-fast`, `claude-opus-4.5`, `claude-sonnet-4`
+
+**GPT:**
+`gpt-5.4`, `gpt-5.3-codex`, `gpt-5.2-codex`, `gpt-5.2`, `gpt-5.1`, `gpt-5.4-mini`, `gpt-5-mini`, `gpt-4.1`
+
+When `engine.model:` is omitted, the Copilot CLI uses its default model selection. Model availability may change as new versions of Copilot CLI are released.
+
 ## Extended Coding Agent Configuration
 
 Workflows can specify extended configuration for the coding agent:
@@ -250,9 +262,111 @@ engine:
 
 Custom weights are embedded in the compiled workflow YAML and read by `gh aw logs` and `gh aw audit` when analyzing runs.
 
+## Copilot Agentic Flags
+
+The following Copilot CLI flags are particularly relevant for agentic workflows. They can be passed via `engine.args` in your workflow frontmatter.
+
+### `--no-ask-user`
+
+Disables the `ask_user` tool, preventing the agent from pausing to prompt the user for input. Use this for fully autonomous, non-interactive workflow runs.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--no-ask-user"]
+```
+
+### `--secret-env-vars`
+
+> [!IMPORTANT]
+> This flag is recommended as a security best practice for agentic workflows that use MCP servers.
+
+Strips the values of named environment variables from the shell environment passed to MCP servers and redacts them from Copilot CLI output. This prevents secrets from leaking through MCP server environments.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--secret-env-vars=DATABASE_URL,API_KEY,GITHUB_TOKEN"]
+```
+
+Omit the `=vars...` portion to strip all environment variables that look like secrets (heuristic-based detection):
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--secret-env-vars"]
+```
+
+### `--output-format json`
+
+Outputs the agent response in JSONL (newline-delimited JSON) format instead of the default terminal-rich text format. Use this when parsing Copilot output programmatically in automated workflows.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--output-format", "json"]
+```
+
+### `-s, --silent`
+
+Outputs only the agent response, suppressing statistics and other CLI output. Most useful combined with `-p` (prompt-only) for scripting scenarios.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--silent"]
+```
+
+### `--no-custom-instructions`
+
+Disables loading of `AGENTS.md`, `CLAUDE.md`, and other custom instruction files. Use this when the workflow prompt should be the sole source of instructions.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--no-custom-instructions"]
+```
+
+### `--yolo`
+
+Alias for `--allow-all`. Grants the agent permission to use all tools, access all paths, and make all URL requests without confirmation prompts.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--yolo"]
+```
+
+### `--max-autopilot-continues <n>`
+
+Caps the number of continuation messages in autopilot mode. Works in conjunction with `max-continuations` in the workflow frontmatter to limit how many times the agent re-runs.
+
+```aw wrap
+engine:
+  id: copilot
+  args: ["--max-autopilot-continues", "5"]
+```
+
+## BYOK (Bring Your Own Key)
+
+BYOK lets you route Copilot CLI inference through your own model provider — including Ollama, vLLM, Azure OpenAI, or any OpenAI-compatible endpoint — using `COPILOT_PROVIDER_*` environment variables in `engine.env`.
+
+```aw wrap
+engine:
+  id: copilot
+  model: llama3.2
+  env:
+    COPILOT_PROVIDER_BASE_URL: "http://localhost:11434/v1"
+    COPILOT_PROVIDER_TYPE: "openai"
+    COPILOT_PROVIDER_API_KEY: "ollama"
+```
+
+See [BYOK Reference](/gh-aw/reference/byok/) for the complete variable list, provider types, and usage examples for Ollama, vLLM, Azure, and Anthropic endpoints.
+
 ## Related Documentation
 
 - [Frontmatter](/gh-aw/reference/frontmatter/) - Complete configuration reference
 - [Tools](/gh-aw/reference/tools/) - Available tools and MCP servers
 - [Security Guide](/gh-aw/introduction/architecture/) - Security considerations for AI engines
 - [MCPs](/gh-aw/guides/mcps/) - Model Context Protocol setup and configuration
+- [BYOK](/gh-aw/reference/byok/) - Bring Your Own Key — use a custom model provider with Copilot

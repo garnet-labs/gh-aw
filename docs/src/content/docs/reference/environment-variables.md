@@ -251,6 +251,42 @@ jobs:
 ---
 ```
 
+---
+
+## Copilot CLI Variables
+
+These variables configure the Copilot CLI engine. Set them in `engine.env` in your workflow frontmatter or as GitHub Actions secrets/variables for broader scope.
+
+### General
+
+| Variable | Description |
+|----------|-------------|
+| `COPILOT_AUTO_UPDATE` | Set to `"false"` to disable the Copilot CLI auto-update check. Auto-update is disabled by default in CI environments. |
+| `COPILOT_CUSTOM_INSTRUCTIONS_DIRS` | Additional directories the Copilot CLI scans for custom instruction files (such as `AGENTS.md`). |
+| `COPILOT_OFFLINE` | Set to `"true"` to disable all network access from the Copilot CLI. Requires a local BYOK provider. |
+| `PLAIN_DIFF` | Set to `"true"` to disable rich diff rendering in Copilot CLI output. Equivalent to `--plain-diff`. |
+| `USE_BUILTIN_RIPGREP` | Set to `"false"` to use `ripgrep` from the system `PATH` instead of the bundled version. |
+
+### BYOK Provider Variables
+
+These variables activate and configure BYOK (Bring Your Own Key) mode, routing Copilot CLI inference through a custom model provider.
+
+| Variable | Description |
+|----------|-------------|
+| `COPILOT_PROVIDER_BASE_URL` | API endpoint for the BYOK provider. Setting this variable activates BYOK mode. |
+| `COPILOT_PROVIDER_TYPE` | Provider protocol: `"openai"` (default), `"azure"`, or `"anthropic"`. |
+| `COPILOT_PROVIDER_API_KEY` | API key for the BYOK provider. |
+| `COPILOT_PROVIDER_BEARER_TOKEN` | Bearer token for the BYOK provider. Takes precedence over `COPILOT_PROVIDER_API_KEY` when both are set. |
+| `COPILOT_PROVIDER_WIRE_API` | API wire format: `"completions"` (default) or `"responses"` (required for GPT-5 series models). |
+| `COPILOT_PROVIDER_AZURE_API_VERSION` | Azure API version. Default: `"2024-10-21"`. Only used when `COPILOT_PROVIDER_TYPE=azure`. |
+| `COPILOT_PROVIDER_MODEL_LIMITS_ID` | Override the model name used for token limit catalog lookup. Useful when the BYOK model name is not in Copilot's built-in catalog. |
+| `COPILOT_PROVIDER_MAX_PROMPT_TOKENS` | Maximum prompt tokens for the BYOK model. Overrides the catalog value. |
+| `COPILOT_PROVIDER_MAX_OUTPUT_TOKENS` | Maximum output tokens for the BYOK model. Overrides the catalog value. |
+
+See [BYOK Reference](/gh-aw/reference/byok/) for complete examples and usage guidance.
+
+---
+
 ## Related Documentation
 
 - [Frontmatter Reference](/gh-aw/reference/frontmatter/) - Complete frontmatter configuration
@@ -259,5 +295,6 @@ jobs:
 - [Tools](/gh-aw/reference/tools/) - MCP tool configuration and guard policies
 - [MCP Scripts](/gh-aw/reference/mcp-scripts/) - MCP script tool configuration
 - [Engines](/gh-aw/reference/engines/) - AI engine configuration and model selection
+- [BYOK](/gh-aw/reference/byok/) - Bring Your Own Key — custom model provider for Copilot
 - [Tokens](/gh-aw/reference/tokens/) - Engine secrets and GitHub token reference
 - [GitHub Actions Environment Variables](https://docs.github.com/en/actions/learn-github-actions/variables) - GitHub Actions documentation
