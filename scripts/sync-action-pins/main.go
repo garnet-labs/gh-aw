@@ -28,6 +28,9 @@ func main() {
 		Version string                               `json:"version"`
 		SHA     string                               `json:"sha"`
 		Inputs  map[string]*workflow.ActionYAMLInput `json:"inputs,omitempty"`
+		// ActionDescription is intentionally omitted: action_pins.json is the embedded
+		// fallback used only for SHA pinning; descriptions are only needed at compile time
+		// from the user-facing aw-lock.yml cache and are not part of ActionPin.
 	}
 	type actionPinsData struct {
 		Entries map[string]actionPin `json:"entries"`
