@@ -1,0 +1,37 @@
+{
+  "strategies": [
+    {
+      "name": "Semantic Clustering",
+      "description": "Group agent sessions by semantic role/purpose cluster for cross-cluster performance comparison",
+      "date_tested": "2026-04-02",
+      "effectiveness": "High",
+      "key_finding": "Security agents: 95%, Code Review: 91%, Development: 73%, Smoke Tests: 18% (expected skips)",
+      "recommendation": "Keep - reveals clear performance differences by agent role"
+    },
+    {
+      "name": "Pipeline Iteration Depth Analysis",
+      "description": "Track total agent sessions per branch across days; correlate iteration count with task complexity and success rate",
+      "date_tested": "2026-04-03",
+      "effectiveness": "Medium",
+      "key_finding": "Focused-scope branches (fix-yaml: 83%, update-cli-mcp: 37%) dramatically outperform complex feature branches (feature-allow-templating: 4%). Iteration depth predicts task complexity.",
+      "recommendation": "Keep - useful for identifying hard tasks early; combine with task-scope classification"
+    },
+    {
+      "name": "Agent Role Performance Matrix",
+      "description": "Cross-analyze each agent type against task category (coding, review-trigger, CI) to identify true value-producers vs structural pipeline overhead",
+      "date_tested": "2026-04-04",
+      "effectiveness": "High",
+      "key_finding": "Stark binary divide: coding agents ('Addressing comment', 'Running Copilot') achieve 100% success; review-trigger bots (Scout, Q, /cloclo, PR Nitpick, Security) achieve 0% by design. Grumpy Code Reviewer at 50% is the only meaningful mid-tier. Matrix immediately distinguishes productivity from process overhead.",
+      "recommendation": "Keep and expand - schedule matrix snapshot weekly to detect agent drift; combine with branch complexity classification from Pipeline Iteration Depth strategy"
+    },
+    {
+      "name": "Branch Abandonment Risk Scoring",
+      "description": "Score branches by session count and Copilot agent presence to distinguish 'awaiting human' stalls from active work",
+      "date_tested": "2026-04-07",
+      "effectiveness": "Medium",
+      "key_finding": "Branches with >10 sessions and zero Copilot agent activity are awaiting human review/approval, not failing. Branches with Copilot agent sessions (even 0% success so far) are actively being worked.",
+      "recommendation": "Keep and refine - add PR merge rate tracking to confirm whether high-review-bot branches eventually merge"
+    }
+  ],
+  "version": "1.0"
+}
