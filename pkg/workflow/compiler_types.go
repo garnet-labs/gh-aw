@@ -254,7 +254,6 @@ func (c *Compiler) GetScheduleWarnings() []string {
 	return c.scheduleWarnings
 }
 
-// getSharedActionResolver returns the shared action resolver, initializing it on first use
 // getSharedActionResolver returns the shared action cache and resolver, initializing them on first use.
 // This ensures all workflows compiled by this compiler instance share the same in-memory cache
 func (c *Compiler) getSharedActionResolver() (*ActionCache, *ActionResolver) {

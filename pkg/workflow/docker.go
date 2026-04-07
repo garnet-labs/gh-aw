@@ -21,12 +21,39 @@ func buildVersionedImageRef(container, version string, cache *ContainerCache) st
 	return lookupContainerDigest(ref, cache)
 }
 
+// baseImageRef returns the image reference with any @sha256: digest stripped.
+// This is used for deduplication: "node:22-alpine@sha256:abc" and "node:22-alpine"
+// are the same base image and should not both appear in the download list.
+func baseImageRef(imageRef string) string {
+	if base, _, ok := strings.Cut(imageRef, "@sha256:"); ok {
+		return base
+	}
+	return imageRef
+}
+
 // collectDockerImages collects all Docker images used in MCP configurations.
 // When cache is non-nil, each default image reference will have a @sha256: digest
 // appended from the containers-lock.json file when one is available.
+// Deduplication is done by base image reference (digest stripped), keeping the
+// digest-pinned version when both a pinned and unpinned reference exist.
 func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actionMode ActionMode, cache *ContainerCache) []string {
-	var images []string
-	imageSet := make(map[string]bool) // Use a set to avoid duplicates
+	// imageSet maps base-ref → best-ref (with digest preferred over without)
+	imageSet := make(map[string]string)
+
+	// addImage adds or upgrades an image in the set.
+	// If the base reference is already present and the new ref has a digest, it wins.
+	addImage := func(imageRef string) {
+		base := baseImageRef(imageRef)
+		existing, found := imageSet[base]
+		if !found {
+			imageSet[base] = imageRef
+			return
+		}
+		// Prefer the digest-pinned version
+		if strings.Contains(imageRef, "@sha256:") && !strings.Contains(existing, "@sha256:") {
+			imageSet[base] = imageRef
+		}
+	}
 
 	// Check for GitHub tool (uses Docker image)
 	if githubTool, hasGitHub := tools["github"]; hasGitHub {
@@ -34,38 +61,27 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		// Only add if using local (Docker) mode
 		if githubType == "local" {
 			githubDockerImageVersion := getGitHubDockerImageVersion(githubTool)
-			image := buildVersionedImageRef(
+			addImage(buildVersionedImageRef(
 				"ghcr.io/github/github-mcp-server",
 				githubDockerImageVersion,
 				cache,
-			)
-			if !imageSet[image] {
-				images = append(images, image)
-				imageSet[image] = true
-			}
+			))
 		}
 	}
 
 	// Check for Playwright tool (uses Docker image pinned to a versioned tag)
 	if _, hasPlaywright := tools["playwright"]; hasPlaywright {
-		image := lookupContainerDigest(
+		addImage(lookupContainerDigest(
 			"mcr.microsoft.com/playwright/mcp:"+string(constants.DefaultPlaywrightMCPDockerVersion),
 			cache,
-		)
-		if !imageSet[image] {
-			images = append(images, image)
-			imageSet[image] = true
-		}
+		))
 	}
 
 	// Check for safe-outputs MCP server (uses node Alpine container)
 	if workflowData != nil && workflowData.SafeOutputs != nil && HasSafeOutputsEnabled(workflowData.SafeOutputs) {
 		image := lookupContainerDigest(constants.DefaultNodeAlpineLTSImage, cache)
-		if !imageSet[image] {
-			images = append(images, image)
-			imageSet[image] = true
-			dockerLog.Printf("Added safe-outputs MCP server container: %s", image)
-		}
+		addImage(image)
+		dockerLog.Printf("Added safe-outputs MCP server container: %s", image)
 	}
 
 	// Check for agentic-workflows tool
@@ -74,11 +90,8 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 	if _, hasAgenticWorkflows := tools["agentic-workflows"]; hasAgenticWorkflows {
 		if !actionMode.IsDev() {
 			image := lookupContainerDigest(constants.DefaultAlpineImage, cache)
-			if !imageSet[image] {
-				images = append(images, image)
-				imageSet[image] = true
-				dockerLog.Printf("Added agentic-workflows MCP server container: %s", image)
-			}
+			addImage(image)
+			dockerLog.Printf("Added agentic-workflows MCP server container: %s", image)
 		}
 		// Dev mode: localhost/gh-aw:dev is built locally, not pulled
 	}
@@ -92,30 +105,21 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 
 		// Add squid (proxy) container
 		squidImage := buildVersionedImageRef(constants.DefaultFirewallRegistry+"/squid", awfImageTag, cache)
-		if !imageSet[squidImage] {
-			images = append(images, squidImage)
-			imageSet[squidImage] = true
-			dockerLog.Printf("Added AWF squid (proxy) container: %s", squidImage)
-		}
+		addImage(squidImage)
+		dockerLog.Printf("Added AWF squid (proxy) container: %s", squidImage)
 
 		// Add default agent container
 		agentImage := buildVersionedImageRef(constants.DefaultFirewallRegistry+"/agent", awfImageTag, cache)
-		if !imageSet[agentImage] {
-			images = append(images, agentImage)
-			imageSet[agentImage] = true
-			dockerLog.Printf("Added AWF agent container: %s", agentImage)
-		}
+		addImage(agentImage)
+		dockerLog.Printf("Added AWF agent container: %s", agentImage)
 
 		// Add api-proxy sidecar container (required for all engines — LLM gateway is mandatory)
 		// The api-proxy holds LLM API keys securely and proxies requests through Squid
 		// Each engine uses its own dedicated port for communication
 		if workflowData != nil && workflowData.AI != "" {
 			apiProxyImage := buildVersionedImageRef(constants.DefaultFirewallRegistry+"/api-proxy", awfImageTag, cache)
-			if !imageSet[apiProxyImage] {
-				images = append(images, apiProxyImage)
-				imageSet[apiProxyImage] = true
-				dockerLog.Printf("Added AWF api-proxy sidecar container: %s", apiProxyImage)
-			}
+			addImage(apiProxyImage)
+			dockerLog.Printf("Added AWF api-proxy sidecar container: %s", apiProxyImage)
 		}
 	}
 
@@ -133,11 +137,8 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 					mcpGatewayVersion = string(constants.DefaultMCPGatewayVersion)
 				}
 				image := buildVersionedImageRef(mcpGateway.Container, mcpGatewayVersion, cache)
-				if !imageSet[image] {
-					images = append(images, image)
-					imageSet[image] = true
-					dockerLog.Printf("Added sandbox.mcp container: %s", image)
-				}
+				addImage(image)
+				dockerLog.Printf("Added sandbox.mcp container: %s", image)
 			}
 		} else if sandboxDisabled {
 			dockerLog.Print("Sandbox disabled, skipping MCP gateway container image")
@@ -152,20 +153,15 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 				if mcpConf, err := getMCPConfig(mcpConfig, toolName); err == nil {
 					// Check for direct container field
 					if mcpConf.Container != "" {
-						image := mcpConf.Container
-						if !imageSet[image] {
-							images = append(images, image)
-							imageSet[image] = true
-						}
+						addImage(mcpConf.Container)
 					} else if mcpConf.Command == "docker" && len(mcpConf.Args) > 0 {
 						// Extract container image from docker args
 						// Args format: ["run", "--rm", "-i", ... , "container-image"]
 						// The container image is the last arg
 						image := mcpConf.Args[len(mcpConf.Args)-1]
 						// Skip if it's a docker flag (starts with -)
-						if !strings.HasPrefix(image, "-") && !imageSet[image] {
-							images = append(images, image)
-							imageSet[image] = true
+						if !strings.HasPrefix(image, "-") {
+							addImage(image)
 						}
 					}
 				}
@@ -173,7 +169,11 @@ func collectDockerImages(tools map[string]any, workflowData *WorkflowData, actio
 		}
 	}
 
-	// Sort for stable output
+	// Collect best-version images (digest-pinned over plain) and sort for stable output
+	images := make([]string, 0, len(imageSet))
+	for _, ref := range imageSet {
+		images = append(images, ref)
+	}
 	sort.Strings(images)
 	dockerLog.Printf("Collected %d Docker images from tools", len(images))
 	return images
