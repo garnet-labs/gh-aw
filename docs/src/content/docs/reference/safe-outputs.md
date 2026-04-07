@@ -74,6 +74,7 @@ The agent requests issue creation; a separate job with `issues: write` creates i
 - [**No-Op**](#no-op-logging-noop) (`noop`) - Log completion message for transparency (max: 1, same-repo only)
 - [**Missing Tool**](#missing-tool-reporting-missing-tool) (`missing-tool`) - Report missing tools (max: unlimited, same-repo only)
 - [**Missing Data**](#missing-data-reporting-missing-data) (`missing-data`) - Report missing data required to achieve goals (max: unlimited, same-repo only)
+- [**Report Incomplete**](#report-incomplete-signal-report-incomplete) (`report-incomplete`) - Signal infrastructure or tool failure that prevented task completion (max: 5, auto-enabled)
 
 ### Custom Safe Output Jobs (`jobs:`)
 
@@ -933,6 +934,31 @@ When `create-issue: true`, the agent creates or updates GitHub issues documentin
 - Encouragement message praising the agent's truthfulness
 
 This rewards honest AI behavior and helps teams improve data accessibility for future agent runs.
+
+### Report Incomplete Signal (`report-incomplete:`)
+
+Enabled by default. Signals that a task could not be completed due to an infrastructure or tool failure — for example, an MCP server crash, missing authentication, or an inaccessible repository. Unlike `noop` (no action was needed), `report-incomplete` indicates an active failure that prevented the task from running. The workflow framework treats this as a failure signal regardless of agent exit code.
+
+```yaml wrap
+safe-outputs:
+  report-incomplete:
+    create-issue: true          # create GitHub tracking issue (default: true)
+    max: 5                      # max signals per run (default: 5)
+```
+
+Agent output format:
+
+```json
+{"report_incomplete": {"reason": "MCP server unavailable: connection refused", "details": "Optional diagnostic context."}}
+```
+
+**Fields:**
+
+- `reason` (required) — Concise explanation of why the task failed (max 1024 characters).
+- `details` (optional) — Extended diagnostic context (max 65,000 characters).
+
+> [!IMPORTANT]
+> Use `report_incomplete` whenever required tools or data are unavailable and the task cannot proceed. Do not use `noop` for failure cases — `noop` signals that no action was needed, while `report_incomplete` signals an active failure.
 
 ### Discussion Creation (`create-discussion:`)
 
