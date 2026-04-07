@@ -259,7 +259,8 @@ func getRegistryToken(registry, repoPath string, isGHCR bool) (string, error) {
 }
 
 // fetchRegistryToken retrieves a Bearer token from a Docker-compatible token endpoint.
-// If tokenOverride is non-empty, it is used as the Basic auth credential (for GHCR PAT).
+// If tokenOverride is non-empty, it is sent as a Bearer token in the Authorization header
+// to authenticate the token exchange request (e.g. GHCR personal access token or GITHUB_TOKEN).
 func fetchRegistryToken(authURL, tokenOverride string) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, authURL, nil)
 	if err != nil {

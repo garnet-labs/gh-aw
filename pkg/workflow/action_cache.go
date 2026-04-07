@@ -92,10 +92,10 @@ func (c *ActionCache) Save() error {
 		return nil
 	}
 
-	actionCacheLog.Printf("Saving action cache to: %s with %d entries", c.path, len(c.Entries))
+	actionCacheLog.Printf("Saving action cache to: %s with %d entries, %d containers", c.path, len(c.Entries), len(c.Containers))
 
-	// If cache is empty, skip saving and delete the file if it exists
-	if len(c.Entries) == 0 {
+	// If both maps are empty, skip saving and delete the file if it exists
+	if len(c.Entries) == 0 && len(c.Containers) == 0 {
 		actionCacheLog.Print("Cache is empty, skipping file creation")
 		// Remove the file if it exists
 		if _, err := os.Stat(c.path); err == nil {
