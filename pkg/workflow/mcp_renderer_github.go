@@ -160,7 +160,9 @@ func (r *MCPConfigRendererUnified) renderGitHubTOML(yaml *strings.Builder, githu
 		customArgs := getGitHubCustomArgs(githubTool)
 
 		// MCP Gateway spec fields for containerized stdio servers
-		yaml.WriteString("          container = \"" + buildGitHubMCPServerImageRef(githubDockerImageVersion, r.options.ContainerCache) + "\"\n")
+		// Strip @sha256: digest: the MCP Gateway container field only accepts tag-based references.
+		// The digest-pinned form is used in the download_docker_images script for immutable pulls.
+		yaml.WriteString("          container = \"" + baseImageRef(buildGitHubMCPServerImageRef(githubDockerImageVersion, r.options.ContainerCache)) + "\"\n")
 
 		// Append custom args if present (these are Docker runtime args, go before container image)
 		if len(customArgs) > 0 {
@@ -230,7 +232,9 @@ func RenderGitHubMCPDockerConfig(yaml *strings.Builder, options GitHubMCPDockerO
 	}
 
 	// MCP Gateway spec fields for containerized stdio servers
-	yaml.WriteString("                \"container\": \"" + buildGitHubMCPServerImageRef(options.DockerImageVersion, options.ContainerCache) + "\",\n")
+	// Strip @sha256: digest: the MCP Gateway container field only accepts tag-based references.
+	// The digest-pinned form is used in the download_docker_images script for immutable pulls.
+	yaml.WriteString("                \"container\": \"" + baseImageRef(buildGitHubMCPServerImageRef(options.DockerImageVersion, options.ContainerCache)) + "\",\n")
 
 	// Append custom args if present (these are Docker runtime args, go before container image)
 	if len(options.CustomArgs) > 0 {

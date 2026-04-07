@@ -966,7 +966,7 @@ jobs:
           user_agent = "smoke-codex"
           startup_timeout_sec = 120
           tool_timeout_sec = 60
-          container = "ghcr.io/github/github-mcp-server:v0.32.0@sha256:2763823c63bcca718ce53850a1d7fcf2f501ec84028394f1b63ce7e9f4f9be28"
+          container = "ghcr.io/github/github-mcp-server:v0.32.0"
           env = { "GITHUB_HOST" = "$GITHUB_SERVER_URL", "GITHUB_PERSONAL_ACCESS_TOKEN" = "$GH_AW_GITHUB_TOKEN", "GITHUB_READ_ONLY" = "1", "GITHUB_TOOLSETS" = "context,repos,issues,pull_requests" }
           env_vars = ["GITHUB_HOST", "GITHUB_PERSONAL_ACCESS_TOKEN", "GITHUB_READ_ONLY", "GITHUB_TOOLSETS"]
           
@@ -981,7 +981,7 @@ jobs:
           accept = ["*"]
           
           [mcp_servers.playwright]
-          container = "mcr.microsoft.com/playwright/mcp:v0.0.68@sha256:a9d607e571d70954acc36de7a45e7f424a94cebdfba973b1f404435108c60f3f"
+          container = "mcr.microsoft.com/playwright/mcp:v0.0.68"
           args = [
             "--init",
             "--network",
@@ -1039,7 +1039,7 @@ jobs:
           {
             "mcpServers": {
               "github": {
-                "container": "ghcr.io/github/github-mcp-server:v0.32.0@sha256:2763823c63bcca718ce53850a1d7fcf2f501ec84028394f1b63ce7e9f4f9be28",
+                "container": "ghcr.io/github/github-mcp-server:v0.32.0",
                 "env": {
                   "GITHUB_HOST": "$GITHUB_SERVER_URL",
                   "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_MCP_SERVER_TOKEN",

@@ -38,14 +38,16 @@ func (r *MCPConfigRendererUnified) renderPlaywrightTOML(yaml *strings.Builder, p
 	customArgs := getPlaywrightCustomArgs(playwrightConfig)
 
 	// Use official Playwright MCP Docker image with digest from actions-lock.json when available
-	playwrightImage := lookupContainerDigest(
+	playwrightImageRef := lookupContainerDigest(
 		"mcr.microsoft.com/playwright/mcp:"+string(constants.DefaultPlaywrightMCPDockerVersion),
 		r.options.ContainerCache,
 	)
 
 	yaml.WriteString("          \n")
 	yaml.WriteString("          [mcp_servers.playwright]\n")
-	yaml.WriteString("          container = \"" + playwrightImage + "\"\n")
+	// Strip @sha256: digest: the MCP Gateway container field only accepts tag-based references.
+	// The digest-pinned form is used in the download_docker_images script for immutable pulls.
+	yaml.WriteString("          container = \"" + baseImageRef(playwrightImageRef) + "\"\n")
 
 	// Docker runtime args (goes before container image in docker run command)
 	// Add security-opt and ipc flags for Chromium browser compatibility in GitHub Actions
@@ -182,7 +184,9 @@ func (r *MCPConfigRendererUnified) renderAgenticWorkflowsTOML(yaml *strings.Buil
 	yaml.WriteString("          \n")
 	yaml.WriteString("          [mcp_servers." + constants.AgenticWorkflowsMCPServerID.String() + "]\n")
 
-	containerImage := lookupContainerDigest(constants.DefaultAlpineImage, r.options.ContainerCache)
+	// For the MCP Gateway config container field, strip @sha256: digest — the gateway schema
+	// only accepts tag-based references. The digest-pinned form is used in download_docker_images.
+	containerImageTag := baseImageRef(lookupContainerDigest(constants.DefaultAlpineImage, r.options.ContainerCache))
 	var entrypoint string
 	var entrypointArgs []string
 	var mounts []string
@@ -191,7 +195,7 @@ func (r *MCPConfigRendererUnified) renderAgenticWorkflowsTOML(yaml *strings.Buil
 		// Dev mode: Use locally built Docker image which includes gh-aw binary and gh CLI
 		// The Dockerfile sets ENTRYPOINT ["gh-aw"] and CMD ["mcp-server", "--validate-actor"]
 		// So we don't need to specify entrypoint or entrypointArgs
-		containerImage = constants.DevModeGhAwImage
+		containerImageTag = constants.DevModeGhAwImage
 		entrypoint = ""      // Use container's default ENTRYPOINT
 		entrypointArgs = nil // Use container's default CMD
 		// Only mount workspace and temp directory - binary and gh CLI are in the image
@@ -204,7 +208,7 @@ func (r *MCPConfigRendererUnified) renderAgenticWorkflowsTOML(yaml *strings.Buil
 		mounts = []string{constants.DefaultGhAwMount, constants.DefaultGhBinaryMount, constants.DefaultWorkspaceMount, constants.DefaultTmpGhAwMount}
 	}
 
-	yaml.WriteString("          container = \"" + containerImage + "\"\n")
+	yaml.WriteString("          container = \"" + containerImageTag + "\"\n")
 
 	// Only write entrypoint if it's specified (release mode)
 	// In dev mode, use the container's default ENTRYPOINT
