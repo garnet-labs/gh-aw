@@ -17,7 +17,6 @@ const { generateMissingInfoSections } = require("./missing_info_formatter.cjs");
 const { setCollectedMissings } = require("./missing_messages_helper.cjs");
 const { writeSafeOutputSummaries } = require("./safe_output_summary.cjs");
 const { getIssuesToAssignCopilot } = require("./create_issue.cjs");
-const { getAssignToAgentAssigned, getAssignToAgentErrors, getAssignToAgentErrorCount, writeAssignToAgentSummary } = require("./assign_to_agent.cjs");
 const { getCreateAgentSessionNumber, getCreateAgentSessionUrl, writeCreateAgentSessionSummary } = require("./create_agent_session.cjs");
 const { createReviewBuffer } = require("./pr_review_buffer.cjs");
 const { sanitizeContent } = require("./sanitize_content.cjs");
@@ -1173,9 +1172,10 @@ async function main() {
 
     // Export assign_to_agent outputs when the handler was loaded
     if (messageHandlers.has("assign_to_agent")) {
-      const assignToAgentAssigned = getAssignToAgentAssigned();
-      const assignToAgentErrors = getAssignToAgentErrors();
-      const assignToAgentErrorCount = getAssignToAgentErrorCount();
+      const assignToAgentHandler = messageHandlers.get("assign_to_agent");
+      const assignToAgentAssigned = assignToAgentHandler.getAssigned();
+      const assignToAgentErrors = assignToAgentHandler.getErrors();
+      const assignToAgentErrorCount = assignToAgentHandler.getErrorCount();
       core.setOutput("assign_to_agent_assigned", assignToAgentAssigned);
       core.setOutput("assign_to_agent_assignment_errors", assignToAgentErrors);
       core.setOutput("assign_to_agent_assignment_error_count", assignToAgentErrorCount.toString());
@@ -1183,7 +1183,7 @@ async function main() {
         core.warning(`${assignToAgentErrorCount} agent assignment(s) failed`);
       }
       core.info(`Exported assign_to_agent outputs (${assignToAgentErrorCount} error(s))`);
-      await writeAssignToAgentSummary();
+      await assignToAgentHandler.writeSummary();
     }
 
     // Export create_agent_session outputs when the handler was loaded

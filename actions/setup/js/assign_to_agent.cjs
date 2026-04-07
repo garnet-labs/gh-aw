@@ -12,14 +12,6 @@ const { resolvePullRequestRepo } = require("./pr_helpers.cjs");
 const { sanitizeContent } = require("./sanitize_content.cjs");
 
 /**
- * Module-level state — populated by main(), read by the exported getters below.
- * Using module-level variables (rather than closure-only state) allows the handler
- * manager to read final output values after all messages have been processed.
- * @type {Array<{issue_number: number|null, pull_number: number|null, agent: string, owner: string|null, repo: string|null, success: boolean, skipped?: boolean, error?: string}>}
- */
-let _allResults = [];
-
-/**
  * Create a dedicated GitHub client for assign-to-agent operations.
  *
  * Token precedence:
@@ -130,8 +122,8 @@ async function main(config = {}) {
   let processedCount = 0;
   const agentCache = {};
 
-  // Reset module-level results for this handler invocation
-  _allResults = [];
+  /** @type {Array<{issue_number: number|null, pull_number: number|null, agent: string, owner: string|null, repo: string|null, success: boolean, skipped?: boolean, error?: string}>} */
+  const _allResults = [];
 
   /**
    * Message processor — called once per assign_to_agent message by the handler manager.
@@ -141,7 +133,7 @@ async function main(config = {}) {
    * @param {Map<string, {repo: string, number: number}>} temporaryIdMap - Live temp ID map
    * @returns {Promise<{success: boolean, error?: string, skipped?: boolean, deferred?: boolean}>}
    */
-  return async function handleMessage(message, resolvedTemporaryIds, temporaryIdMap) {
+  const handleMessage = async function handleMessage(message, resolvedTemporaryIds, temporaryIdMap) {
     // Handle staged mode — emit preview and skip actual assignment
     if (isStaged) {
       await generateStagedPreview({
@@ -411,105 +403,107 @@ async function main(config = {}) {
       return { success: false, error: errorMessage };
     }
   };
-}
 
-/**
- * Returns the "assigned" output string for step outputs.
- * Format: "issue:N:agent" or "pr:N:agent" per successful assignment, newline-separated.
- * @returns {string}
- */
-function getAssignToAgentAssigned() {
-  return _allResults
-    .filter(r => r.success && !r.skipped)
-    .map(r => {
-      const number = r.issue_number || r.pull_number;
-      const prefix = r.issue_number ? "issue" : "pr";
-      return `${prefix}:${number}:${r.agent}`;
-    })
-    .join("\n");
-}
-
-/**
- * Returns the "assignment_errors" output string for step outputs.
- * Format: "issue:N:agent:error" or "pr:N:agent:error" per failure, newline-separated.
- * @returns {string}
- */
-function getAssignToAgentErrors() {
-  return _allResults
-    .filter(r => !r.success && !r.skipped)
-    .map(r => {
-      const number = r.issue_number || r.pull_number;
-      const prefix = r.issue_number ? "issue" : "pr";
-      return `${prefix}:${number}:${r.agent}:${r.error}`;
-    })
-    .join("\n");
-}
-
-/**
- * Returns the "assignment_error_count" output value.
- * @returns {number}
- */
-function getAssignToAgentErrorCount() {
-  return _allResults.filter(r => !r.success && !r.skipped).length;
-}
-
-/**
- * Writes a step summary for agent assignment results.
- * Called by the handler manager after all messages have been processed.
- * @returns {Promise<void>}
- */
-async function writeAssignToAgentSummary() {
-  const successResults = _allResults.filter(r => r.success && !r.skipped);
-  const skippedResults = _allResults.filter(r => r.skipped);
-  const failedResults = _allResults.filter(r => !r.success && !r.skipped);
-
-  if (_allResults.length === 0) return;
-
-  let summaryContent = "## Agent Assignment\n\n";
-
-  if (successResults.length > 0) {
-    summaryContent += `✅ Successfully assigned ${successResults.length} agent(s):\n\n`;
-    summaryContent += successResults
+  /**
+   * Returns the "assigned" output string for step outputs.
+   * Format: "issue:N:agent" or "pr:N:agent" per successful assignment, newline-separated.
+   * @returns {string}
+   */
+  handleMessage.getAssigned = function getAssignToAgentAssigned() {
+    return _allResults
+      .filter(r => r.success && !r.skipped)
       .map(r => {
-        const itemType = r.issue_number ? `Issue #${r.issue_number}` : `Pull Request #${r.pull_number}`;
-        return `- ${itemType} → Agent: ${r.agent}`;
+        const number = r.issue_number || r.pull_number;
+        const prefix = r.issue_number ? "issue" : "pr";
+        return `${prefix}:${number}:${r.agent}`;
       })
       .join("\n");
-    summaryContent += "\n\n";
-  }
+  };
 
-  if (skippedResults.length > 0) {
-    summaryContent += `⏭️ Skipped ${skippedResults.length} agent assignment(s) (ignore-if-error enabled):\n\n`;
-    summaryContent += skippedResults
+  /**
+   * Returns the "assignment_errors" output string for step outputs.
+   * Format: "issue:N:agent:error" or "pr:N:agent:error" per failure, newline-separated.
+   * @returns {string}
+   */
+  handleMessage.getErrors = function getAssignToAgentErrors() {
+    return _allResults
+      .filter(r => !r.success && !r.skipped)
       .map(r => {
-        const itemType = r.issue_number ? `Issue #${r.issue_number}` : `Pull Request #${r.pull_number}`;
-        return `- ${itemType} → Agent: ${r.agent} (assignment failed due to error)`;
+        const number = r.issue_number || r.pull_number;
+        const prefix = r.issue_number ? "issue" : "pr";
+        return `${prefix}:${number}:${r.agent}:${r.error}`;
       })
       .join("\n");
-    summaryContent += "\n\n";
-  }
+  };
 
-  if (failedResults.length > 0) {
-    summaryContent += `❌ Failed to assign ${failedResults.length} agent(s):\n\n`;
-    summaryContent += failedResults
-      .map(r => {
-        const itemType = r.issue_number ? `Issue #${r.issue_number}` : `Pull Request #${r.pull_number}`;
-        return `- ${itemType} → Agent: ${r.agent}: ${r.error}`;
-      })
-      .join("\n");
+  /**
+   * Returns the "assignment_error_count" output value.
+   * @returns {number}
+   */
+  handleMessage.getErrorCount = function getAssignToAgentErrorCount() {
+    return _allResults.filter(r => !r.success && !r.skipped).length;
+  };
 
-    const hasPermissionError = failedResults.some(r => r.error?.includes("Resource not accessible") || r.error?.includes("Insufficient permissions"));
-    if (hasPermissionError) {
-      summaryContent += generatePermissionErrorSummary();
+  /**
+   * Writes a step summary for agent assignment results.
+   * Called by the handler manager after all messages have been processed.
+   * @returns {Promise<void>}
+   */
+  handleMessage.writeSummary = async function writeAssignToAgentSummary() {
+    const successResults = _allResults.filter(r => r.success && !r.skipped);
+    const skippedResults = _allResults.filter(r => r.skipped);
+    const failedResults = _allResults.filter(r => !r.success && !r.skipped);
+
+    if (_allResults.length === 0) return;
+
+    let summaryContent = "## Agent Assignment\n\n";
+
+    if (successResults.length > 0) {
+      summaryContent += `✅ Successfully assigned ${successResults.length} agent(s):\n\n`;
+      summaryContent += successResults
+        .map(r => {
+          const itemType = r.issue_number ? `Issue #${r.issue_number}` : `Pull Request #${r.pull_number}`;
+          return `- ${itemType} → Agent: ${r.agent}`;
+        })
+        .join("\n");
+      summaryContent += "\n\n";
     }
-    summaryContent += "\n\n";
-  }
 
-  try {
-    await core.summary.addRaw(summaryContent).write();
-  } catch (error) {
-    core.warning(`Failed to write agent assignment summary: ${getErrorMessage(error)}`);
-  }
+    if (skippedResults.length > 0) {
+      summaryContent += `⏭️ Skipped ${skippedResults.length} agent assignment(s) (ignore-if-error enabled):\n\n`;
+      summaryContent += skippedResults
+        .map(r => {
+          const itemType = r.issue_number ? `Issue #${r.issue_number}` : `Pull Request #${r.pull_number}`;
+          return `- ${itemType} → Agent: ${r.agent} (assignment failed due to error)`;
+        })
+        .join("\n");
+      summaryContent += "\n\n";
+    }
+
+    if (failedResults.length > 0) {
+      summaryContent += `❌ Failed to assign ${failedResults.length} agent(s):\n\n`;
+      summaryContent += failedResults
+        .map(r => {
+          const itemType = r.issue_number ? `Issue #${r.issue_number}` : `Pull Request #${r.pull_number}`;
+          return `- ${itemType} → Agent: ${r.agent}: ${r.error}`;
+        })
+        .join("\n");
+
+      const hasPermissionError = failedResults.some(r => r.error?.includes("Resource not accessible") || r.error?.includes("Insufficient permissions"));
+      if (hasPermissionError) {
+        summaryContent += generatePermissionErrorSummary();
+      }
+      summaryContent += "\n\n";
+    }
+
+    try {
+      await core.summary.addRaw(summaryContent).write();
+    } catch (error) {
+      core.warning(`Failed to write agent assignment summary: ${getErrorMessage(error)}`);
+    }
+  };
+
+  return handleMessage;
 }
 
-module.exports = { main, getAssignToAgentAssigned, getAssignToAgentErrors, getAssignToAgentErrorCount, writeAssignToAgentSummary };
+module.exports = { main };
