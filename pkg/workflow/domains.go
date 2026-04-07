@@ -750,6 +750,11 @@ func (c *Compiler) computeAllowedDomainsForSanitization(data *WorkflowData) stri
 	if copilotAPITarget := GetCopilotAPITarget(data); copilotAPITarget != "" {
 		base = mergeAPITargetDomains(base, copilotAPITarget)
 	}
+	// Add BYOK provider domains so GH_AW_ALLOWED_DOMAINS stays in sync with --allow-domains.
+	// Resolved from COPILOT_PROVIDER_BASE_URL in engine.env (Copilot CLI 1.0.19+ BYOK feature).
+	if providerAPITarget := GetCopilotProviderAPITarget(data); providerAPITarget != "" {
+		base = mergeAPITargetDomains(base, providerAPITarget)
+	}
 
 	return base
 }

@@ -207,6 +207,21 @@ network:
 
 The custom hostname is extracted from the URL and passed to the AWF `--openai-api-target`, `--anthropic-api-target`, or `--copilot-api-target` flag automatically at compile time. No additional configuration is required.
 
+#### BYOK (Bring Your Own Key) for Copilot
+
+Copilot CLI 1.0.19+ supports using a custom model provider instead of GitHub Copilot's model routing via the `COPILOT_PROVIDER_BASE_URL` environment variable. This is useful for using local models (Ollama, vLLM) or self-hosted OpenAI-compatible, Azure, or Anthropic endpoints.
+
+Set `COPILOT_PROVIDER_BASE_URL` in `engine.env`:
+
+```yaml wrap
+engine:
+  id: copilot
+  env:
+    COPILOT_PROVIDER_BASE_URL: "https://my-ollama.internal.example.com/v1"
+```
+
+The provider hostname is extracted from `COPILOT_PROVIDER_BASE_URL` and automatically added to the firewall allow-list at compile time. You do **not** need to list it in `network.allowed`. Unlike `GITHUB_COPILOT_BASE_URL`, BYOK connections are handled directly by the Copilot CLI — traffic is not routed through AWF's API proxy.
+
 ### Engine Command-Line Arguments
 
 All engines support custom command-line arguments through the `args` field, injected before the prompt:

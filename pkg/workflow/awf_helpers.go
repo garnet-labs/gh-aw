@@ -491,6 +491,30 @@ func GetCopilotAPITarget(workflowData *WorkflowData) string {
 	return extractAPITargetHost(workflowData, "GITHUB_COPILOT_BASE_URL")
 }
 
+// GetCopilotProviderAPITarget returns the BYOK (Bring Your Own Key) provider hostname
+// extracted from COPILOT_PROVIDER_BASE_URL in engine.env.
+//
+// COPILOT_PROVIDER_BASE_URL is a Copilot CLI 1.0.19+ environment variable that enables
+// using a custom model provider (OpenAI-compatible, Azure, Anthropic, Ollama, vLLM, etc.)
+// instead of GitHub Copilot's model routing. The Copilot CLI handles the provider connection
+// directly; the extracted hostname is added to the firewall allow-list so outbound requests
+// to the provider can succeed.
+//
+// Example:
+//
+//	engine:
+//	  id: copilot
+//	  env:
+//	    COPILOT_PROVIDER_BASE_URL: "https://my-ollama.internal.example.com/v1"
+//
+//	GetCopilotProviderAPITarget(workflowData)
+//	// Returns: "my-ollama.internal.example.com"
+//
+// Returns empty string if COPILOT_PROVIDER_BASE_URL is not configured.
+func GetCopilotProviderAPITarget(workflowData *WorkflowData) string {
+	return extractAPITargetHost(workflowData, "COPILOT_PROVIDER_BASE_URL")
+}
+
 // ComputeAWFExcludeEnvVarNames returns the list of environment variable names that must be
 // excluded from the agent container's visible environment via AWF's --exclude-env flag.
 //

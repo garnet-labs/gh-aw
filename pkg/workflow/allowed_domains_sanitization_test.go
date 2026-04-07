@@ -737,7 +737,80 @@ Test workflow with GITHUB_COPILOT_BASE_URL in engine.env.
 	}
 }
 
-// TestAPITargetDomainsInThreatDetectionStep is a regression test verifying that when engine.api-target
+// TestCopilotProviderBaseURLInCompiledWorkflow verifies that when COPILOT_PROVIDER_BASE_URL is set
+// in engine.env (BYOK feature from Copilot CLI 1.0.19+), the compiled lock file includes the
+// extracted hostname in both --allow-domains and GH_AW_ALLOWED_DOMAINS so the firewall permits
+// outbound requests to the custom provider.
+func TestCopilotProviderBaseURLInCompiledWorkflow(t *testing.T) {
+	workflow := `---
+on: push
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+engine:
+  id: copilot
+  env:
+    COPILOT_PROVIDER_BASE_URL: "https://my-ollama.internal.example.com/v1"
+strict: false
+safe-outputs:
+  create-issue:
+---
+
+# Test Workflow
+
+Test workflow with COPILOT_PROVIDER_BASE_URL (BYOK) in engine.env.
+`
+
+	tmpDir := testutil.TempDir(t, "copilot-provider-base-url-test")
+	testFile := filepath.Join(tmpDir, "test-workflow.md")
+	if err := os.WriteFile(testFile, []byte(workflow), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	compiler := NewCompiler()
+	if err := compiler.CompileWorkflow(testFile); err != nil {
+		t.Fatalf("Failed to compile workflow: %v", err)
+	}
+
+	lockFile := stringutil.MarkdownToLockFile(testFile)
+	lockContent, err := os.ReadFile(lockFile)
+	if err != nil {
+		t.Fatalf("Failed to read lock file: %v", err)
+	}
+	lockStr := string(lockContent)
+
+	// Extracted hostname should appear in --allow-domains
+	allowDomainsIdx := strings.Index(lockStr, "--allow-domains")
+	if allowDomainsIdx < 0 {
+		t.Fatal("--allow-domains flag not found in compiled lock file")
+	}
+	allowDomainsEnd := strings.Index(lockStr[allowDomainsIdx:], "\n")
+	if allowDomainsEnd < 0 {
+		allowDomainsEnd = len(lockStr) - allowDomainsIdx
+	}
+	allowDomainsLine := lockStr[allowDomainsIdx : allowDomainsIdx+allowDomainsEnd]
+	if !strings.Contains(allowDomainsLine, "my-ollama.internal.example.com") {
+		t.Errorf("Expected hostname from COPILOT_PROVIDER_BASE_URL in --allow-domains.\nLine: %s", allowDomainsLine)
+	}
+
+	// Extracted hostname should appear in GH_AW_ALLOWED_DOMAINS
+	lines := strings.Split(lockStr, "\n")
+	var domainsLine string
+	for _, line := range lines {
+		if strings.Contains(line, "GH_AW_ALLOWED_DOMAINS:") {
+			domainsLine = line
+			break
+		}
+	}
+	if domainsLine == "" {
+		t.Fatal("GH_AW_ALLOWED_DOMAINS not found in compiled lock file")
+	}
+	if !strings.Contains(domainsLine, "my-ollama.internal.example.com") {
+		t.Errorf("Expected hostname from COPILOT_PROVIDER_BASE_URL in GH_AW_ALLOWED_DOMAINS.\nLine: %s", domainsLine)
+	}
+}
+
 // is configured, the threat detection AWF invocation in the compiled lock file also receives
 // --copilot-api-target and includes the GHE domains in its --allow-domains list.
 // Regression test for: Threat detection AWF run missing --copilot-api-target on data residency.

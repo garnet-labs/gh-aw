@@ -188,6 +188,11 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		if copilotAPITarget := GetCopilotAPITarget(workflowData); copilotAPITarget != "" {
 			allowedDomains = mergeAPITargetDomains(allowedDomains, copilotAPITarget)
 		}
+		// Add BYOK provider domains to the firewall allow-list.
+		// Resolved from COPILOT_PROVIDER_BASE_URL in engine.env (Copilot CLI 1.0.19+ BYOK feature).
+		if providerAPITarget := GetCopilotProviderAPITarget(workflowData); providerAPITarget != "" {
+			allowedDomains = mergeAPITargetDomains(allowedDomains, providerAPITarget)
+		}
 
 		// AWF v0.15.0+ uses chroot mode by default, providing transparent access to host binaries
 		// AWF v0.15.0+ with --env-all handles PATH natively (chroot mode is default):
