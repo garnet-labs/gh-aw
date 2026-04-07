@@ -67,19 +67,97 @@ var (
 	unsafeContextRegex = regexp.MustCompile(`\$\{\{\s*(github\.event\.|steps\.[^}]+\.outputs\.|inputs\.)[^}]+\}\}`)
 )
 
+// hasUnsafeExpressionInRunBlock performs a fast line-by-line scan to determine whether
+// any unsafe context expression (${{ github.event.* }}, ${{ steps.*.outputs.* }},
+// ${{ inputs.* }}) appears inside a run: block in the YAML content.
+//
+// This avoids the expensive full yaml.Unmarshal call in the common case where unsafe
+// expressions only appear in safe contexts (env:, if:, group:, concurrency:, etc.).
+// It correctly tracks indentation to detect block scalar (run: |) and
+// single-line (run: some command) run fields.
+func hasUnsafeExpressionInRunBlock(yamlContent string) bool {
+	inRunBlock := false
+	runIndent := -1
+
+	for _, line := range strings.Split(yamlContent, "\n") {
+		trimmed := strings.TrimLeft(line, " \t")
+		indent := len(line) - len(trimmed)
+
+		if inRunBlock {
+			// Blank lines remain part of the block scalar.
+			if len(strings.TrimSpace(line)) == 0 {
+				continue
+			}
+			if indent <= runIndent {
+				// Indentation dropped back – the block has ended.
+				inRunBlock = false
+				runIndent = -1
+				// Fall through to check if this new line starts another run: block.
+			} else {
+				// Still inside the run block – check for unsafe expressions.
+				if unsafeContextRegex.MatchString(line) {
+					return true
+				}
+				continue
+			}
+		}
+
+		// Look for a "run:" key.  It may be a block scalar (run: |) or a plain value.
+		if !strings.HasPrefix(trimmed, "run:") {
+			continue
+		}
+		afterColon := strings.TrimSpace(trimmed[4:])
+		if isBlockScalarIndicator(afterColon) {
+			// Block scalar – subsequent indented lines are the run value.
+			inRunBlock = true
+			runIndent = indent
+		} else if afterColon != "" {
+			// Single-line run: value – check it directly.
+			if unsafeContextRegex.MatchString(afterColon) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+// isBlockScalarIndicator returns true when s is a valid YAML block scalar indicator
+// (literal | or folded >) with an optional indentation digit and optional chomping
+// modifier (- or +).  Examples: |, >, |-,  >-, |+, >+, |2, |2-, >3+.
+func isBlockScalarIndicator(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	// Must start with | or >
+	if s[0] != '|' && s[0] != '>' {
+		return false
+	}
+	// The rest may be empty, a single chomping char (- or +),
+	// a single digit, or a digit followed by a chomping char.
+	rest := s[1:]
+	switch len(rest) {
+	case 0:
+		return true
+	case 1:
+		return rest[0] == '-' || rest[0] == '+' || (rest[0] >= '1' && rest[0] <= '9')
+	case 2:
+		return (rest[0] >= '1' && rest[0] <= '9') && (rest[1] == '-' || rest[1] == '+')
+	}
+	return false
+}
+
 // validateNoTemplateInjection checks compiled YAML for template injection vulnerabilities
 // It detects cases where GitHub Actions expressions are used directly in shell commands
 // instead of being passed through environment variables
 func validateNoTemplateInjection(yamlContent string) error {
 	templateInjectionValidationLog.Print("Validating compiled YAML for template injection risks")
 
-	// Fast-path: if the YAML contains no unsafe context expressions at all, skip the
-	// expensive full YAML parse.  The unsafe patterns we detect are:
-	//   ${{ github.event.* }}, ${{ steps.*.outputs.* }}, ${{ inputs.* }}
-	// If none of those strings appear anywhere in the compiled YAML, there can be
-	// no violations.
-	if !unsafeContextRegex.MatchString(yamlContent) {
-		templateInjectionValidationLog.Print("No unsafe context expressions found – skipping template injection check")
+	// Fast-path: skip the expensive full YAML parse when no unsafe context expressions
+	// appear inside run: blocks.  Unsafe expressions in safe contexts (env:, if:, group:,
+	// concurrency:, etc.) are not a concern.
+	if !hasUnsafeExpressionInRunBlock(yamlContent) {
+		templateInjectionValidationLog.Print("No unsafe context expressions in run: blocks – skipping template injection check")
 		return nil
 	}
 

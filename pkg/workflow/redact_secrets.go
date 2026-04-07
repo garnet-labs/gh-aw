@@ -14,10 +14,11 @@ var secretMaskingLog = logger.New("workflow:secret_masking")
 // secretReferencePattern matches ${{ secrets.SECRET_NAME }} or secrets.SECRET_NAME
 var secretReferencePattern = regexp.MustCompile(`secrets\.([A-Z][A-Z0-9_]*)`)
 
-// actionReferencePattern matches "uses: <action-ref>" lines in YAML, including
+// actionReferencePattern matches a single "uses: <action-ref>" line in YAML, including
 // both key-value format ("uses: ref") and list-item format ("- uses: ref").
 // Captures the action reference (group 1) and optional inline comment tag (group 2).
-var actionReferencePattern = regexp.MustCompile(`(?m)^\s+(?:-\s+)?uses:\s+(\S+)(?:\s+#\s*(.+?))?$`)
+// Applied per-line after pre-filtering with strings.Contains for performance.
+var actionReferencePattern = regexp.MustCompile(`^\s+(?:-\s+)?uses:\s+(\S+)(?:\s+#\s*(.+?))?$`)
 
 // escapeSingleQuote escapes single quotes and backslashes in a string to prevent injection
 // when embedding data in single-quoted YAML strings
@@ -65,8 +66,17 @@ func CollectActionReferences(yamlContent string) []string {
 	secretMaskingLog.Printf("Scanning workflow YAML (%d bytes) for action references", len(yamlContent))
 	actionsMap := make(map[string]bool)
 
-	matches := actionReferencePattern.FindAllStringSubmatch(yamlContent, -1)
-	for _, match := range matches {
+	// Pre-filter lines containing "uses:" before applying the regex.
+	// This avoids running a multiline regex over the entire YAML document,
+	// which is much slower than a simple string scan followed by per-line regex.
+	for _, line := range strings.Split(yamlContent, "\n") {
+		if !strings.Contains(line, "uses:") {
+			continue
+		}
+		match := actionReferencePattern.FindStringSubmatch(line)
+		if match == nil {
+			continue
+		}
 		ref := match[1]
 		// Skip local actions and reusable workflow calls (e.g. "./actions/setup")
 		if strings.HasPrefix(ref, "./") {
