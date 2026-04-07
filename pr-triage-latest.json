@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-06T18:32:04Z",
-  "run_id": "24044886433",
+  "run_date": "2026-04-07T00:57:42Z",
+  "run_id": "24058857304",
   "fork_prs": 0,
-  "agent_prs_found": 6,
-  "agent_prs_excluded": 6,
-  "notes": "6 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
+  "agent_prs_found": 4,
+  "agent_prs_excluded": 4,
+  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,59 +18,37 @@
   },
   "prs_examined": [
     {
-      "number": 24933,
-      "title": "Add compile-time warning when timeout-minutes &gt; 60 with copilot-requests feature enabled",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "updated_at": "2026-04-06"
-    },
-    {
-      "number": 24931,
-      "title": "Add maximum: 360 to timeout-minutes schema to enforce GitHub Actions runner limit",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "updated_at": "2026-04-06"
-    },
-    {
-      "number": 24934,
-      "title": "Merge assign-to-agent safe output handler into the safe output main handler loop",
-      "author": "Copilot",
-      "draft": true,
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
-      "created_at": "2026-04-06",
-      "updated_at": "2026-04-06"
-    },
-    {
-      "number": 24924,
-      "title": "Fix cross-repo reusable workflow hash check: remove workflow_call event gate and correct workflow_ref assumptions",
+      "number": 24974,
+      "title": "Fix resolve_host_repo.cjs to correctly identify callee repo in cross-org workflow_call",
       "author": "Copilot",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
       "created_at": "2026-04-06",
-      "updated_at": "2026-04-06"
+      "updated_at": "2026-04-07"
     },
     {
-      "number": 24855,
-      "title": "fix: unknown tool names in frontmatter tools section are compile errors; remove qmd built-in",
+      "number": 24968,
+      "title": "feat: safe update mode enforcement for secrets (#safe-update)",
+      "author": "Copilot",
+      "draft": true,
+      "same_repo": true,
+      "excluded_reason": "same-repo branch, not a fork",
+      "labels": [],
+      "created_at": "2026-04-06",
+      "updated_at": "2026-04-07"
+    },
+    {
+      "number": 24966,
+      "title": "feat: add `assignees` to `create-pull-request` for fallback issues",
       "author": "Copilot",
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "labels": [],
       "created_at": "2026-04-06",
-      "updated_at": "2026-04-06"
+      "updated_at": "2026-04-07"
     },
     {
       "number": 24503,
@@ -79,9 +57,15 @@
       "draft": false,
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "labels": [],
+      "labels": ["smoke", "smoke-claude", "smoke-copilot", "lgtm", "needs-work"],
       "created_at": "2026-04-04",
-      "updated_at": "2026-04-06"
+      "updated_at": "2026-04-07"
     }
-  ]
+  ],
+  "previous_run": {
+    "run_id": "24044886433",
+    "run_date": "2026-04-06T18:32:04Z",
+    "fork_prs": 0,
+    "agent_prs_found": 6
+  }
 }
