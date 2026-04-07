@@ -746,6 +746,19 @@ async function processRuntimeImport(filepathOrUrl, optional, workspaceDir, start
   let filepath = filepathOrUrl;
   let isAgentsPath = false;
 
+  // Strip leading "/" or "//" (and any number of slashes) for repo-root-absolute paths
+  // (e.g. /.agents/skills/..., //.github/agents/...).
+  // After stripping, the existing .agents/ and .github/ prefix checks handle resolution correctly.
+  // Only strip when the result begins with .agents/ or .github/ to preserve security restrictions.
+  if (filepath.startsWith("/")) {
+    const stripped = filepath.replace(/^\/+/, "");
+    if (stripped.startsWith(".agents/") || stripped.startsWith(".agents\\") || stripped.startsWith(".github/") || stripped.startsWith(".github\\")) {
+      filepath = stripped;
+    } else {
+      throw new Error(`${ERR_VALIDATION}: Security: Path ${filepathOrUrl} must be within .agents/ or .github/ folder`);
+    }
+  }
+
   // Check if this is a .agents/ path (top-level folder for skills)
   if (filepath.startsWith(".agents/")) {
     isAgentsPath = true;

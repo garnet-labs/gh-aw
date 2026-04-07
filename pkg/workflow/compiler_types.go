@@ -409,7 +409,6 @@ type WorkflowData struct {
 	RateLimit                   *RateLimitConfig          // rate limiting configuration for workflow triggers
 	CacheMemoryConfig           *CacheMemoryConfig        // parsed cache-memory configuration
 	RepoMemoryConfig            *RepoMemoryConfig         // parsed repo-memory configuration
-	QmdConfig                   *QmdToolConfig            // parsed qmd tool configuration (docs globs)
 	Runtimes                    map[string]any            // runtime version overrides from frontmatter
 	ToolsTimeout                string                    // timeout for tool/MCP operations: numeric string (seconds) or GitHub Actions expression (empty = use engine default)
 	ToolsStartupTimeout         string                    // timeout for MCP server startup: numeric string (seconds) or GitHub Actions expression (empty = use engine default)
@@ -420,6 +419,7 @@ type WorkflowData struct {
 	SecretMasking               *SecretMaskingConfig      // secret masking configuration
 	ParsedFrontmatter           *FrontmatterConfig        // cached parsed frontmatter configuration (for performance optimization)
 	RawFrontmatter              map[string]any            // raw parsed frontmatter map (for passing to hash functions without re-parsing)
+	OTLPEndpoint                string                    // resolved OTLP endpoint (from observability.otlp.endpoint, including imports; set by injectOTLPConfig)
 	ResolvedMCPServers          map[string]any            // fully merged mcp-servers from main workflow and all imports (for mcp inspect)
 	ActionPinWarnings           map[string]bool           // cache of already-warned action pin failures (key: "repo@version")
 	ActionMode                  ActionMode                // action mode for workflow compilation (dev, release, script)
@@ -434,6 +434,7 @@ type WorkflowData struct {
 	StaleCheckDisabled          bool                      // true when on.stale-check: false is set in frontmatter (disables frontmatter hash check step in activation job)
 	EngineConfigSteps           []map[string]any          // steps returned by engine.RenderConfig — prepended before execution steps
 	ServicePortExpressions      string                    // comma-separated ${{ job.services['<id>'].ports['<port>'] }} expressions for AWF --allow-host-service-ports
+	RunInstallScripts           bool                      // true when run-install-scripts: true is set (globally or per node runtime); disables --ignore-scripts on generated npm install steps
 }
 
 // BaseSafeOutputConfig holds common configuration fields for all safe output types

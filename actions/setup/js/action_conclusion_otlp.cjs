@@ -30,6 +30,7 @@
  */
 
 const sendOtlpSpan = require("./send_otlp_span.cjs");
+const { getActionInput } = require("./action_input_utils.cjs");
 
 /**
  * Send the OTLP job-conclusion span.  Non-fatal: all errors are silently
@@ -48,7 +49,8 @@ async function run() {
   const rawJobStartMs = parseInt(process.env.GITHUB_AW_OTEL_JOB_START_MS || "0", 10);
   const startMs = rawJobStartMs > 0 ? rawJobStartMs : undefined;
 
-  const spanName = process.env.INPUT_JOB_NAME ? `gh-aw.${process.env.INPUT_JOB_NAME}.conclusion` : "gh-aw.job.conclusion";
+  const jobName = getActionInput("JOB_NAME");
+  const spanName = jobName ? `gh-aw.${jobName}.conclusion` : "gh-aw.job.conclusion";
   console.log(`[otlp] sending conclusion span "${spanName}" to ${endpoint}`);
 
   await sendOtlpSpan.sendJobConclusionSpan(spanName, { startMs });

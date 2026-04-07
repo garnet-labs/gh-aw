@@ -177,6 +177,12 @@ func (c *Compiler) validateWorkflowData(workflowData *WorkflowData, markdownPath
 		return formatCompilerError(markdownPath, "error", err.Error(), err)
 	}
 
+	// Validate safe-outputs max configuration
+	log.Printf("Validating safe-outputs max fields")
+	if err := validateSafeOutputsMax(workflowData.SafeOutputs); err != nil {
+		return formatCompilerError(markdownPath, "error", err.Error(), err)
+	}
+
 	// Validate safe-outputs allowed-domains configuration
 	log.Printf("Validating safe-outputs allowed-domains")
 	if err := c.validateSafeOutputsAllowedDomains(workflowData.SafeOutputs); err != nil {
@@ -292,12 +298,6 @@ func (c *Compiler) validateWorkflowData(workflowData *WorkflowData, markdownPath
 				"The Copilot assignment API requires a fine-grained PAT. "+
 				"The token fallback chain (GH_AW_AGENT_TOKEN || GH_AW_GITHUB_TOKEN || GITHUB_TOKEN) will be used automatically. "+
 				"Add github-token: to your assign-to-agent config to specify a different token."))
-		c.IncrementWarningCount()
-	}
-
-	// Emit experimental warning for qmd documentation search feature
-	if workflowData.QmdConfig != nil {
-		fmt.Fprintln(os.Stderr, console.FormatWarningMessage("Using experimental feature: qmd"))
 		c.IncrementWarningCount()
 	}
 

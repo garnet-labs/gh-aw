@@ -387,7 +387,7 @@ if [ "${SAFE_OUTPUT_CUSTOM_TOKENS_ENABLED}" = "true" ]; then
   fi
 
   # Install @actions/github package
-  npm install --no-save --loglevel=error @actions/github@^7.0.0 2>&1 | grep -v "npm WARN" || true
+  npm install --ignore-scripts --no-save --loglevel=error @actions/github@^7.0.0 2>&1 | grep -v "npm WARN" || true
   if [ -d "node_modules/@actions/github" ]; then
     echo "✓ Successfully installed @actions/github package"
   else
@@ -407,7 +407,7 @@ fi
 # Skipped when GH_AW_SKIP_SETUP_OTLP=1 because index.js will send the span itself.
 if [ -z "${GH_AW_SKIP_SETUP_OTLP}" ] && command -v node &>/dev/null && [ -f "${DESTINATION}/action_setup_otlp.cjs" ]; then
   debug_log "Sending OTLP setup span..."
-  SETUP_START_MS="${SETUP_START_MS}" INPUT_TRACE_ID="${INPUT_TRACE_ID:-}" node "${DESTINATION}/action_setup_otlp.cjs" || true
+  SETUP_START_MS="${SETUP_START_MS}" INPUT_TRACE_ID="${INPUT_TRACE_ID:-}" INPUT_JOB_NAME="${INPUT_JOB_NAME:-}" node "${DESTINATION}/action_setup_otlp.cjs" || true
   debug_log "OTLP setup span step complete"
 fi
 

@@ -3,31 +3,24 @@
 
 const { spawnSync } = require("child_process");
 const path = require("path");
+const { getActionInput } = require("./js/action_input_utils.cjs");
 
 // Record start time for the OTLP span before any setup work begins.
 const setupStartMs = Date.now();
 
-// GitHub Actions sets INPUT_* env vars for JavaScript actions by converting
-// input names to uppercase and replacing hyphens with underscores. Explicitly
-// normalize inputs with hyphens in their names because some runner versions
-// preserve the original hyphen instead of converting it to an underscore.
-const safeOutputCustomTokens =
-  process.env["INPUT_SAFE_OUTPUT_CUSTOM_TOKENS"] ||
-  process.env["INPUT_SAFE-OUTPUT-CUSTOM-TOKENS"] ||
-  "false";
-
-// Normalize trace-id input: handle both INPUT_TRACE_ID (underscore, standard)
-// and INPUT_TRACE-ID (hyphen, used by some runner versions).
-const inputTraceId =
-  process.env["INPUT_TRACE_ID"] ||
-  process.env["INPUT_TRACE-ID"] ||
-  "";
+// GitHub Actions converts input names to INPUT_<UPPER_UNDERSCORE>, but some
+// runner versions preserve the original hyphen form. getActionInput() handles
+// both forms automatically.
+const safeOutputCustomTokens = getActionInput("SAFE_OUTPUT_CUSTOM_TOKENS") || "false";
+const inputTraceId = getActionInput("TRACE_ID");
+const inputJobName = getActionInput("JOB_NAME");
 
 const result = spawnSync(path.join(__dirname, "setup.sh"), [], {
   stdio: "inherit",
   env: Object.assign({}, process.env, {
     INPUT_SAFE_OUTPUT_CUSTOM_TOKENS: safeOutputCustomTokens,
     INPUT_TRACE_ID: inputTraceId,
+    INPUT_JOB_NAME: inputJobName,
     // Tell setup.sh to skip the OTLP span: in action mode index.js sends it
     // after setup.sh returns so that the startMs captured here is used.
     GH_AW_SKIP_SETUP_OTLP: "1",
@@ -54,6 +47,7 @@ if (result.status !== 0) {
   try {
     process.env.SETUP_START_MS = String(setupStartMs);
     process.env.INPUT_TRACE_ID = inputTraceId;
+    process.env.INPUT_JOB_NAME = inputJobName;
     const { run } = require(path.join(__dirname, "js", "action_setup_otlp.cjs"));
     await run();
   } catch {

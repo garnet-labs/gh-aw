@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"errors"
 	"fmt"
 	"maps"
 	"slices"
@@ -70,15 +69,12 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 		return nil, fmt.Errorf("failed to generate main job steps: %w", err)
 	}
 
-	// Compiler invariant: the agent job must not mint checkout-related GitHub App tokens.
-	// Checkout token minting (checkout-app-token-*) must happen in the activation job.
-	// Note: the GitHub MCP App token (github-mcp-app-token) IS minted in the agent job —
-	// this is intentional because masked values are silently dropped by the runner when passed
-	// as job outputs (runner v2.308+), so the token must be minted within the job that uses it.
+	// Checkout app tokens (checkout-app-token-*) are now minted directly in the agent job,
+	// for the same reason as the GitHub MCP App token: actions/create-github-app-token calls
+	// ::add-mask:: on the produced token, and the GitHub Actions runner silently drops masked
+	// values when used as job outputs (runner v2.308+). Minting within the agent job avoids
+	// the activation→agent output hop entirely.
 	stepsContent := stepBuilder.String()
-	if strings.Contains(stepsContent, "id: checkout-app-token-") {
-		return nil, errors.New("compiler invariant violated: agent job contains a checkout GitHub App token minting step (checkout-app-token-*); checkout token minting must only occur in the activation job")
-	}
 
 	// Split the steps content into individual step entries
 	if stepsContent != "" {
@@ -88,15 +84,6 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 	var depends []string
 	if activationJobCreated {
 		depends = []string{string(constants.ActivationJobName)} // Depend on the activation job only if it exists
-	}
-
-	// When the qmd tool is configured, the agent also depends on the indexing job (which builds
-	// the qmd search index). The indexing job depends on activation, but GitHub Actions only
-	// exposes outputs from DIRECT dependencies, so we must keep activation in needs too so that
-	// needs.activation.outputs.* expressions resolve correctly.
-	if data.QmdConfig != nil {
-		depends = append(depends, string(constants.IndexingJobName))
-		compilerMainJobLog.Print("Agent job depends on indexing job (qmd tool configured)")
 	}
 
 	// Add custom jobs as dependencies only if they don't depend on pre_activation or agent

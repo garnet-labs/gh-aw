@@ -56,6 +56,7 @@ jobs:
   activation:
     runs-on: ubuntu-slim
     permissions:
+      actions: read
       contents: read
     outputs:
       comment_id: ""
@@ -352,7 +353,7 @@ jobs:
             const determineAutomaticLockdown = require('${{ runner.temp }}/gh-aw/actions/determine_automatic_lockdown.cjs');
             await determineAutomaticLockdown(github, context, core);
       - name: Download container images
-        run: bash ${RUNNER_TEMP}/gh-aw/actions/download_docker_images.sh ghcr.io/github/gh-aw-firewall/agent:0.25.13 ghcr.io/github/gh-aw-firewall/api-proxy:0.25.13 ghcr.io/github/gh-aw-firewall/squid:0.25.13 ghcr.io/github/gh-aw-mcpg:v0.2.14 ghcr.io/github/github-mcp-server:v0.32.0 node:lts-alpine
+        run: bash ${RUNNER_TEMP}/gh-aw/actions/download_docker_images.sh ghcr.io/github/gh-aw-firewall/agent:0.25.13 ghcr.io/github/gh-aw-firewall/api-proxy:0.25.13 ghcr.io/github/gh-aw-firewall/squid:0.25.13 ghcr.io/github/gh-aw-mcpg:v0.2.15 ghcr.io/github/github-mcp-server:v0.32.0 node:lts-alpine
       - name: Write Safe Outputs Config
         run: |
           mkdir -p ${RUNNER_TEMP}/gh-aw/safeoutputs
@@ -362,177 +363,181 @@ jobs:
           {"create_project_status_update":{"max":1,"project":"https://github.com/orgs/\u003cORG\u003e/projects/\u003cNUMBER\u003e"},"create_report_incomplete_issue":{},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"report_incomplete":{},"update_project":{"max":5,"project":"https://github.com/orgs/\u003cORG\u003e/projects/\u003cNUMBER\u003e"}}
           GH_AW_SAFE_OUTPUTS_CONFIG_a49ffef1750a0786_EOF
       - name: Write Safe Outputs Tools
-        run: |
-          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/tools_meta.json << 'GH_AW_SAFE_OUTPUTS_TOOLS_META_b3acf2226d0f67f7_EOF'
-          {
-            "description_suffixes": {
-              "create_project_status_update": " CONSTRAINTS: Maximum 1 status update(s) can be created. Default project URL: \"https://github.com/orgs/\u003cORG\u003e/projects/\u003cNUMBER\u003e\".",
-              "update_project": " CONSTRAINTS: Maximum 5 project operation(s) can be performed. Default project URL: \"https://github.com/orgs/\u003cORG\u003e/projects/\u003cNUMBER\u003e\"."
-            },
-            "repo_params": {},
-            "dynamic_tools": []
-          }
-          GH_AW_SAFE_OUTPUTS_TOOLS_META_b3acf2226d0f67f7_EOF
-          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/validation.json << 'GH_AW_SAFE_OUTPUTS_VALIDATION_30d875fd0776c2ed_EOF'
-          {
-            "create_project_status_update": {
-              "defaultMax": 10,
-              "fields": {
-                "body": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65536
-                },
-                "project": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 512,
-                  "pattern": "^https://[^/]+/(orgs|users)/[^/]+/projects/\\d+",
-                  "patternError": "must be a full GitHub project URL (e.g., https://github.com/orgs/myorg/projects/42)"
-                },
-                "start_date": {
-                  "type": "string",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                  "patternError": "must be in YYYY-MM-DD format"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": [
-                    "INACTIVE",
-                    "ON_TRACK",
-                    "AT_RISK",
-                    "OFF_TRACK",
-                    "COMPLETE"
-                  ]
-                },
-                "target_date": {
-                  "type": "string",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                  "patternError": "must be in YYYY-MM-DD format"
-                }
-              }
-            },
-            "missing_data": {
-              "defaultMax": 20,
-              "fields": {
-                "alternatives": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
-                "context": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
-                "data_type": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 128
-                },
-                "reason": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                }
-              }
-            },
-            "missing_tool": {
-              "defaultMax": 20,
-              "fields": {
-                "alternatives": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 512
-                },
-                "reason": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
-                "tool": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 128
-                }
-              }
-            },
-            "noop": {
-              "defaultMax": 1,
-              "fields": {
-                "message": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
-                }
-              }
-            },
-            "report_incomplete": {
-              "defaultMax": 5,
-              "fields": {
-                "details": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
-                },
-                "reason": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 1024
-                }
-              }
-            },
-            "update_project": {
-              "defaultMax": 10,
-              "fields": {
-                "content_number": {
-                  "issueNumberOrTemporaryId": true
-                },
-                "content_type": {
-                  "type": "string",
-                  "enum": [
-                    "issue",
-                    "pull_request",
-                    "draft_issue"
-                  ]
-                },
-                "draft_body": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
-                },
-                "draft_title": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
+        env:
+          GH_AW_TOOLS_META_JSON: |
+            {
+              "description_suffixes": {
+                "create_project_status_update": " CONSTRAINTS: Maximum 1 status update(s) can be created. Default project URL: \"https://github.com/orgs/\u003cORG\u003e/projects/\u003cNUMBER\u003e\".",
+                "update_project": " CONSTRAINTS: Maximum 5 project operation(s) can be performed. Default project URL: \"https://github.com/orgs/\u003cORG\u003e/projects/\u003cNUMBER\u003e\"."
+              },
+              "repo_params": {},
+              "dynamic_tools": []
+            }
+          GH_AW_VALIDATION_JSON: |
+            {
+              "create_project_status_update": {
+                "defaultMax": 10,
                 "fields": {
-                  "type": "object"
-                },
-                "issue": {
-                  "optionalPositiveInteger": true
-                },
-                "project": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 512,
-                  "pattern": "^https://[^/]+/(orgs|users)/[^/]+/projects/\\d+",
-                  "patternError": "must be a full GitHub project URL (e.g., https://github.com/orgs/myorg/projects/42)"
-                },
-                "pull_request": {
-                  "optionalPositiveInteger": true
+                  "body": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65536
+                  },
+                  "project": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 512,
+                    "pattern": "^https://[^/]+/(orgs|users)/[^/]+/projects/\\d+",
+                    "patternError": "must be a full GitHub project URL (e.g., https://github.com/orgs/myorg/projects/42)"
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                    "patternError": "must be in YYYY-MM-DD format"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "INACTIVE",
+                      "ON_TRACK",
+                      "AT_RISK",
+                      "OFF_TRACK",
+                      "COMPLETE"
+                    ]
+                  },
+                  "target_date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                    "patternError": "must be in YYYY-MM-DD format"
+                  }
+                }
+              },
+              "missing_data": {
+                "defaultMax": 20,
+                "fields": {
+                  "alternatives": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "context": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "data_type": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 128
+                  },
+                  "reason": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  }
+                }
+              },
+              "missing_tool": {
+                "defaultMax": 20,
+                "fields": {
+                  "alternatives": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 512
+                  },
+                  "reason": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "tool": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 128
+                  }
+                }
+              },
+              "noop": {
+                "defaultMax": 1,
+                "fields": {
+                  "message": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  }
+                }
+              },
+              "report_incomplete": {
+                "defaultMax": 5,
+                "fields": {
+                  "details": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  },
+                  "reason": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 1024
+                  }
+                }
+              },
+              "update_project": {
+                "defaultMax": 10,
+                "fields": {
+                  "content_number": {
+                    "issueNumberOrTemporaryId": true
+                  },
+                  "content_type": {
+                    "type": "string",
+                    "enum": [
+                      "issue",
+                      "pull_request",
+                      "draft_issue"
+                    ]
+                  },
+                  "draft_body": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  },
+                  "draft_title": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "fields": {
+                    "type": "object"
+                  },
+                  "issue": {
+                    "optionalPositiveInteger": true
+                  },
+                  "project": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 512,
+                    "pattern": "^https://[^/]+/(orgs|users)/[^/]+/projects/\\d+",
+                    "patternError": "must be a full GitHub project URL (e.g., https://github.com/orgs/myorg/projects/42)"
+                  },
+                  "pull_request": {
+                    "optionalPositiveInteger": true
+                  }
                 }
               }
             }
-          }
-          GH_AW_SAFE_OUTPUTS_VALIDATION_30d875fd0776c2ed_EOF
-          node ${RUNNER_TEMP}/gh-aw/actions/generate_safe_outputs_tools.cjs
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_safe_outputs_tools.cjs');
+            await main();
       - name: Generate Safe Outputs MCP Server Config
         id: safe-outputs-config
         run: |
@@ -598,7 +603,7 @@ jobs:
           export DEBUG="*"
           
           export GH_AW_ENGINE="copilot"
-          export MCP_GATEWAY_DOCKER_COMMAND='docker run -i --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -e MCP_GATEWAY_PORT -e MCP_GATEWAY_DOMAIN -e MCP_GATEWAY_API_KEY -e MCP_GATEWAY_PAYLOAD_DIR -e MCP_GATEWAY_PAYLOAD_SIZE_THRESHOLD -e DEBUG -e MCP_GATEWAY_LOG_DIR -e GH_AW_MCP_LOG_DIR -e GH_AW_SAFE_OUTPUTS -e GH_AW_SAFE_OUTPUTS_CONFIG_PATH -e GH_AW_SAFE_OUTPUTS_TOOLS_PATH -e GH_AW_ASSETS_BRANCH -e GH_AW_ASSETS_MAX_SIZE_KB -e GH_AW_ASSETS_ALLOWED_EXTS -e DEFAULT_BRANCH -e GITHUB_MCP_SERVER_TOKEN -e GITHUB_MCP_GUARD_MIN_INTEGRITY -e GITHUB_MCP_GUARD_REPOS -e GITHUB_REPOSITORY -e GITHUB_SERVER_URL -e GITHUB_SHA -e GITHUB_WORKSPACE -e GITHUB_TOKEN -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RUN_ATTEMPT -e GITHUB_JOB -e GITHUB_ACTION -e GITHUB_EVENT_NAME -e GITHUB_EVENT_PATH -e GITHUB_ACTOR -e GITHUB_ACTOR_ID -e GITHUB_TRIGGERING_ACTOR -e GITHUB_WORKFLOW -e GITHUB_WORKFLOW_REF -e GITHUB_WORKFLOW_SHA -e GITHUB_REF -e GITHUB_REF_NAME -e GITHUB_REF_TYPE -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GH_AW_SAFE_OUTPUTS_PORT -e GH_AW_SAFE_OUTPUTS_API_KEY -v /tmp/gh-aw/mcp-payloads:/tmp/gh-aw/mcp-payloads:rw -v /opt:/opt:ro -v /tmp:/tmp:rw -v '"${GITHUB_WORKSPACE}"':'"${GITHUB_WORKSPACE}"':rw ghcr.io/github/gh-aw-mcpg:v0.2.14'
+          export MCP_GATEWAY_DOCKER_COMMAND='docker run -i --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -e MCP_GATEWAY_PORT -e MCP_GATEWAY_DOMAIN -e MCP_GATEWAY_API_KEY -e MCP_GATEWAY_PAYLOAD_DIR -e MCP_GATEWAY_PAYLOAD_SIZE_THRESHOLD -e DEBUG -e MCP_GATEWAY_LOG_DIR -e GH_AW_MCP_LOG_DIR -e GH_AW_SAFE_OUTPUTS -e GH_AW_SAFE_OUTPUTS_CONFIG_PATH -e GH_AW_SAFE_OUTPUTS_TOOLS_PATH -e GH_AW_ASSETS_BRANCH -e GH_AW_ASSETS_MAX_SIZE_KB -e GH_AW_ASSETS_ALLOWED_EXTS -e DEFAULT_BRANCH -e GITHUB_MCP_SERVER_TOKEN -e GITHUB_MCP_GUARD_MIN_INTEGRITY -e GITHUB_MCP_GUARD_REPOS -e GITHUB_REPOSITORY -e GITHUB_SERVER_URL -e GITHUB_SHA -e GITHUB_WORKSPACE -e GITHUB_TOKEN -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RUN_ATTEMPT -e GITHUB_JOB -e GITHUB_ACTION -e GITHUB_EVENT_NAME -e GITHUB_EVENT_PATH -e GITHUB_ACTOR -e GITHUB_ACTOR_ID -e GITHUB_TRIGGERING_ACTOR -e GITHUB_WORKFLOW -e GITHUB_WORKFLOW_REF -e GITHUB_WORKFLOW_SHA -e GITHUB_REF -e GITHUB_REF_NAME -e GITHUB_REF_TYPE -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GH_AW_SAFE_OUTPUTS_PORT -e GH_AW_SAFE_OUTPUTS_API_KEY -v /tmp/gh-aw/mcp-payloads:/tmp/gh-aw/mcp-payloads:rw -v /opt:/opt:ro -v /tmp:/tmp:rw -v '"${GITHUB_WORKSPACE}"':'"${GITHUB_WORKSPACE}"':rw ghcr.io/github/gh-aw-mcpg:v0.2.15'
           
           mkdir -p /home/runner/.copilot
           cat << GH_AW_MCP_CONFIG_353cf85114406809_EOF | bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh

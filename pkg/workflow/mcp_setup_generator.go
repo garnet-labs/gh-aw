@@ -92,7 +92,7 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 			continue
 		}
 		// Standard MCP tools
-		if toolName == "github" || toolName == "playwright" || toolName == "qmd" || toolName == "cache-memory" || toolName == "agentic-workflows" {
+		if toolName == "github" || toolName == "playwright" || toolName == "cache-memory" || toolName == "agentic-workflows" {
 			mcpTools = append(mcpTools, toolName)
 		} else if mcpConfig, ok := toolValue.(map[string]any); ok {
 			// Check if it's explicitly marked as MCP type in the new format
@@ -282,29 +282,23 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 			validationConfigJSON = "{}"
 		}
 
+		// Pass tools_meta.json and validation.json as env var payloads so the step
+		// receives them as data (no heredoc, no shell node invocation). The JS module
+		// writes the files to disk and then generates tools.json.
 		yaml.WriteString("      - name: Write Safe Outputs Tools\n")
-		yaml.WriteString("        run: |\n")
-
-		toolsMetaDelimiter := GenerateHeredocDelimiterFromSeed("SAFE_OUTPUTS_TOOLS_META", workflowData.FrontmatterHash)
-		yaml.WriteString("          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/tools_meta.json << '" + toolsMetaDelimiter + "'\n")
-		// Write each line of the compact meta JSON with proper YAML indentation
+		yaml.WriteString("        env:\n")
+		yaml.WriteString("          GH_AW_TOOLS_META_JSON: |\n")
 		for line := range strings.SplitSeq(toolsMetaJSON, "\n") {
-			yaml.WriteString("          " + line + "\n")
+			yaml.WriteString("            " + line + "\n")
 		}
-		yaml.WriteString("          " + toolsMetaDelimiter + "\n")
-
-		validationDelimiter := GenerateHeredocDelimiterFromSeed("SAFE_OUTPUTS_VALIDATION", workflowData.FrontmatterHash)
-		yaml.WriteString("          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/validation.json << '" + validationDelimiter + "'\n")
-		// Write each line of the indented JSON with proper YAML indentation
+		yaml.WriteString("          GH_AW_VALIDATION_JSON: |\n")
 		for line := range strings.SplitSeq(validationConfigJSON, "\n") {
-			yaml.WriteString("          " + line + "\n")
+			yaml.WriteString("            " + line + "\n")
 		}
-		yaml.WriteString("          " + validationDelimiter + "\n")
-
-		// Generate the final tools.json at runtime from the source file in the actions folder.
-		// generate_safe_outputs_tools.cjs reads safe_outputs_tools.json (deployed by actions/setup),
-		// applies the meta overrides from tools_meta.json, and writes tools.json.
-		yaml.WriteString("          node ${RUNNER_TEMP}/gh-aw/actions/generate_safe_outputs_tools.cjs\n")
+		fmt.Fprintf(yaml, "        uses: %s\n", GetActionPin("actions/github-script"))
+		yaml.WriteString("        with:\n")
+		yaml.WriteString("          script: |\n")
+		yaml.WriteString(generateGitHubScriptWithRequire("generate_safe_outputs_tools.cjs"))
 
 		// Note: The MCP server entry point (mcp-server.cjs) is now copied by actions/setup
 		// from safe-outputs-mcp-server.cjs - no need to generate it here
@@ -363,7 +357,7 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 	// For stdio mode, we only write the files but don't start the HTTP server
 	if IsMCPScriptsEnabled(workflowData.MCPScripts, workflowData) {
 		// Step 1: Write config files (JavaScript files are now copied by actions/setup)
-		yaml.WriteString("      - name: Setup MCP Scripts Config\n")
+		yaml.WriteString("      - name: Write MCP Scripts Config\n")
 		yaml.WriteString("        run: |\n")
 		yaml.WriteString("          mkdir -p ${RUNNER_TEMP}/gh-aw/mcp-scripts/logs\n")
 
@@ -388,7 +382,7 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 		yaml.WriteString("          \n")
 
 		// Step 2: Generate tool files (js/py/sh)
-		yaml.WriteString("      - name: Setup MCP Scripts Tool Files\n")
+		yaml.WriteString("      - name: Write MCP Scripts Tool Files\n")
 		yaml.WriteString("        run: |\n")
 
 		// Generate individual tool files (sorted by name for stable code generation)
@@ -492,13 +486,6 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 		// Call the bundled shell script to start the server
 		yaml.WriteString("          bash ${RUNNER_TEMP}/gh-aw/actions/start_mcp_scripts_server.sh\n")
 		yaml.WriteString("          \n")
-	}
-
-	// Start the qmd MCP HTTP server natively if qmd is configured.
-	// qmd must run on the host VM (not in Docker) because node-llama-cpp compiles
-	// platform-native binaries. HTTP mode keeps MCP traffic on TCP, separate from stdout.
-	if workflowData != nil && workflowData.QmdConfig != nil {
-		yaml.WriteString(generateQmdStartStep(workflowData.QmdConfig))
 	}
 
 	// The MCP gateway is always enabled, even when agent sandbox is disabled
@@ -718,6 +705,17 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 		containerCmd.WriteString(" -e GH_AW_SAFE_OUTPUTS_PORT")
 		containerCmd.WriteString(" -e GH_AW_SAFE_OUTPUTS_API_KEY")
 	}
+	// OpenTelemetry trace correlation env vars - pass to gateway so it can expand the
+	// ${GITHUB_AW_OTEL_TRACE_ID} and ${GITHUB_AW_OTEL_PARENT_SPAN_ID} references written
+	// directly in the opentelemetry config block (spec §4.1.3.6). These are set at
+	// runtime via GITHUB_ENV by actions/setup and cannot be known at compile time.
+	// The endpoint and headers are written as literal values in the config, so their
+	// corresponding env vars (OTEL_EXPORTER_OTLP_ENDPOINT, OTEL_EXPORTER_OTLP_HEADERS)
+	// are not passed to the gateway container.
+	if workflowData.OTLPEndpoint != "" {
+		containerCmd.WriteString(" -e GITHUB_AW_OTEL_TRACE_ID")
+		containerCmd.WriteString(" -e GITHUB_AW_OTEL_PARENT_SPAN_ID")
+	}
 	if len(gatewayConfig.Env) > 0 {
 		// Using functional helper to extract map keys
 		envVarNames := sliceutil.MapToSlice(gatewayConfig.Env)
@@ -762,6 +760,10 @@ func (c *Compiler) generateMCPSetup(yaml *strings.Builder, tools map[string]any,
 		if HasSafeOutputsEnabled(workflowData.SafeOutputs) {
 			addedEnvVars["GH_AW_SAFE_OUTPUTS_PORT"] = true
 			addedEnvVars["GH_AW_SAFE_OUTPUTS_API_KEY"] = true
+		}
+		if workflowData.OTLPEndpoint != "" {
+			addedEnvVars["GITHUB_AW_OTEL_TRACE_ID"] = true
+			addedEnvVars["GITHUB_AW_OTEL_PARENT_SPAN_ID"] = true
 		}
 
 		// Mark gateway config environment variables as added

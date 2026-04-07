@@ -71,6 +71,7 @@ jobs:
     if: "needs.pre_activation.outputs.activated == 'true' && (((github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') && (github.event_name == 'issue_comment' && (startsWith(github.event.comment.body, '/grumpy ') || startsWith(github.event.comment.body, '/grumpy\n') || github.event.comment.body == '/grumpy') && github.event.issue.pull_request != null || github.event_name == 'pull_request_review_comment' && (startsWith(github.event.comment.body, '/grumpy ') || startsWith(github.event.comment.body, '/grumpy\n') || github.event.comment.body == '/grumpy')) || (!(github.event_name == 'issue_comment')) && (!(github.event_name == 'pull_request_review_comment'))) && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.id == github.repository_id))"
     runs-on: ubuntu-slim
     permissions:
+      actions: read
       contents: read
       discussions: write
       issues: write
@@ -441,7 +442,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Install Codex CLI
-        run: npm install -g @openai/codex@latest
+        run: npm install --ignore-scripts -g @openai/codex@latest
       - name: Install AWF binary
         run: bash ${RUNNER_TEMP}/gh-aw/actions/install_awf_binary.sh v0.25.13
       - name: Parse integrity filter lists
@@ -453,7 +454,7 @@ jobs:
           GH_AW_APPROVAL_LABELS_VAR: ${{ vars.GH_AW_GITHUB_APPROVAL_LABELS || '' }}
         run: bash ${RUNNER_TEMP}/gh-aw/actions/parse_guard_list.sh
       - name: Download container images
-        run: bash ${RUNNER_TEMP}/gh-aw/actions/download_docker_images.sh ghcr.io/github/gh-aw-firewall/agent:0.25.13 ghcr.io/github/gh-aw-firewall/api-proxy:0.25.13 ghcr.io/github/gh-aw-firewall/squid:0.25.13 ghcr.io/github/gh-aw-mcpg:v0.2.14 ghcr.io/github/github-mcp-server:v0.32.0 node:lts-alpine
+        run: bash ${RUNNER_TEMP}/gh-aw/actions/download_docker_images.sh ghcr.io/github/gh-aw-firewall/agent:0.25.13 ghcr.io/github/gh-aw-firewall/api-proxy:0.25.13 ghcr.io/github/gh-aw-firewall/squid:0.25.13 ghcr.io/github/gh-aw-mcpg:v0.2.15 ghcr.io/github/github-mcp-server:v0.32.0 node:lts-alpine
       - name: Write Safe Outputs Config
         run: |
           mkdir -p ${RUNNER_TEMP}/gh-aw/safeoutputs
@@ -463,150 +464,154 @@ jobs:
           {"create_pull_request_review_comment":{"max":5,"side":"RIGHT"},"create_report_incomplete_issue":{},"missing_data":{},"missing_tool":{},"noop":{"max":1,"report-as-issue":"true"},"report_incomplete":{},"submit_pull_request_review":{"max":1}}
           GH_AW_SAFE_OUTPUTS_CONFIG_da0cd85a0ff1d627_EOF
       - name: Write Safe Outputs Tools
-        run: |
-          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/tools_meta.json << 'GH_AW_SAFE_OUTPUTS_TOOLS_META_951d38e2d3380865_EOF'
-          {
-            "description_suffixes": {
-              "create_pull_request_review_comment": " CONSTRAINTS: Maximum 5 review comment(s) can be created. Comments will be on the RIGHT side of the diff.",
-              "submit_pull_request_review": " CONSTRAINTS: Maximum 1 review(s) can be submitted."
-            },
-            "repo_params": {},
-            "dynamic_tools": []
-          }
-          GH_AW_SAFE_OUTPUTS_TOOLS_META_951d38e2d3380865_EOF
-          cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/validation.json << 'GH_AW_SAFE_OUTPUTS_VALIDATION_57efae5f64135fb4_EOF'
-          {
-            "create_pull_request_review_comment": {
-              "defaultMax": 1,
-              "fields": {
-                "body": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
+        env:
+          GH_AW_TOOLS_META_JSON: |
+            {
+              "description_suffixes": {
+                "create_pull_request_review_comment": " CONSTRAINTS: Maximum 5 review comment(s) can be created. Comments will be on the RIGHT side of the diff.",
+                "submit_pull_request_review": " CONSTRAINTS: Maximum 1 review(s) can be submitted."
+              },
+              "repo_params": {},
+              "dynamic_tools": []
+            }
+          GH_AW_VALIDATION_JSON: |
+            {
+              "create_pull_request_review_comment": {
+                "defaultMax": 1,
+                "fields": {
+                  "body": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  },
+                  "line": {
+                    "required": true,
+                    "positiveInteger": true
+                  },
+                  "path": {
+                    "required": true,
+                    "type": "string"
+                  },
+                  "pull_request_number": {
+                    "optionalPositiveInteger": true
+                  },
+                  "repo": {
+                    "type": "string",
+                    "maxLength": 256
+                  },
+                  "side": {
+                    "type": "string",
+                    "enum": [
+                      "LEFT",
+                      "RIGHT"
+                    ]
+                  },
+                  "start_line": {
+                    "optionalPositiveInteger": true
+                  }
                 },
-                "line": {
-                  "required": true,
-                  "positiveInteger": true
-                },
-                "path": {
-                  "required": true,
-                  "type": "string"
-                },
-                "pull_request_number": {
-                  "optionalPositiveInteger": true
-                },
-                "repo": {
-                  "type": "string",
-                  "maxLength": 256
-                },
-                "side": {
-                  "type": "string",
-                  "enum": [
-                    "LEFT",
-                    "RIGHT"
-                  ]
-                },
-                "start_line": {
-                  "optionalPositiveInteger": true
+                "customValidation": "startLineLessOrEqualLine"
+              },
+              "missing_data": {
+                "defaultMax": 20,
+                "fields": {
+                  "alternatives": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "context": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "data_type": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 128
+                  },
+                  "reason": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  }
                 }
               },
-              "customValidation": "startLineLessOrEqualLine"
-            },
-            "missing_data": {
-              "defaultMax": 20,
-              "fields": {
-                "alternatives": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
-                "context": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
-                "data_type": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 128
-                },
-                "reason": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
+              "missing_tool": {
+                "defaultMax": 20,
+                "fields": {
+                  "alternatives": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 512
+                  },
+                  "reason": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 256
+                  },
+                  "tool": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 128
+                  }
                 }
-              }
-            },
-            "missing_tool": {
-              "defaultMax": 20,
-              "fields": {
-                "alternatives": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 512
-                },
-                "reason": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 256
-                },
-                "tool": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 128
+              },
+              "noop": {
+                "defaultMax": 1,
+                "fields": {
+                  "message": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  }
                 }
-              }
-            },
-            "noop": {
-              "defaultMax": 1,
-              "fields": {
-                "message": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
+              },
+              "report_incomplete": {
+                "defaultMax": 5,
+                "fields": {
+                  "details": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  },
+                  "reason": {
+                    "required": true,
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 1024
+                  }
                 }
-              }
-            },
-            "report_incomplete": {
-              "defaultMax": 5,
-              "fields": {
-                "details": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
-                },
-                "reason": {
-                  "required": true,
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 1024
-                }
-              }
-            },
-            "submit_pull_request_review": {
-              "defaultMax": 1,
-              "fields": {
-                "body": {
-                  "type": "string",
-                  "sanitize": true,
-                  "maxLength": 65000
-                },
-                "event": {
-                  "type": "string",
-                  "enum": [
-                    "APPROVE",
-                    "REQUEST_CHANGES",
-                    "COMMENT"
-                  ]
+              },
+              "submit_pull_request_review": {
+                "defaultMax": 1,
+                "fields": {
+                  "body": {
+                    "type": "string",
+                    "sanitize": true,
+                    "maxLength": 65000
+                  },
+                  "event": {
+                    "type": "string",
+                    "enum": [
+                      "APPROVE",
+                      "REQUEST_CHANGES",
+                      "COMMENT"
+                    ]
+                  }
                 }
               }
             }
-          }
-          GH_AW_SAFE_OUTPUTS_VALIDATION_57efae5f64135fb4_EOF
-          node ${RUNNER_TEMP}/gh-aw/actions/generate_safe_outputs_tools.cjs
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            setupGlobals(core, github, context, exec, io);
+            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_safe_outputs_tools.cjs');
+            await main();
       - name: Generate Safe Outputs MCP Server Config
         id: safe-outputs-config
         run: |
@@ -670,7 +675,7 @@ jobs:
           export DEBUG="*"
           
           export GH_AW_ENGINE="codex"
-          export MCP_GATEWAY_DOCKER_COMMAND='docker run -i --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -e MCP_GATEWAY_PORT -e MCP_GATEWAY_DOMAIN -e MCP_GATEWAY_API_KEY -e MCP_GATEWAY_PAYLOAD_DIR -e MCP_GATEWAY_PAYLOAD_SIZE_THRESHOLD -e DEBUG -e MCP_GATEWAY_LOG_DIR -e GH_AW_MCP_LOG_DIR -e GH_AW_SAFE_OUTPUTS -e GH_AW_SAFE_OUTPUTS_CONFIG_PATH -e GH_AW_SAFE_OUTPUTS_TOOLS_PATH -e GH_AW_ASSETS_BRANCH -e GH_AW_ASSETS_MAX_SIZE_KB -e GH_AW_ASSETS_ALLOWED_EXTS -e DEFAULT_BRANCH -e GITHUB_MCP_SERVER_TOKEN -e GITHUB_MCP_GUARD_MIN_INTEGRITY -e GITHUB_MCP_GUARD_REPOS -e GITHUB_REPOSITORY -e GITHUB_SERVER_URL -e GITHUB_SHA -e GITHUB_WORKSPACE -e GITHUB_TOKEN -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RUN_ATTEMPT -e GITHUB_JOB -e GITHUB_ACTION -e GITHUB_EVENT_NAME -e GITHUB_EVENT_PATH -e GITHUB_ACTOR -e GITHUB_ACTOR_ID -e GITHUB_TRIGGERING_ACTOR -e GITHUB_WORKFLOW -e GITHUB_WORKFLOW_REF -e GITHUB_WORKFLOW_SHA -e GITHUB_REF -e GITHUB_REF_NAME -e GITHUB_REF_TYPE -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GH_AW_SAFE_OUTPUTS_PORT -e GH_AW_SAFE_OUTPUTS_API_KEY -v /tmp/gh-aw/mcp-payloads:/tmp/gh-aw/mcp-payloads:rw -v /opt:/opt:ro -v /tmp:/tmp:rw -v '"${GITHUB_WORKSPACE}"':'"${GITHUB_WORKSPACE}"':rw ghcr.io/github/gh-aw-mcpg:v0.2.14'
+          export MCP_GATEWAY_DOCKER_COMMAND='docker run -i --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -e MCP_GATEWAY_PORT -e MCP_GATEWAY_DOMAIN -e MCP_GATEWAY_API_KEY -e MCP_GATEWAY_PAYLOAD_DIR -e MCP_GATEWAY_PAYLOAD_SIZE_THRESHOLD -e DEBUG -e MCP_GATEWAY_LOG_DIR -e GH_AW_MCP_LOG_DIR -e GH_AW_SAFE_OUTPUTS -e GH_AW_SAFE_OUTPUTS_CONFIG_PATH -e GH_AW_SAFE_OUTPUTS_TOOLS_PATH -e GH_AW_ASSETS_BRANCH -e GH_AW_ASSETS_MAX_SIZE_KB -e GH_AW_ASSETS_ALLOWED_EXTS -e DEFAULT_BRANCH -e GITHUB_MCP_SERVER_TOKEN -e GITHUB_MCP_GUARD_MIN_INTEGRITY -e GITHUB_MCP_GUARD_REPOS -e GITHUB_REPOSITORY -e GITHUB_SERVER_URL -e GITHUB_SHA -e GITHUB_WORKSPACE -e GITHUB_TOKEN -e GITHUB_RUN_ID -e GITHUB_RUN_NUMBER -e GITHUB_RUN_ATTEMPT -e GITHUB_JOB -e GITHUB_ACTION -e GITHUB_EVENT_NAME -e GITHUB_EVENT_PATH -e GITHUB_ACTOR -e GITHUB_ACTOR_ID -e GITHUB_TRIGGERING_ACTOR -e GITHUB_WORKFLOW -e GITHUB_WORKFLOW_REF -e GITHUB_WORKFLOW_SHA -e GITHUB_REF -e GITHUB_REF_NAME -e GITHUB_REF_TYPE -e GITHUB_HEAD_REF -e GITHUB_BASE_REF -e GH_AW_SAFE_OUTPUTS_PORT -e GH_AW_SAFE_OUTPUTS_API_KEY -v /tmp/gh-aw/mcp-payloads:/tmp/gh-aw/mcp-payloads:rw -v /opt:/opt:ro -v /tmp:/tmp:rw -v '"${GITHUB_WORKSPACE}"':'"${GITHUB_WORKSPACE}"':rw ghcr.io/github/gh-aw-mcpg:v0.2.15'
           
           cat > /tmp/gh-aw/mcp-config/config.toml << GH_AW_MCP_CONFIG_2198edc089fd5a7d_EOF
           [history]
@@ -1185,7 +1190,7 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Install Codex CLI
-        run: npm install -g @openai/codex@latest
+        run: npm install --ignore-scripts -g @openai/codex@latest
       - name: Install AWF binary
         run: bash ${RUNNER_TEMP}/gh-aw/actions/install_awf_binary.sh v0.25.13
       - name: Execute Codex CLI

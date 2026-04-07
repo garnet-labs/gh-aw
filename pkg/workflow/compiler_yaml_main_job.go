@@ -35,6 +35,26 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 		checkoutMgr.SetCrossRepoTargetRepo("${{ needs.activation.outputs.target_repo }}")
 	}
 
+	// Mint checkout app tokens directly in the agent job before checkout steps are executed.
+	// Tokens cannot be passed via job outputs from the activation job because
+	// actions/create-github-app-token calls ::add-mask:: on the token, and the GitHub Actions
+	// runner silently drops masked values when used as job outputs (runner v2.308+).
+	// By minting here, the token is available as steps.checkout-app-token-{index}.outputs.token
+	// within the same job, just like the github-mcp-app-token pattern.
+	if checkoutMgr.HasAppAuth() {
+		compilerYamlLog.Print("Generating checkout app token minting steps in agent job")
+		var checkoutPermissions *Permissions
+		if data.Permissions != "" {
+			parser := NewPermissionsParser(data.Permissions)
+			checkoutPermissions = parser.ToPermissions()
+		} else {
+			checkoutPermissions = NewPermissions()
+		}
+		for _, step := range checkoutMgr.GenerateCheckoutAppTokenSteps(c, checkoutPermissions) {
+			yaml.WriteString(step)
+		}
+	}
+
 	// Add checkout step first if needed
 	if needsCheckout {
 		// Emit the default workspace checkout, applying any user-supplied overrides
@@ -249,20 +269,6 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 		for _, line := range step {
 			yaml.WriteString(line + "\n")
 		}
-	}
-
-	// Restore qmd index and models cache if qmd tool is configured.
-	// The index was built and cached in the indexing job; we restore it using the precise
-	// cache key so we always get the index from the current workflow run.
-	// The models cache restores the embedding model weights (cross-platform GGUF files) that
-	// the gateway-managed qmd container mounts from ${HOME}/.cache/qmd/.
-	// Note: the node-llama-cpp binary cache is NOT restored here; the container downloads
-	// the appropriate prebuilt binary for its own OS on first use.
-	if data.QmdConfig != nil {
-		compilerYamlLog.Print("Adding qmd index exact-key cache restore step")
-		yaml.WriteString(generateQmdIndexCacheRestoreExactStep(data.QmdConfig))
-		compilerYamlLog.Print("Adding qmd models cache restore step (read-only)")
-		yaml.WriteString(generateQmdModelsCacheRestoreStep())
 	}
 
 	// GH_AW_SAFE_OUTPUTS is now set at job level, no setup step needed

@@ -28,6 +28,7 @@
 const path = require("path");
 const { appendFileSync } = require("fs");
 const { nowMs } = require("./performance_now.cjs");
+const { getActionInput } = require("./action_input_utils.cjs");
 
 /**
  * Send the OTLP job-setup span and propagate trace context via GITHUB_OUTPUT /
@@ -48,13 +49,18 @@ async function run() {
   // Explicitly read INPUT_TRACE_ID and pass it as options.traceId so the
   // activation job's trace ID is used even when process.env propagation
   // through GitHub Actions expression evaluation is unreliable.
-  // Also handle INPUT_TRACE-ID (with hyphen) in case the runner preserves
-  // the original input name hyphen instead of converting it to an underscore.
-  const inputTraceId = (process.env.INPUT_TRACE_ID || process.env["INPUT_TRACE-ID"] || "").trim().toLowerCase();
+  const inputTraceId = getActionInput("TRACE_ID").toLowerCase();
   if (inputTraceId) {
     console.log(`[otlp] INPUT_TRACE_ID=${inputTraceId} (will reuse activation trace)`);
   } else {
     console.log("[otlp] INPUT_TRACE_ID not set, a new trace ID will be generated");
+  }
+
+  // Normalize to the canonical underscore form so sendJobSetupSpan (which
+  // reads process.env.INPUT_JOB_NAME) always finds the value.
+  const inputJobName = getActionInput("JOB_NAME");
+  if (inputJobName) {
+    process.env.INPUT_JOB_NAME = inputJobName;
   }
 
   if (!endpoint) {
@@ -92,7 +98,7 @@ async function run() {
     }
     // Propagate setup-end timestamp so the conclusion span can measure actual
     // job execution duration (setup-end → conclusion-start).
-    const setupEndMs = Math.round(nowMs());
+    const setupEndMs = Math.floor(nowMs());
     appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_JOB_START_MS=${setupEndMs}\n`);
     console.log(`[otlp] GITHUB_AW_OTEL_JOB_START_MS written to GITHUB_ENV`);
   }

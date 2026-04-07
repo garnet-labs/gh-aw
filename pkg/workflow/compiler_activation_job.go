@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"maps"
 	"slices"
 	"strings"
 
@@ -136,24 +135,6 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 		outputs["activation_app_token_minting_failed"] = "${{ steps.activation-app-token.outcome == 'failure' }}"
 	}
 
-	// Mint checkout app tokens in the activation job so that the agent job never
-	// receives the app-id / private-key secrets. Each token is exposed as a job output
-	// and consumed by the agent job via needs.activation.outputs.checkout_app_token_{index}.
-	checkoutMgrForActivation := NewCheckoutManager(data.CheckoutConfigs)
-	if checkoutMgrForActivation.HasAppAuth() {
-		compilerActivationJobLog.Print("Generating checkout app token minting steps in activation job")
-		var checkoutPermissions *Permissions
-		if data.Permissions != "" {
-			parser := NewPermissionsParser(data.Permissions)
-			checkoutPermissions = parser.ToPermissions()
-		} else {
-			checkoutPermissions = NewPermissions()
-		}
-		checkoutAppTokenSteps := checkoutMgrForActivation.GenerateCheckoutAppTokenSteps(c, checkoutPermissions)
-		steps = append(steps, checkoutAppTokenSteps...)
-		maps.Copy(outputs, checkoutMgrForActivation.CheckoutAppTokenOutputs())
-	}
-
 	// Add reaction step right after generate_aw_info so it is shown to the user as fast as
 	// possible. generate_aw_info runs first so its data is captured even if the reaction fails.
 	// This runs in the activation job so it can use any configured github-token or github-app.
@@ -221,10 +202,12 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 		steps = append(steps, fmt.Sprintf("        uses: %s\n", GetActionPin("actions/github-script")))
 		steps = append(steps, "        env:\n")
 		steps = append(steps, fmt.Sprintf("          GH_AW_WORKFLOW_FILE: \"%s\"\n", lockFilename))
-		// Inject the GitHub Actions context workflow_ref expression so that check_workflow_timestamp_api.cjs
-		// can identify the source repo correctly for cross-repo workflow_call invocations.
-		// Unlike the GITHUB_WORKFLOW_REF env var (which always reflects the top-level caller in workflow_call),
-		// ${{ github.workflow_ref }} correctly refers to the current reusable workflow being executed.
+		// Inject the GitHub Actions context workflow_ref expression as GH_AW_CONTEXT_WORKFLOW_REF
+		// for check_workflow_timestamp_api.cjs. Note: despite what was previously documented,
+		// ${{ github.workflow_ref }} resolves to the CALLER's workflow ref in reusable workflow
+		// contexts, not the callee's. The referenced_workflows API lookup in the script is the
+		// primary mechanism for resolving the callee's repo; GH_AW_CONTEXT_WORKFLOW_REF serves
+		// as a fallback when the API is unavailable or finds no matching entry.
 		steps = append(steps, "          GH_AW_CONTEXT_WORKFLOW_REF: \"${{ github.workflow_ref }}\"\n")
 		steps = append(steps, "        with:\n")
 		steps = append(steps, "          script: |\n")
@@ -504,10 +487,6 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 	// That job packs the bundle and uploads it as an artifact; the agent job then
 	// depends on the apm job to download and restore it.
 
-	// qmd indexing is handled by the separate "indexing" job that depends on activation.
-	// That job builds the index and saves/restores it via the GitHub Actions cache, and the agent job
-	// restores the index using actions/cache/restore.
-
 	// Upload aw_info.json and prompt.txt as the activation artifact for the agent job to download.
 	// In workflow_call context the artifact is prefixed to avoid name clashes when multiple callers
 	// invoke the same reusable workflow within the same parent workflow run.
@@ -530,6 +509,14 @@ func (c *Compiler) buildActivationJob(data *WorkflowData, preActivationJobCreate
 	// Also add issues:write permission if lock-for-agent is enabled (for locking issues)
 	permsMap := map[PermissionScope]PermissionLevel{
 		PermissionContents: PermissionRead, // Always needed for GitHub API access to check file commits
+	}
+
+	// Add actions:read permission when the hash check API step is emitted.
+	// check_workflow_timestamp_api.cjs calls github.rest.actions.getWorkflowRun() which
+	// requires the actions:read scope. GitHub Actions enforces explicit permissions when
+	// any permissions block is present, so we must add it explicitly.
+	if !data.StaleCheckDisabled {
+		permsMap[PermissionActions] = PermissionRead
 	}
 
 	if hasReaction {
