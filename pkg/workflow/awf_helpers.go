@@ -24,6 +24,7 @@ package workflow
 
 import (
 	"fmt"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -365,21 +366,22 @@ func WrapCommandInShell(command string) string {
 	return fmt.Sprintf("/bin/bash -c '%s'", escapedCommand)
 }
 
-// extractAPITargetHost extracts the hostname from a custom API base URL in engine.env.
-// This supports custom OpenAI-compatible or Anthropic-compatible endpoints (e.g., internal
-// LLM routers, Azure OpenAI) while preserving AWF's credential isolation and firewall features.
+// extractAPITargetHost extracts the hostname (and optional port) from a custom API base URL
+// stored in engine.env. This supports custom OpenAI-compatible, Anthropic-compatible, and
+// Copilot-compatible endpoints while preserving AWF's credential isolation and firewall features.
 //
 // The function:
 // 1. Checks if the specified env var (e.g., "OPENAI_BASE_URL") exists in engine.env
-// 2. Extracts the hostname from the URL (e.g., "https://llm-router.internal.example.com/v1" → "llm-router.internal.example.com")
-// 3. Returns empty string if no custom URL is configured or if the URL is invalid
+// 2. Parses the URL using net/url to correctly discard userinfo, query, and fragment
+// 3. Returns host[:port] (e.g., "llm-router.internal.example.com" or "localhost:8080")
+// 4. Returns empty string if no custom URL is configured or if the URL is invalid
 //
 // Parameters:
 //   - workflowData: The workflow data containing engine configuration
 //   - envVar: The environment variable name (e.g., "OPENAI_BASE_URL", "ANTHROPIC_BASE_URL")
 //
 // Returns:
-//   - string: The hostname to use as --openai-api-target or --anthropic-api-target, or empty string if not configured
+//   - string: The hostname[:port] to use as an API target, or empty string if not configured
 //
 // Example:
 //
@@ -403,28 +405,22 @@ func extractAPITargetHost(workflowData *WorkflowData, envVar string) string {
 		return ""
 	}
 
-	// Extract hostname from URL
-	// URLs can be:
-	// - "https://llm-router.internal.example.com/v1" → "llm-router.internal.example.com"
-	// - "http://localhost:8080/v1" → "localhost:8080"
-	// - "api.openai.com" → "api.openai.com" (treated as hostname)
-
-	// Remove protocol prefix if present
-	host := baseURL
-	if idx := strings.Index(host, "://"); idx != -1 {
-		host = host[idx+3:]
+	// Prepend a scheme when absent so that net/url treats the value as a host,
+	// not as a path. Without this, "api.openai.com" would parse with an empty host.
+	rawURL := baseURL
+	if !strings.Contains(rawURL, "://") {
+		rawURL = "https://" + rawURL
 	}
 
-	// Remove path suffix if present (everything after first /)
-	if idx := strings.Index(host, "/"); idx != -1 {
-		host = host[:idx]
-	}
-
-	// Validate that we have a non-empty hostname
-	if host == "" {
+	parsed, err := url.Parse(rawURL)
+	if err != nil || parsed.Host == "" {
 		awfHelpersLog.Printf("Invalid %s URL (no hostname): %s", envVar, baseURL)
 		return ""
 	}
+
+	// parsed.Host is "host" or "host:port" — userinfo, query and fragment are
+	// automatically discarded by net/url.Parse.
+	host := parsed.Host
 
 	awfHelpersLog.Printf("Extracted API target host from %s: %s", envVar, host)
 	return host

@@ -716,6 +716,33 @@ func mergeAPITargetDomains(domainsStr string, apiTarget string) string {
 	return strings.Join(result, ",")
 }
 
+// mergeExactHostDomain merges a single exact hostname into an existing comma-separated domain string.
+// Unlike mergeAPITargetDomains, this does NOT derive a parent hostname for "api.*" prefixes, so
+// only the exact host is added. Use this when base-domain derivation would be overly broad —
+// for example, BYOK provider URLs where only the provider host itself needs firewall access.
+// Returns the original string unchanged when host is empty.
+func mergeExactHostDomain(domainsStr string, host string) string {
+	if host == "" {
+		return domainsStr
+	}
+
+	domainMap := make(map[string]bool)
+	for d := range strings.SplitSeq(domainsStr, ",") {
+		d = strings.TrimSpace(d)
+		if d != "" {
+			domainMap[d] = true
+		}
+	}
+	domainMap[host] = true
+
+	result := make([]string, 0, len(domainMap))
+	for d := range domainMap {
+		result = append(result, d)
+	}
+	sort.Strings(result)
+	return strings.Join(result, ",")
+}
+
 // computeAllowedDomainsForSanitization computes the allowed domains for sanitization
 // based on the engine and network configuration, matching what's provided to the firewall
 func (c *Compiler) computeAllowedDomainsForSanitization(data *WorkflowData) string {
@@ -752,8 +779,10 @@ func (c *Compiler) computeAllowedDomainsForSanitization(data *WorkflowData) stri
 	}
 	// Add BYOK provider domains so GH_AW_ALLOWED_DOMAINS stays in sync with --allow-domains.
 	// Resolved from COPILOT_PROVIDER_BASE_URL in engine.env (Copilot CLI 1.0.19+ BYOK feature).
+	// Use mergeExactHostDomain (not mergeAPITargetDomains) so that only the exact provider
+	// hostname is added — no "api." base-domain derivation, which would be overly broad.
 	if providerAPITarget := GetCopilotProviderAPITarget(data); providerAPITarget != "" {
-		base = mergeAPITargetDomains(base, providerAPITarget)
+		base = mergeExactHostDomain(base, providerAPITarget)
 	}
 
 	return base

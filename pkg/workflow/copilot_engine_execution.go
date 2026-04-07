@@ -190,8 +190,10 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		}
 		// Add BYOK provider domains to the firewall allow-list.
 		// Resolved from COPILOT_PROVIDER_BASE_URL in engine.env (Copilot CLI 1.0.19+ BYOK feature).
+		// Use mergeExactHostDomain (not mergeAPITargetDomains) so that only the exact provider
+		// hostname is added — no "api." base-domain derivation, which would be overly broad.
 		if providerAPITarget := GetCopilotProviderAPITarget(workflowData); providerAPITarget != "" {
-			allowedDomains = mergeAPITargetDomains(allowedDomains, providerAPITarget)
+			allowedDomains = mergeExactHostDomain(allowedDomains, providerAPITarget)
 		}
 
 		// AWF v0.15.0+ uses chroot mode by default, providing transparent access to host binaries

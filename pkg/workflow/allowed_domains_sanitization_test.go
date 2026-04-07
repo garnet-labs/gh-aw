@@ -780,7 +780,7 @@ Test workflow with COPILOT_PROVIDER_BASE_URL (BYOK) in engine.env.
 	}
 	lockStr := string(lockContent)
 
-	// Extracted hostname should appear in --allow-domains
+	// Extracted hostname should appear in --allow-domains (exact CSV membership check)
 	allowDomainsIdx := strings.Index(lockStr, "--allow-domains")
 	if allowDomainsIdx < 0 {
 		t.Fatal("--allow-domains flag not found in compiled lock file")
@@ -790,11 +790,13 @@ Test workflow with COPILOT_PROVIDER_BASE_URL (BYOK) in engine.env.
 		allowDomainsEnd = len(lockStr) - allowDomainsIdx
 	}
 	allowDomainsLine := lockStr[allowDomainsIdx : allowDomainsIdx+allowDomainsEnd]
-	if !strings.Contains(allowDomainsLine, "my-ollama.internal.example.com") {
+	allowedDomainsCSV := extractQuotedCSV(allowDomainsLine)
+	allowedParts := strings.Split(allowedDomainsCSV, ",")
+	if !slices.Contains(allowedParts, "my-ollama.internal.example.com") {
 		t.Errorf("Expected hostname from COPILOT_PROVIDER_BASE_URL in --allow-domains.\nLine: %s", allowDomainsLine)
 	}
 
-	// Extracted hostname should appear in GH_AW_ALLOWED_DOMAINS
+	// Extracted hostname should appear in GH_AW_ALLOWED_DOMAINS (exact CSV membership check)
 	lines := strings.Split(lockStr, "\n")
 	var domainsLine string
 	for _, line := range lines {
@@ -806,7 +808,9 @@ Test workflow with COPILOT_PROVIDER_BASE_URL (BYOK) in engine.env.
 	if domainsLine == "" {
 		t.Fatal("GH_AW_ALLOWED_DOMAINS not found in compiled lock file")
 	}
-	if !strings.Contains(domainsLine, "my-ollama.internal.example.com") {
+	allowedEnvCSV := extractQuotedCSV(domainsLine)
+	allowedEnvParts := strings.Split(allowedEnvCSV, ",")
+	if !slices.Contains(allowedEnvParts, "my-ollama.internal.example.com") {
 		t.Errorf("Expected hostname from COPILOT_PROVIDER_BASE_URL in GH_AW_ALLOWED_DOMAINS.\nLine: %s", domainsLine)
 	}
 }
