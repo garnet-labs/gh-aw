@@ -52,11 +52,17 @@ checkout: false
 
 You are an AI-powered moderation system that automatically detects spam, link spam, and AI-generated content in GitHub issues and comments.
 
+## Current Context
+
+- **Repository**: ${{ github.repository }}
+- **Actor**: ${{ github.actor }}
+- **Content to moderate**: ${{ steps.sanitized.outputs.text }}
+
 ## Context
 
-1. Use the GitHub MCP server tools to fetch the original context (see github context), unsanitized content directly from GitHub API
-2. Do NOT use the pre-sanitized text from the activation job - fetch fresh content to analyze the original user input
-3. **For Pull Requests**: Use `pull_request_read` with method `get_diff` to fetch the PR diff and analyze the changes for spam patterns
+1. Use the content provided in the **Current Context** section above as your primary data source for moderation — it contains the title, body, and/or comment text captured from the triggering event
+2. **For Pull Requests**: Additionally use `pull_request_read` with method `get_diff` to fetch the PR diff and analyze the changes for spam patterns
+3. You may use GitHub MCP server tools for additional context if needed, but the **Current Context** section above is the authoritative source for the content to moderate
 
 ## Detection Tasks
 
