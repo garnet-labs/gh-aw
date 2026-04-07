@@ -69,7 +69,7 @@ func CollectActionReferences(yamlContent string) []string {
 	// Pre-filter lines containing "uses:" before applying the regex.
 	// This avoids running a multiline regex over the entire YAML document,
 	// which is much slower than a simple string scan followed by per-line regex.
-	for _, line := range strings.Split(yamlContent, "\n") {
+	for line := range strings.SplitSeq(yamlContent, "\n") {
 		if !strings.Contains(line, "uses:") {
 			continue
 		}

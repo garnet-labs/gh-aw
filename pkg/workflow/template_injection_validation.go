@@ -79,7 +79,7 @@ func hasUnsafeExpressionInRunBlock(yamlContent string) bool {
 	inRunBlock := false
 	runIndent := -1
 
-	for _, line := range strings.Split(yamlContent, "\n") {
+	for line := range strings.SplitSeq(yamlContent, "\n") {
 		trimmed := strings.TrimLeft(line, " \t")
 		indent := len(line) - len(trimmed)
 
