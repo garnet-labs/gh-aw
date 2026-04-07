@@ -391,10 +391,13 @@ describe("assign_to_agent", () => {
 
   it("should sanitize dangerous content in failure comment body", async () => {
     const handler = await main({});
+    mockGithub.graphql.mockRejectedValue(new Error("@admin triggered <!-- inject --> error"));
     await handler({ type: "assign_to_agent", issue_number: 11, agent: "copilot" }, {}, new Map());
     expect(mockGithub.rest.issues.createComment).toHaveBeenCalledTimes(1);
     const [callArg] = mockGithub.rest.issues.createComment.mock.calls[0];
     expect(typeof callArg.body).toBe("string");
+    expect(callArg.body).not.toMatch(/(?<!`)@admin(?!`)/);
+    expect(callArg.body).not.toContain("<!-- inject -->");
   });
 
   it("should not post failure comment when ignore-if-error skips the assignment", async () => {
@@ -409,6 +412,7 @@ describe("assign_to_agent", () => {
     mockGithub.graphql.mockRejectedValue(new Error("Bad credentials"));
     mockGithub.rest.issues.createComment.mockRejectedValue(new Error("Could not post comment"));
     await handler({ type: "assign_to_agent", issue_number: 42, agent: "copilot" }, {}, new Map());
+    expect(mockGithub.rest.issues.createComment).toHaveBeenCalledTimes(1);
     expect(handler.getErrorCount()).toBe(1);
     expect(handler.getErrors()).toContain("Bad credentials");
     expect(mockCore.warning).toHaveBeenCalledWith(expect.stringContaining("Failed to post failure comment"));
