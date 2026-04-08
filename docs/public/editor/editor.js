@@ -2,13 +2,13 @@
 // gh-aw Playground - Application Logic
 // ================================================================
 
-import { EditorView, basicSetup } from 'https://esm.sh/codemirror@6.0.2';
-import { EditorState, Compartment } from 'https://esm.sh/@codemirror/state@6.5.4';
-import { keymap } from 'https://esm.sh/@codemirror/view@6.39.14';
-import { yaml } from 'https://esm.sh/@codemirror/lang-yaml@6.1.2';
-import { markdown } from 'https://esm.sh/@codemirror/lang-markdown@6.5.0';
-import { indentUnit } from 'https://esm.sh/@codemirror/language@6.12.1';
-import { oneDark } from 'https://esm.sh/@codemirror/theme-one-dark@6.1.3';
+import { EditorView, basicSetup } from 'https://esm.sh/codemirror@6.0.2?deps=@codemirror/state@6.6.0';
+import { EditorState, Compartment } from 'https://esm.sh/@codemirror/state@6.6.0';
+import { keymap } from 'https://esm.sh/@codemirror/view@6.41.0?deps=@codemirror/state@6.6.0';
+import { yaml } from 'https://esm.sh/@codemirror/lang-yaml@6.1.2?deps=@codemirror/state@6.6.0';
+import { markdown } from 'https://esm.sh/@codemirror/lang-markdown@6.5.0?deps=@codemirror/state@6.6.0';
+import { indentUnit } from 'https://esm.sh/@codemirror/language@6.12.3?deps=@codemirror/state@6.6.0';
+import { oneDark } from 'https://esm.sh/@codemirror/theme-one-dark@6.1.3?deps=@codemirror/state@6.6.0';
 import { createWorkerCompiler } from '/gh-aw/wasm/compiler-loader.js';
 import { frontmatterHoverTooltip } from './hover-tooltips.js';
 
