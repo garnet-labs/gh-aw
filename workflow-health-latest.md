@@ -1,53 +1,36 @@
-# Workflow Health - 2026-04-07T12:08Z
+# Workflow Health - 2026-04-08T12:07Z
 
-Score: 73/100 (↑2 from 71). 182 workflows. Run: §24080416548
+Score: 71/100 (↓2 from 73). 182 workflows. Run: §24134411505
 
-## KEY FINDING: Lock File Status
+## KEY FINDING: Systemic Failure Spike (P1)
 
-182 workflows, 182 lock files — all present. 16 files showed timestamp drift (1ms checkout artifact, all same git commit). **0 genuinely stale lock files.**
+20 new failure issues created Apr 8. Common pattern: engine exits code 1 after containers stop cleanly. Affects 12 Copilot + 1 Claude workflows.
 
-## P1 Issues (Ongoing)
+## P1 Issues (Active)
 
-- **Duplicate Code Detector** (#24718, Codex API restriction): Still open, externally blocked.
-- **AI Moderator** (#25022, missing_data every run): New issue created Apr 7. Consistent 4/4 failure.
+- **AI Moderator** (#25022): missing_data every run. Assigned to Copilot via Issue Monster. Open.
+- **Systemic Engine Failures Apr 8** (new issue aw_sys001 created): 13+ workflows, "exit code 1", spans 01:02-12:04 UTC. Possible causes: infra issue, firewall v0.25.16, Copilot CLI 1.0.21, pre-steps feature.
 
-## High (Watch)
+## Resolved Since Apr 7 ✅
 
-- GitHub Remote MCP Auth false-negative (#24829): Workflow passes internally but fails at Actions level. Comment added Apr 7.
-- **GitHub API rate limit**: Installation rate limit exceeded during this run (reset ~12:27 UTC). Prevented per-workflow run queries — health assessment relies on shared memory from prior runs.
-
-## P2 (Watch)
-
-- Smoke Claude: ~30% failure rate (ongoing).
-- Schema Checker: 62 turns (↑7 from 55). Elevated but improving from 114 peak.
-- Documentation Unbloat: $1.94/run, 53 turns. Optimization candidate.
-- Metrics Collector: Partial failure (no GitHub token at runtime). Ecosystem data only.
-
-## Actions This Run
-
-- No new issues created (existing issues cover active P1s)
-- All 182 lock files verified: 0 genuinely stale (checkout timestamp artifact confirmed)
-- Score updated: 71→73
+- #24718 Duplicate Code Detector: CLOSED not_planned (Apr 6)
+- #24829 GitHub Remote MCP Auth: CLOSED not_planned (Apr 7)
 
 ## Score Breakdown
 
-- Compilation success (all 182 lock files present): +20
-- Lock files up to date (0 stale): +15
-- P1 issues (×2, Duplicate Code Detector + AI Moderator): -10
-- High issues (GitHub Remote MCP Auth): -4
-- Smoke Claude failures + Intermittent errors: -6
-- API rate limiting (structural concern): -2
-- Subtotal: ~73/100
+- Compilation: 182/182 lock files, 0 stale: +35
+- P1 issues (AI Moderator + systemic): -12
+- Resolved P1s: +10 (baked into 73 → adjusted)
+- Intermittent + smoke failures: -5
+- Net: 71/100
 
-## Trends
+## Score Trend
 
-- Lock files: 0 stale (stable)
-- P1 count: 2 (Duplicate Code Detector ongoing, AI Moderator new Apr 7)
-- Score: 68→71→73 (improving)
+68 → 71 → 73 → 71 (Apr 5–8, spike today)
 
 ## Next Run Priorities
 
-1. Check if AI Moderator (#25022) is progressing/resolved
-2. Check if GitHub Remote MCP Auth (#24829) is resolved
-3. Monitor Schema Checker turns (target: <50)
-4. Verify Smoke Claude failure rate trend
+1. Check if AI Moderator Copilot PR resolved #25022
+2. Track if systemic engine failure issue is resolved/acknowledged
+3. Monitor pre-steps feature adoption and lock file drift
+4. Check Copilot CLI 1.0.21 for known issues
