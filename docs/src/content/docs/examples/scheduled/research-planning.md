@@ -35,3 +35,11 @@ Searches for information on a given topic, analyzes results, and creates structu
 ### Model Context Protocol (MCP) Inspector
 
 Analyzes all [MCP](/gh-aw/reference/glossary/#mcp-model-context-protocol) configuration files, extracts server details, and generates comprehensive inventory reports to maintain visibility into available [MCP servers](/gh-aw/reference/glossary/#mcp-server) and their capabilities. Runs weekly on Mondays at 10am UTC, or manually via workflow_dispatch. Workflow file: `.github/workflows/mcp-inspector.md`
+
+### Refactoring Cadence
+
+Tracks repository code health over time using file length, cyclomatic complexity, file growth, and TODO/FIXME/HACK churn metrics. Automatically opens a refactoring issue when the health score drops below a configurable threshold, giving teams a forcing function for continuous structural improvement. Uses cache memory to compare health trends across runs. Runs daily on weekdays. Workflow file: `.github/workflows/refactoring-cadence.md`
+
+### Architecture Guardian
+
+Analyzes commits from the last 24 hours to detect code structure violations in Go and JavaScript files — including large files, oversized functions, high export counts, and import cycles. Opens a GitHub issue when violations are found so teams can track and resolve structural debt before it accumulates. Runs daily on weekdays. Workflow file: `.github/workflows/architecture-guardian.md`
