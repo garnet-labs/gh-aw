@@ -7,7 +7,7 @@
  * Validates artifact upload requests emitted by the model via the upload_artifact safe output
  * tool, then uploads the approved files directly via the @actions/artifact REST API client.
  * The model must have already copied the files it wants to upload to
- * ${RUNNER_TEMP}/gh-aw/safeoutputs/upload-artifacts/ before calling the tool.
+ * /tmp/gh-aw/safeoutputs/upload-artifacts/ before calling the tool.
  *
  * This handler follows the per-message handler pattern used by the safe_outputs handler loop.
  * main(config) returns a per-message handler function that:
@@ -38,13 +38,13 @@ const { globPatternToRegex } = require("./glob_pattern_helpers.cjs");
 const { ERR_VALIDATION } = require("./error_codes.cjs");
 
 /** Staging directory where the model places files to be uploaded. */
-const STAGING_DIR = `${process.env.RUNNER_TEMP}/gh-aw/safeoutputs/upload-artifacts/`;
+const STAGING_DIR = `/tmp/gh-aw/safeoutputs/upload-artifacts/`;
 
 /** Prefix for temporary artifact IDs returned to the caller. */
 const TEMP_ID_PREFIX = "tmp_artifact_";
 
 /** Path where the resolver mapping (tmpId → artifact name) is written. */
-const RESOLVER_FILE = `${process.env.RUNNER_TEMP}/gh-aw/artifact-resolver.json`;
+const RESOLVER_FILE = `/tmp/gh-aw/artifact-resolver.json`;
 
 /**
  * Generate a temporary artifact ID.

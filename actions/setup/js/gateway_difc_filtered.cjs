@@ -123,7 +123,7 @@ function generateDifcFilteredSection(filteredEvents) {
   }
 
   section += `>\n`;
-  const promptsDir = process.env.GH_AW_PROMPTS_DIR || `${process.env.RUNNER_TEMP}/gh-aw/prompts`;
+  const promptsDir = process.env.GH_AW_PROMPTS_DIR || `/tmp/gh-aw/prompts`;
   const remediationPath = `${promptsDir}/integrity_filter_remediation.md`;
   const remediationText = fs.readFileSync(remediationPath, "utf8");
   for (const line of remediationText.trimEnd().split("\n")) {

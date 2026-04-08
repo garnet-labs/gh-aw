@@ -69,7 +69,7 @@ Create an issue.
 	}
 
 	// Check that the script uses require to load the parse_threat_detection_results.cjs file
-	if !strings.Contains(detectionSection, "require('${{ runner.temp }}/gh-aw/actions/parse_threat_detection_results.cjs')") {
+	if !strings.Contains(detectionSection, "require('/tmp/gh-aw/actions/parse_threat_detection_results.cjs')") {
 		t.Error("Detection conclusion step doesn't use require to load parse_threat_detection_results.cjs")
 	}
 

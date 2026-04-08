@@ -669,7 +669,7 @@ function buildTimeoutContext(isTimedOut, timeoutMinutes) {
   const currentMinutes = parseInt(timeoutMinutes || "20", 10);
   const suggestedMinutes = currentMinutes + 10;
 
-  const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/agent_timeout.md`;
+  const templatePath = `/tmp/gh-aw/prompts/agent_timeout.md`;
   return "\n" + renderTemplateFromFile(templatePath, { current_minutes: currentMinutes, suggested_minutes: suggestedMinutes });
 }
 
@@ -683,7 +683,7 @@ function buildInferenceAccessErrorContext(hasInferenceAccessError) {
     return "";
   }
 
-  const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/inference_access_error.md`;
+  const templatePath = `/tmp/gh-aw/prompts/inference_access_error.md`;
   const template = fs.readFileSync(templatePath, "utf8");
   return "\n" + template;
 }
@@ -712,7 +712,7 @@ function buildLockdownCheckFailedContext(hasLockdownCheckFailed) {
     return "";
   }
 
-  const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/lockdown_check_failed.md`;
+  const templatePath = `/tmp/gh-aw/prompts/lockdown_check_failed.md`;
   const template = fs.readFileSync(templatePath, "utf8");
   return "\n" + template;
 }
@@ -742,7 +742,7 @@ function buildAssignCopilotFailureContext(hasAssignCopilotFailures, assignCopilo
     }
   }
 
-  const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/assign_copilot_to_created_issues_failure.md`;
+  const templatePath = `/tmp/gh-aw/prompts/assign_copilot_to_created_issues_failure.md`;
   return "\n" + renderTemplateFromFile(templatePath, { issues: issueList });
 }
 
@@ -820,7 +820,7 @@ function buildEngineFailureContext() {
       const hasCyberPolicyViolation = Array.from(errorMessages).some(msg => msg.includes("cyber_policy_violation"));
       if (hasCyberPolicyViolation) {
         core.info("Detected cyber_policy_violation error — using dedicated context message");
-        const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/cyber_policy_violation.md`;
+        const templatePath = `/tmp/gh-aw/prompts/cyber_policy_violation.md`;
         try {
           return "\n" + renderTemplateFromFile(templatePath, {});
         } catch {
@@ -1129,7 +1129,7 @@ async function main() {
         core.info(`Found existing issue #${existingIssue.number}: ${existingIssue.html_url}`);
 
         // Read comment template
-        const commentTemplatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/agent_failure_comment.md`;
+        const commentTemplatePath = `/tmp/gh-aw/prompts/agent_failure_comment.md`;
         const commentTemplate = fs.readFileSync(commentTemplatePath, "utf8");
 
         // Extract run ID from URL (e.g., https://github.com/owner/repo/actions/runs/123 -> "123")
@@ -1278,7 +1278,7 @@ async function main() {
         core.info("No existing issue found, creating a new one");
 
         // Read issue template
-        const issueTemplatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/agent_failure_issue.md`;
+        const issueTemplatePath = `/tmp/gh-aw/prompts/agent_failure_issue.md`;
         const issueTemplate = fs.readFileSync(issueTemplatePath, "utf8");
 
         // Get current branch information

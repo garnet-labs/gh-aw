@@ -22,7 +22,7 @@ const main = buildMissingIssueHandler({
   defaultTitlePrefix: "[incomplete]",
   defaultLabels: ["agentic-workflows"],
   itemsField: "incomplete_signals",
-  templatePath: `${process.env.RUNNER_TEMP}/gh-aw/prompts/missing_tool_issue.md`,
+  templatePath: `/tmp/gh-aw/prompts/missing_tool_issue.md`,
   templateListKey: "incomplete_signals_list",
   buildCommentHeader: runUrl => [`## Incomplete Run Reported`, ``, `The agent reported that the task could not be completed during [workflow run](${runUrl}):`, ``],
   renderCommentItem: (item, index) => {

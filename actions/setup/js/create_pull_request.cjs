@@ -1345,7 +1345,7 @@ ${patchPreview}`;
         // Use the push-failed template with artifact download instructions.
         const runId = context.runId;
         const patchFileName = patchFilePath ? patchFilePath.replace("/tmp/gh-aw/", "") : "aw-unknown.patch";
-        const pushFailedTemplatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/manifest_protection_push_failed_fallback.md`;
+        const pushFailedTemplatePath = `/tmp/gh-aw/prompts/manifest_protection_push_failed_fallback.md`;
         fallbackBody = renderTemplateFromFile(pushFailedTemplatePath, {
           main_body: mainBodyContent,
           footer: footerContent,
@@ -1362,7 +1362,7 @@ ${patchPreview}`;
         const encodedBase = encodePathSegments(baseBranch);
         const encodedHead = encodePathSegments(branchName);
         const createPrUrl = `${githubServer}/${repoParts.owner}/${repoParts.repo}/compare/${encodedBase}...${encodedHead}?expand=1&title=${encodeURIComponent(title)}`;
-        const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/manifest_protection_create_pr_fallback.md`;
+        const templatePath = `/tmp/gh-aw/prompts/manifest_protection_create_pr_fallback.md`;
         fallbackBody = renderTemplateFromFile(templatePath, {
           main_body: mainBodyContent,
           footer: footerContent,
@@ -1557,7 +1557,7 @@ ${patchPreview}`;
           patchPreview = generatePatchPreview(patchContent);
         }
 
-        const fallbackTemplatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/pr_permission_denied_fallback.md`;
+        const fallbackTemplatePath = `/tmp/gh-aw/prompts/pr_permission_denied_fallback.md`;
         const fallbackBody = renderTemplateFromFile(fallbackTemplatePath, {
           body,
           branch_name: branchName,

@@ -1431,8 +1431,8 @@ func TestGenerateCopilotSessionFileCopyStep(t *testing.T) {
 	if !strings.Contains(content, "copy_copilot_session_state.sh") {
 		t.Error("Step should invoke copy_copilot_session_state.sh")
 	}
-	if !strings.Contains(content, "${RUNNER_TEMP}/gh-aw/actions/") {
-		t.Error("Step should reference script via ${RUNNER_TEMP}/gh-aw/actions/")
+	if !strings.Contains(content, "/tmp/gh-aw/actions/") {
+		t.Error("Step should reference script via /tmp/gh-aw/actions/")
 	}
 }
 

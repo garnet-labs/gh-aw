@@ -12,11 +12,11 @@
 #     run: |
 #       bash /tmp/gh-aw/actions-source/actions/setup/clean.sh
 #     env:
-#       INPUT_DESTINATION: ${{ runner.temp }}/gh-aw/actions
+#       INPUT_DESTINATION: /tmp/gh-aw/actions
 
 set -e
 
-DESTINATION="${INPUT_DESTINATION:-${RUNNER_TEMP}/gh-aw/actions}"
+DESTINATION="${INPUT_DESTINATION:-/tmp/gh-aw/actions}"
 
 # Send OTLP job conclusion span (non-fatal).
 # Delegates to action_conclusion_otlp.cjs (same file used by actions/setup/post.js)

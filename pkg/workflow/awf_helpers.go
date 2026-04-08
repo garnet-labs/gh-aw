@@ -83,26 +83,24 @@ func BuildAWFCommand(config AWFCommandConfig) string {
 	awfCommand := GetAWFCommandPrefix(config.WorkflowData)
 
 	// Build AWF arguments. The returned list contains only args that are safe to pass
-	// through shellJoinArgs. Expandable-var args (--container-workdir "${GITHUB_WORKSPACE}"
-	// and --mount "${RUNNER_TEMP}/...") are appended raw below so that shell variable
-	// expansion is not suppressed by single-quoting.
+	// through shellJoinArgs. Expandable-var args (--container-workdir "${GITHUB_WORKSPACE}")
+	// are appended raw below so that shell variable expansion is not suppressed by single-quoting.
 	awfArgs := BuildAWFArgs(config)
 
 	// Build the expandable args string for args that need shell variable expansion.
-	// These MUST be appended as raw (unescaped) strings because single-quoting would
-	// prevent the runner's shell from expanding ${GITHUB_WORKSPACE} and ${RUNNER_TEMP}.
-	ghAwDir := "${RUNNER_TEMP}/gh-aw"
+	// ${GITHUB_WORKSPACE} must remain unescaped for shell expansion.
+	ghAwDir := "/tmp/gh-aw"
 	expandableArgs := fmt.Sprintf(
 		`--container-workdir "${GITHUB_WORKSPACE}" --mount "%s:%s:ro" --mount "%s:/host%s:ro"`,
 		ghAwDir, ghAwDir, ghAwDir, ghAwDir,
 	)
 
 	// When upload_artifact is configured, add a read-write mount for the staging directory
-	// so the model can copy files there from inside the container. The parent ${RUNNER_TEMP}/gh-aw
+	// so the model can copy files there from inside the container. The parent /tmp/gh-aw
 	// is mounted :ro above; this child mount overrides access for the staging subdirectory only.
 	// The staging directory must already exist on the host (created in Write Safe Outputs Config step).
 	if config.WorkflowData != nil && config.WorkflowData.SafeOutputs != nil && config.WorkflowData.SafeOutputs.UploadArtifact != nil {
-		stagingDir := "${RUNNER_TEMP}/gh-aw/safeoutputs/upload-artifacts"
+		stagingDir := "/tmp/gh-aw/safeoutputs/upload-artifacts"
 		expandableArgs += fmt.Sprintf(` --mount "%s:%s:rw"`, stagingDir, stagingDir)
 		awfHelpersLog.Print("Added read-write mount for upload_artifact staging directory")
 	}
@@ -194,10 +192,10 @@ func BuildAWFArgs(config AWFCommandConfig) []string {
 		awfHelpersLog.Printf("Skipping --exclude-env: AWF version %q is older than minimum %s", getAWFImageTag(firewallConfig), constants.AWFExcludeEnvMinVersion)
 	}
 
-	// Note: --container-workdir "${GITHUB_WORKSPACE}" and --mount "${RUNNER_TEMP}/gh-aw:..."
+	// Note: --container-workdir "${GITHUB_WORKSPACE}" and --mount "/tmp/gh-aw:..."
 	// are intentionally NOT added here. They contain shell variable references that require
 	// double-quote expansion. These args are appended raw in BuildAWFCommand to ensure
-	// ${GITHUB_WORKSPACE} and ${RUNNER_TEMP} are expanded by the runner's shell.
+	// ${GITHUB_WORKSPACE} is expanded by the runner's shell.
 
 	// Add custom mounts from agent config if specified
 	if agentConfig != nil && len(agentConfig.Mounts) > 0 {

@@ -472,17 +472,15 @@ describe("handle_agent_failure", () => {
       vi.resetModules();
       tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "aw-test-"));
       stdioLogPath = path.join(tmpDir, "agent-stdio.log");
-      promptsDir = path.join(tmpDir, "gh-aw", "prompts");
+      promptsDir = "/tmp/gh-aw/prompts";
       fs.mkdirSync(promptsDir, { recursive: true });
       process.env.GH_AW_AGENT_OUTPUT = path.join(tmpDir, "agent_output.json");
-      process.env.RUNNER_TEMP = tmpDir;
       ({ buildEngineFailureContext } = require("./handle_agent_failure.cjs"));
     });
 
     afterEach(() => {
       delete process.env.GH_AW_AGENT_OUTPUT;
       delete process.env.GH_AW_ENGINE_ID;
-      delete process.env.RUNNER_TEMP;
       // Clean up temp dir
       if (fs.existsSync(tmpDir)) {
         fs.rmSync(tmpDir, { recursive: true, force: true });

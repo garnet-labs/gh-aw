@@ -205,7 +205,7 @@ function createParentIssueTemplate(groupId, titlePrefix, workflowName, workflowS
   };
 
   // Load and render the issue template
-  const issueTemplatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/issue_group_parent.md`;
+  const issueTemplatePath = `/tmp/gh-aw/prompts/issue_group_parent.md`;
   let body = renderTemplateFromFile(issueTemplatePath, templateContext);
 
   // Add footer with workflow information

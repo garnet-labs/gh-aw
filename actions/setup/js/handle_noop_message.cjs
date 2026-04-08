@@ -47,7 +47,7 @@ async function ensureAgentRunsIssue() {
   core.info(`No no-op runs issue found, creating one`);
 
   // Load template from file
-  const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/noop_runs_issue.md`;
+  const templatePath = `/tmp/gh-aw/prompts/noop_runs_issue.md`;
   const parentBodyContent = fs.readFileSync(templatePath, "utf8");
 
   const parentBody = generateFooterWithExpiration({
@@ -183,7 +183,7 @@ async function main() {
     }
 
     // Load and render comment template from file
-    const commentTemplatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/noop_comment.md`;
+    const commentTemplatePath = `/tmp/gh-aw/prompts/noop_comment.md`;
     const commentBody = renderTemplateFromFile(commentTemplatePath, {
       workflow_name: workflowName,
       message: noopMessage,

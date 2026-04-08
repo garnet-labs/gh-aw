@@ -375,7 +375,7 @@ func (c *Compiler) generateUnifiedPromptCreationStep(yaml *strings.Builder, buil
 	yaml.WriteString("          GH_AW_PROMPT: /tmp/gh-aw/aw-prompts/prompt.txt\n")
 
 	if data.SafeOutputs != nil {
-		yaml.WriteString("          GH_AW_SAFE_OUTPUTS: ${{ runner.temp }}/gh-aw/safeoutputs/outputs.jsonl\n")
+		yaml.WriteString("          GH_AW_SAFE_OUTPUTS: /tmp/gh-aw/safeoutputs/outputs.jsonl\n")
 	}
 
 	// Add all environment variables in sorted order for consistency
@@ -390,7 +390,7 @@ func (c *Compiler) generateUnifiedPromptCreationStep(yaml *strings.Builder, buil
 
 	yaml.WriteString("        # poutine:ignore untrusted_checkout_exec\n")
 	yaml.WriteString("        run: |\n")
-	yaml.WriteString("          bash ${RUNNER_TEMP}/gh-aw/actions/create_prompt_first.sh\n")
+	yaml.WriteString("          bash /tmp/gh-aw/actions/create_prompt_first.sh\n")
 	yaml.WriteString("          {\n")
 
 	// Track if we're inside a heredoc

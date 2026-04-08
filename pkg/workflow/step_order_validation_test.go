@@ -109,8 +109,8 @@ func TestIsPathScannedBySecretRedaction_ScannableFiles(t *testing.T) {
 			expected: true,
 		},
 		{
-			name:     "JSONL file in ${RUNNER_TEMP}/gh-aw/",
-			path:     "${RUNNER_TEMP}/gh-aw/safeoutputs/outputs.jsonl",
+			name:     "JSONL file in /tmp/gh-aw/",
+			path:     "/tmp/gh-aw/safeoutputs/outputs.jsonl",
 			expected: true,
 		},
 		{

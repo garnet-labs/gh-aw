@@ -130,7 +130,7 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 			StepID:        "missing_tool",
 			MainJobName:   mainJobName,
 			CustomEnvVars: missingToolEnvVars,
-			Script:        "const { main } = require('${{ runner.temp }}/gh-aw/actions/missing_tool.cjs'); await main();",
+			Script:        "const { main } = require('/tmp/gh-aw/actions/missing_tool.cjs'); await main();",
 			ScriptFile:    "missing_tool.cjs",
 			CustomToken:   data.SafeOutputs.MissingTool.GitHubToken,
 		})
@@ -170,7 +170,7 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 			StepID:        "report_incomplete",
 			MainJobName:   mainJobName,
 			CustomEnvVars: reportIncompleteEnvVars,
-			Script:        "const { main } = require('${{ runner.temp }}/gh-aw/actions/report_incomplete_handler.cjs'); await main();",
+			Script:        "const { main } = require('/tmp/gh-aw/actions/report_incomplete_handler.cjs'); await main();",
 			ScriptFile:    "report_incomplete_handler.cjs",
 			CustomToken:   data.SafeOutputs.ReportIncomplete.GitHubToken,
 		})
@@ -320,7 +320,7 @@ func (c *Compiler) buildConclusionJob(data *WorkflowData, mainJobName string, sa
 		StepID:        "handle_agent_failure",
 		MainJobName:   mainJobName,
 		CustomEnvVars: agentFailureEnvVars,
-		Script:        "const { main } = require('${{ runner.temp }}/gh-aw/actions/handle_agent_failure.cjs'); await main();",
+		Script:        "const { main } = require('/tmp/gh-aw/actions/handle_agent_failure.cjs'); await main();",
 		ScriptFile:    "handle_agent_failure.cjs",
 		CustomToken:   "", // Will use default GITHUB_TOKEN
 		StepCondition: "always()",

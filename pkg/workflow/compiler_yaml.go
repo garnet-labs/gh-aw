@@ -594,13 +594,13 @@ func (c *Compiler) generatePrompt(yaml *strings.Builder, data *WorkflowData, pre
 
 // writePromptBashStep writes a YAML step that runs a bash script from the gh-aw actions directory
 // with the GH_AW_PROMPT env var set. The poutine:ignore suppression is included to address
-// untrusted_checkout_exec findings for scripts executed from RUNNER_TEMP.
+// untrusted_checkout_exec findings for scripts executed from /tmp/gh-aw.
 func writePromptBashStep(yaml *strings.Builder, name, script string) {
 	fmt.Fprintf(yaml, "      - name: %s\n", name)
 	yaml.WriteString("        env:\n")
 	yaml.WriteString("          GH_AW_PROMPT: /tmp/gh-aw/aw-prompts/prompt.txt\n")
 	yaml.WriteString("        # poutine:ignore untrusted_checkout_exec\n")
-	fmt.Fprintf(yaml, "        run: bash ${RUNNER_TEMP}/gh-aw/actions/%s\n", script)
+	fmt.Fprintf(yaml, "        run: bash /tmp/gh-aw/actions/%s\n", script)
 }
 
 func (c *Compiler) generatePreSteps(yaml *strings.Builder, data *WorkflowData) {
@@ -773,9 +773,9 @@ func (c *Compiler) generateCreateAwInfo(yaml *strings.Builder, data *WorkflowDat
 	fmt.Fprintf(yaml, "        uses: %s\n", GetActionPin("actions/github-script"))
 	yaml.WriteString("        with:\n")
 	yaml.WriteString("          script: |\n")
-	yaml.WriteString("            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');\n")
+	yaml.WriteString("            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');\n")
 	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
-	yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_aw_info.cjs');\n")
+	yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/generate_aw_info.cjs');\n")
 	yaml.WriteString("            await main(core, context);\n")
 }
 
@@ -836,9 +836,9 @@ func (c *Compiler) generateOutputCollectionStep(yaml *strings.Builder, data *Wor
 	yaml.WriteString("          script: |\n")
 
 	// Load script from external file using require()
-	yaml.WriteString("            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');\n")
+	yaml.WriteString("            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');\n")
 	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
-	yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/collect_ndjson_output.cjs');\n")
+	yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/collect_ndjson_output.cjs');\n")
 	yaml.WriteString("            await main();\n")
 
 }

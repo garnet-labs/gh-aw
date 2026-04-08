@@ -53,7 +53,7 @@ func (c *Compiler) generateLogParsing(yaml *strings.Builder, engine CodingAgentE
 	yaml.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
 	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
 	// Load log parser script from external file using require()
-	yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/" + parserScriptName + ".cjs');\n")
+	yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/" + parserScriptName + ".cjs');\n")
 	yaml.WriteString("            await main();\n")
 }
 
@@ -71,7 +71,7 @@ func (c *Compiler) generateMCPScriptsLogParsing(yaml *strings.Builder) {
 	yaml.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
 	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
 	// Load mcp-scripts log parser script from external file using require()
-	yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/parse_mcp_scripts_logs.cjs');\n")
+	yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/parse_mcp_scripts_logs.cjs');\n")
 	yaml.WriteString("            await main();\n")
 }
 
@@ -90,7 +90,7 @@ func (c *Compiler) generateMCPGatewayLogParsing(yaml *strings.Builder) {
 	yaml.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
 	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
 	// Load MCP gateway log parser script from external file using require()
-	yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/parse_mcp_gateway_log.cjs');\n")
+	yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/parse_mcp_gateway_log.cjs');\n")
 	yaml.WriteString("            await main();\n")
 }
 
@@ -111,7 +111,7 @@ func (c *Compiler) generateObservabilitySummary(yaml *strings.Builder, data *Wor
 	yaml.WriteString("          script: |\n")
 	yaml.WriteString("            const { setupGlobals } = require('" + SetupActionDestination + "/setup_globals.cjs');\n")
 	yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
-	yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/generate_observability_summary.cjs');\n")
+	yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/generate_observability_summary.cjs');\n")
 	yaml.WriteString("            await main(core);\n")
 }
 
@@ -144,7 +144,7 @@ func (c *Compiler) generateStopMCPGateway(yaml *strings.Builder, data *WorkflowD
 	yaml.WriteString("          GATEWAY_PID: ${{ steps.start-mcp-gateway.outputs.gateway-pid }}\n")
 
 	yaml.WriteString("        run: |\n")
-	yaml.WriteString("          bash ${RUNNER_TEMP}/gh-aw/actions/stop_mcp_gateway.sh \"$GATEWAY_PID\"\n")
+	yaml.WriteString("          bash /tmp/gh-aw/actions/stop_mcp_gateway.sh \"$GATEWAY_PID\"\n")
 }
 
 // generateAgentOutputPlaceholderStep generates a step that writes a minimal {"items":[]}
@@ -172,7 +172,7 @@ func (c *Compiler) generateAgentStepSummaryAppend(yaml *strings.Builder) {
 
 	yaml.WriteString("      - name: Append agent step summary\n")
 	yaml.WriteString("        if: always()\n")
-	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/append_agent_step_summary.sh\n")
+	yaml.WriteString("        run: bash /tmp/gh-aw/actions/append_agent_step_summary.sh\n")
 }
 
 // generateTokenUsageSummary generates a step that parses the firewall proxy's

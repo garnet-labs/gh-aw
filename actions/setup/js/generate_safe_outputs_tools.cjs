@@ -17,23 +17,23 @@
  *   GH_AW_TOOLS_META_JSON - JSON payload for tools_meta.json (written to disk before processing)
  *   GH_AW_VALIDATION_JSON - JSON payload for validation.json (written to disk if provided)
  *   GH_AW_SAFE_OUTPUTS_TOOLS_SOURCE_PATH - Path to the source safe_outputs_tools.json
- *     Default: ${RUNNER_TEMP}/gh-aw/actions/safe_outputs_tools.json
+ *     Default: /tmp/gh-aw/actions/safe_outputs_tools.json
  *   GH_AW_SAFE_OUTPUTS_CONFIG_PATH - Path to config.json (used to determine enabled tools)
- *     Default: ${RUNNER_TEMP}/gh-aw/safeoutputs/config.json
+ *     Default: /tmp/gh-aw/safeoutputs/config.json
  *   GH_AW_SAFE_OUTPUTS_TOOLS_META_PATH - Path to tools_meta.json (descriptions, repo params, dynamic tools)
- *     Default: ${RUNNER_TEMP}/gh-aw/safeoutputs/tools_meta.json
+ *     Default: /tmp/gh-aw/safeoutputs/tools_meta.json
  *   GH_AW_SAFE_OUTPUTS_TOOLS_PATH - Output path for the generated tools.json
- *     Default: ${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json
+ *     Default: /tmp/gh-aw/safeoutputs/tools.json
  */
 
 const fs = require("fs");
 const path = require("path");
 
 async function main() {
-  const toolsSourcePath = process.env.GH_AW_SAFE_OUTPUTS_TOOLS_SOURCE_PATH || `${process.env.RUNNER_TEMP}/gh-aw/actions/safe_outputs_tools.json`;
-  const configPath = process.env.GH_AW_SAFE_OUTPUTS_CONFIG_PATH || `${process.env.RUNNER_TEMP}/gh-aw/safeoutputs/config.json`;
+  const toolsSourcePath = process.env.GH_AW_SAFE_OUTPUTS_TOOLS_SOURCE_PATH || `/tmp/gh-aw/actions/safe_outputs_tools.json`;
+  const configPath = process.env.GH_AW_SAFE_OUTPUTS_CONFIG_PATH || `/tmp/gh-aw/safeoutputs/config.json`;
   const toolsMetaPath = process.env.GH_AW_SAFE_OUTPUTS_TOOLS_META_PATH || path.join(path.dirname(configPath), "tools_meta.json");
-  const outputPath = process.env.GH_AW_SAFE_OUTPUTS_TOOLS_PATH || `${process.env.RUNNER_TEMP}/gh-aw/safeoutputs/tools.json`;
+  const outputPath = process.env.GH_AW_SAFE_OUTPUTS_TOOLS_PATH || `/tmp/gh-aw/safeoutputs/tools.json`;
 
   // Write JSON payloads from env vars if provided (replaces heredoc-based file writing)
   if (process.env.GH_AW_TOOLS_META_JSON) {

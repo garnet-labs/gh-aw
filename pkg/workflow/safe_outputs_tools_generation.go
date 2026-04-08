@@ -238,7 +238,7 @@ type ToolsMeta struct {
 //
 // At runtime, generate_safe_outputs_tools.cjs reads safe_outputs_tools.json from
 // the actions folder, applies the meta overrides from tools_meta.json, and writes
-// the final ${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json.
+// the final /tmp/gh-aw/safeoutputs/tools.json.
 func generateToolsMetaJSON(data *WorkflowData, markdownPath string) (string, error) {
 	if data.SafeOutputs == nil {
 		empty := ToolsMeta{

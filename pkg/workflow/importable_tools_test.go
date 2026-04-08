@@ -162,9 +162,9 @@ Uses imported agentic-workflows tool.
 		t.Error("Did not expect entrypoint field in dev mode (uses container's ENTRYPOINT)")
 	}
 
-	// Verify ${RUNNER_TEMP}/gh-aw is always mounted read-only for security
-	if !strings.Contains(workflowData, `${RUNNER_TEMP}/gh-aw:${RUNNER_TEMP}/gh-aw:ro`) {
-		t.Error("Expected ${RUNNER_TEMP}/gh-aw to be mounted read-only in AWF for security")
+	// Verify /tmp/gh-aw is always mounted read-only for security
+	if !strings.Contains(workflowData, `/tmp/gh-aw:/tmp/gh-aw:ro`) {
+		t.Error("Expected /tmp/gh-aw to be mounted read-only in AWF for security")
 	}
 
 	// Verify DEBUG and GITHUB_TOKEN are present

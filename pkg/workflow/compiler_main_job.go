@@ -31,7 +31,7 @@ func (c *Compiler) buildMainJob(data *WorkflowData, activationJobCreated bool) (
 		steps = append(steps, c.generateSetupStep(setupActionRef, SetupActionDestination, false, false, agentTraceID)...)
 	}
 
-	// Set runtime paths that depend on RUNNER_TEMP via $GITHUB_ENV.
+	// Set runtime paths for safe outputs.
 	// These cannot be set in job-level env: because the runner context is not
 	// available there (only in step-level env: and run: blocks).
 	if data.SafeOutputs != nil {

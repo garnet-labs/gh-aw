@@ -167,7 +167,7 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 	driverScriptName := e.GetDriverScriptName()
 	var execPrefix string
 	if driverScriptName != "" {
-		// Driver wraps the copilot subprocess; ${RUNNER_TEMP} expands in the shell context.
+		// Driver wraps the copilot subprocess; /tmp/gh-aw/actions/ is where the actions directory is.
 		execPrefix = fmt.Sprintf(`node %s/%s %s`, SetupActionDestinationShell, driverScriptName, commandName)
 	} else {
 		execPrefix = commandName
@@ -435,7 +435,7 @@ func generateInferenceAccessErrorDetectionStep() GitHubActionStep {
 	step = append(step, "        id: detect-inference-error")
 	step = append(step, "        if: always()")
 	step = append(step, "        continue-on-error: true")
-	step = append(step, "        run: bash ${RUNNER_TEMP}/gh-aw/actions/detect_inference_access_error.sh")
+	step = append(step, "        run: bash /tmp/gh-aw/actions/detect_inference_access_error.sh")
 
 	return GitHubActionStep(step)
 }
@@ -462,7 +462,7 @@ func generateCopilotSessionFileCopyStep() GitHubActionStep {
 	step = append(step, "      - name: Copy Copilot session state files to logs")
 	step = append(step, "        if: always()")
 	step = append(step, "        continue-on-error: true")
-	step = append(step, "        run: bash ${RUNNER_TEMP}/gh-aw/actions/copy_copilot_session_state.sh")
+	step = append(step, "        run: bash /tmp/gh-aw/actions/copy_copilot_session_state.sh")
 
 	return GitHubActionStep(step)
 }

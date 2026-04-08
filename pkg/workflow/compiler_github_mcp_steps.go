@@ -77,7 +77,7 @@ func (c *Compiler) generateGitHubMCPLockdownDetectionStep(yaml *strings.Builder,
 	}
 	yaml.WriteString("        with:\n")
 	yaml.WriteString("          script: |\n")
-	yaml.WriteString("            const determineAutomaticLockdown = require('${{ runner.temp }}/gh-aw/actions/determine_automatic_lockdown.cjs');\n")
+	yaml.WriteString("            const determineAutomaticLockdown = require('/tmp/gh-aw/actions/determine_automatic_lockdown.cjs');\n")
 	yaml.WriteString("            await determineAutomaticLockdown(github, context, core);\n")
 }
 
@@ -246,5 +246,5 @@ func (c *Compiler) generateParseGuardVarsStep(yaml *strings.Builder, data *Workf
 	}
 	fmt.Fprintf(yaml, "          GH_AW_APPROVAL_LABELS_VAR: ${{ vars.%s || '' }}\n", constants.EnvVarGitHubApprovalLabels)
 
-	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/parse_guard_list.sh\n")
+	yaml.WriteString("        run: bash /tmp/gh-aw/actions/parse_guard_list.sh\n")
 }

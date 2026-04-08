@@ -7,10 +7,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Use RUNNER_TEMP as the base so paths match what upload_artifact.cjs computes at runtime.
-const RUNNER_TEMP = "/tmp";
-const STAGING_DIR = `${RUNNER_TEMP}/gh-aw/safeoutputs/upload-artifacts/`;
-const RESOLVER_FILE = `${RUNNER_TEMP}/gh-aw/artifact-resolver.json`;
+// Paths match what upload_artifact.cjs computes at runtime.
+const STAGING_DIR = `/tmp/gh-aw/safeoutputs/upload-artifacts/`;
+const RESOLVER_FILE = `/tmp/gh-aw/artifact-resolver.json`;
 
 describe("upload_artifact.cjs", () => {
   let mockCore;
@@ -87,8 +86,8 @@ describe("upload_artifact.cjs", () => {
 
     originalEnv = { ...process.env };
 
-    // Set RUNNER_TEMP so the script resolves paths to the same directories as the test helpers.
-    process.env.RUNNER_TEMP = RUNNER_TEMP;
+    // Set process.env so any test expectations remain consistent.
+    process.env.RUNNER_TEMP = "/tmp";
     delete process.env.GH_AW_SAFE_OUTPUTS_STAGED;
 
     // Ensure staging dir exists and is clean

@@ -303,7 +303,7 @@ jobs:
 	yaml.WriteString(`      - name: Setup Scripts
         uses: ` + setupActionRef + `
         with:
-          destination: ${{ runner.temp }}/gh-aw/actions
+          destination: /tmp/gh-aw/actions
 
       - name: Close expired discussions
         uses: ` + GetActionPin("actions/github-script") + `
@@ -312,9 +312,9 @@ jobs:
 `)
 
 	// Add the close expired discussions script using require()
-	yaml.WriteString(`            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+	yaml.WriteString(`            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/close_expired_discussions.cjs');
+            const { main } = require('/tmp/gh-aw/actions/close_expired_discussions.cjs');
             await main();
 
       - name: Close expired issues
@@ -324,9 +324,9 @@ jobs:
 `)
 
 	// Add the close expired issues script using require()
-	yaml.WriteString(`            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+	yaml.WriteString(`            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/close_expired_issues.cjs');
+            const { main } = require('/tmp/gh-aw/actions/close_expired_issues.cjs');
             await main();
 
       - name: Close expired pull requests
@@ -336,9 +336,9 @@ jobs:
 `)
 
 	// Add the close expired pull requests script using require()
-	yaml.WriteString(`            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+	yaml.WriteString(`            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/close_expired_pull_requests.cjs');
+            const { main } = require('/tmp/gh-aw/actions/close_expired_pull_requests.cjs');
             await main();
 `)
 
@@ -360,16 +360,16 @@ jobs:
       - name: Setup Scripts
         uses: ` + setupActionRef + `
         with:
-          destination: ${{ runner.temp }}/gh-aw/actions
+          destination: /tmp/gh-aw/actions
 
       - name: Check admin/maintainer permissions
         uses: ` + GetActionPin("actions/github-script") + `
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/check_team_member.cjs');
+            const { main } = require('/tmp/gh-aw/actions/check_team_member.cjs');
             await main();
 
 `)
@@ -384,9 +384,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/run_operation_update_upgrade.cjs');
+            const { main } = require('/tmp/gh-aw/actions/run_operation_update_upgrade.cjs');
             await main();
 `)
 
@@ -412,16 +412,16 @@ jobs:
       - name: Setup Scripts
         uses: ` + setupActionRef + `
         with:
-          destination: ${{ runner.temp }}/gh-aw/actions
+          destination: /tmp/gh-aw/actions
 
       - name: Check admin/maintainer permissions
         uses: ` + GetActionPin("actions/github-script") + `
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/check_team_member.cjs');
+            const { main } = require('/tmp/gh-aw/actions/check_team_member.cjs');
             await main();
 
       - name: Apply Safe Outputs
@@ -432,9 +432,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/apply_safe_outputs_replay.cjs');
+            const { main } = require('/tmp/gh-aw/actions/apply_safe_outputs_replay.cjs');
             await main();
 `)
 
@@ -455,16 +455,16 @@ jobs:
       - name: Setup Scripts
         uses: ` + setupActionRef + `
         with:
-          destination: ${{ runner.temp }}/gh-aw/actions
+          destination: /tmp/gh-aw/actions
 
       - name: Check admin/maintainer permissions
         uses: ` + GetActionPin("actions/github-script") + `
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/check_team_member.cjs');
+            const { main } = require('/tmp/gh-aw/actions/check_team_member.cjs');
             await main();
 
 `)
@@ -477,9 +477,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/create_labels.cjs');
+            const { main } = require('/tmp/gh-aw/actions/create_labels.cjs');
             await main();
 `)
 
@@ -515,15 +515,15 @@ jobs:
       - name: Setup Scripts
         uses: ` + setupActionRef + `
         with:
-          destination: ${{ runner.temp }}/gh-aw/actions
+          destination: /tmp/gh-aw/actions
 
       - name: Check for out-of-sync workflows and create issue if needed
         uses: ` + GetActionPin("actions/github-script") + `
         with:
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/check_workflow_recompile_needed.cjs');
+            const { main } = require('/tmp/gh-aw/actions/check_workflow_recompile_needed.cjs');
             await main();
 
   zizmor-scan:
@@ -578,7 +578,7 @@ jobs:
       - name: Setup Scripts
         uses: ` + setupActionRef + `
         with:
-          destination: ${{ runner.temp }}/gh-aw/actions
+          destination: /tmp/gh-aw/actions
 
       - name: Validate Secrets
         uses: ` + GetActionPin("actions/github-script") + `
@@ -596,9 +596,9 @@ jobs:
           NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
         with:
           script: |
-            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');
+            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');
             setupGlobals(core, github, context, exec, io);
-            const { main } = require('${{ runner.temp }}/gh-aw/actions/validate_secrets.cjs');
+            const { main } = require('/tmp/gh-aw/actions/validate_secrets.cjs');
             await main();
 
       - name: Upload secret validation report

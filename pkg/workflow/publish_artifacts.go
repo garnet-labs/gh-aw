@@ -23,10 +23,8 @@ const defaultArtifactMaxRetentionDays = 30
 // defaultArtifactMaxSizeBytes is the default maximum total upload size (100 MB).
 const defaultArtifactMaxSizeBytes int64 = 104857600
 
-// artifactStagingDirExpr is the GitHub Actions expression form of the staging directory.
-// `actions/upload-artifact` and `actions/download-artifact` do not expand shell variables
-// in their `path:` inputs, so we must use ${{ runner.temp }} here.
-const artifactStagingDirExpr = "${{ runner.temp }}/gh-aw/safeoutputs/upload-artifacts/"
+// artifactStagingDirExpr is the path to the staging directory.
+const artifactStagingDirExpr = "/tmp/gh-aw/safeoutputs/upload-artifacts/"
 
 // SafeOutputsUploadArtifactStagingArtifactName is the artifact that carries the staging directory
 // from the main agent job to the upload_artifact job.

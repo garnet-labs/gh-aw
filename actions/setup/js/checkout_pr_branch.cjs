@@ -275,7 +275,7 @@ Pull request #${pullRequest.number} is closed. The checkout failed because the b
     core.setOutput("checkout_pr_success", "false");
 
     // Load and render step summary template
-    const templatePath = `${process.env.RUNNER_TEMP}/gh-aw/prompts/pr_checkout_failure.md`;
+    const templatePath = `/tmp/gh-aw/prompts/pr_checkout_failure.md`;
     const summaryContent = renderTemplateFromFile(templatePath, {
       error_message: errorMsg,
     });

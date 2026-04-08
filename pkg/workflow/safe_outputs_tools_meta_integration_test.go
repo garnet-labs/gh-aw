@@ -55,8 +55,8 @@ Test workflow to verify tools_meta in compiled output.
 	// Structural checks: new strategy is in use
 	assert.Contains(t, yamlStr, "GH_AW_TOOLS_META_JSON", "lock file should contain tools_meta env var")
 	assert.Contains(t, yamlStr, "generate_safe_outputs_tools.cjs", "lock file should invoke JS generator")
-	assert.NotContains(t, yamlStr, `cat > ${RUNNER_TEMP}/gh-aw/safeoutputs/tools.json`, "lock file should NOT inline tools.json")
-	assert.NotContains(t, yamlStr, "node ${RUNNER_TEMP}/gh-aw/actions/generate_safe_outputs_tools.cjs", "lock file should NOT use direct node invocation")
+	assert.NotContains(t, yamlStr, `cat > /tmp/gh-aw/safeoutputs/tools.json`, "lock file should NOT inline tools.json")
+	assert.NotContains(t, yamlStr, "node /tmp/gh-aw/actions/generate_safe_outputs_tools.cjs", "lock file should NOT use direct node invocation")
 
 	// tools_meta.json must contain create_issue description suffix with constraint text
 	assert.Contains(t, yamlStr, "CONSTRAINTS:", "tools_meta should contain constraint text")

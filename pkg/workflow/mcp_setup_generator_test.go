@@ -544,7 +544,7 @@ Test that multiple secrets are passed to gateway container.
 // to the exact same path that downstream ingestion steps read from.
 //
 // Regression test for: safe outputs MCP server returns success but outputs.jsonl is empty (v0.65.5).
-// Root cause: without this env var the server fell back to process.env.RUNNER_TEMP which could
+// Root cause: without this env var the server fell back to process.env.RUNNER_TEMP (now unused) which could
 // differ from the value captured by set-runtime-paths when RUNNER_TEMP is not exported explicitly.
 func TestSafeOutputsHTTPServerPassesOutputEnvVar(t *testing.T) {
 	frontmatter := `---

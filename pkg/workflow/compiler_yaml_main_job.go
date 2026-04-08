@@ -136,9 +136,9 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 
 		yaml.WriteString("        with:\n")
 		yaml.WriteString("          script: |\n")
-		yaml.WriteString("            const { setupGlobals } = require('${{ runner.temp }}/gh-aw/actions/setup_globals.cjs');\n")
+		yaml.WriteString("            const { setupGlobals } = require('/tmp/gh-aw/actions/setup_globals.cjs');\n")
 		yaml.WriteString("            setupGlobals(core, github, context, exec, io);\n")
-		yaml.WriteString("            const { main } = require('${{ runner.temp }}/gh-aw/actions/merge_remote_agent_github_folder.cjs');\n")
+		yaml.WriteString("            const { main } = require('/tmp/gh-aw/actions/merge_remote_agent_github_folder.cjs');\n")
 		yaml.WriteString("            await main();\n")
 	}
 
@@ -187,7 +187,7 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 	// Create /tmp/gh-aw/ base directory for all temporary files
 	// This must be created before custom steps so they can use the temp directory
 	yaml.WriteString("      - name: Create gh-aw temp directory\n")
-	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/create_gh_aw_tmp_dir.sh\n")
+	yaml.WriteString("        run: bash /tmp/gh-aw/actions/create_gh_aw_tmp_dir.sh\n")
 
 	// Configure gh CLI for GitHub Enterprise hosts (*.ghe.com / GHES).
 	// This step runs configure_gh_for_ghe.sh which:
@@ -196,10 +196,10 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 	//   3. For GHE/GHES: authenticates gh CLI with the enterprise host and sets
 	//      GH_HOST=<host> in GITHUB_ENV so every subsequent step in this job
 	//      picks up the correct host without manual per-step configuration.
-	// Must run after the setup action (so the script is available at ${RUNNER_TEMP}/gh-aw/actions/)
+	// Must run after the setup action (so the script is available at /tmp/gh-aw/actions/)
 	// and before any custom steps that invoke gh CLI commands.
 	yaml.WriteString("      - name: Configure gh CLI for GitHub Enterprise\n")
-	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/configure_gh_for_ghe.sh\n")
+	yaml.WriteString("        run: bash /tmp/gh-aw/actions/configure_gh_for_ghe.sh\n")
 	yaml.WriteString("        env:\n")
 	yaml.WriteString("          GH_TOKEN: ${{ github.token }}\n")
 

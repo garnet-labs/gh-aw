@@ -44,8 +44,8 @@ func TestCopilotSessionFileCopyStep(t *testing.T) {
 		t.Error("Expected step to invoke copy_copilot_session_state.sh")
 	}
 
-	// Verify it uses the RUNNER_TEMP-based actions path
-	if !strings.Contains(stepContent, "${RUNNER_TEMP}/gh-aw/actions/") {
-		t.Error("Expected step to reference script via ${RUNNER_TEMP}/gh-aw/actions/")
+	// Verify it uses the /tmp/gh-aw actions path
+	if !strings.Contains(stepContent, "/tmp/gh-aw/actions/") {
+		t.Error("Expected step to reference script via /tmp/gh-aw/actions/")
 	}
 }

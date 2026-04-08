@@ -157,7 +157,7 @@ func TestMissingToolPromptGeneration(t *testing.T) {
 	// Check that GH_AW_SAFE_OUTPUTS environment variable is included when SafeOutputs is configured
 	// This is how safe outputs tools are now discovered (via MCP server tool discovery)
 	// In the activation/prompt job, the path is hardcoded (no set-runtime-paths step available).
-	if !strings.Contains(output, "GH_AW_SAFE_OUTPUTS: ${{ runner.temp }}/gh-aw/safeoutputs/outputs.jsonl") {
+	if !strings.Contains(output, "GH_AW_SAFE_OUTPUTS: /tmp/gh-aw/safeoutputs/outputs.jsonl") {
 		t.Error("Expected 'GH_AW_SAFE_OUTPUTS' environment variable when SafeOutputs is configured")
 	}
 }

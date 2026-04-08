@@ -4,7 +4,7 @@ author: 'GitHub Next'
 
 inputs:
   destination:
-    description: 'Destination directory for activation files (default: ${RUNNER_TEMP}/gh-aw/actions)'
+    description: 'Destination directory for activation files (default: /tmp/gh-aw/actions)'
     required: false
   safe-output-custom-tokens:
     description: 'Install @actions/github for handlers that use a per-handler github-token (creates Octokit via getOctokit)'

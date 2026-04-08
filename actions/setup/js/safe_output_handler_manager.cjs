@@ -176,7 +176,7 @@ async function loadHandlers(config, prReviewBuffer) {
   const customScriptHandlers = loadCustomSafeOutputScriptHandlers();
   if (customScriptHandlers.size > 0) {
     core.info(`Loading ${customScriptHandlers.size} custom script handler(s): ${[...customScriptHandlers.keys()].join(", ")}`);
-    const scriptBaseDir = nodePath.join(process.env.RUNNER_TEMP || "/tmp", "gh-aw", "actions");
+    const scriptBaseDir = nodePath.join("/tmp", "gh-aw", "actions");
     for (const [scriptType, scriptFilename] of customScriptHandlers) {
       // Sanitize scriptFilename to prevent path traversal attacks: only the basename
       // (no directory separators or ".." sequences) is allowed.
