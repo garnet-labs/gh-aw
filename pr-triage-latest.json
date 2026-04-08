@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-08T00:57:58Z",
-  "run_id": "24111901010",
+  "run_date": "2026-04-08T06:47:12Z",
+  "run_id": "24121905861",
   "fork_prs": 0,
-  "agent_prs_found": 7,
-  "agent_prs_excluded": 7,
-  "notes": "7 open PRs found (5 Copilot-authored, 2 dependabot), all same-repo branches (not forks). Excluded per fork-only triage policy.",
+  "agent_prs_found": 9,
+  "agent_prs_excluded": 9,
+  "notes": "9 open PRs found (7 Copilot/agent-authored, 2 dependabot), all same-repo branches (not forks). Excluded per fork-only triage policy.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,18 +17,20 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 25213, "title": "[WIP] Normalize report formatting for non-compliant workflows", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25256, "title": "[code-simplifier] refactor: extract writeStepsSection helper", "author": "github-actions[bot]", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25251, "title": "fix: compile with actionlint/zizmor/poutine no longer marks valid workflows as errored", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25250, "title": "[WIP] Fix duplication of https:// scheme in ANTHROPIC_BASE_URL", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25241, "title": "feat: resolve ${{ github.aw.import-inputs.* }} expressions in import-inputs", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 25212, "title": "build(deps): bump the npm_and_yarn group across 1 directory with 2 updates", "author": "dependabot[bot]", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 25211, "title": "build(deps): bump lodash-es from 4.17.23 to 4.18.1 in /docs in the npm_and_yarn group", "author": "dependabot[bot]", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25209, "title": "fix: include otel.jsonl in agent artifact upload when OTLP is enabled", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 25178, "title": "docs: add WorkQueueOps and BatchOps design pattern pages", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 25135, "title": "fix(spec+compiler): update MCP gateway OTLP headers to string-only (v1.13.0)", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
     {"number": 25072, "title": "Pin all MCP container images to SHA-256 digests; replace floating tags", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ],
   "previous_run": {
-    "run_id": "24097842638",
-    "run_date": "2026-04-07T18:32:04Z",
+    "run_id": "24111901010",
+    "run_date": "2026-04-08T00:57:58Z",
     "fork_prs": 0,
-    "agent_prs_found": 4
+    "agent_prs_found": 7
   }
 }
