@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-07T18:32:04Z",
-  "run_id": "24097842638",
+  "run_date": "2026-04-08T00:57:58Z",
+  "run_id": "24111901010",
   "fork_prs": 0,
-  "agent_prs_found": 4,
-  "agent_prs_excluded": 4,
-  "notes": "4 open agent PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy.",
+  "agent_prs_found": 7,
+  "agent_prs_excluded": 7,
+  "notes": "7 open PRs found (5 Copilot-authored, 2 dependabot), all same-repo branches (not forks). Excluded per fork-only triage policy.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -17,15 +17,18 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 25140, "title": "Bump MCPG container image to v0.2.16", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25135, "title": "fix(spec+compiler): update MCP gateway OTLP headers to string-only (v1.13.0)", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25072, "title": "Pin all MCP container images to SHA-256 digests; replace floating tags", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
-    {"number": 25002, "title": "feat: add upload-artifact safe output type for run-scoped GitHub Actions artifact uploads", "author": "Copilot", "draft": false, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
+    {"number": 25213, "title": "[WIP] Normalize report formatting for non-compliant workflows", "author": "Copilot", "draft": true, "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25212, "title": "build(deps): bump the npm_and_yarn group across 1 directory with 2 updates", "author": "dependabot[bot]", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25211, "title": "build(deps): bump lodash-es from 4.17.23 to 4.18.1 in /docs in the npm_and_yarn group", "author": "dependabot[bot]", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25209, "title": "fix: include otel.jsonl in agent artifact upload when OTLP is enabled", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25178, "title": "docs: add WorkQueueOps and BatchOps design pattern pages", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25135, "title": "fix(spec+compiler): update MCP gateway OTLP headers to string-only (v1.13.0)", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"},
+    {"number": 25072, "title": "Pin all MCP container images to SHA-256 digests; replace floating tags", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork"}
   ],
   "previous_run": {
-    "run_id": "24081593583",
-    "run_date": "2026-04-07T12:36:40Z",
+    "run_id": "24097842638",
+    "run_date": "2026-04-07T18:32:04Z",
     "fork_prs": 0,
-    "agent_prs_found": 16
+    "agent_prs_found": 4
   }
 }
