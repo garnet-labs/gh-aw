@@ -25,10 +25,10 @@
  *                                     span to measure actual job execution duration)
  */
 
-const path = require("path");
-const { appendFileSync } = require("fs");
+const fs = require("fs");
 const { nowMs } = require("./performance_now.cjs");
 const { getActionInput } = require("./action_input_utils.cjs");
+const sendOtlpSpan = require("./send_otlp_span.cjs");
 
 /**
  * Send the OTLP job-setup span and propagate trace context via GITHUB_OUTPUT /
@@ -41,8 +41,6 @@ const { getActionInput } = require("./action_input_utils.cjs");
  */
 async function run() {
   const endpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
-
-  const { sendJobSetupSpan, isValidTraceId, isValidSpanId } = require(path.join(__dirname, "send_otlp_span.cjs"));
 
   const startMs = parseInt(process.env.SETUP_START_MS || "0", 10);
 
@@ -69,7 +67,7 @@ async function run() {
     console.log(`[otlp] sending setup span to ${endpoint}`);
   }
 
-  const { traceId, spanId } = await sendJobSetupSpan({ startMs, traceId: inputTraceId || undefined });
+  const { traceId, spanId } = await sendOtlpSpan.sendJobSetupSpan({ startMs, traceId: inputTraceId || undefined });
 
   console.log(`[otlp] resolved trace-id=${traceId}`);
 
@@ -80,26 +78,26 @@ async function run() {
   // Always expose trace ID as a step output for cross-job correlation, even
   // when OTLP is not configured.  This ensures needs.*.outputs.setup-trace-id
   // is populated for downstream jobs regardless of observability configuration.
-  if (isValidTraceId(traceId) && process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `trace-id=${traceId}\n`);
+  if (sendOtlpSpan.isValidTraceId(traceId) && process.env.GITHUB_OUTPUT) {
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `trace-id=${traceId}\n`);
     console.log(`[otlp] trace-id=${traceId} written to GITHUB_OUTPUT`);
   }
 
   // Always propagate trace/span context to subsequent steps in this job so
   // that the conclusion span can find the same trace ID.
   if (process.env.GITHUB_ENV) {
-    if (isValidTraceId(traceId)) {
-      appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_TRACE_ID=${traceId}\n`);
+    if (sendOtlpSpan.isValidTraceId(traceId)) {
+      fs.appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_TRACE_ID=${traceId}\n`);
       console.log(`[otlp] GITHUB_AW_OTEL_TRACE_ID written to GITHUB_ENV`);
     }
-    if (isValidSpanId(spanId)) {
-      appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_PARENT_SPAN_ID=${spanId}\n`);
+    if (sendOtlpSpan.isValidSpanId(spanId)) {
+      fs.appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_PARENT_SPAN_ID=${spanId}\n`);
       console.log(`[otlp] GITHUB_AW_OTEL_PARENT_SPAN_ID written to GITHUB_ENV`);
     }
     // Propagate setup-end timestamp so the conclusion span can measure actual
     // job execution duration (setup-end → conclusion-start).
     const setupEndMs = Math.floor(nowMs());
-    appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_JOB_START_MS=${setupEndMs}\n`);
+    fs.appendFileSync(process.env.GITHUB_ENV, `GITHUB_AW_OTEL_JOB_START_MS=${setupEndMs}\n`);
     console.log(`[otlp] GITHUB_AW_OTEL_JOB_START_MS written to GITHUB_ENV`);
   }
 }
