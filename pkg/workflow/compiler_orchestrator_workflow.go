@@ -256,6 +256,16 @@ func (c *Compiler) buildInitialWorkflowData(
 		}
 	}
 
+	// Populate push-token: custom token for git push operations in Configure Git credentials steps.
+	// Fall back to raw frontmatter parsing when full ParseFrontmatterConfig fails.
+	if toolsResult.parsedFrontmatter != nil {
+		workflowData.PushToken = toolsResult.parsedFrontmatter.PushToken
+	} else if rawPushToken, ok := result.Frontmatter["push-token"]; ok {
+		if tokenStr, ok := rawPushToken.(string); ok {
+			workflowData.PushToken = tokenStr
+		}
+	}
+
 	// Populate check-for-updates flag: disabled when check-for-updates: false is set in frontmatter.
 	if toolsResult.parsedFrontmatter != nil && toolsResult.parsedFrontmatter.UpdateCheck != nil {
 		workflowData.UpdateCheckDisabled = !*toolsResult.parsedFrontmatter.UpdateCheck

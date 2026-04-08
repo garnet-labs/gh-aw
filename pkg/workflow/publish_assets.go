@@ -114,7 +114,7 @@ func (c *Compiler) buildUploadAssetsJob(data *WorkflowData, mainJobName string, 
 	preSteps = buildCheckoutRepository(preSteps, c, "", "")
 
 	// Step 2: Configure Git credentials
-	preSteps = append(preSteps, c.generateGitConfigurationSteps()...)
+	preSteps = append(preSteps, c.generateGitConfigurationSteps(data)...)
 
 	// Step 3: Download assets artifact if it exists.
 	// In workflow_call context, use the per-invocation prefix from the agent job to match the uploaded artifact name.

@@ -8456,6 +8456,11 @@
       "description": "Allow npm pre/post install scripts to execute during package installation. By default, --ignore-scripts is added to all generated npm install commands to prevent supply chain attacks via malicious install hooks. Setting run-install-scripts: true disables this protection globally (all runtimes). A supply chain security warning is emitted at compile time; in strict mode this is an error. Per-runtime control is also available via runtimes.<runtime>.run-install-scripts. See: https://github.github.com/gh-aw/reference/frontmatter/#run-install-scripts",
       "examples": [false, true]
     },
+    "push-token": {
+      "type": "string",
+      "description": "Custom GitHub token for git push operations in the 'Configure Git credentials' steps. When set, this token is used instead of the default fallback chain (GH_AW_GITHUB_TOKEN || GITHUB_TOKEN). Use this when the default GITHUB_TOKEN lacks push access, for example in sandboxed runner environments with restricted token scope or when org-level branch protection requires a PAT.",
+      "examples": ["${{ secrets.MY_PAT }}", "${{ secrets.GH_AW_GITHUB_TOKEN }}"]
+    },
     "mcp-scripts": {
       "type": "object",
       "description": "MCP Scripts configuration for defining custom lightweight MCP tools as JavaScript, shell scripts, or Python scripts. Tools are mounted in an MCP server and have access to secrets specified by the user. Only one of 'script' (JavaScript), 'run' (shell), or 'py' (Python) must be specified per tool.",

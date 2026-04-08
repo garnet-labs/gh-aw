@@ -249,7 +249,7 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 	needsGitConfig := needsCheckout || customStepsContainCheckout
 	compilerYamlLog.Printf("Git credential configuration needed: %t (needsCheckout=%t, customStepsContainCheckout=%t)", needsGitConfig, needsCheckout, customStepsContainCheckout)
 	if needsGitConfig {
-		gitConfigSteps := c.generateGitConfigurationSteps()
+		gitConfigSteps := c.generateGitConfigurationSteps(data)
 		for _, line := range gitConfigSteps {
 			yaml.WriteString(line)
 		}
@@ -371,7 +371,7 @@ func (c *Compiler) generateMainJobSteps(yaml *strings.Builder, data *WorkflowDat
 	// We regenerate the credentials rather than restoring from backup.
 	// Only emit these steps when a checkout was performed (requires a .git directory).
 	if needsGitConfig {
-		gitConfigStepsAfterAgent := c.generateGitConfigurationSteps()
+		gitConfigStepsAfterAgent := c.generateGitConfigurationSteps(data)
 		for _, line := range gitConfigStepsAfterAgent {
 			yaml.WriteString(line)
 		}

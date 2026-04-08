@@ -81,6 +81,23 @@ func getEffectiveProjectGitHubToken(customToken string) string {
 	return "${{ secrets.GH_AW_PROJECT_GITHUB_TOKEN }}"
 }
 
+// getEffectiveGitPushToken returns the GitHub token for git push operations
+// ("Configure Git credentials" steps), with precedence:
+//  1. Custom token from frontmatter push-token field
+//  2. Default fallback: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+//
+// Using a fallback chain instead of hardcoding github.token allows sandboxed runners
+// (or environments with restricted GITHUB_TOKEN push scope) to specify a dedicated
+// PAT via the GH_AW_GITHUB_TOKEN secret or the push-token frontmatter field.
+func getEffectiveGitPushToken(customToken string) string {
+	if customToken != "" {
+		tokenLog.Print("Using custom git push token from frontmatter push-token")
+		return customToken
+	}
+	tokenLog.Print("Using default git push token fallback (GH_AW_GITHUB_TOKEN || GITHUB_TOKEN)")
+	return "${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}"
+}
+
 // getEffectiveCITriggerGitHubToken returns the GitHub token to use for CI trigger operations
 // (pushing empty commits to trigger workflow runs), with precedence:
 // 1. Custom token passed as parameter (e.g., from github-token-for-extra-empty-commit field)

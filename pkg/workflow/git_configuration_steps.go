@@ -8,9 +8,15 @@ import (
 
 var gitConfigStepsLog = logger.New("workflow:git_configuration_steps")
 
-// generateGitConfigurationSteps generates standardized git credential setup as string steps
-func (c *Compiler) generateGitConfigurationSteps() []string {
-	return c.generateGitConfigurationStepsWithToken("${{ github.token }}", "")
+// generateGitConfigurationSteps generates standardized git credential setup as string steps.
+// The token is resolved from the workflow's push-token frontmatter field (if set),
+// or falls back to the GH_AW_GITHUB_TOKEN || GITHUB_TOKEN chain.
+func (c *Compiler) generateGitConfigurationSteps(data *WorkflowData) []string {
+	var pushToken string
+	if data != nil {
+		pushToken = data.PushToken
+	}
+	return c.generateGitConfigurationStepsWithToken(getEffectiveGitPushToken(pushToken), "")
 }
 
 // generateGitConfigurationStepsWithToken generates git credential setup with a custom token

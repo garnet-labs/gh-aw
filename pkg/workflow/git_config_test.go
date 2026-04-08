@@ -78,7 +78,7 @@ This is a test workflow to verify git configuration is included.
 func TestGitConfigurationStepsHelper(t *testing.T) {
 	compiler := NewCompiler()
 
-	steps := compiler.generateGitConfigurationSteps()
+	steps := compiler.generateGitConfigurationSteps(nil)
 
 	// Verify we get expected number of lines (13 lines with env block including GITHUB_TOKEN)
 	if len(steps) != 13 {
@@ -107,6 +107,15 @@ func TestGitConfigurationStepsHelper(t *testing.T) {
 		if !strings.Contains(fullContent, expected) {
 			t.Errorf("Expected git configuration steps to contain '%s'", expected)
 		}
+	}
+
+	// Verify that the default token uses the GH_AW_GITHUB_TOKEN fallback chain
+	// (not hardcoded github.token)
+	if strings.Contains(fullContent, "github.token") {
+		t.Error("Expected git configuration steps to NOT use hardcoded github.token")
+	}
+	if !strings.Contains(fullContent, "GH_AW_GITHUB_TOKEN") {
+		t.Error("Expected git configuration steps to use GH_AW_GITHUB_TOKEN fallback chain")
 	}
 
 	// Verify proper indentation (should start with 6 spaces for job step level)
@@ -269,4 +278,81 @@ This workflow uses API tools only and does not need the repository to be checked
 	if !strings.Contains(lockContent, cleanerStepBlock) {
 		t.Error("Expected 'Clean git credentials' step with 'continue-on-error: true' to be present when checkout: false")
 	}
+}
+
+// TestGitConfigurationPushTokenFrontmatter verifies that the push-token frontmatter field
+// overrides the default token in "Configure Git credentials" steps.
+func TestGitConfigurationPushTokenFrontmatter(t *testing.T) {
+	t.Run("default token uses GH_AW_GITHUB_TOKEN fallback chain", func(t *testing.T) {
+		compiler := NewCompiler()
+		steps := compiler.generateGitConfigurationSteps(nil)
+		fullContent := strings.Join(steps, "")
+
+		if strings.Contains(fullContent, "github.token") {
+			t.Error("Default git configuration must NOT hardcode github.token")
+		}
+		if !strings.Contains(fullContent, "GH_AW_GITHUB_TOKEN") {
+			t.Error("Default git configuration must use GH_AW_GITHUB_TOKEN fallback chain")
+		}
+		if !strings.Contains(fullContent, "GITHUB_TOKEN") {
+			t.Error("Default git configuration must include GITHUB_TOKEN in fallback chain")
+		}
+	})
+
+	t.Run("custom push-token from frontmatter is used", func(t *testing.T) {
+		compiler := NewCompiler()
+		data := &WorkflowData{
+			PushToken: "${{ secrets.MY_PUSH_PAT }}",
+		}
+		steps := compiler.generateGitConfigurationSteps(data)
+		fullContent := strings.Join(steps, "")
+
+		if !strings.Contains(fullContent, "${{ secrets.MY_PUSH_PAT }}") {
+			t.Error("Custom push-token must be used in Configure Git credentials step")
+		}
+		if strings.Contains(fullContent, "GH_AW_GITHUB_TOKEN") {
+			t.Error("GH_AW_GITHUB_TOKEN fallback must NOT appear when custom push-token is set")
+		}
+	})
+
+	t.Run("push-token compiled into lock file", func(t *testing.T) {
+		tmpDir := testutil.TempDir(t, "git-config-push-token-test")
+
+		testContent := `---
+on: push
+permissions:
+  contents: read
+engine: copilot
+push-token: ${{ secrets.MY_PUSH_PAT }}
+---
+
+# Test push-token workflow
+
+This workflow uses a custom push-token for git operations.
+`
+
+		testFile := filepath.Join(tmpDir, "test-push-token.md")
+		if err := os.WriteFile(testFile, []byte(testContent), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		c := NewCompiler()
+		c.SetSkipValidation(true)
+
+		workflowData, err := c.ParseWorkflowFile(testFile)
+		if err != nil {
+			t.Fatalf("Failed to parse workflow file: %v", err)
+		}
+
+		lockContent, _, _, err := c.generateYAML(workflowData, testFile)
+		if err != nil {
+			t.Fatalf("Failed to generate YAML: %v", err)
+		}
+
+		// The custom push-token must appear in the Configure Git credentials step
+		if !strings.Contains(lockContent, "secrets.MY_PUSH_PAT") {
+			t.Error("Expected custom push-token to appear in compiled lock file")
+			t.Logf("Generated YAML:\n%s", lockContent)
+		}
+	})
 }

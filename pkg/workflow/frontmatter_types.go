@@ -222,6 +222,12 @@ type FrontmatterConfig struct {
 	Checkout         any               `json:"checkout,omitempty"` // Raw value (object, array, or false)
 	CheckoutConfigs  []*CheckoutConfig `json:"-"`                  // Parsed checkout configs (not in JSON)
 	CheckoutDisabled bool              `json:"-"`                  // true when checkout: false is set in frontmatter
+
+	// PushToken specifies a custom GitHub token for git push operations in "Configure Git credentials" steps.
+	// When set, this token is used instead of the default fallback chain (GH_AW_GITHUB_TOKEN || GITHUB_TOKEN).
+	// Use this when github.token lacks push access (e.g., org-level branch protection, sandboxed runners).
+	// Example: push-token: ${{ secrets.MY_PAT }}
+	PushToken string `json:"push-token,omitempty"`
 }
 
 // ParseFrontmatterConfig creates a FrontmatterConfig from a raw frontmatter map

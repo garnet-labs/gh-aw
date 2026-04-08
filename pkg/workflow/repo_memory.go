@@ -619,7 +619,7 @@ func (c *Compiler) buildPushRepoMemoryJob(data *WorkflowData, threatDetectionEna
 	steps = append(steps, checkoutStep.String())
 
 	// Add git configuration step
-	gitConfigSteps := c.generateGitConfigurationSteps()
+	gitConfigSteps := c.generateGitConfigurationSteps(data)
 	steps = append(steps, gitConfigSteps...)
 
 	// Build steps as complete YAML strings.
