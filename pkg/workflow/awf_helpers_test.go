@@ -936,3 +936,318 @@ func TestAWFSupportsCliProxy(t *testing.T) {
 		})
 	}
 }
+
+// TestExpressionAPITargetHandling verifies that GitHub Actions expression-based API target URLs
+// (e.g., "${{ vars.ANTHROPIC_BASE_URL }}") are excluded from static AWF args and instead
+// generate a shell preamble that strips the scheme at runtime via buildExpressionAPITargetArgs.
+// This prevents the API proxy from receiving a full URL where it expects a bare hostname, which
+// would cause it to construct a double-scheme URL like "https://https://my-gateway.example.com".
+func TestExpressionAPITargetHandling(t *testing.T) {
+	t.Run("expression-based ANTHROPIC_BASE_URL excluded from static args", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "claude",
+				Env: map[string]string{
+					"ANTHROPIC_BASE_URL": "${{ vars.ANTHROPIC_BASE_URL }}",
+					"ANTHROPIC_API_KEY":  "${{ secrets.ANTHROPIC_API_KEY }}",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "claude",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		args := BuildAWFArgs(config)
+		argsStr := strings.Join(args, " ")
+
+		assert.NotContains(t, argsStr, "--anthropic-api-target", "Expression-based API target must not appear in static args")
+		assert.NotContains(t, argsStr, "${{ vars.ANTHROPIC_BASE_URL }}", "Raw expression must not appear in static args")
+	})
+
+	t.Run("expression-based OPENAI_BASE_URL excluded from static args", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "codex",
+				Env: map[string]string{
+					"OPENAI_BASE_URL": "${{ vars.OPENAI_BASE_URL }}",
+					"OPENAI_API_KEY":  "${{ secrets.OPENAI_API_KEY }}",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "codex",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		args := BuildAWFArgs(config)
+		argsStr := strings.Join(args, " ")
+
+		assert.NotContains(t, argsStr, "--openai-api-target", "Expression-based API target must not appear in static args")
+	})
+
+	t.Run("expression-based GITHUB_COPILOT_BASE_URL excluded from static args", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "copilot",
+				Env: map[string]string{
+					"GITHUB_COPILOT_BASE_URL": "${{ vars.COPILOT_URL }}",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "copilot",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		args := BuildAWFArgs(config)
+		argsStr := strings.Join(args, " ")
+
+		assert.NotContains(t, argsStr, "--copilot-api-target", "Expression-based Copilot API target must not appear in static args")
+	})
+
+	t.Run("hardcoded ANTHROPIC_BASE_URL still added to static args", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "claude",
+				Env: map[string]string{
+					"ANTHROPIC_BASE_URL": "https://my-gateway.example.com",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "claude",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		args := BuildAWFArgs(config)
+		argsStr := strings.Join(args, " ")
+
+		assert.Contains(t, argsStr, "--anthropic-api-target", "Hardcoded API target should appear in static args")
+		assert.Contains(t, argsStr, "my-gateway.example.com", "Extracted hostname should appear in static args")
+	})
+}
+
+// TestBuildExpressionAPITargetArgs verifies that buildExpressionAPITargetArgs generates
+// correct shell preamble and expandable args for expression-based API target values.
+func TestBuildExpressionAPITargetArgs(t *testing.T) {
+	t.Run("generates preamble and expandable arg for expression-based ANTHROPIC_BASE_URL", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			EngineConfig: &EngineConfig{
+				Env: map[string]string{
+					"ANTHROPIC_BASE_URL": "${{ vars.ANTHROPIC_BASE_URL }}",
+				},
+			},
+		}
+
+		preamble, expandable := buildExpressionAPITargetArgs(workflowData)
+
+		assert.Contains(t, preamble, "_GH_AW_ANTHROPIC_TARGET='${{ vars.ANTHROPIC_BASE_URL }}'", "Preamble should assign the expression to a variable")
+		assert.Contains(t, preamble, `_GH_AW_ANTHROPIC_TARGET="${_GH_AW_ANTHROPIC_TARGET#https://}"`, "Preamble should strip https://")
+		assert.Contains(t, preamble, `_GH_AW_ANTHROPIC_TARGET="${_GH_AW_ANTHROPIC_TARGET#http://}"`, "Preamble should strip http://")
+		assert.Contains(t, preamble, `_GH_AW_ANTHROPIC_TARGET="${_GH_AW_ANTHROPIC_TARGET%%/*}"`, "Preamble should strip path suffix")
+		assert.Contains(t, expandable, `--anthropic-api-target "${_GH_AW_ANTHROPIC_TARGET}"`, "Expandable args should reference the shell variable")
+		assert.NotContains(t, expandable, "--openai-api-target", "Should not include unrelated flags")
+	})
+
+	t.Run("generates preamble and expandable arg for expression-based OPENAI_BASE_URL", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			EngineConfig: &EngineConfig{
+				Env: map[string]string{
+					"OPENAI_BASE_URL": "${{ vars.OPENAI_BASE_URL }}",
+				},
+			},
+		}
+
+		preamble, expandable := buildExpressionAPITargetArgs(workflowData)
+
+		assert.Contains(t, preamble, "_GH_AW_OPENAI_TARGET='${{ vars.OPENAI_BASE_URL }}'", "Preamble should assign the expression")
+		assert.Contains(t, preamble, `_GH_AW_OPENAI_TARGET="${_GH_AW_OPENAI_TARGET%%/*}"`, "Preamble should strip path")
+		assert.Contains(t, expandable, `--openai-api-target "${_GH_AW_OPENAI_TARGET}"`, "Expandable args should reference shell variable")
+	})
+
+	t.Run("generates preamble for both when both are expressions", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			EngineConfig: &EngineConfig{
+				Env: map[string]string{
+					"OPENAI_BASE_URL":    "${{ vars.OPENAI_BASE_URL }}",
+					"ANTHROPIC_BASE_URL": "${{ vars.ANTHROPIC_BASE_URL }}",
+				},
+			},
+		}
+
+		preamble, expandable := buildExpressionAPITargetArgs(workflowData)
+
+		assert.Contains(t, preamble, "_GH_AW_OPENAI_TARGET", "Preamble should include OpenAI variable")
+		assert.Contains(t, preamble, "_GH_AW_ANTHROPIC_TARGET", "Preamble should include Anthropic variable")
+		assert.Contains(t, expandable, "--openai-api-target", "Expandable should include OpenAI flag")
+		assert.Contains(t, expandable, "--anthropic-api-target", "Expandable should include Anthropic flag")
+	})
+
+	t.Run("returns empty strings when no expressions present", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			EngineConfig: &EngineConfig{
+				Env: map[string]string{
+					"ANTHROPIC_BASE_URL": "https://my-gateway.example.com",
+				},
+			},
+		}
+
+		preamble, expandable := buildExpressionAPITargetArgs(workflowData)
+
+		assert.Empty(t, preamble, "No preamble needed for hardcoded URLs")
+		assert.Empty(t, expandable, "No expandable args needed for hardcoded URLs")
+	})
+
+	t.Run("returns empty strings for nil workflowData", func(t *testing.T) {
+		preamble, expandable := buildExpressionAPITargetArgs(nil)
+
+		assert.Empty(t, preamble, "Should return empty preamble for nil workflowData")
+		assert.Empty(t, expandable, "Should return empty expandable for nil workflowData")
+	})
+}
+
+// TestBuildAWFCommandExpressionAPITarget verifies that BuildAWFCommand inserts the
+// scheme-stripping preamble into the generated shell script when an API target
+// environment variable is a GitHub Actions expression.
+func TestBuildAWFCommandExpressionAPITarget(t *testing.T) {
+	t.Run("inserts scheme-stripping preamble for expression-based ANTHROPIC_BASE_URL", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "claude",
+				Env: map[string]string{
+					"ANTHROPIC_BASE_URL": "${{ vars.ANTHROPIC_BASE_URL }}",
+					"ANTHROPIC_API_KEY":  "${{ secrets.ANTHROPIC_API_KEY }}",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "claude",
+			EngineCommand:  "claude --print",
+			LogFile:        "/tmp/test.log",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		command := BuildAWFCommand(config)
+
+		assert.Contains(t, command, "_GH_AW_ANTHROPIC_TARGET='${{ vars.ANTHROPIC_BASE_URL }}'", "Command should contain preamble variable assignment")
+		assert.Contains(t, command, `--anthropic-api-target "${_GH_AW_ANTHROPIC_TARGET}"`, "Command should use shell variable for api-target")
+		assert.NotContains(t, command, "--anthropic-api-target '${{ vars.ANTHROPIC_BASE_URL }}'", "Command must not pass raw expression as api-target value")
+	})
+
+	t.Run("inserts scheme-stripping preamble for expression-based OPENAI_BASE_URL", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "codex",
+				Env: map[string]string{
+					"OPENAI_BASE_URL": "${{ vars.OPENAI_BASE_URL }}",
+					"OPENAI_API_KEY":  "${{ secrets.OPENAI_API_KEY }}",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "codex",
+			EngineCommand:  "codex",
+			LogFile:        "/tmp/test.log",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		command := BuildAWFCommand(config)
+
+		assert.Contains(t, command, "_GH_AW_OPENAI_TARGET='${{ vars.OPENAI_BASE_URL }}'", "Command should contain preamble for OpenAI")
+		assert.Contains(t, command, `--openai-api-target "${_GH_AW_OPENAI_TARGET}"`, "Command should use shell variable for openai api-target")
+	})
+
+	t.Run("preamble combined with PathSetup when both present", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "codex",
+				Env: map[string]string{
+					"OPENAI_BASE_URL": "${{ vars.OPENAI_BASE_URL }}",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "codex",
+			EngineCommand:  "codex",
+			LogFile:        "/tmp/test.log",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+			PathSetup:      "export PATH=/custom/bin:$PATH",
+		}
+
+		command := BuildAWFCommand(config)
+
+		assert.Contains(t, command, "export PATH=/custom/bin:$PATH", "Command should include PathSetup")
+		assert.Contains(t, command, "_GH_AW_OPENAI_TARGET", "Command should include expression preamble")
+	})
+
+	t.Run("no preamble for hardcoded API target URLs", func(t *testing.T) {
+		workflowData := &WorkflowData{
+			Name: "test-workflow",
+			EngineConfig: &EngineConfig{
+				ID: "claude",
+				Env: map[string]string{
+					"ANTHROPIC_BASE_URL": "https://my-gateway.example.com",
+				},
+			},
+			NetworkPermissions: &NetworkPermissions{
+				Firewall: &FirewallConfig{Enabled: true},
+			},
+		}
+
+		config := AWFCommandConfig{
+			EngineName:     "claude",
+			EngineCommand:  "claude --print",
+			LogFile:        "/tmp/test.log",
+			WorkflowData:   workflowData,
+			AllowedDomains: "github.com",
+		}
+
+		command := BuildAWFCommand(config)
+
+		assert.NotContains(t, command, "_GH_AW_ANTHROPIC_TARGET", "No preamble variable needed for hardcoded URLs")
+		assert.Contains(t, command, "--anthropic-api-target my-gateway.example.com", "Hardcoded hostname should appear as static arg")
+	})
+}

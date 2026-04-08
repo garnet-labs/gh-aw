@@ -117,19 +117,38 @@ func BuildAWFCommand(config AWFCommandConfig) string {
 		awfHelpersLog.Printf("Added --allow-host-service-ports with %s", config.WorkflowData.ServicePortExpressions)
 	}
 
+	// Handle expression-based API targets: when ANTHROPIC_BASE_URL, OPENAI_BASE_URL, or
+	// GITHUB_COPILOT_BASE_URL is a GitHub Actions expression, generate a shell preamble that
+	// strips the URL scheme at runtime and pass the resulting bare hostname via an expandable arg.
+	// BuildAWFArgs already excluded these from awfArgs for this case.
+	apiTargetPreamble, apiTargetExpandable := buildExpressionAPITargetArgs(config.WorkflowData)
+	if apiTargetExpandable != "" {
+		expandableArgs += " " + apiTargetExpandable
+	}
+
 	// Wrap engine command in shell (command already includes any internal setup like npm PATH)
 	shellWrappedCommand := WrapCommandInShell(config.EngineCommand)
 
+	// Combine all preamble parts: PathSetup (e.g., npm PATH) and/or API target scheme stripping.
+	var preamble string
+	switch {
+	case config.PathSetup != "" && apiTargetPreamble != "":
+		preamble = config.PathSetup + "\n" + apiTargetPreamble
+	case config.PathSetup != "":
+		preamble = config.PathSetup
+	case apiTargetPreamble != "":
+		preamble = apiTargetPreamble
+	}
+
 	// Build the complete command with proper formatting
 	var command string
-	if config.PathSetup != "" {
-		// Include path setup before AWF command (runs on host before AWF)
+	if preamble != "" {
 		command = fmt.Sprintf(`set -o pipefail
 %s
 # shellcheck disable=SC1003
 %s %s %s \
   -- %s 2>&1 | tee -a %s`,
-			config.PathSetup,
+			preamble,
 			awfCommand,
 			expandableArgs,
 			shellJoinArgs(awfArgs),
@@ -276,24 +295,34 @@ func BuildAWFArgs(config AWFCommandConfig) []string {
 		}
 	}
 
-	// Add custom API targets if configured in engine.env
+	// Add custom API targets if configured in engine.env.
 	// This allows AWF's credential isolation and firewall to work with custom endpoints
-	// (e.g., corporate LLM routers, Azure OpenAI, self-hosted APIs)
+	// (e.g., corporate LLM routers, Azure OpenAI, self-hosted APIs).
+	//
+	// When the value is a hardcoded URL, extract the hostname at compile time and add it as a
+	// static arg (single-quoted by shellJoinArgs). When the value is a GitHub Actions expression
+	// (e.g., "${{ vars.ANTHROPIC_BASE_URL }}"), skip it here — BuildAWFCommand will generate a
+	// shell preamble that strips the scheme at runtime and passes the bare hostname to AWF via an
+	// expandable arg. This prevents the API proxy from receiving a full URL (with scheme) where it
+	// expects a bare hostname, which would cause it to construct a double-scheme URL like
+	// "https://https://my-gateway.example.com".
 	openaiTarget := extractAPITargetHost(config.WorkflowData, "OPENAI_BASE_URL")
-	if openaiTarget != "" {
+	if openaiTarget != "" && !isEnvVarExpression(config.WorkflowData, "OPENAI_BASE_URL") {
 		awfArgs = append(awfArgs, "--openai-api-target", openaiTarget)
 		awfHelpersLog.Printf("Added --openai-api-target=%s", openaiTarget)
 	}
 
 	anthropicTarget := extractAPITargetHost(config.WorkflowData, "ANTHROPIC_BASE_URL")
-	if anthropicTarget != "" {
+	if anthropicTarget != "" && !isEnvVarExpression(config.WorkflowData, "ANTHROPIC_BASE_URL") {
 		awfArgs = append(awfArgs, "--anthropic-api-target", anthropicTarget)
 		awfHelpersLog.Printf("Added --anthropic-api-target=%s", anthropicTarget)
 	}
 
-	// Pass base path if URL contains a path component
+	// Pass base path if URL contains a path component.
 	// This is required for endpoints with path prefixes (e.g., Databricks /serving-endpoints,
-	// Azure OpenAI /openai/deployments/<name>, corporate LLM routers with path-based routing)
+	// Azure OpenAI /openai/deployments/<name>, corporate LLM routers with path-based routing).
+	// Expression-based values already return "" from extractAPIBasePath (no "://" to find at
+	// compile time), so no special-casing is needed here.
 	openaiBasePath := extractAPIBasePath(config.WorkflowData, "OPENAI_BASE_URL")
 	if openaiBasePath != "" {
 		awfArgs = append(awfArgs, "--openai-api-base-path", openaiBasePath)
@@ -308,7 +337,11 @@ func BuildAWFArgs(config AWFCommandConfig) []string {
 
 	// Add Copilot API target for custom Copilot endpoints (GHEC, GHES, or custom).
 	// Resolved from engine.api-target (explicit) or GITHUB_COPILOT_BASE_URL in engine.env (implicit).
-	if copilotTarget := GetCopilotAPITarget(config.WorkflowData); copilotTarget != "" {
+	// When GITHUB_COPILOT_BASE_URL is a GitHub Actions expression and no explicit engine.api-target
+	// is set, skip here — BuildAWFCommand handles it via the expression scheme-stripping preamble.
+	copilotTargetIsExpressionEnvVar := isEnvVarExpression(config.WorkflowData, "GITHUB_COPILOT_BASE_URL") &&
+		(config.WorkflowData == nil || config.WorkflowData.EngineConfig == nil || config.WorkflowData.EngineConfig.APITarget == "")
+	if copilotTarget := GetCopilotAPITarget(config.WorkflowData); copilotTarget != "" && !copilotTargetIsExpressionEnvVar {
 		awfArgs = append(awfArgs, "--copilot-api-target", copilotTarget)
 		awfHelpersLog.Printf("Added --copilot-api-target=%s", copilotTarget)
 	}
@@ -481,7 +514,77 @@ func extractAPIBasePath(workflowData *WorkflowData, envVar string) string {
 	return ""
 }
 
-// GetCopilotAPITarget returns the effective Copilot API target hostname, checking in order:
+// isEnvVarExpression reports whether the specified environment variable in engine.env is set to
+// a GitHub Actions expression (e.g., "${{ vars.FOO }}") rather than a literal value.
+// Expression-based values cannot have their hostname extracted at compile time and must be
+// processed at runtime by the shell preamble generated by buildExpressionAPITargetArgs.
+func isEnvVarExpression(workflowData *WorkflowData, envVar string) bool {
+	if workflowData == nil || workflowData.EngineConfig == nil || workflowData.EngineConfig.Env == nil {
+		return false
+	}
+	val, exists := workflowData.EngineConfig.Env[envVar]
+	return exists && isExpressionString(val)
+}
+
+// buildExpressionAPITargetArgs generates shell preamble code and expandable AWF arguments
+// for API target environment variables that are set to GitHub Actions expressions.
+//
+// When ANTHROPIC_BASE_URL, OPENAI_BASE_URL, or GITHUB_COPILOT_BASE_URL contains an expression
+// (e.g., "${{ vars.ANTHROPIC_BASE_URL }}"), the hostname cannot be extracted at compile time.
+// Instead, this function produces:
+//   - A shell preamble that strips the URL scheme (https:// / http://) and path suffix at
+//     runtime, leaving a bare hostname suitable for AWF's --*-api-target flags.
+//   - An expandable AWF arg (e.g., --anthropic-api-target "${_GH_AW_ANTHROPIC_TARGET}") that
+//     references the shell variable set by the preamble.
+//
+// For example, if ANTHROPIC_BASE_URL = "${{ vars.ANTHROPIC_BASE_URL }}" resolves at runtime
+// to "https://my-gateway.example.com/some-path", the generated preamble produces:
+//
+//	_GH_AW_ANTHROPIC_TARGET='https://my-gateway.example.com/some-path'
+//	_GH_AW_ANTHROPIC_TARGET="${_GH_AW_ANTHROPIC_TARGET#https://}"; ... → "my-gateway.example.com"
+//
+// This mirrors extractAPITargetHost's compile-time behaviour for hardcoded values.
+//
+// Returns (preamble, expandableArgs):
+//   - preamble: shell lines to add before the AWF command (empty if no expressions found)
+//   - expandableArgs: space-separated --*-api-target flags (empty if no expressions found)
+func buildExpressionAPITargetArgs(workflowData *WorkflowData) (preamble string, expandableArgs string) {
+	type targetSpec struct {
+		envVar  string
+		flag    string
+		varName string
+	}
+	specs := []targetSpec{
+		{"OPENAI_BASE_URL", "--openai-api-target", "_GH_AW_OPENAI_TARGET"},
+		{"ANTHROPIC_BASE_URL", "--anthropic-api-target", "_GH_AW_ANTHROPIC_TARGET"},
+		{"GITHUB_COPILOT_BASE_URL", "--copilot-api-target", "_GH_AW_COPILOT_TARGET"},
+	}
+
+	var preambleLines []string
+	var expandableParts []string
+
+	for _, s := range specs {
+		if !isEnvVarExpression(workflowData, s.envVar) {
+			continue
+		}
+		expr := workflowData.EngineConfig.Env[s.envVar]
+		// Generate shell code to strip the URL scheme and path, leaving a bare hostname.
+		// The GitHub Actions runner resolves ${{ }} expressions before the shell executes,
+		// so by the time the shell sees this, the variable is already set to the real URL.
+		// Using parameter expansion (no subshell) keeps the stripping lightweight.
+		preambleLines = append(preambleLines,
+			s.varName+"='"+expr+"'; "+
+				s.varName+`="${`+s.varName+`#https://}"; `+
+				s.varName+`="${`+s.varName+`#http://}"; `+
+				s.varName+`="${`+s.varName+`%%/*}"`,
+		)
+		expandableParts = append(expandableParts, s.flag+` "${`+s.varName+`}"`)
+		awfHelpersLog.Printf("Generating runtime scheme-stripping for expression-based %s → %s", s.envVar, s.flag)
+	}
+
+	return strings.Join(preambleLines, "\n"), strings.Join(expandableParts, " ")
+}
+
 //  1. engine.api-target (explicit, takes precedence)
 //  2. GITHUB_COPILOT_BASE_URL in engine.env (implicit, derived from the configured Copilot base URL)
 //
