@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-04-09T12:39:33Z",
-  "run_id": "24190546125",
+  "run_date": "2026-04-09T18:37:13Z",
+  "run_id": "24206973576",
   "fork_prs": 0,
-  "agent_prs_found": 10,
-  "agent_prs_excluded": 10,
-  "notes": "10 open Copilot-authored PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. 4 new PRs since last run (#25462, #25460, #25459, #25458).",
+  "agent_prs_found": 3,
+  "agent_prs_excluded": 3,
+  "notes": "3 open Copilot-authored PRs found, all same-repo branches (not forks). Excluded per fork-only triage policy. 2 new PRs since last run (#25510, #25507). Previously tracked PRs #25462, #25460, #25459, #25458, #25434, #25433, #25430, #25399, #25072 appear to have been closed/merged.",
   "total_prs_triaged": 0,
   "auto_merge_candidates": [],
   "fast_track_needed": [],
@@ -18,76 +18,27 @@
   },
   "prs_examined": [
     {
-      "number": 25462,
-      "title": "fix: reorder removeXmlComments before mention neutralization to prevent HTML comment bypass",
-      "draft": true,
-      "created_at": "2026-04-09T12:01:52Z",
+      "number": 25510,
+      "title": "Add ValidateHeredocContent checks to 5 user-controlled heredoc sites",
+      "draft": false,
+      "created_at": "2026-04-09T18:37:00Z",
       "labels": [],
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "new_this_run": true
     },
     {
-      "number": 25460,
-      "title": "[WIP] Refactor outlier functions and misplaced utilities from semantic analysis",
-      "draft": true,
-      "created_at": "2026-04-09T11:59:55Z",
-      "labels": [],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": true
-    },
-    {
-      "number": 25459,
-      "title": "[WIP] Refactor to create shared security analysis base for workflows",
-      "draft": true,
-      "created_at": "2026-04-09T11:59:19Z",
-      "labels": [],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": true
-    },
-    {
-      "number": 25458,
-      "title": "[WIP] Fix homoglyph normalization in hardenUnicodeText",
-      "draft": true,
-      "created_at": "2026-04-09T11:53:18Z",
-      "labels": [],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": true
-    },
-    {
-      "number": 25434,
-      "title": "[ca] Update Claude Code 2.1.94->2.1.97 and Gemini CLI 0.36.0->0.37.0",
-      "draft": true,
-      "created_at": "2026-04-09T05:24:45Z",
-      "labels": [],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": false
-    },
-    {
-      "number": 25433,
-      "title": "docs: add workflow_run triggers, external API integration, and Playwright network config guidance",
-      "draft": true,
-      "created_at": "2026-04-09T05:24:28Z",
+      "number": 25507,
+      "title": "Wire up dead MCP config schema validation",
+      "draft": false,
+      "created_at": "2026-04-09T18:37:00Z",
       "labels": [
-        "needs-work"
+        "smoke-claude",
+        "smoke-copilot"
       ],
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": false
-    },
-    {
-      "number": 25430,
-      "title": "fix: discussion label updates truncated to 3 instead of max labels",
-      "draft": false,
-      "created_at": "2026-04-09T05:02:44Z",
-      "labels": [],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": false
+      "new_this_run": true
     },
     {
       "number": 25403,
@@ -98,39 +49,13 @@
       "same_repo": true,
       "excluded_reason": "same-repo branch, not a fork",
       "new_this_run": false
-    },
-    {
-      "number": 25399,
-      "title": "fix: exclude COPILOT_GITHUB_TOKEN from AWF container when copilot-requests feature is enabled",
-      "draft": false,
-      "created_at": "2026-04-08T22:08:31Z",
-      "labels": [
-        "smoke",
-        "needs-work"
-      ],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": false
-    },
-    {
-      "number": 25072,
-      "title": "Pin all MCP container images to SHA-256 digests; replace floating tags",
-      "draft": false,
-      "created_at": "2026-04-07T11:27:51Z",
-      "labels": [
-        "smoke",
-        "lgtm"
-      ],
-      "same_repo": true,
-      "excluded_reason": "same-repo branch, not a fork",
-      "new_this_run": false
     }
   ],
   "previous_run": {
-    "run_id": "24176545714",
-    "run_date": "2026-04-09T06:47:05Z",
+    "run_id": "24190546125",
+    "run_date": "2026-04-09T12:39:33Z",
     "fork_prs": 0,
-    "agent_prs_found": 6,
-    "agent_prs_excluded": 6
+    "agent_prs_found": 10,
+    "agent_prs_excluded": 10
   }
 }
