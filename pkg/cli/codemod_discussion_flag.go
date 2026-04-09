@@ -38,9 +38,15 @@ func getDiscussionFlagRemovalCodemod() Codemod {
 				return content, false, nil
 			}
 
-			// Check if discussion field exists in add-comment
-			_, hasDiscussion := addCommentMap["discussion"]
+			// Check if discussion field exists in add-comment with value true
+			// discussion: false is now a valid opt-out and should NOT be removed
+			discussionValue, hasDiscussion := addCommentMap["discussion"]
 			if !hasDiscussion {
+				return content, false, nil
+			}
+			// Only remove discussion: true (deprecated auto-detected behavior)
+			// discussion: false is preserved as it disables discussions:write permission
+			if discussionBool, ok := discussionValue.(bool); ok && !discussionBool {
 				return content, false, nil
 			}
 

@@ -115,6 +115,20 @@ func TestComputePermissionsForSafeOutputs(t *testing.T) {
 			},
 		},
 		{
+			name: "add-comment with discussion:false (singular, deprecated) - no discussions permission",
+			safeOutputs: &SafeOutputsConfig{
+				AddComments: &AddCommentsConfig{
+					BaseSafeOutputConfig: BaseSafeOutputConfig{Max: strPtr("1")},
+					Discussion:           ptrBool(false),
+				},
+			},
+			expected: map[PermissionScope]PermissionLevel{
+				PermissionContents:     PermissionRead,
+				PermissionIssues:       PermissionWrite,
+				PermissionPullRequests: PermissionWrite,
+			},
+		},
+		{
 			name: "add-comment with pull-requests:false - no pull-requests permission",
 			safeOutputs: &SafeOutputsConfig{
 				AddComments: &AddCommentsConfig{

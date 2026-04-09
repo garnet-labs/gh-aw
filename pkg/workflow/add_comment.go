@@ -17,7 +17,7 @@ type AddCommentsConfig struct {
 	Target               string   `yaml:"target,omitempty"`              // Target for comments: "triggering" (default), "*" (any issue), or explicit issue number
 	TargetRepoSlug       string   `yaml:"target-repo,omitempty"`         // Target repository in format "owner/repo" for cross-repository comments
 	AllowedRepos         []string `yaml:"allowed-repos,omitempty"`       // List of additional repositories that comments can be added to (additionally to the target-repo)
-	Discussion           *bool    `yaml:"discussion,omitempty"`          // Target discussion comments instead of issue/PR comments. Must be true if present.
+	Discussion           *bool    `yaml:"discussion,omitempty"`          // DEPRECATED: Use Discussions instead. When false, excludes discussions:write permission (same as Discussions: false).
 	HideOlderComments    *string  `yaml:"hide-older-comments,omitempty"` // When true, minimizes/hides all previous comments from the same workflow before creating the new comment
 	AllowedReasons       []string `yaml:"allowed-reasons,omitempty"`     // List of allowed reasons for hiding older comments (default: all reasons allowed)
 	Issues               *bool    `yaml:"issues,omitempty"`              // When false, excludes issues:write permission and issues from event condition. Default (nil or true) includes issues:write.
@@ -67,12 +67,6 @@ func (c *Compiler) parseCommentsConfig(outputMap map[string]any) *AddCommentsCon
 		config.Max = defaultIntStr(1)
 	}
 
-	// Validate discussion field - must be true if present
-	if config.Discussion != nil && !*config.Discussion {
-		addCommentLog.Print("Invalid discussion: must be true if present")
-		return nil // Invalid configuration, return nil to cause validation error
-	}
-
 	return &config
 }
 
@@ -80,6 +74,7 @@ func (c *Compiler) parseCommentsConfig(outputMap map[string]any) *AddCommentsCon
 // Issues: nil or true → issues:write (default: true)
 // PullRequests: nil or true → pull-requests:write (default: true)
 // Discussions: nil or true → discussions:write (default: true)
+// Discussion (singular, deprecated): when false, acts as discussions: false (excludes discussions:write)
 func buildAddCommentPermissions(config *AddCommentsConfig) *Permissions {
 	permMap := map[PermissionScope]PermissionLevel{
 		PermissionContents: PermissionRead,
@@ -90,7 +85,11 @@ func buildAddCommentPermissions(config *AddCommentsConfig) *Permissions {
 	if config == nil || config.PullRequests == nil || *config.PullRequests {
 		permMap[PermissionPullRequests] = PermissionWrite
 	}
-	if config == nil || config.Discussions == nil || *config.Discussions {
+	// discussions:write is excluded when either Discussions (plural) is false
+	// OR Discussion (singular, deprecated) is false.
+	discussionsExplicitlyDisabled := (config != nil && config.Discussions != nil && !*config.Discussions) ||
+		(config != nil && config.Discussion != nil && !*config.Discussion)
+	if config == nil || !discussionsExplicitlyDisabled {
 		permMap[PermissionDiscussions] = PermissionWrite
 	}
 	return NewPermissionsFromMap(permMap)

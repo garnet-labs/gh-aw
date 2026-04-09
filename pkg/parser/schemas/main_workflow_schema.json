@@ -5525,8 +5525,7 @@
                 },
                 "discussion": {
                   "type": "boolean",
-                  "const": true,
-                  "description": "DEPRECATED: This field is deprecated and will be removed in a future version. The add_comment handler now automatically detects whether to target discussions based on context (discussion/discussion_comment events) or the item_number field provided by the agent. Remove this field from your workflow configuration.",
+                  "description": "DEPRECATED: Use 'discussions' instead. When false, excludes discussions:write permission (same as discussions: false). When true, has no effect beyond backward compatibility. The add_comment handler now automatically detects discussion context.",
                   "deprecated": true
                 },
                 "hide-older-comments": {

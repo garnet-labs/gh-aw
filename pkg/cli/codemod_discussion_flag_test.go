@@ -294,3 +294,34 @@ safe-outputs:
 	assert.Contains(t, result, "create-discussion:")
 	assert.Contains(t, result, "expires: 24h")
 }
+
+func TestDiscussionFlagCodemod_PreservesDiscussionFalse(t *testing.T) {
+	codemod := getDiscussionFlagRemovalCodemod()
+
+	content := `---
+on: workflow_dispatch
+safe-outputs:
+  add-comment:
+    discussion: false
+    max: 2
+---
+
+# Test`
+
+	frontmatter := map[string]any{
+		"on": "workflow_dispatch",
+		"safe-outputs": map[string]any{
+			"add-comment": map[string]any{
+				"discussion": false,
+				"max":        2,
+			},
+		},
+	}
+
+	result, applied, err := codemod.Apply(content, frontmatter)
+
+	require.NoError(t, err)
+	assert.False(t, applied, "discussion: false should not be removed by the codemod")
+	assert.Equal(t, content, result)
+	assert.Contains(t, result, "discussion: false")
+}
