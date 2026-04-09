@@ -764,67 +764,36 @@ Check `/tmp/gh-aw/cache-memory/seen-runs.json` for previously seen run IDs; skip
 
 ### External Data Integration
 
-Use the `web-fetch` tool to ingest data from external HTTP APIs such as cloud billing APIs (AWS Cost Explorer, GCP Billing), monitoring systems (Datadog, Grafana), or any REST endpoint that returns JSON or text.
+Use `web-fetch` to ingest data from external HTTP APIs (cloud billing, monitoring systems, etc.). Add `tools: web-fetch:` and list every external domain under `network: allowed:` (always include `defaults`). Secrets are injected as environment variables (use `$AWS_API_KEY` in the prompt body).
 
-**Key rules:**
-- Add `tools: web-fetch:` to enable the tool.
-- Add every external domain to `network: allowed:` — the sandbox blocks all unlisted domains.
-- Always include `defaults` alongside custom domains (required for certificate validation and base infrastructure).
-- Store fetched data to `/tmp/gh-aw/agent/` so the agent can read it without re-fetching.
-
-**Frontmatter template for external API access:**
-
-```yaml
+```markdown
 ---
-description: Fetch cloud cost data and open an issue when spend exceeds threshold
+description: Alert when cloud spend exceeds threshold
 on:
   schedule: daily on weekdays
 permissions:
   contents: read
   issues: write
 tools:
-  web-fetch:           # Enable HTTP fetch tool
-  edit:
+  web-fetch:
+secrets:
+  - AWS_API_KEY
 network:
   allowed:
-    - defaults                              # Required: base infrastructure
-    - cost.us-east-1.amazonaws.com          # AWS Cost Explorer API
-    - monitoring.example.com               # Your monitoring system
+    - defaults
+    - cost.us-east-1.amazonaws.com
 safe-outputs:
   create-issue:
     max: 1
     skip-if-match: 'is:issue is:open label:cost-alert in:title "Spend alert"'
 ---
+
+Fetch today's spend from `https://cost.us-east-1.amazonaws.com/GetCostAndUsage` using `web-fetch` with header `Authorization: Bearer $AWS_API_KEY`.
+If spend exceeds $500, create an issue "Spend alert: $<amount> today" with label `cost-alert`.
+Otherwise call `noop`.
 ```
 
-**Prompt pattern for external data ingestion:**
-
-```markdown
-Fetch today's cloud spend from the AWS Cost Explorer API at
-`https://cost.us-east-1.amazonaws.com/GetCostAndUsage`.
-
-The `AWS_API_KEY` secret is available as the environment variable
-`$AWS_API_KEY` (secrets are injected as environment variables).
-Use `web-fetch` with an `Authorization: Bearer $AWS_API_KEY` header.
-
-Parse the JSON response. If total spend exceeds $500, create a GitHub
-issue titled "Spend alert: $<amount> today" with label `cost-alert`
-and a breakdown by service.
-
-If spend is within budget, call the `noop` safe-output.
-```
-
-**Secrets for external APIs:**
-
-Inject API credentials via `secrets:` in the frontmatter. Inside the prompt body and `steps:` blocks, secrets are available as environment variables (e.g., `$AWS_API_KEY`). Use `${{ secrets.AWS_API_KEY }}` syntax only inside `steps:` blocks; in the freeform prompt text use `$AWS_API_KEY`:
-
-```yaml
-secrets:
-  - AWS_API_KEY      # Available as $AWS_API_KEY in steps/environment
-  - DATADOG_API_KEY
-```
-
-**Tip:** If the external API requires heavy pre-processing or pagination, fetch and trim the data in a deterministic `steps:` block and write the result to `/tmp/gh-aw/agent/`. The agent then reads the local file rather than calling `web-fetch` directly, staying within its token budget.
+**Tip:** For paginated or heavy responses, pre-fetch in a `steps:` block and write to `/tmp/gh-aw/agent/` so the agent reads a local file instead of re-fetching.
 
 ## Issue Form Mode: Step-by-Step Workflow Creation
 
