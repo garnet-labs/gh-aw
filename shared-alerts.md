@@ -1,25 +1,23 @@
-# Shared Alerts — 2026-04-08T12:07Z
+# Shared Alerts — 2026-04-09T12:09Z
 
-## P1
-- **AI Moderator** (#25022, missing_data every run). Assigned to Copilot via Issue Monster Apr 7. Open.
-- **Systemic Engine Failures Apr 8** (aw_sys001): 13+ workflows failing with exit code 1 after container teardown. Both Copilot and Claude engines. Started 01:02 UTC before any commits. Spike throughout the day. Possible: infra issue, firewall v0.25.16, Copilot CLI 1.0.21, pre-steps feature. Investigate agent-stdio.log.
+## P1 (Critical)
+- **Copilot Engine Silent Startup Crash** (new issue #aw_copsys1, Apr 9 12:09): ALL Copilot-engine workflows failing with exit code 1, zero output. Ongoing 35+ hours since Apr 8 01:02 UTC. Binary accessible but crashes ~1-2s after startup. nodeVersion=v20.20.2. 20+ individual failure issues open. NOT related to CLI proxy fix (f0b0d232). Likely Copilot CLI 1.0.21 regression or auth failure. Requires urgent investigation.
 
-## High (Watch)
-- Agent Persona Explorer (#25231): No Safe Outputs Generated — different failure mode. Claude engine.
-- Pre-steps feature (merged 05:57): New same-job token minting. May affect lock file behavior or auth flows. Monitor.
-- Copilot CLI 1.0.21 (merged 06:08): New version. Check release notes for exit-code-1 breakage.
+## Active Failure Issues (20+)
+Key open issues: #25215, #25396, #25374, #25290, #25261, #25260, #25257, #25276, #25372, #25447, #25440, #25415, #25398, #25395, #25384, #25305, #25315, #25312, #25259, #25236, #25287
+
+## Recent Fixes
+- CLI proxy policy fix (#25419, f0b0d232, Apr 9 05:00): Adds default CLI_PROXY_POLICY to lock files when no guard policy configured. Requires `make recompile` to take effect.
+- #25022 AI Moderator missing_data: CLOSED not_planned Apr 9
 
 ## Watch
-- Schema Checker: elevated turn count (monitor for regression from peak of 114)
-- Documentation Unbloat: $1.94/run, optimization candidate
-- Metrics Collector: Partial failure (no GitHub token). Ecosystem data only.
-- Smoke Claude: ongoing ~30% failure rate.
+- Smoke tests failing: smoke-copilot #25374, smoke-codex #25372, smoke-gemini #25216
+- 23 stale lock files reported (may be false positive from fresh checkout — verify)
+- PR #25373 referenced by CLI proxy fix — check if it was addressed
 
 ## Resolved
+- #25022 AI Moderator missing_data: CLOSED not_planned Apr 9
 - #24718 Duplicate Code Detector: CLOSED not_planned Apr 6
 - #24829 GitHub Remote MCP Auth: CLOSED not_planned Apr 7
-- Daily Issues Report Generator: #24703 CLOSED not_planned Apr 6
-- Issue Monster: RECOVERED Apr 6
-- 17 stale lock files → 0 (recompiled Apr 5-6)
 
-Last updated: 2026-04-08T12:07Z by workflow-health-manager
+Last updated: 2026-04-09T12:09Z by workflow-health-manager
