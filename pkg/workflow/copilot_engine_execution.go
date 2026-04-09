@@ -181,6 +181,20 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		copilotCommand = fmt.Sprintf(`%s %s --prompt "$COPILOT_CLI_INSTRUCTION"`, execPrefix, shellJoinArgs(copilotArgs))
 	}
 
+	// Use COPILOT_GITHUB_TOKEN: when the copilot-requests feature is enabled, use the GitHub
+	// Actions token directly (${{ github.token }}). Otherwise use the COPILOT_GITHUB_TOKEN secret.
+	// #nosec G101 -- These are NOT hardcoded credentials. They are GitHub Actions expression templates
+	// that the runtime replaces with actual values. The strings "${{ secrets.COPILOT_GITHUB_TOKEN }}"
+	// and "${{ github.token }}" are placeholders, not actual credentials.
+	useCopilotRequests := isFeatureEnabled(constants.CopilotRequestsFeatureFlag, workflowData)
+	var copilotGitHubToken string
+	if useCopilotRequests {
+		copilotGitHubToken = "${{ github.token }}"
+		copilotExecLog.Print("Using GitHub Actions token as COPILOT_GITHUB_TOKEN (copilot-requests feature enabled)")
+	} else {
+		copilotGitHubToken = "${{ secrets.COPILOT_GITHUB_TOKEN }}"
+	}
+
 	// Conditionally wrap with sandbox (AWF only)
 	var command string
 	if isFirewallEnabled(workflowData) {
@@ -210,6 +224,17 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 		//
 		// Version precedence works because actions/setup-* PREPEND to PATH, so
 		// /opt/hostedtoolcache/go/1.25.6/x64/bin comes before /usr/bin in AWF_HOST_PATH.
+		//
+		// When copilot-requests feature is enabled, COPILOT_GITHUB_TOKEN is set to
+		// ${{ github.token }} — a scoped Actions token, not a long-lived secret. The
+		// Copilot CLI v1.0.20+ validates this token at startup before making API calls,
+		// so it must be present inside the AWF container. We therefore only add it to
+		// the exclude list when it holds a PAT (${{ secrets.COPILOT_GITHUB_TOKEN }}),
+		// where leakage would be higher risk.
+		var coreExcludeVarNames []string
+		if !useCopilotRequests {
+			coreExcludeVarNames = []string{"COPILOT_GITHUB_TOKEN"}
+		}
 		command = BuildAWFCommand(AWFCommandConfig{
 			EngineName:     "copilot",
 			EngineCommand:  copilotCommand,
@@ -223,7 +248,7 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 			PathSetup: "touch " + AgentStepSummaryPath,
 			// Exclude every env var whose step-env value is a secret so the agent
 			// cannot read raw token values via bash tools (env / printenv).
-			ExcludeEnvVarNames: ComputeAWFExcludeEnvVarNames(workflowData, []string{"COPILOT_GITHUB_TOKEN"}),
+			ExcludeEnvVarNames: ComputeAWFExcludeEnvVarNames(workflowData, coreExcludeVarNames),
 		})
 	} else {
 		// Run copilot command without AWF wrapper.
@@ -232,20 +257,6 @@ func (e *CopilotEngine) GetExecutionSteps(workflowData *WorkflowData, logFile st
 touch %s
 COPILOT_CLI_INSTRUCTION="$(cat /tmp/gh-aw/aw-prompts/prompt.txt)"
 %s%s 2>&1 | tee %s`, AgentStepSummaryPath, mkdirCommands.String(), copilotCommand, logFile)
-	}
-
-	// Use COPILOT_GITHUB_TOKEN: when the copilot-requests feature is enabled, use the GitHub
-	// Actions token directly (${{ github.token }}). Otherwise use the COPILOT_GITHUB_TOKEN secret.
-	// #nosec G101 -- These are NOT hardcoded credentials. They are GitHub Actions expression templates
-	// that the runtime replaces with actual values. The strings "${{ secrets.COPILOT_GITHUB_TOKEN }}"
-	// and "${{ github.token }}" are placeholders, not actual credentials.
-	var copilotGitHubToken string
-	useCopilotRequests := isFeatureEnabled(constants.CopilotRequestsFeatureFlag, workflowData)
-	if useCopilotRequests {
-		copilotGitHubToken = "${{ github.token }}"
-		copilotExecLog.Print("Using GitHub Actions token as COPILOT_GITHUB_TOKEN (copilot-requests feature enabled)")
-	} else {
-		copilotGitHubToken = "${{ secrets.COPILOT_GITHUB_TOKEN }}"
 	}
 
 	env := map[string]string{
