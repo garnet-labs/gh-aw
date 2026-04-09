@@ -1,6 +1,6 @@
 {
-  "run_date": "2026-04-09T00:49:20Z",
-  "run_id": "24166469984",
+  "run_date": "2026-04-09T06:47:05Z",
+  "run_id": "24176545714",
   "fork_prs": 0,
   "agent_prs_found": 6,
   "agent_prs_excluded": 6,
@@ -17,16 +17,17 @@
     "by_action": {}
   },
   "prs_examined": [
-    {"number": 25414, "title": "[WIP] Update report formatting for non-compliant workflows", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-09T00:48:21Z", "draft": true},
-    {"number": 25403, "title": "fix: replace hardcoded `github.token` with configurable push token in Configure Git credentials steps", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-08T22:18:04Z", "draft": true},
-    {"number": 25402, "title": "fix: safe-outputs types from imports dropped when main workflow defines any safe-outputs", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-08T22:15:45Z", "draft": false},
-    {"number": 25399, "title": "fix: don't exclude COPILOT_GITHUB_TOKEN from AWF container when copilot-requests feature is enabled", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-08T22:08:31Z", "draft": true},
-    {"number": 25387, "title": "Remove CodeMirror dependency from live editor playground", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-08T21:14:38Z", "draft": false},
-    {"number": 25072, "title": "Pin all MCP container images to SHA-256 digests; replace floating tags", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-07T11:27:51Z", "draft": false}
+    {"number": 25434, "title": "[ca] Update Claude Code 2.1.94→2.1.97 and Gemini CLI 0.36.0→0.37.0", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-09T05:24:45Z", "draft": true, "new_this_run": true},
+    {"number": 25433, "title": "docs: add workflow_run triggers, external API integration, and Playwright network config guidance", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-09T05:24:28Z", "draft": true, "new_this_run": true},
+    {"number": 25430, "title": "fix: discussion label updates truncated to 3 instead of max labels", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-09T05:02:44Z", "draft": false, "new_this_run": true},
+    {"number": 25403, "title": "fix: replace hardcoded `github.token` with configurable push token in Configure Git credentials steps", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-08T22:18:04Z", "draft": true, "new_this_run": false},
+    {"number": 25399, "title": "fix: don't exclude COPILOT_GITHUB_TOKEN from AWF container when copilot-requests feature is enabled", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-08T22:08:31Z", "draft": false, "new_this_run": false},
+    {"number": 25072, "title": "Pin all MCP container images to SHA-256 digests; replace floating tags", "author": "Copilot", "same_repo": true, "excluded_reason": "same-repo branch, not a fork", "created_at": "2026-04-07T11:27:51Z", "draft": false, "new_this_run": false}
   ],
+  "prs_merged_or_closed_since_last_run": [25414, 25402, 25387],
   "previous_run": {
-    "run_id": "24152242736",
-    "run_date": "2026-04-08T18:41:38Z",
+    "run_id": "24166469984",
+    "run_date": "2026-04-09T00:49:20Z",
     "fork_prs": 0,
     "agent_prs_found": 6,
     "agent_prs_excluded": 6
