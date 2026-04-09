@@ -347,6 +347,20 @@ Ensure discussions are enabled (**Settings → Features → Discussions**) and t
 
 Use `fallback-to-issue: true` (the default) to automatically create an issue if discussions aren't available. See [Discussion Creation](/gh-aw/reference/safe-outputs/#discussion-creation-create-discussion) for details.
 
+### How do I turn off discussions in add-comment?
+
+By default, `add-comment` requests `discussions: write` permission and includes discussion events in the trigger condition. If your GitHub App lacks the Discussions permission (which can cause 422 errors during token generation), set `discussions: false`:
+
+```yaml wrap
+safe-outputs:
+  add-comment:
+    discussions: false   # exclude discussions:write permission and discussion events
+```
+
+This removes the `discussions: write` permission requirement and excludes `discussion` and `discussion_comment` events from the event trigger condition. Discussion targeting is still automatic when the events are present — `discussions: false` only controls the permission scope.
+
+Similarly, you can opt out of `issues: write` or `pull-requests: write` using `issues: false` or `pull-requests: false`.
+
 ### Why is my create-pull-request workflow failing with "GitHub Actions is not permitted to create or approve pull requests"?
 
 Some organizations block PR creation by GitHub Actions via **Settings → Actions → General → Workflow permissions**. If you can't enable it, use one of these alternatives:

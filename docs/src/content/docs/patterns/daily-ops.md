@@ -51,13 +51,12 @@ The [`safe-outputs:`](/gh-aw/reference/safe-outputs/) (validated GitHub operatio
 
 ### Discussion Comments
 
-For workflows that post updates to an existing discussion, use `add-comment` with `discussion: true` and a specific `target` discussion number:
+For workflows that post updates to an existing discussion, use `add-comment` with a specific `target` discussion number. Discussion targeting is automatic when the workflow runs in a discussion event context, or when the agent provides a `discussion_number`:
 
 ```aw wrap
 safe-outputs:
   add-comment:
     target: "4750"
-    discussion: true
 ```
 
 This pattern is ideal for daily status posts, recurring reports, or community updates. The [daily-fact.md](https://github.com/github/gh-aw/blob/main/.github/workflows/daily-fact.md) workflow demonstrates this by posting daily facts about the repository to a pinned discussion thread.

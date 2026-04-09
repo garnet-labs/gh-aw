@@ -64,28 +64,28 @@ func TestValidateRepositoryFeatures(t *testing.T) {
 			description: "validation will check both features but won't fail on API errors",
 		},
 		{
-			name: "add-comment with discussion: true",
+			name: "add-comment with discussions: true",
 			workflowData: &WorkflowData{
 				SafeOutputs: &SafeOutputsConfig{
 					AddComments: &AddCommentsConfig{
-						Discussion: boolPtr(true),
-					},
-				},
-			},
-			expectError: false, // Will not error if getCurrentRepository fails or API call fails
-			description: "validation will check discussions for add-comment but won't fail on API errors",
-		},
-		{
-			name: "add-comment with discussion: false",
-			workflowData: &WorkflowData{
-				SafeOutputs: &SafeOutputsConfig{
-					AddComments: &AddCommentsConfig{
-						Discussion: boolPtr(false),
+						Discussions: boolPtr(true),
 					},
 				},
 			},
 			expectError: false,
-			description: "should pass when add-comment targets issues/PRs, not discussions",
+			description: "should pass when add-comment explicitly enables discussions:write permission",
+		},
+		{
+			name: "add-comment with discussions: false",
+			workflowData: &WorkflowData{
+				SafeOutputs: &SafeOutputsConfig{
+					AddComments: &AddCommentsConfig{
+						Discussions: boolPtr(false),
+					},
+				},
+			},
+			expectError: false,
+			description: "should pass when add-comment opts out of discussions:write permission",
 		},
 	}
 

@@ -95,7 +95,7 @@ active
 actor
 actual
 add-comment
-add-comment.discussion
+add-comment.discussions
 add-labels
 add-labels.allowed
 add-reviewer

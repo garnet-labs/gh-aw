@@ -8,12 +8,12 @@ import (
 
 var discussionFlagCodemodLog = logger.New("cli:codemod_discussion_flag")
 
-// getDiscussionFlagRemovalCodemod creates a codemod for removing the deprecated discussion field from add-comment
+// getDiscussionFlagRemovalCodemod creates a codemod for converting the deprecated discussion field in add-comment
 func getDiscussionFlagRemovalCodemod() Codemod {
 	return Codemod{
 		ID:           "add-comment-discussion-removal",
 		Name:         "Remove deprecated add-comment.discussion field",
-		Description:  "Removes the deprecated 'safe-outputs.add-comment.discussion' field (detection is now automatic based on context)",
+		Description:  "Removes the deprecated 'safe-outputs.add-comment.discussion' field. Discussion targeting is now automatic based on context. Use 'discussions: false' to opt out of discussions:write permission.",
 		IntroducedIn: "0.3.0",
 		Apply: func(content string, frontmatter map[string]any) (string, bool, error) {
 			// Check if safe-outputs exists
