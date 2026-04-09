@@ -1817,6 +1817,83 @@ on:
   workflow_dispatch:
 ```
 
+### `workflow_run` Trigger: Failure-Reactive Workflows
+
+Use `workflow_run` to react to other GitHub Actions workflows completing — without polling. This is the preferred pattern for incident response and failure triage because it fires immediately when a monitored workflow finishes, eliminating the latency and wasted compute of a `schedule`-based poller.
+
+**When to use `workflow_run`:**
+- Creating an incident issue when a deploy or CI workflow fails
+- Analysing test failures and posting a diagnosis comment automatically
+- Notifying a channel or creating a task when any pipeline step breaks
+
+**Key pattern:**
+
+```yaml
+on:
+  workflow_run:
+    workflows: ["Deploy"]   # Name(s) of the workflow(s) to watch
+    types: [completed]      # Fire once the watched workflow finishes
+```
+
+Filter to failures only with a top-level `if:` condition on the agent job:
+
+```yaml
+if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+```
+
+**⚠️ Do not use `schedule` polling as a substitute.** `schedule` adds unnecessary latency (up to the poll interval) and runs even when nothing is wrong. `workflow_run` fires exactly once per completion event.
+
+**Concrete example — DevOps incident response:**
+
+```markdown
+---
+description: Create a GitHub issue when the Deploy workflow fails
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types: [completed]
+permissions:
+  contents: read
+  issues: write
+tools:
+  github:
+    toolsets: [default]
+safe-outputs:
+  create-issue:
+    max: 1
+    skip-if-match: 'is:issue is:open label:incident in:title "Deploy failed"'
+---
+
+A Deploy workflow run just completed with conclusion: `${{ github.event.workflow_run.conclusion }}`.
+
+Only proceed if the conclusion is `failure`. Otherwise call `noop`.
+
+When the workflow failed:
+1. Use GitHub tools to fetch the failed workflow run details (run ID: `${{ github.event.workflow_run.id }}`).
+2. Identify the failing job and the first error in its logs.
+3. Create a GitHub issue titled "Deploy failed: <short reason>" with label `incident` that includes:
+   - Link to the failed run: `${{ github.event.workflow_run.html_url }}`
+   - Commit SHA: `${{ github.event.workflow_run.head_sha }}`
+   - A concise summary of the failure and suggested remediation steps.
+
+If a matching open incident issue already exists (skip-if-match handles deduplication), call `noop`.
+```
+
+**Available `workflow_run` context expressions:**
+
+- `${{ github.event.workflow_run.id }}` — Run ID (use with `gh run view`)
+- `${{ github.event.workflow_run.conclusion }}` — `success`, `failure`, `cancelled`, etc.
+- `${{ github.event.workflow_run.html_url }}` — Link to the run in the GitHub UI
+- `${{ github.event.workflow_run.head_sha }}` — Commit that was tested
+- `${{ github.event.workflow_run.run_number }}` — Sequential run number
+
+**`workflow_run` vs `deployment_status`:**
+
+| Trigger | Use when… |
+|---|---|
+| `workflow_run` | Monitoring GitHub Actions pipelines in the same repo |
+| `deployment_status` | Monitoring external deployment services (Heroku, Vercel, Fly.io, etc.) that post back to the GitHub Deployments API |
+
 ## GitHub Context Expression Interpolation
 
 Use GitHub Actions context expressions throughout the workflow content. **Note: For security reasons, only specific expressions are allowed.**
@@ -2089,6 +2166,62 @@ Each ecosystem identifier enables network access to the domains required by that
 - Node.js repository (`package.json`) → `network: { allowed: [defaults, node] }`
 - Go repository (`go.mod`) → `network: { allowed: [defaults, go] }`
 - Java repository (`pom.xml`, `build.gradle`) → `network: { allowed: [defaults, java] }`
+
+### Playwright Network Configuration
+
+**Always pair `playwright` with `defaults`** in the `network.allowed` list. Omitting either identifier causes silent network failures that block browser automation:
+
+```yaml
+# ✅ REQUIRED — both identifiers are needed for Playwright to function
+network:
+  allowed:
+    - defaults    # Basic infrastructure (certificates, Ubuntu mirrors, etc.)
+    - playwright  # Playwright CDN and browser binary downloads
+```
+
+**Why both are required:**
+- `defaults` covers certificate authorities, Ubuntu apt sources, and other baseline infrastructure that Playwright depends on at runtime
+- `playwright` allows the Playwright CDN (`playwright.azureedge.net` and related domains) used to download browser binaries and media codecs
+- Omitting `defaults` breaks certificate validation and apt installs; omitting `playwright` prevents browser binary downloads — both result in silent failures that are hard to diagnose
+
+**Minimal visual regression workflow example:**
+
+```markdown
+---
+description: Capture screenshots on every PR and compare against cached baselines to detect visual regressions
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+  pull-requests: read
+tools:
+  playwright:
+    allowed_domains:
+      - localhost
+      - 127.0.0.1
+  cache-memory:
+    key: visual-regression-baselines-${{ github.event.pull_request.base.ref }}
+    retention-days: 30
+    allowed-extensions: [".png", ".json"]
+network:
+  allowed:
+    - defaults
+    - playwright
+safe-outputs:
+  add-comment:
+    max: 1
+timeout-minutes: 30
+---
+
+Build and serve the app locally, then use Playwright to capture full-page screenshots of key pages.
+
+Compare each screenshot to the cached baseline. Post a comment summarizing visual differences.
+If no baselines exist yet, save the current screenshots as baselines and post: "Baselines initialized."
+If nothing changed, call the `noop` safe-output.
+```
+
+> 📖 See `.github/aw/visual-regression.md` for the full visual regression reference pattern.
 
 ## Imports Field
 
