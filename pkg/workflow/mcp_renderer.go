@@ -191,16 +191,19 @@ func RenderJSONMCPConfig(
 		// When OTLP tracing is configured, add the opentelemetry section directly to the
 		// gateway config. The endpoint is written as a literal value (including GitHub Actions
 		// expressions such as ${{ secrets.X }} which GH Actions expands at runtime).
-		// Headers are emitted as a JSON string via ${OTEL_EXPORTER_OTLP_HEADERS}, which bash
-		// expands at runtime from the job-level env var injected by injectOTLPConfig.
+		// Headers are emitted as a JSON object (type: object per the opentelemetryConfig schema).
+		// The OTEL_EXPORTER_OTLP_HEADERS env var holds a "key=val,key2=val2" string that is
+		// converted to a JSON object by GH_AW_OTEL_HEADERS_JSON, pre-computed before the heredoc.
 		// traceId and spanId use ${VARIABLE_NAME} expressions expanded by bash from GITHUB_ENV.
 		// Per MCP Gateway Specification §4.1.3.6 and the opentelemetryConfig schema.
 		if options.GatewayConfig.OTLPEndpoint != "" {
 			configBuilder.WriteString(",\n              \"opentelemetry\": {\n")
 			fmt.Fprintf(&configBuilder, "                \"endpoint\": %q,\n", options.GatewayConfig.OTLPEndpoint)
 			if options.GatewayConfig.OTLPHeaders != "" {
-				// Pass the headers string through as-is; the gateway schema requires a string value.
-				configBuilder.WriteString("                \"headers\": \"${OTEL_EXPORTER_OTLP_HEADERS}\",\n")
+				// Headers must be a JSON object per the MCP Gateway opentelemetryConfig schema.
+				// GH_AW_OTEL_HEADERS_JSON is set before this heredoc by converting the
+				// OTEL_EXPORTER_OTLP_HEADERS "key=val,..." string into a {"key":"val",...} object.
+				configBuilder.WriteString("                \"headers\": ${GH_AW_OTEL_HEADERS_JSON},\n")
 			}
 			configBuilder.WriteString("                \"traceId\": \"${GITHUB_AW_OTEL_TRACE_ID}\",\n")
 			configBuilder.WriteString("                \"spanId\": \"${GITHUB_AW_OTEL_PARENT_SPAN_ID}\"\n")
@@ -218,6 +221,13 @@ func RenderJSONMCPConfig(
 	generatedConfig := configBuilder.String()
 
 	delimiter := GenerateHeredocDelimiterFromSeed("MCP_CONFIG", workflowData.FrontmatterHash)
+	// When OTLP headers are configured, pre-process the "key=val,..." string into a JSON object
+	// before the heredoc so that ${GH_AW_OTEL_HEADERS_JSON} expands to valid JSON inline.
+	// The MCP Gateway opentelemetryConfig schema requires headers to be type: object.
+	if options.GatewayConfig != nil && options.GatewayConfig.OTLPHeaders != "" {
+		yaml.WriteString("          # Convert OTLP headers (key=val,...) to JSON object required by MCP Gateway schema\n")
+		yaml.WriteString("          GH_AW_OTEL_HEADERS_JSON=$(echo \"${OTEL_EXPORTER_OTLP_HEADERS:-}\" | jq -Rr 'split(\",\") | map(select(. != \"\") | split(\"=\") | {key: .[0], value: (.[1:] | join(\"=\"))}) | from_entries' 2>/dev/null || echo '{}')\n")
+	}
 	// Write the configuration to the YAML output
 	yaml.WriteString("          cat << " + delimiter + " | bash \"${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh\"\n")
 	yaml.WriteString(generatedConfig)

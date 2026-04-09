@@ -688,6 +688,8 @@ jobs:
           GH_AW_MCP_CONFIG_eb7f5ffb386284ec_EOF
           
           # Generate JSON config for MCP gateway
+          # Convert OTLP headers (key=val,...) to JSON object required by MCP Gateway schema
+          GH_AW_OTEL_HEADERS_JSON=$(echo "${OTEL_EXPORTER_OTLP_HEADERS:-}" | jq -Rr 'split(",") | map(select(. != "") | split("=") | {key: .[0], value: (.[1:] | join("="))}) | from_entries' 2>/dev/null || echo '{}')
           cat << GH_AW_MCP_CONFIG_eb7f5ffb386284ec_EOF | bash "${RUNNER_TEMP}/gh-aw/actions/start_mcp_gateway.sh"
           {
             "mcpServers": {
@@ -746,7 +748,7 @@ jobs:
               "payloadDir": "${MCP_GATEWAY_PAYLOAD_DIR}",
               "opentelemetry": {
                 "endpoint": "${{ secrets.GH_AW_OTEL_ENDPOINT }}",
-                "headers": "${OTEL_EXPORTER_OTLP_HEADERS}",
+                "headers": ${GH_AW_OTEL_HEADERS_JSON},
                 "traceId": "${GITHUB_AW_OTEL_TRACE_ID}",
                 "spanId": "${GITHUB_AW_OTEL_PARENT_SPAN_ID}"
               }

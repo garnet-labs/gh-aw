@@ -573,7 +573,7 @@ func TestRenderJSONMCPConfig_OTLPGateway(t *testing.T) {
 
 			result := output.String()
 
-			// Verify no node/bash preamble for header conversion is emitted
+			// Verify no old header conversion preamble variables are present
 			if strings.Contains(result, "_GH_AW_OTLP_HEADERS_JSON") {
 				t.Error("output must not contain old _GH_AW_OTLP_HEADERS_JSON preamble")
 			}
@@ -581,10 +581,22 @@ func TestRenderJSONMCPConfig_OTLPGateway(t *testing.T) {
 				t.Error("output must not contain _GH_AW_OTLP_HEADERS_ESC preamble")
 			}
 
-			// Verify headers field (raw env var passthrough) is present iff configured
-			hasHeaders := strings.Contains(result, `"headers": "${OTEL_EXPORTER_OTLP_HEADERS}"`)
-			if hasHeaders != tt.wantHeaders {
-				t.Errorf("headers field presence = %v, want %v\noutput:\n%s", hasHeaders, tt.wantHeaders, result)
+			// Verify headers are now emitted as a JSON object (not a raw string passthrough)
+			// The new format uses a pre-heredoc bash conversion and object reference in config.
+			hasOldStringHeaders := strings.Contains(result, `"headers": "${OTEL_EXPORTER_OTLP_HEADERS}"`)
+			if hasOldStringHeaders {
+				t.Error("output must not use old string-passthrough format for headers; headers must be a JSON object")
+			}
+			hasObjectHeaders := strings.Contains(result, `"headers": ${GH_AW_OTEL_HEADERS_JSON}`)
+			hasHeadersPreamble := strings.Contains(result, "GH_AW_OTEL_HEADERS_JSON=")
+			if tt.wantHeaders && !hasObjectHeaders {
+				t.Errorf("expected object-format headers in output\noutput:\n%s", result)
+			}
+			if tt.wantHeaders && !hasHeadersPreamble {
+				t.Errorf("expected GH_AW_OTEL_HEADERS_JSON preamble conversion before heredoc\noutput:\n%s", result)
+			}
+			if !tt.wantHeaders && hasObjectHeaders {
+				t.Errorf("expected no headers field when not configured\noutput:\n%s", result)
 			}
 
 			// Verify endpoint is present iff configured
