@@ -58,6 +58,7 @@ func compileSpecificFiles(
 	var errorCount int
 	var lockFilesForActionlint []string
 	var lockFilesForZizmor []string
+	var lockFilesForDirTools []string // lock files for directory-based tools (poutine, runner-guard)
 
 	// Compile each specified file
 	for _, markdownFile := range config.MarkdownFiles {
@@ -122,6 +123,9 @@ func compileSpecificFiles(
 					if config.Zizmor {
 						lockFilesForZizmor = append(lockFilesForZizmor, fileResult.lockFile)
 					}
+					if config.Poutine || config.RunnerGuard {
+						lockFilesForDirTools = append(lockFilesForDirTools, fileResult.lockFile)
+					}
 				}
 			}
 		}
@@ -149,9 +153,20 @@ func compileSpecificFiles(
 
 	// Run batch poutine once on the workflow directory
 	// Get the directory from the first lock file (all should be in same directory)
-	if config.Poutine && !config.NoEmit && len(lockFilesForZizmor) > 0 {
-		workflowDir := filepath.Dir(lockFilesForZizmor[0])
+	if config.Poutine && !config.NoEmit && len(lockFilesForDirTools) > 0 {
+		workflowDir := filepath.Dir(lockFilesForDirTools[0])
 		if err := runBatchPoutine(workflowDir, config.Verbose && !config.JSONOutput, config.Strict); err != nil {
+			if config.Strict {
+				return workflowDataList, err
+			}
+		}
+	}
+
+	// Run batch runner-guard once on the workflow directory
+	// Get the directory from the first lock file (all should be in same directory)
+	if config.RunnerGuard && !config.NoEmit && len(lockFilesForDirTools) > 0 {
+		workflowDir := filepath.Dir(lockFilesForDirTools[0])
+		if err := runBatchRunnerGuard(workflowDir, config.Verbose && !config.JSONOutput, config.Strict); err != nil {
 			if config.Strict {
 				return workflowDataList, err
 			}
@@ -247,6 +262,7 @@ func compileAllFilesInDirectory(
 	var errorCount int
 	var lockFilesForActionlint []string
 	var lockFilesForZizmor []string
+	var lockFilesForDirTools []string // lock files for directory-based tools (poutine, runner-guard)
 
 	for _, file := range mdFiles {
 		stats.Total++
@@ -280,6 +296,9 @@ func compileAllFilesInDirectory(
 					if config.Zizmor {
 						lockFilesForZizmor = append(lockFilesForZizmor, fileResult.lockFile)
 					}
+					if config.Poutine || config.RunnerGuard {
+						lockFilesForDirTools = append(lockFilesForDirTools, fileResult.lockFile)
+					}
 				}
 			}
 		}
@@ -306,8 +325,17 @@ func compileAllFilesInDirectory(
 	}
 
 	// Run batch poutine once on the workflow directory
-	if config.Poutine && !config.NoEmit && len(lockFilesForZizmor) > 0 {
+	if config.Poutine && !config.NoEmit && len(lockFilesForDirTools) > 0 {
 		if err := runBatchPoutine(workflowsDir, config.Verbose && !config.JSONOutput, config.Strict); err != nil {
+			if config.Strict {
+				return workflowDataList, err
+			}
+		}
+	}
+
+	// Run batch runner-guard once on the workflow directory
+	if config.RunnerGuard && !config.NoEmit && len(lockFilesForDirTools) > 0 {
+		if err := runBatchRunnerGuard(workflowsDir, config.Verbose && !config.JSONOutput, config.Strict); err != nil {
 			if config.Strict {
 				return workflowDataList, err
 			}
@@ -447,6 +475,9 @@ func runPostProcessing(
 	// to check for expires fields, so we skip it when compiling specific files to avoid
 	// unnecessary parsing and warnings from unrelated workflows
 
+	// Prune stale gh-aw-actions entries before saving
+	pruneStaleActionCacheEntries(compiler, actionCache)
+
 	// Save action cache (errors are logged but non-fatal)
 	_ = saveActionCache(actionCache, config.Verbose)
 
@@ -482,17 +513,40 @@ func runPostProcessingForDirectory(
 	// Skip maintenance workflow generation when using custom --dir option
 	if !config.NoEmit && config.WorkflowDir == "" {
 		absWorkflowDir := getAbsoluteWorkflowDir(workflowsDir, gitRoot)
-		if err := generateMaintenanceWorkflowWrapper(compiler, workflowDataList, absWorkflowDir, config.Verbose, config.Strict); err != nil {
+		if err := generateMaintenanceWorkflowWrapper(compiler, workflowDataList, absWorkflowDir, gitRoot, config.Verbose, config.Strict); err != nil {
 			if config.Strict {
 				return err
 			}
 		}
 	}
 
+	// Prune stale gh-aw-actions entries before saving
+	pruneStaleActionCacheEntries(compiler, actionCache)
+
 	// Save action cache (errors are logged but non-fatal)
 	_ = saveActionCache(actionCache, config.Verbose)
 
 	return nil
+}
+
+// pruneStaleActionCacheEntries removes stale gh-aw-actions entries from the
+// action cache whose version does not match the compiler's current version.
+// This prevents actions-lock.json from accumulating entries for old compiler
+// releases that are no longer referenced by any compiled workflow.
+func pruneStaleActionCacheEntries(compiler *workflow.Compiler, actionCache *workflow.ActionCache) {
+	if actionCache == nil {
+		return
+	}
+
+	// Determine the effective version: actionTag takes precedence when explicitly
+	// set (e.g., via --action-tag for testing against a specific release), otherwise
+	// fall back to the compiler's built-in version from the binary.
+	version := compiler.GetActionTag()
+	if version == "" {
+		version = compiler.GetVersion()
+	}
+
+	actionCache.PruneStaleGHAWEntries(version, compiler.EffectiveActionsRepo())
 }
 
 // outputResults outputs compilation results in the requested format

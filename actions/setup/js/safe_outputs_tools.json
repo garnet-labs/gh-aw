@@ -850,6 +850,49 @@
     }
   },
   {
+    "name": "upload_artifact",
+    "description": "Upload files as a run-scoped GitHub Actions artifact. The model must first copy files to /tmp/gh-aw/safeoutputs/upload-artifacts/ then request upload using this tool. Returns a temporary artifact ID (aw_*) that can be resolved to a download URL by an authorised step. Retention and archive settings are fixed by workflow configuration. Exactly one of path or filters must be present.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to the file or directory to upload, relative to /tmp/gh-aw/safeoutputs/upload-artifacts/ (e.g., \"report.json\" or \"dist/\"). Required unless filters is provided."
+        },
+        "filters": {
+          "type": "object",
+          "description": "Glob-based file selection filters. Required unless path is provided.",
+          "properties": {
+            "include": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Glob patterns for files to include (e.g., [\"reports/**/*.json\"])"
+            },
+            "exclude": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Glob patterns for files to exclude (e.g., [\"**/*.env\", \"**/*.pem\"])"
+            }
+          },
+          "additionalProperties": false
+        },
+        "secrecy": {
+          "type": "string",
+          "description": "Confidentiality level of the artifact content (e.g., \"public\", \"internal\", \"private\")."
+        },
+        "integrity": {
+          "type": "string",
+          "description": "Trustworthiness level of the artifact source (e.g., \"low\", \"medium\", \"high\")."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
     "name": "update_release",
     "description": "Update a GitHub release description by replacing, appending to, or prepending to the existing content. Use this to add release notes, changelogs, or additional information to an existing release.",
     "inputSchema": {

@@ -242,7 +242,7 @@ func (c *Compiler) buildStartDIFCProxyStepYAML(data *WorkflowData) string {
 	fmt.Fprintf(&sb, "          DIFC_PROXY_POLICY: '%s'\n", policyJSON)
 	fmt.Fprintf(&sb, "          DIFC_PROXY_IMAGE: '%s'\n", containerImage)
 	sb.WriteString("        run: |\n")
-	sb.WriteString("          bash ${RUNNER_TEMP}/gh-aw/actions/start_difc_proxy.sh\n")
+	sb.WriteString("          bash \"${RUNNER_TEMP}/gh-aw/actions/start_difc_proxy.sh\"\n")
 	return sb.String()
 }
 
@@ -317,7 +317,116 @@ func (c *Compiler) generateStopDIFCProxyStep(yaml *strings.Builder, data *Workfl
 	yaml.WriteString("      - name: Stop DIFC proxy\n")
 	yaml.WriteString("        if: always()\n")
 	yaml.WriteString("        continue-on-error: true\n")
-	yaml.WriteString("        run: bash ${RUNNER_TEMP}/gh-aw/actions/stop_difc_proxy.sh\n")
+	yaml.WriteString("        run: bash \"${RUNNER_TEMP}/gh-aw/actions/stop_difc_proxy.sh\"\n")
+}
+
+// isCliProxyNeeded returns true if the CLI proxy should be started on the host.
+//
+// The CLI proxy is needed when:
+//  1. The cli-proxy feature flag is enabled, and
+//  2. The AWF sandbox (firewall) is enabled, and
+//  3. The AWF version supports CLI proxy flags
+func isCliProxyNeeded(data *WorkflowData) bool {
+	if !isFeatureEnabled(constants.CliProxyFeatureFlag, data) {
+		return false
+	}
+	if !isFirewallEnabled(data) {
+		return false
+	}
+	firewallConfig := getFirewallConfig(data)
+	if !awfSupportsCliProxy(firewallConfig) {
+		difcProxyLog.Printf("Skipping CLI proxy: AWF version too old")
+		return false
+	}
+	return true
+}
+
+// generateStartCliProxyStep generates a step that starts the difc-proxy container
+// on the host before the AWF execution step. AWF's cli-proxy sidecar connects
+// to this host proxy via host.docker.internal:18443.
+//
+// The step is only emitted when isCliProxyNeeded returns true.
+func (c *Compiler) generateStartCliProxyStep(yaml *strings.Builder, data *WorkflowData) {
+	if !isCliProxyNeeded(data) {
+		return
+	}
+
+	step := c.buildStartCliProxyStepYAML(data)
+	if step != "" {
+		yaml.WriteString(step)
+	}
+}
+
+// defaultCliProxyPolicyJSON is the fallback guard policy for the CLI proxy when no
+// guard policy is explicitly configured in the workflow frontmatter.
+// The DIFC proxy requires a --policy flag to forward requests; without it, all API
+// calls return HTTP 503 with body "proxy enforcement not configured".
+// This default allows all repos with no integrity filtering — the most permissive
+// policy that still satisfies the proxy's requirement.
+const defaultCliProxyPolicyJSON = `{"allow-only":{"repos":"all","min-integrity":"none"}}`
+
+// buildStartCliProxyStepYAML returns the YAML for the "Start CLI proxy" step,
+// or an empty string if the proxy cannot be configured.
+func (c *Compiler) buildStartCliProxyStepYAML(data *WorkflowData) string {
+	difcProxyLog.Print("Building Start CLI proxy step YAML")
+
+	githubTool := data.Tools["github"]
+
+	// Get token for the proxy
+	customGitHubToken := getGitHubToken(githubTool)
+	effectiveToken := getEffectiveGitHubToken(customGitHubToken)
+
+	// Build the guard policy JSON (static fields only).
+	// The CLI proxy requires a policy to forward requests — without one, all API
+	// calls return HTTP 503 ("proxy enforcement not configured"). Use the default
+	// permissive policy when no guard policy is configured in the frontmatter.
+	policyJSON := getDIFCProxyPolicyJSON(githubTool)
+	if policyJSON == "" {
+		policyJSON = defaultCliProxyPolicyJSON
+		difcProxyLog.Print("No guard policy configured, using default CLI proxy policy")
+	}
+
+	// Resolve the container image from the MCP gateway configuration
+	ensureDefaultMCPGatewayConfig(data)
+	gatewayConfig := data.SandboxConfig.MCP
+
+	containerImage := gatewayConfig.Container
+	if gatewayConfig.Version != "" {
+		containerImage += ":" + gatewayConfig.Version
+	} else {
+		containerImage += ":" + string(constants.DefaultMCPGatewayVersion)
+	}
+
+	var sb strings.Builder
+	sb.WriteString("      - name: Start CLI proxy\n")
+	sb.WriteString("        env:\n")
+	fmt.Fprintf(&sb, "          GH_TOKEN: %s\n", effectiveToken)
+	sb.WriteString("          GITHUB_SERVER_URL: ${{ github.server_url }}\n")
+	fmt.Fprintf(&sb, "          CLI_PROXY_POLICY: '%s'\n", policyJSON)
+	fmt.Fprintf(&sb, "          CLI_PROXY_IMAGE: '%s'\n", containerImage)
+	sb.WriteString("        run: |\n")
+	sb.WriteString("          bash \"${RUNNER_TEMP}/gh-aw/actions/start_cli_proxy.sh\"\n")
+	return sb.String()
+}
+
+// generateStopCliProxyStep generates a step that stops the CLI proxy container
+// after the AWF execution step.
+//
+// The step runs even if earlier steps failed (if: always(), continue-on-error: true)
+// to ensure the proxy container is always cleaned up.
+//
+// The step is only emitted when isCliProxyNeeded returns true.
+func (c *Compiler) generateStopCliProxyStep(yaml *strings.Builder, data *WorkflowData) {
+	if !isCliProxyNeeded(data) {
+		return
+	}
+
+	difcProxyLog.Print("Generating Stop CLI proxy step")
+
+	yaml.WriteString("      - name: Stop CLI proxy\n")
+	yaml.WriteString("        if: always()\n")
+	yaml.WriteString("        continue-on-error: true\n")
+	yaml.WriteString("        run: bash \"${RUNNER_TEMP}/gh-aw/actions/stop_cli_proxy.sh\"\n")
 }
 
 // difcProxyLogPaths returns the artifact paths for DIFC proxy logs.

@@ -32,10 +32,10 @@ func (v Version) IsValid() bool {
 type ModelName string
 
 // DefaultClaudeCodeVersion is the default version of the Claude Code CLI.
-const DefaultClaudeCodeVersion Version = "2.1.92"
+const DefaultClaudeCodeVersion Version = "2.1.94"
 
 // DefaultCopilotVersion is the default version of the GitHub Copilot CLI.
-const DefaultCopilotVersion Version = "1.0.20"
+const DefaultCopilotVersion Version = "1.0.21"
 
 // DefaultCodexVersion is the default version of the OpenAI Codex CLI
 const DefaultCodexVersion Version = "0.118.0"
@@ -47,15 +47,16 @@ const DefaultGeminiVersion Version = "0.36.0"
 const DefaultGitHubMCPServerVersion Version = "v0.32.0"
 
 // DefaultFirewallVersion is the default version of the gh-aw-firewall (AWF) binary
-const DefaultFirewallVersion Version = "v0.25.14"
+const DefaultFirewallVersion Version = "v0.25.17"
 
 // AWFExcludeEnvMinVersion is the minimum AWF version that supports the --exclude-env flag.
 // Workflows pinning an older AWF version must not emit --exclude-env flags or the run will fail.
 const AWFExcludeEnvMinVersion Version = "v0.25.3"
 
-// AWFCliProxyMinVersion is the minimum AWF version that supports the --enable-cli-proxy flag.
-// Workflows pinning an older AWF version must not emit --enable-cli-proxy flags or the run will fail.
-const AWFCliProxyMinVersion Version = "v0.25.14"
+// AWFCliProxyMinVersion is the minimum supported AWF version for emitting the CLI proxy flags
+// (--difc-proxy-host, --difc-proxy-ca-cert). Workflows pinning an older AWF version than
+// v0.25.17 must not emit CLI proxy flags or the run will fail.
+const AWFCliProxyMinVersion Version = "v0.25.17"
 
 // DefaultMCPGatewayVersion is the default version of the MCP Gateway (gh-aw-mcpg) Docker image
 const DefaultMCPGatewayVersion Version = "v0.2.16"

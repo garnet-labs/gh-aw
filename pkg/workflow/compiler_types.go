@@ -248,6 +248,12 @@ func (c *Compiler) effectiveActionsRepo() string {
 	return GitHubActionsOrgRepo
 }
 
+// EffectiveActionsRepo returns the actions repository used for action mode references.
+// Returns the override if set, otherwise returns the default GitHubActionsOrgRepo.
+func (c *Compiler) EffectiveActionsRepo() string {
+	return c.effectiveActionsRepo()
+}
+
 // GetVersion returns the version string used by the compiler
 func (c *Compiler) GetVersion() string {
 	return c.version
@@ -441,6 +447,7 @@ type WorkflowData struct {
 	If                          string
 	TimeoutMinutes              string
 	CustomSteps                 string
+	PreSteps                    string // steps to run at the very start of the agent job, before checkout
 	PostSteps                   string // steps to run after AI execution
 	RunsOn                      string
 	RunsOnSlim                  string // runner override for all framework/generated jobs (activation, safe-outputs, unlock, etc.)
@@ -553,6 +560,7 @@ type SafeOutputsConfig struct {
 	UpdatePullRequests              *UpdatePullRequestsConfig              `yaml:"update-pull-request,omitempty"` // Update GitHub pull request title/body
 	PushToPullRequestBranch         *PushToPullRequestBranchConfig         `yaml:"push-to-pull-request-branch,omitempty"`
 	UploadAssets                    *UploadAssetsConfig                    `yaml:"upload-asset,omitempty"`
+	UploadArtifact                  *UploadArtifactConfig                  `yaml:"upload-artifact,omitempty"`              // Upload files as run-scoped GitHub Actions artifacts
 	UpdateRelease                   *UpdateReleaseConfig                   `yaml:"update-release,omitempty"`               // Update GitHub release descriptions
 	CreateAgentSessions             *CreateAgentSessionConfig              `yaml:"create-agent-session,omitempty"`         // Create GitHub Copilot coding agent sessions
 	UpdateProjects                  *UpdateProjectConfig                   `yaml:"update-project,omitempty"`               // Smart project board management (create/add/update)
