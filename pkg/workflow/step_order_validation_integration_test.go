@@ -66,8 +66,9 @@ This workflow has a secret reference and safe-outputs.
 	}
 
 	// Upload Safe Outputs is now merged into the unified agent artifact; verify
-	// the old separate step no longer appears.
-	if strings.Contains(contentStr, "name: Upload Safe Outputs") {
+	// the old separate step no longer appears. Use exact matching (with leading "- " and
+	// trailing newline) to avoid false positives on steps like "Upload Safe Outputs Items".
+	if strings.Contains(contentStr, "- name: Upload Safe Outputs\n") {
 		t.Error("Upload Safe Outputs should be removed (merged into unified agent artifact)")
 	}
 
