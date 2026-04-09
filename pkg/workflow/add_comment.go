@@ -87,9 +87,9 @@ func buildAddCommentPermissions(config *AddCommentsConfig) *Permissions {
 	}
 	// discussions:write is excluded when either Discussions (plural) is false
 	// OR Discussion (singular, deprecated) is false.
-	discussionsExplicitlyDisabled := (config != nil && config.Discussions != nil && !*config.Discussions) ||
-		(config != nil && config.Discussion != nil && !*config.Discussion)
-	if config == nil || !discussionsExplicitlyDisabled {
+	if config == nil ||
+		(config.Discussions == nil || *config.Discussions) &&
+			(config.Discussion == nil || *config.Discussion) {
 		permMap[PermissionDiscussions] = PermissionWrite
 	}
 	return NewPermissionsFromMap(permMap)
