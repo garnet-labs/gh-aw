@@ -4,43 +4,44 @@
       "date": "2026-04-06",
       "sessions_analyzed": 50,
       "completion_rate_pct": 6.0,
-      "successful": 3,
-      "action_required": 44,
-      "in_progress_queued": 3,
-      "average_duration_minutes": 0.49,
-      "average_copilot_duration_minutes": 5.17,
       "copilot_coding_agents": 4,
-      "distinct_branches": 8,
-      "experimental_strategy": null,
-      "key_insights": [
-        "update-safe-outputs-validation: successful 20.2m Copilot session; validation improvements committed",
-        "fix-unknown-tool-names-warning: 14 sessions, 0 success - stalled branch with multiple review cycles",
-        "Conversation log unavailable (gh auth required) - behavioral analysis limited to metadata",
-        "Review bots (Scout, Q, Archie, /cloclo) dominate session count but always return action_required by design",
-        "Grumpy Code Reviewer achieved 100% success on fix-test-action-run branch"
-      ]
+      "copilot_success_rate_pct": 25.0,
+      "avg_copilot_duration_min": 5.17,
+      "experimental_strategy": null
     },
     {
       "date": "2026-04-07",
       "sessions_analyzed": 50,
       "completion_rate_pct": 0.0,
-      "successful": 0,
-      "action_required": 48,
-      "in_progress_queued": 2,
-      "average_duration_minutes": 0.2,
-      "average_copilot_duration_minutes": 0.2,
       "copilot_coding_agents": 2,
-      "distinct_branches": 5,
-      "experimental_strategy": "Branch Abandonment Risk Scoring",
+      "copilot_success_rate_pct": 0.0,
+      "avg_copilot_duration_min": 0.19,
+      "experimental_strategy": "Branch Abandonment Risk Scoring"
+    },
+    {
+      "date": "2026-04-08",
+      "sessions_analyzed": 50,
+      "completion_rate_pct": 2.0,
+      "copilot_coding_agents": 1,
+      "copilot_success_rate_pct": 100.0,
+      "avg_copilot_duration_min": 9.13,
+      "experimental_strategy": null
+    },
+    {
+      "date": "2026-04-09",
+      "sessions_analyzed": 50,
+      "completion_rate_pct": 8.0,
+      "copilot_coding_agents": 2,
+      "copilot_success_rate_pct": 100.0,
+      "avg_copilot_duration_min": 10.24,
+      "experimental_strategy": null,
       "key_insights": [
-        "0 completed successes today; 2 Copilot agents still in_progress on function-rename-checks and fix-container-image-digest-pinning",
-        "Conversation log unavailable (gh auth required) - behavioral analysis limited to metadata",
-        "add-documentation-copilot-cli-1-0-19 (16 sessions) and fix-concurrency-issue (14 sessions) both show HIGH abandonment risk - no Copilot agent activity",
-        "Experimental: Branch Abandonment Risk Scoring - HIGH risk branches have >10 sessions with only review bots, no Copilot agent",
-        "8-day aggregate: 21 copilot agent sessions, 9 successes (42.9% success rate)"
+        "fix-discussion-label-limit: 2/2 Copilot successes; CI still failing independently",
+        "Back-to-back 100% Copilot days (Apr 8+9)",
+        "Session duration > 5min strongly correlates with success",
+        "2 stalled branches awaiting human review (0 Copilot engagement)"
       ]
     }
   ],
-  "last_updated": "2026-04-07",
-  "version": "1.0"
+  "last_updated": "2026-04-09"
 }
